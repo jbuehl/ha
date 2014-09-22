@@ -1,0 +1,9 @@
+Buehltech Home Automation
+
+The HA object model is defined in ha/HAClasses.py.
+
+Interfaces to specific hardware are implemented in ha/*Interface.py.
+
+Programs that run on servers are defined in ha*.py and the systemd service definitions are defined in ha*.service.
+
+Runtime parameters are defined in ha/HAConf.py.
