@@ -1,9 +1,27 @@
 Buehltech Home Automation
+-------------------------
 
 The HA object model is defined in ha/HAClasses.py.
 
 Interfaces to specific hardware are implemented in ha/*Interface.py.
 
-Programs that run on servers are defined in ha*.py and the systemd service definitions are defined in ha*.service.
-
 Runtime parameters are defined in ha/HAConf.py.
+
+Programs that run on servers are defined in ha*.py and the systemd service definitions are defined in ha*.service.  
+    haLights.py	
+    haShades.py	
+    haSprinklers.py
+    haPool.py	
+    haSolar.py
+    	
+A service that aggregates all the servers and provides a web interface is implemented in haWeb.py.
+
+Services publish their HA objects in a REST interface that is implemented in ha/restServer.py.
+
+Remote access:
+    The haWeb service REST interface is accessible remotely via an ssh tunnel if you are authorized.
+    
+    ssh -L 7379:localhost:7379 shadyglade.thebuehls.com -N -f # IPV4
+    ssh -L 7379:localhost:7379 shady6lade.thebuehls.com -N -f # IPV6
+
+    http://localhost:7379/resources
