@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+<head>
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+    <link rel='stylesheet' type='text/css' href='css/{{ css }}'> 
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <script src='/js/jquery.js'></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            var refreshId = setInterval(function() {
+              $.getJSON( 'update', {}, function(data) {
+                $.each( data, function(key, val) {
+                  $('#'+key).text(val[1]);
+                  $('#'+key).attr('class', val[0]+'_'+val[1]);
+                  });
+                });
+              }, 30000);
+            $.ajaxSetup({cache: false});
+            });
+    </script>
+    <div class=table-responsive>
+        <table class="table">
+        {% for r in resources %}
+            <tr>
+                <td>
+                    <div class=name>{{ r.label }}</div>
+                </td>
+                <td>
+                    {% if r.className == "HASensor" %}
+                        <div class="{{ r.type+'_'+r.getViewState() }}" id="{{ r.name }}">{{ r.getViewState() }}</div>
+                    {% elif r.view.setValues.values()|length == 2 %}
+                    <form action="" method="GET">
+                        <input type="hidden" name="resource" value="{{ r.name }}">
+                        <button type="submit" name="action" value="{{ r.view.setValues[1] if r.getState() == 0 else r.view.setValues[0] }}" class="btn btn-default btn-med {{ r.type+'_'+r.getViewState() }}">
+                            <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState() }}">{{ r.getViewState() }}</div>
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="btn-group">
+                            <button type='button' class="btn btn-default btn-med dropdown-toggle {{ r.type+'_'+r.getViewState() }}" data-toggle="dropdown">
+                                <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState() }}">{{ r.getViewState() }}<span class="caret"></div>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                {% for v in r.view.setValues.values() %}
+                                <li><a href="?resource={{ r.name }}&action={{ v }}">
+                                    <div id="{{ r.name }}" class="{{ r.type+'_'+v }}">{{ v }}</div>
+                                    </a>
+                                </li>
+                                {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+    <div class="footer navbar navbar-default navbar-fixed-bottom">
+        <form action="" method="GET">
+        {% for b in buttons %}
+            <a href="{{ b }}" class="btn btn-default btn-med active" role="button"><div class="navtext">{{ b }}</div></a>
+        {% endfor %}
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,228 @@
+body {
+    background-color: #424242;
+    margin-bottom: 100px;
+    }
+
+* {
+	color: LightGray;
+	font-size: 14px;
+	font-weight: bold;
+	font-family: "Helvetica", Helvetica, sans-serif;
+	text-align: left;
+	text-indent: 0px;
+	padding: 2 2 2 2;
+	margin: 0;
+    }
+
+h1 {
+	color: OrangeRed;
+	font-size: 32px;
+    text-align: left;
+    font-weight: bold;
+    }
+
+h2 {
+	color: LightYellow;
+	font-size: 20px;
+    text-align: left;
+    font-weight: bold;
+    }
+
+input {
+    height: 16px;
+    width: 40px;
+	background-color: LightGray;
+	color: Black;
+	font-size: 12px;
+	text-align: center;
+	margin: 2 2 2 2;
+	padding: 0 0 0 0;
+	text-indent: 0px;
+    }
+
+form {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    }
+
+td {
+    vertical-align: top;
+    text-align: left;
+    }
+
+.navtext {
+	color: Black;
+	font-weight: bold;
+	font-family: "Helvetica", Helvetica, sans-serif;
+	font-size: 4vw;
+    }
+
+.label {
+    text-align: left;
+    }
+
+.control {
+    font-weight: normal;
+    text-align: left;
+    }
+
+.data {
+    font-size: 12px;
+    font-weight: normal;
+    text-align: left;
+    }
+
+.container {
+/*    background-color: Red;*/
+    padding: 2 2 2 2;
+    overflow: auto;
+    width: 100%;
+    }
+    
+.section {
+/*    background-color: Blue;*/
+    padding: 2 2 2 2;
+    overflow: auto;
+    }
+    
+.name {
+    text-align: left;
+    }
+
+.value {
+    text-align: left;
+    }
+
+.btn-lg {
+    font-size: 3vw;
+    }
+
+/*.names {*/
+/*    float: left;*/
+/*    padding: 0 10 0 0;*/
+/*/*    background-color: Green;*/*/
+/*    width: 20%;*/
+/*    }*/
+
+/*.values {*/
+/*    float: left;*/
+/*    padding: 0 10 0 10;*/
+/*/*    background-color: Yellow;*/*/
+/*    width: 20%;*/
+/*    }*/
+/*    */
+/*.controls {*/
+/*    float: left;*/
+/*    padding: 0 0 0 10;*/
+/*/*    background-color: Blue;*/*/
+/*    width: 20%;*/
+/*    }*/
+
+.invisible {
+	color: #424242;
+    padding: 2 2 2 2;
+    text-align: left;
+    }
+
+.task_Disabled {
+	color: SlateGray;
+    }
+
+.task_Enabled {
+	color: Lime;
+    }
+
+.control_Off {
+	color: SlateGray;
+    }
+
+.control_On {
+	color: Lime;
+    }
+
+.sequence_Stopped {
+	color: SlateGray;
+    }
+
+.sequence_Running {
+	color: Lime;
+    }
+
+.scene_Off {
+	color: SlateGray;
+    }
+
+.scene_On {
+	color: Lime;
+    }
+
+.shade_Down {
+	color: SlateGray;
+    }
+
+.shade_Up {
+	color: #FFFF66;
+    }
+
+.light_Off {
+	color: SlateGray;
+    }
+
+.light_On {
+	color: #FFFF66;
+    }
+
+.door_Closed {
+	color: SlateGray;
+    }
+
+.door_Open {
+	color: OrangeRed;
+    }
+
+.heater_Off {
+	color: SlateGray;
+    }
+
+.heater_On {
+	color: Lime;
+    }
+
+.heater_Ena {
+	color: Orange;
+    }
+
+.cleaner_Off {
+	color: SlateGray;
+    }
+
+.cleaner_On {
+	color: Lime;
+    }
+
+.cleaner_Ena {
+	color: Yellow;
+    }
+
+.pump_Off {
+	color: SlateGray;
+    }
+
+.pump_Lo {
+	color: Lime;
+    }
+
+.pump_Med {
+	color: Lime;
+    }
+
+.pump_Hi {
+	color: Lime;
+    }
+
+.pump_Max {
+	color: Lime;
+    }
+
+

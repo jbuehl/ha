@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+    <link rel='stylesheet' type='text/css' href='/css/solar.css'> 
+</head>
+<body>
+    <h1>Solar</h1>
+    <script src='/js/jquery.js'></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <div class=container>
+        <script type='text/javascript'>
+        $(document).ready(function() {
+            var refreshId = setInterval(function() {
+              $.getJSON( 'update', {}, function(data) {
+                $.each( data, function(key, val) {
+                  $('#'+key).text(val[1]);
+<!--                  $('#'+key).attr('class', val[0]+'_'+val[1]);-->
+                  });
+                });
+              }, 60000);
+            $.ajaxSetup({cache: false});
+            });
+        </script>
+        <div class=section>
+            <div class=names>
+                {% for r in resources %}
+                <div class=label>{{ r.label }}</div>
+                {% endfor %}
+            </div>
+            <div class=values>
+                {% for r in resources %}
+                <div class=label id='{{ r.name }}' >{{ r.getViewState() }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

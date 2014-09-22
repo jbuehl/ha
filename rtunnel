@@ -1,0 +1,26 @@
+#!/usr/bin/bash -
+
+# rtunnel - Create and maintain a reverse tunnel from the remote host to the host this is run on.
+#           Assumes there is a public ssh key on the remote host for the specified user and
+#           assumes the host this is run on has a web server listening to the specified local port.
+#
+# usage: rtunnel remotePort localPort user@remoteHost service
+#
+# example: rtunnel 8080 80 ec2-user@example.com http
+#          rtunnel 2222 22 ec2-user@example.com ssh
+
+if [ "$4" = "http" ]
+then
+    ka="wget localhost:$1/ -o /dev/null -O /dev/null"
+elif [ "$4" = "ssh" ]
+then
+    ka="ssh -p$1 localhost hostname > /dev/null"
+fi
+
+ssh -R *:$1:localhost:$2 $3 -N -f
+while [ 1 ]
+do
+    sleep 300
+    ssh $3 $ka
+done
+

@@ -1,0 +1,25 @@
+@import "/css/default.css";
+
+body {
+    background-color: Sienna;
+    }
+
+* {
+	color: Black;
+	font-size: 4vw;
+    }
+
+h1 {
+	color: Gold;
+	font-size: 6vw;
+    }
+
+.light_Off {
+	color: SlateGray;
+    }
+
+.light_On {
+	color: #FFFF66;
+    }
+
+

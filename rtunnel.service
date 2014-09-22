@@ -1,0 +1,8 @@
+[Unit]
+Description=Reverse ssh tunnel to buehltech.com
+After=syslog.target
+[Service]
+ExecStart=/root/rtunnel 4322 22 ec2-user@buehltech.com ssh
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target

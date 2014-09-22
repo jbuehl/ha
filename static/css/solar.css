@@ -1,0 +1,20 @@
+@import "/css/default.css";
+
+body {
+    background-color: Orange;
+    }
+
+* {
+	color: LightGray;
+	font-size: 4vw;
+    }
+
+h1 {
+	font-size: 6vw;
+    }
+
+.label {
+    font-size: 5vw;
+    }
+
+

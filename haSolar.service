@@ -1,0 +1,8 @@
+[Unit]
+Description=Home Automation solar
+After=syslog.target seweb.service
+[Service]
+ExecStart=/usr/bin/python /root/ha/haSolar.py
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
