@@ -41,8 +41,8 @@ HA uses an object model that is defined by the following classes:
     HAControl defines the model for a sensor whose state can be changed.
         setState(value)
 
-    HACycle, HASequence, and HAScene are used to define aggregations of HAControls that can be
-    set collectively.
+    HACycle, HASequence, and HAScene are used to define aggregations of HAControls that 
+    can be set collectively.
 
     HACollection defines an ordered list of HAResources.
 
@@ -78,9 +78,10 @@ Access
 The HA REST interface allows access to HA objects.
 
 Resource paths: 
-    Paths are defined by the organization of collections that the implementing program has 
-    passed to the REST server.  A path consists of one of more HACollection names, optionally 
-    followed by a HASensor name, optionally followed by an HASensor attribute name.
+    Paths are defined by the organization of collections that the implementing program 
+    has  passed to the REST server.  A path consists of one of more HACollection names, 
+    optionally  followed by a HASensor name, optionally followed by an HASensor attribute 
+    name.
 
 Verbs:
     The following verbs are defined:
@@ -94,19 +95,19 @@ Data:
     representation of the specified resource.
 
 Advertising:
-    The HA REST server sends a periodic message to port 4242 on the broadcast address of the 
-    local network to advertise itself.  The message contains the hostname, port, and resource 
-    collection that is served.
+    The HA REST server sends a periodic message to port 4242 on the broadcast address of 
+    the  local network to advertise itself.  The message contains the hostname, port, and 
+    resource collection that is served.
     
 Examples:
     1. Return the list of resources on the specified server.
 
         GET hostname:7378/resources
 
-        {"type": "collection", "class": "HACollection", "resources": ["Null", "frontLawn", 
-        "backLawn", "backBeds", "sideBeds", "gardenSequence", "backLawnSequence", 
-        "sideBedSequence", "gardenTask", "backLawnTask", "sideBedTask", "inverterTemp", 
-        "currentPower", "todaysEnergy", "lifetimeEnergy", "lightsLoad", "plugsLoad", 
+        {"type": "collection", "class": "HACollection", "resources": ["Null", 
+        "frontLawn", "backLawn", "backBeds", "sideBeds", "gardenSequence", 
+        "backLawnSequence", "sideBedSequence", "gardenTask", "backLawnTask", 
+        "sideBedTask", "inverterTemp", "currentPower", "todaysEnergy", "lifetimeEnergy", "lightsLoad", "plugsLoad", 
         "appl1Load", "appl2Load", "cookingLoad", "acLoad", "poolLoad", "backLoad", "xmasLights", 
         "frontLights", "backLights", "bbqLights", "backYardLights", "outsideLights", 
         "recircPump", "Outside lights on sunset", "Outside lights off midnight", 
@@ -120,8 +121,8 @@ Examples:
         "spaBlowerPower", "poolLightPower", "spaLightPower", "Pool cleaning"], "name": 
         "resources"}
 
-    2. Return the attributes for the resource "shade1".  Note that the attribute "state" is not
-       included.
+    2. Return the attributes for the resource "shade1".  Note that the attribute 
+       "state" is not included.
 
         GET hostname:7378/resources/shade1
 
