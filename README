@@ -70,7 +70,8 @@ The systemd service definitions are defined in ha*.service.
 A service that aggregates all the servers and provides a web interface is implemented in 
 haWeb.py.
 
-Services publish their HA objects in a REST interface that is implemented in ha/restServer.py.
+Services publish their HA objects in a REST interface that is implemented in 
+ha/restServer.py.
 
 Access
 ------
@@ -80,8 +81,8 @@ The HA REST interface allows access to HA objects.
 Resource paths: 
     Paths are defined by the organization of collections that the implementing program 
     has  passed to the REST server.  A path consists of one of more HACollection names, 
-    optionally  followed by a HASensor name, optionally followed by an HASensor attribute 
-    name.
+    optionally  followed by a HASensor name, optionally followed by an HASensor 
+    attribute name.
 
 Verbs:
     The following verbs are defined:
@@ -96,8 +97,8 @@ Data:
 
 Advertising:
     The HA REST server sends a periodic message to port 4242 on the broadcast address of 
-    the  local network to advertise itself.  The message contains the hostname, port, and 
-    resource collection that is served.
+    the  local network to advertise itself.  The message contains the hostname, port, 
+    and  resource collection that is served.
     
 Examples:
     1. Return the list of resources on the specified server.
@@ -107,19 +108,20 @@ Examples:
         {"type": "collection", "class": "HACollection", "resources": ["Null", 
         "frontLawn", "backLawn", "backBeds", "sideBeds", "gardenSequence", 
         "backLawnSequence", "sideBedSequence", "gardenTask", "backLawnTask", 
-        "sideBedTask", "inverterTemp", "currentPower", "todaysEnergy", "lifetimeEnergy", "lightsLoad", "plugsLoad", 
-        "appl1Load", "appl2Load", "cookingLoad", "acLoad", "poolLoad", "backLoad", "xmasLights", 
-        "frontLights", "backLights", "bbqLights", "backYardLights", "outsideLights", 
-        "recircPump", "Outside lights on sunset", "Outside lights off midnight", 
-        "Outside lights off sunrise", "Hot water recirc on", "Hot water recirc off", 
-        "Outside lights on sunset event", "Outside lights off sunrise event", "shade1", 
-        "shade2", "shade3", "shade4", "allShades", "Shades down", "Shades up Jun, Jul", 
-        "Shades up May, Aug", "Shades up Sep", "poolLight", "spaLight", "poolLights", 
-        "outsideAirTemp", "poolTemp", "spaTemp", "poolPump", "poolPumpSpeed", "poolPumpFlow", 
-        "poolCleaner", "spa", "spaHeater", "spaBlower", "model", "date", "time", "cleanMode", 
-        "spaWarmup", "spaReady", "spaShutdown", "poolPumpPower", "poolCleanerPower", 
-        "spaBlowerPower", "poolLightPower", "spaLightPower", "Pool cleaning"], "name": 
-        "resources"}
+        "sideBedTask", "inverterTemp", "currentPower", "todaysEnergy", "lifetimeEnergy", 
+        "lightsLoad", "plugsLoad", "appl1Load", "appl2Load", "cookingLoad", "acLoad", 
+        "poolLoad", "backLoad", "xmasLights", "frontLights", "backLights", "bbqLights", 
+        "backYardLights", "outsideLights", "recircPump", "Outside lights on sunset", 
+        "Outside lights off midnight", "Outside lights off sunrise", 
+        "Hot water recirc on", "Hot water recirc off", "Outside lights on sunset event", 
+        "Outside lights off sunrise event", "shade1", "shade2", "shade3", "shade4", 
+        "allShades", "Shades down", "Shades up Jun, Jul", "Shades up May, Aug", 
+        "Shades up Sep", "poolLight", "spaLight", "poolLights", "outsideAirTemp", 
+        "poolTemp", "spaTemp", "poolPump", "poolPumpSpeed", "poolPumpFlow", 
+        "poolCleaner", "spa", "spaHeater", "spaBlower", "model", "date", "time", 
+        "cleanMode", "spaWarmup", "spaReady", "spaShutdown", "poolPumpPower", 
+        "poolCleanerPower", "spaBlowerPower", "poolLightPower", "spaLightPower", 
+        "Pool cleaning"], "name": "resources"}
 
     2. Return the attributes for the resource "shade1".  Note that the attribute 
        "state" is not included.
@@ -127,8 +129,8 @@ Examples:
         GET hostname:7378/resources/shade1
 
         {"addr": "/resources/sensors/shade1/state", "group": "Doors", "name": "shade1", 
-        "location": null, "interface": "rpi04:7378", "type": "shade", "class": "HAControl", 
-        "label": "Shade 1"}
+        "location": null, "interface": "rpi04:7378", "type": "shade", "class": 
+        "HAControl", "label": "Shade 1"}
      
     3. Return the state of the resource "shade1".
 
