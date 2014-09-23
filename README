@@ -144,9 +144,3 @@ Examples:
 
         1
 
-Remote access:
-    The haWeb service REST interface is accessible remotely via an ssh tunnel.
-    
-    ssh -L 7379:localhost:7379 shadyglade.thebuehls.com -N -f # IPV4
-    ssh -L 7379:localhost:7379 shady6lade.thebuehls.com -N -f # IPV6
-    
