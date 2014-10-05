@@ -9,6 +9,8 @@ class ShadeInterface(HAInterface):
         HAInterface.__init__(self, theName, theInterface)
         self.state = [0, 0, 0, 0]
         self.travelTime = [15, 15, 12, 12]
+        self.timers = [None, None, None, None]
+        self.gpio_lock = threading.Lock()
 
     def read(self, theAddr):
         try:
@@ -17,27 +19,26 @@ class ShadeInterface(HAInterface):
             return 0
 
     def write(self, theAddr, theValue):
-        # Run it asynchronously in a separate thread.
-        self.theAddr = theAddr
-        self.theValue = theValue
-#        self.shadeThread = threading.Thread(target=self.doShade)
-#        self.shadeThread.start()
-        self.doShade()
-        self.state[theAddr] = theValue
+        self.newValue = theValue
+        self.state[theAddr] = theValue + 2  # moving
 
-    def doShade(self):
-        if debugThread: log(self.name, "started")
-        self.running = True
-        # set the direction
-        self.interface.write(GPIOAddr(0,0,self.theAddr*2,1), self.theValue)
-        # start the motion
-        self.interface.write(GPIOAddr(0,0,self.theAddr*2+1,1), 1)
-        # wait for the motion
-        time.sleep(self.travelTime[self.theAddr])
-        # stop the motion
-        self.interface.write(GPIOAddr(0,0,self.theAddr*2+1,1), 0)
-        # reset the direction
-        self.interface.write(GPIOAddr(0,0,self.theAddr*2,1), 0)
-        self.running = False
-        if debugThread: log(self.name, "finished")
+        with self.gpio_lock:
+            # set the direction
+            self.interface.write(GPIOAddr(0, 0, theAddr*2, 1), theValue)
+            # start the motion
+            self.interface.write(GPIOAddr(0, 0, theAddr*2+1, 1), 1)
+
+        if self.timers[theAddr]:
+            self.timers[theAddr].cancel()
+
+        def _stop():
+            with self.gpio_lock:
+                # stop the motion
+                self.interface.write(GPIOAddr(0, 0, theAddr*2+1, 1), 0)
+                # reset the direction
+                self.interface.write(GPIOAddr(0, 0, theAddr*2, 1), 0)
+                self.state[theAddr] = self.newValue # done moving
+
+        self.timers[theAddr] = threading.Timer(self.travelTime[theAddr], _stop)
+        self.timers[theAddr].start()
 

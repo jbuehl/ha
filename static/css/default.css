@@ -165,6 +165,14 @@ td {
 	color: #FFFF66;
     }
 
+.shade_Lowering {
+	color: #CCCC66;
+    }
+
+.shade_Raising {
+	color: #CCCC66;
+    }
+
 .light_Off {
 	color: SlateGray;
     }
