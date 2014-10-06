@@ -141,11 +141,13 @@ class HACollection(HAResource, OrderedDict):
 # The state is associated with a unique address on an interface.
 # Sensors can also optionally be associated with a group and a physical location.
 class HASensor(HAResource):
-    def __init__(self, theName, theInterface, theAddr, group="", type="sensor", location=None, label="", view=None):
+    def __init__(self, theName, theInterface, theAddr=None, group="", type="sensor", location=None, label="", view=None):
         HAResource.__init__(self, theName)
         self.type = type
         self.interface = theInterface
         self.addr = theAddr
+        if not self.addr:
+            self.addr = self.name
         self.group = group
         if label == "":
             self.label = self.name
@@ -232,7 +234,7 @@ class HAView(object):
 
 # A Control is a Sensor whose state can be set        
 class HAControl(HASensor):
-    def __init__(self, theName, theInterface, theAddr, group="", type="control", location=None, view=None, label=""):
+    def __init__(self, theName, theInterface, theAddr=None, group="", type="control", location=None, view=None, label=""):
         HASensor.__init__(self, theName, theInterface, theAddr, group=group, type=type, location=location, view=view, label=label)
         self.running = False
 

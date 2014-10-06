@@ -3,11 +3,13 @@ import json
 import os
 import time
 
-class FileSystemInterface(HAInterface):
+class HAFileInterface(HAInterface):
     def __init__(self, name, fileName, readOnly=False):
         HAInterface.__init__(self, name, None)
         self.fileName = fileName
         self.readOnly = readOnly
+
+    def start(self):
         try:
             # if the file exists, cache the data
             self.readData()
