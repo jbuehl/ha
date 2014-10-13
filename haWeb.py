@@ -163,7 +163,7 @@ class BeaconClient(threading.Thread):
             #log ("beacon data", data)
             server = json.loads(data)
             serverName = server[0]+":"+str(server[1])
-            serverAddr = addr[0]+":"+str(server[1])
+            serverAddr = server[0]+":"+str(server[1])
             serverResources = server[2]
             if serverName != self.selfBeacon:   # ignore the beacon from this service
                 if serverAddr not in self.servers.values():

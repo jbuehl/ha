@@ -23,9 +23,9 @@ class RestServer(object):
                                                   certfile="keys/"+self.hostname+".crt", 
                                                   keyfile="keys/"+self.hostname+".key", 
                                                   ca_certs="keys/ca.crt",
-                                                  ssl_version=ssl.PROTOCOL_SSLv3, 
                                                   server_side=True, 
-                                                  cert_reqs=ssl.CERT_REQUIRED)
+                                                  cert_reqs=ssl.CERT_REQUIRED
+                                                  )
 
     def start(self):
         if self.beacon:

@@ -1,15 +1,23 @@
 import json
 import requests
 import urllib
+import socket
 from ha.HAClasses import *
 
 class HARestInterface(HAInterface):
-    def __init__(self, theName, theInterface):
+    def __init__(self, theName, theInterface, secure=False):
         HAInterface.__init__(self, theName, theInterface)
+        self.hostname = socket.gethostname()
+        self.secure = secure
 
     def read(self, theAddr):
         try:
-            r = requests.get("http://"+self.interface+urllib.quote(theAddr))
+            if self.secure:
+                r = requests.get("https://"+self.interface+urllib.quote(theAddr),
+                                 cert=("../keys/"+self.hostname+".crt", "../keys/"+self.hostname+".key"), 
+                                 verify="../keys/ca.crt")
+            else:
+                r = requests.get("http://"+self.interface+urllib.quote(theAddr))
             if r.status_code == 200:
                 return r.json()
             else:

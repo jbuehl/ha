@@ -99,22 +99,25 @@ class HACollection(HAResource, OrderedDict):
 
     # instantiate the resource from the specified node            
     def loadResource(self, interface, node, path):
-        if node["class"] == "HASensor":
-            self.addRes(HASensor(node["name"], interface, path+"/state", group=node["group"], type=node["type"], 
-                location=node["location"], label=node["label"]))
-        elif node["class"] == "HAControl":
-            self.addRes(HAControl(node["name"], interface, path+"/state", group=node["group"], type=node["type"], 
-                location=node["location"], label=node["label"]))
-        elif node["class"] == "HASequence":
-            self.addRes(HASequence(node["name"], [], group=node["group"], type=node["type"], label=node["label"], 
-                theInterface=interface, theAddr=path+"/state"))
-        elif node["class"] == "HAScene":
-            self.addRes(HAScene(node["name"], [], group=node["group"], type=node["type"], label=node["label"], 
-                theInterface=interface, theAddr=path+"/state"))
-        elif node["class"] == "HATask":
-            self.addRes(HATask(node["name"], theControl=self[node["control"]], theState=node["controlState"], 
-                theSchedTime=HASchedTime(**node["schedTime"]), 
-                theInterface=interface, theAddr=path+"/state",))
+        try:
+            if node["class"] == "HASensor":
+                self.addRes(HASensor(node["name"], interface, path+"/state", group=node["group"], type=node["type"], 
+                    location=node["location"], label=node["label"]))
+            elif node["class"] == "HAControl":
+                self.addRes(HAControl(node["name"], interface, path+"/state", group=node["group"], type=node["type"], 
+                    location=node["location"], label=node["label"]))
+            elif node["class"] == "HASequence":
+                self.addRes(HASequence(node["name"], [], group=node["group"], type=node["type"], label=node["label"], 
+                    theInterface=interface, theAddr=path+"/state"))
+            elif node["class"] == "HAScene":
+                self.addRes(HAScene(node["name"], [], group=node["group"], type=node["type"], label=node["label"], 
+                    theInterface=interface, theAddr=path+"/state"))
+            elif node["class"] == "HATask":
+                self.addRes(HATask(node["name"], theControl=self[node["control"]], theState=node["controlState"], 
+                    theSchedTime=HASchedTime(**node["schedTime"]), 
+                    theInterface=interface, theAddr=path+"/state",))
+        except:
+            pass
 
     # add Views to each resource
     def addViews(self, views):            
