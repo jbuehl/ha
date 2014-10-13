@@ -7,21 +7,30 @@ import json
 import urllib
 import threading
 import socket
-#import ssl
+import ssl
 
 # RESTful web services server interface
 
 class RestServer(object):
-    def __init__(self, resources, port=7378, secure=False):
+    def __init__(self, resources, port=7378, secure=False, beacon=True):
         self.resources = resources
+        self.hostname = socket.gethostname()
         self.port = port
+        self.beacon = beacon
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
-#        if secure:
-#            self.server.socket = ssl.wrap_socket (self.server.socket, certfile='path/to/localhost.pem', server_side=True)
+        if secure:
+            self.server.socket = ssl.wrap_socket (self.server.socket, 
+                                                  certfile="keys/"+self.hostname+".crt", 
+                                                  keyfile="keys/"+self.hostname+".key", 
+                                                  ca_certs="keys/ca.crt",
+                                                  ssl_version=ssl.PROTOCOL_SSLv3, 
+                                                  server_side=True, 
+                                                  cert_reqs=ssl.CERT_REQUIRED)
 
     def start(self):
-        beacon = BeaconThread("beaconServer", self.port, self.resources)
-        beacon.start()
+        if self.beacon:
+            beacon = BeaconThread("beaconServer", self.port, self.resources)
+            beacon.start()
         self.server.serve_forever()
         
 class BeaconThread(threading.Thread):

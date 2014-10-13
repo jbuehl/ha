@@ -33,9 +33,12 @@ if __name__ == "__main__":
     sensors.addRes(HAControl("backLawn", gpioInterface, GPIOAddr(0,0,2,1), group="Sprinklers", label="Back lawn")) # blue
     sensors.addRes(HAControl("backBeds", gpioInterface, GPIOAddr(0,0,1,1), group="Sprinklers", label="Back beds")) # green
     sensors.addRes(HAControl("sideBeds", gpioInterface, GPIOAddr(0,0,0,1), group="Sprinklers", label="Side beds")) # yellow
-    sensors.addRes(HASequence("gardenSequence", [HACycle(sensors["backBeds"], 600)], group="Sprinklers", label="Garden 10 min"))
-    sensors.addRes(HASequence("backLawnSequence", [HACycle(sensors["backLawn"], 1200)], group="Sprinklers", label="Back lawn 20 min"))
-    sensors.addRes(HASequence("sideBedSequence", [HACycle(sensors["sideBeds"], 900)], group="Sprinklers", label="Side beds 15 min"))
+#    sensors.addRes(HASequence("gardenSequence", [HACycle(sensors["backBeds"], 600)], group="Sprinklers", label="Garden 10 min"))
+#    sensors.addRes(HASequence("backLawnSequence", [HACycle(sensors["backLawn"], 1200)], group="Sprinklers", label="Back lawn 20 min"))
+#    sensors.addRes(HASequence("sideBedSequence", [HACycle(sensors["sideBeds"], 900)], group="Sprinklers", label="Side beds 15 min"))
+    sensors.addRes(HASequence("gardenSequence", [HACycle(sensors["backBeds"], 300)], group="Sprinklers", label="Garden 5 min"))
+    sensors.addRes(HASequence("backLawnSequence", [HACycle(sensors["backLawn"], 600)], group="Sprinklers", label="Back lawn 10 min"))
+    sensors.addRes(HASequence("sideBedSequence", [HACycle(sensors["sideBeds"], 600)], group="Sprinklers", label="Side beds 10 min"))
 
     # Temperature
 #    sensors.addRes(HASensor("insideTemp", i2c1, (0x48, 0x00), "Temperature", label="Inside temp", type="tempC"))
