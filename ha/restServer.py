@@ -19,13 +19,14 @@ class RestServer(object):
         self.beacon = beacon
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
         if secure:
+            keyDir = "/root/keys/"
             self.server.socket = ssl.wrap_socket (self.server.socket, 
                                                   #server_side=True,
-                                                  ssl_version=ssl.PROTOCOL_TLSv1, 
+                                                  #ssl_version=ssl.PROTOCOL_TLSv1, 
                                                   cert_reqs=ssl.CERT_REQUIRED,
-                                                  certfile="keys/"+self.hostname+".crt", 
-                                                  keyfile="keys/"+self.hostname+".key", 
-                                                  ca_certs="keys/ca.crt",
+                                                  certfile=keyDir+self.hostname+".crt", 
+                                                  keyfile=keyDir+self.hostname+".key", 
+                                                  ca_certs=keyDir+"ca.crt",
                                                   )
 
     def start(self):
