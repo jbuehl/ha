@@ -87,10 +87,11 @@ class HACollection(HAResource, OrderedDict):
     def load(self, interface, path, views={}, level=0):
         node = interface.read(path)
         if debugRest:
-            log("    "*(level)+node["name"])
-            for attr in node.keys():
-                if (attr != "name") and (attr != "resources"):
-                    log("    "*(level+1)+attr+": "+node[attr].__str__())
+            if node != {}:
+                log("    "*(level)+node["name"])
+                for attr in node.keys():
+                    if (attr != "name") and (attr != "resources"):
+                        log("    "*(level+1)+attr+": "+node[attr].__str__())
         self.loadResource(interface, node, path)
         if "resources" in node.keys():
             # the node is a collection

@@ -49,6 +49,7 @@ class WebRoot(object):
     # Everything    
     @cherrypy.expose
     def index(self, action=None, resource=None):
+        if debugWeb: log("get", action, resource)
         if resource:
             self.resources[resource].setViewState(action)
             script = redirectScript("/", 5)
@@ -163,12 +164,12 @@ class BeaconClient(threading.Thread):
             #log ("beacon data", data)
             server = json.loads(data)
             serverName = server[0]+":"+str(server[1])
-            serverAddr = server[0]+":"+str(server[1])
+            serverAddr = addr[0]+":"+str(server[1])
             serverResources = server[2]
             if serverName != self.selfBeacon:   # ignore the beacon from this service
                 if serverAddr not in self.servers.values():
                     # lock.acquire()
-                    resources.load(HARestInterface(serverName, serverAddr), "/"+serverResources["name"])
+                    resources.load(HARestInterface(serverName, serverAddr, secure=False), "/"+serverResources["name"])
                     resources.addViews(views)
                     # lock.release()
                     self.servers[serverName] = serverAddr
@@ -215,6 +216,6 @@ if __name__ == "__main__":
     cherrypy.engine.start()
 
     # start the REST server for this service
-    restServer = RestServer(resources, beaconPort)
+    restServer = RestServer(resources, beaconPort, secure=True)
     restServer.start()
 

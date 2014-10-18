@@ -14,7 +14,6 @@ debug = True
 debugObject = True
 debugState = True
 debugThread = True
-debugRest = False
 
 # X10 interface
 x10Device = "/dev/ttyUSB0"
@@ -39,9 +38,12 @@ debugAction = True
 debugMsg = False
 debugTime = True
 
+# REST interface
+debugRest = False
+
 # Web interface
 debugHttp = False
-debugWeb = False
+debugWeb = True
 
 # Scheduler
 debugEvent = True

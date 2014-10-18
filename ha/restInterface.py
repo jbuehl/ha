@@ -9,15 +9,26 @@ class HARestInterface(HAInterface):
         HAInterface.__init__(self, theName, theInterface)
         self.hostname = socket.gethostname()
         self.secure = secure
+        if debugRest: log(self.name, self.hostname, self.secure)
+        if self.secure:
+            self.keyDir = "/root/keys/"
+            self.crtFile = self.keyDir+self.hostname+"-client.crt"
+            self.keyFile = self.keyDir+self.hostname+"-client.key"
+            self.caFile = self.keyDir+"ca.crt"
+            if debugRest: log(self.name, self.crtFile, self.keyFile, self.caFile)
 
     def read(self, theAddr):
+        url = self.interface+urllib.quote(theAddr)
         try:
             if self.secure:
-                r = requests.get("https://"+self.interface+urllib.quote(theAddr),
-                                 cert=("../keys/"+self.hostname+".crt", "../keys/"+self.hostname+".key"), 
-                                 verify="../keys/ca.crt")
+                if debugRest: log(self.name, "GET", "https://"+url)
+                r = requests.get("https://"+url,
+                                 cert=(self.crtFile, self.keyFile), 
+                                 verify=False)
             else:
-                r = requests.get("http://"+self.interface+urllib.quote(theAddr))
+                if debugRest: log(self.name, "GET", "http://"+url)
+                r = requests.get("http://"+url)
+            if debugRest: log(self.name, "status", r.status_code)
             if r.status_code == 200:
                 return r.json()
             else:
@@ -26,10 +37,21 @@ class HARestInterface(HAInterface):
             return {}
 
     def write(self, theAddr, theValue):
+        url = self.interface+urllib.quote(theAddr)
         try:
-            r = requests.put("http://"+self.interface+urllib.quote(theAddr), 
-                             headers={"content-type":"application/json"}, 
-                             data=json.dumps(theValue))
+            if self.secure:
+                if debugRest: log(self.name, "PUT", "https://"+url)
+                r = requests.put("https://"+url,
+                                 headers={"content-type":"application/json"}, 
+                                 data=json.dumps(theValue),
+                                 cert=(self.crtFile, self.keyFile), 
+                                 verify=False)
+            else:
+                if debugRest: log(self.name, "PUT", "http://"+url)
+                r = requests.put("http://"+url, 
+                                 headers={"content-type":"application/json"}, 
+                                 data=json.dumps(theValue))
+            if debugRest: log(self.name, "status", r.status_code)
             if r.status_code == 200:
                 return True
             else:
