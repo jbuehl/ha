@@ -44,9 +44,9 @@ if __name__ == "__main__":
 #    sensors.addRes(HASensor("insideTemp", i2c1, (0x48, 0x00), "Temperature", label="Inside temp", type="tempC"))
 
     # Schedules
-    schedule.addTask(HATask("gardenTask", HASchedTime(hour=[7], minute=[00], weekday=[Sun, Mon, Tue, Wed, Thu, Fri, Sat]), sensors["gardenSequence"], 1, enabled=True))
-    schedule.addTask(HATask("backLawnTask", HASchedTime(hour=[7], minute=[10], weekday=[Tue, Thu, Sat]), sensors["backLawnSequence"], 1, enabled=True))
-    schedule.addTask(HATask("sideBedTask", HASchedTime(hour=[7], minute=[30], weekday=[Sat]), sensors["sideBedSequence"], 1, enabled=True))
+    schedule.addTask(HATask("gardenTask", HASchedTime(hour=[7], minute=[00], weekday=[Sun, Mon, Tue, Wed, Thu, Fri, Sat], month=[May, Jun, Jul, Aug, Sep, Oct]), sensors["gardenSequence"], 1, enabled=True))
+    schedule.addTask(HATask("backLawnTask", HASchedTime(hour=[7], minute=[10], weekday=[Tue, Thu, Sat], month=[May, Jun, Jul, Aug, Sep, Oct]), sensors["backLawnSequence"], 1, enabled=True))
+    schedule.addTask(HATask("sideBedTask", HASchedTime(hour=[7], minute=[30], weekday=[Sat], month=[May, Jun, Jul, Aug, Sep, Oct]), sensors["sideBedSequence"], 1, enabled=True))
 
     # Start interfaces
     gpioInterface.start()
