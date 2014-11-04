@@ -150,7 +150,7 @@ class HASensor(HAResource):
         self.type = type
         self.interface = theInterface
         self.addr = theAddr
-        if not self.addr:
+        if self.addr == None:
             self.addr = self.name
         self.group = group
         if label == "":
@@ -275,7 +275,7 @@ class HASequence(HAControl):
 
     def getState(self):
         if self.interface.name == "None":
-            return self.running
+            return normalState(self.running)
         else:
             return HAControl.getState(self)
         
