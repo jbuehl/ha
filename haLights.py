@@ -42,7 +42,8 @@ if __name__ == "__main__":
 
     # Schedules
     schedule.addTask(HATask("Outside lights on sunset", HASchedTime(event="sunset"), sensors["outsideLights"], 1))
-    schedule.addTask(HATask("Outside lights off midnight", HASchedTime(hour=[17,23,0], minute=[1]), sensors["outsideLights"], 0))
+    schedule.addTask(HATask("Outside lights off midnight", HASchedTime(hour=[23,0], minute=[00]), sensors["outsideLights"], 0))
+    schedule.addTask(HATask("Outside lights off 5pm", HASchedTime(hour=[17], minute=[01], month=[May, Jun, Jul, Aug, Sep, Oct]), sensors["outsideLights"], 0))
     schedule.addTask(HATask("Outside lights off sunrise", HASchedTime(event="sunrise"), sensors["outsideLights"], 0))
     
     schedule.addTask(HATask("Hot water recirc on", HASchedTime(hour=[05], minute=[02]), sensors["recircPump"], 1))
