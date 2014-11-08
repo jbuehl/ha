@@ -38,6 +38,9 @@ debugAction = True
 debugMsg = False
 debugTime = True
 
+# spa interface
+spaTempTarget = 100
+
 # REST interface
 debugRest = False
 

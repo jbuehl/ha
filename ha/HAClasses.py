@@ -329,7 +329,7 @@ class HASequence(HAControl):
     # Run the specified Cycle
         if debugThread: log(self.name, cycle.control.name, "started")
         if cycle.delay > 0:
-            if debugThread: log(self.name, "delaying")
+            if debugThread: log(self.name, "delaying", str(cycle.delay))
             self.wait(cycle.delay)
 #            for seconds in range(0, cycle.delay*60):
 #                if not self.running:

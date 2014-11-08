@@ -201,6 +201,30 @@ td {
 	color: Orange;
     }
 
+.spa_Off {
+	color: SlateGray;
+    }
+
+.spa_On {
+	color: Yellow;
+    }
+
+.spa_Standby {
+	color: Lime;
+    }
+
+.spa_Starting {
+	color: Orange;
+    }
+
+.spa_Warming {
+	color: Orange;
+    }
+
+.spa_Stopping {
+	color: Orange;
+    }
+
 .cleaner_Off {
 	color: SlateGray;
     }
