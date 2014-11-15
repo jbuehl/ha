@@ -58,16 +58,16 @@ if __name__ == "__main__":
     sensors.addRes(spaTemp)
 
     # Pool
-    poolPump = HAControl("poolPump", pentairInterface, 0, group="Pool", type="pump", label="Pump")
+    poolPump = HAControl("poolPump", pentairInterface, 0, group="Pool", label="Pump", type="pump")
     poolCleaner = HAControl("poolCleaner", aqualinkInterface, "aux1", group="Pool", label="Polaris", type="cleaner")
     poolValves = HAControl("poolValves", aqualinkInterface, "spa", group="Pool", label="Valves", type="poolValves")
-    spaHeater = HAControl("spaHeater", aqualinkInterface, "spaHtr", group="Pool", type="heater", label="Spa heater")
-    spaBlower = HAControl("spaBlower", aqualinkInterface, "aux2", group="Pool", label="Spa blower")
+    spaHeater = HAControl("spaHeater", aqualinkInterface, "spaHtr", group="Pool", label="Heater", type="heater")
+    spaBlower = HAControl("spaBlower", aqualinkInterface, "aux2", group="Pool", label="Blower")
     
 #    sensors.addRes(HAControl("Pool pump", aqualinkInterface, "pump", group="Pool"))
     sensors.addRes(poolPump)
-    sensors.addRes(HASensor("poolPumpSpeed", pentairInterface, 1, group="Pool", type="pumpSpeed", label="Pump speed"))
-    sensors.addRes(HASensor("poolPumpFlow", pentairInterface, 3, group="Pool", type="pumpFlow", label="Pump flow"))
+    sensors.addRes(HASensor("poolPumpSpeed", pentairInterface, 1, group="Pool", label="Pump speed", type="pumpSpeed"))
+    sensors.addRes(HASensor("poolPumpFlow", pentairInterface, 3, group="Pool", label="Pump flow", type="pumpFlow"))
     sensors.addRes(poolCleaner)
     sensors.addRes(poolValves)
     sensors.addRes(spaHeater)
