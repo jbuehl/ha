@@ -12,7 +12,8 @@ class GPIOInterface(HAInterface):
     # direct GPIO
     pins = [12, 16, 18, 22, 15, 13, 11, 7]
     
-    def __init__(self, theName, I2CInterface=None):
+    def __init__(self, name, I2CInterface=None):
+        self.name = name
         if I2CInterface:
             HAInterface.__init__(self, theName, I2CInterface)
         else:
