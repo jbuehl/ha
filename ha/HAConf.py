@@ -43,6 +43,8 @@ spaTempTarget = 100
 
 # REST interface
 debugRest = False
+debugRestGet = False
+debugRestPut = False
 
 # Web interface
 debugHttp = False
