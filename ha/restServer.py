@@ -76,37 +76,38 @@ class RestRequestHandler(BaseHTTPRequestHandler):
 
     # return the attribute of the resource specified in the path
     def do_GET(self):
-        if debugRest: log(self.path)
-        if debugRest: log(self.headers.__str__())
+        if debugRest or debugRestGet: log("path:", self.path)
+        if debugRest or debugRestGet: log("headers:", self.headers.__str__())
         (resource, attr) = self.getResFromPath(self.server.resources, urllib.unquote(self.path).lstrip("/"))
         if resource:
             self.send_response(200)     # success
             self.send_header("Content-type", "application/json")
             self.end_headers()
             if attr:    # return the specific attribute of the resource
-                self.wfile.write(json.dumps(resource.__getattribute__(attr)))
+                self.wfile.write(json.dumps({attr:resource.__getattribute__(attr)}))
             else:       # return all attributes of the resource
                 self.wfile.write(json.dumps(resource.dict()))
         else:
-            self.send_response(404)     # resource not found
+            self.send_error(404)     # resource not found
 
     # set the attribute of the resource specified in the path to the value specified in the data
     def do_PUT(self):
-        if debugRest: log(self.path)
-        if debugRest: log(self.headers.__str__())
+        if debugRest or debugRestPut: log("path:", self.path)
+        if debugRest or debugRestPut: log("headers:", self.headers.__str__())
         (resource, attr) = self.getResFromPath(self.server.resources, urllib.unquote(self.path).lstrip("/"))
         if resource:
             try:
                 data = self.rfile.read(int(self.headers['Content-Length']))
-                if debugRest: log(data)
+                if debugRest or debugRestPut: log("data:", data)
                 if self.headers['Content-type'] == "application/json":
                     data = json.loads(data)
-                resource.__setattr__(attr, data)
+                resource.__setattr__(attr, data[attr])
                 self.send_response(200) # success
+                self.end_headers()
             except:
-                self.send_response(500) # error
+                self.send_error(500) # error
         else:
-            self.send_response(404)     # resource not found
+            self.send_error(404)     # resource not found
 
 
     # add a resource to the collection specified in the path using parameters specified in the data
