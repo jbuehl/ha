@@ -30,7 +30,11 @@ class HARestInterface(HAInterface):
                 r = requests.get("http://"+url)
             if debugRest: log(self.name, "status", r.status_code)
             if r.status_code == 200:
-                return r.json()
+                attr = theAddr.split("/")[-1]
+                if attr == "state":
+                    return r.json()[attr]
+                else:
+                    return r.json()
             else:
                 return {}
         except:
@@ -50,7 +54,7 @@ class HARestInterface(HAInterface):
                 if debugRest: log(self.name, "PUT", "http://"+url)
                 r = requests.put("http://"+url, 
                                  headers={"content-type":"application/json"}, 
-                                 data=json.dumps(theValue))
+                                 data=json.dumps({theAddr.split("/")[-1]:theValue}))
             if debugRest: log(self.name, "status", r.status_code)
             if r.status_code == 200:
                 return True
