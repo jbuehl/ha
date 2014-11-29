@@ -329,21 +329,13 @@ class HASequence(HAControl):
     # Run the specified Cycle
         if debugThread: log(self.name, cycle.control.name, "started")
         if cycle.delay > 0:
-            if debugThread: log(self.name, "delaying", str(cycle.delay))
+            if debugThread: log(self.name, "delaying", cycle.delay)
             self.wait(cycle.delay)
-#            for seconds in range(0, cycle.delay*60):
-#                if not self.running:
-#                    break
-#                time.sleep(1)
             if not self.running:
                 return
         cycle.control.setState(cycle.startState)
         if cycle.duration > 0:
             self.wait(cycle.duration)
-#            for seconds in range(0, cycle.duration*60):
-#                if not self.running:
-#                    break
-#                time.sleep(1)
             cycle.control.setState(cycle.endState)
         if debugThread: log(self.name, cycle.control.name, "finished")
 
