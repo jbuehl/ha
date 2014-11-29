@@ -41,7 +41,7 @@ class SpaInterface(HAInterface):
         self.startupSequence = HASequence("spaStartup", 
                              [HACycle(self.valveControl, duration=0, startState=valvesSpa),
                               HACycle(self.pumpControl, duration=0, startState=pumpMed, delay=30),
-                              HACycle(self.heaterControl, duration=30, startState=on, delay=10)
+                              HACycle(self.heaterControl, duration=0, startState=on, delay=10)
                               ])
         self.onSequence = HASequence("spaOn", 
                              [HACycle(self.pumpControl, duration=0, startState=pumpMax),
@@ -97,7 +97,7 @@ class SpaInterface(HAInterface):
             self.startupSequence.setState(seqStart, wait=False)
             startEvent = EventThread("spaStarting", self.startupSequence.getState, seqStopped, self.setState, spaWarming)
             startEvent.start()
-            tempEvent = EventThread("spaWarming", self.tempSensor.getState, spaTempTarget, self.setState, endState)
+            tempEvent = EventThread("spaWarming", self.tempSensor.getState, spaTempTarget, self.setState, endState) # sms
             tempEvent.start()
         elif state == spaStopping:
             self.shutdownSequence.setState(seqStart, wait=False)
