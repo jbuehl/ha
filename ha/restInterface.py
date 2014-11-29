@@ -47,7 +47,7 @@ class HARestInterface(HAInterface):
                 if debugRest: log(self.name, "PUT", "https://"+url)
                 r = requests.put("https://"+url,
                                  headers={"content-type":"application/json"}, 
-                                 data=json.dumps(theValue),
+                                 data=json.dumps({theAddr.split("/")[-1]:theValue}),
                                  cert=(self.crtFile, self.keyFile), 
                                  verify=False)
             else:
