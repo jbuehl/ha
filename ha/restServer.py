@@ -1,6 +1,5 @@
 from ha.logging import *
 from ha.HAClasses import *
-from ha.HAConf import *
 from BaseHTTPServer import HTTPServer
 from BaseHTTPServer import BaseHTTPRequestHandler
 import json
