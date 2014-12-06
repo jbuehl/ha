@@ -1,8 +1,6 @@
 import MySQLdb
 import time
 from ha.HAClasses import *
-from ha.HAConf import *
-from ha.logging import *
 
 class HADbInterface(HAInterface):
     def __init__(self, theName, dataBase, hostName="localhost", userName="", password=""):

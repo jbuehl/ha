@@ -1,6 +1,7 @@
 
 from ha.HAClasses import *
-import RPi.GPIO as gpio
+#import RPi.GPIO as gpio
+import RPIO as gpio
 
 class GPIOInterface(HAInterface):
     # MCP23017 I2C I/O expander
@@ -15,7 +16,7 @@ class GPIOInterface(HAInterface):
     def __init__(self, name, I2CInterface=None):
         self.name = name
         if I2CInterface:
-            HAInterface.__init__(self, theName, I2CInterface)
+            HAInterface.__init__(self, name, I2CInterface)
         else:
             self.interface = None
             gpio.setwarnings(False)

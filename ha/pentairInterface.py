@@ -4,8 +4,6 @@ import serial
 import struct
 import threading
 from ha.HAClasses import *
-from ha.HAConf import *
-from ha.logging import *
 
 # ASCII constants
 NUL = '\x00'

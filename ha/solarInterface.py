@@ -1,5 +1,4 @@
 from ha.HAClasses import *
-from ha.HAConf import *
 
 class HASolarInterface(HAInterface):
     def __init__(self, theName, theInterface):

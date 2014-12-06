@@ -2,6 +2,7 @@
 import time
 import threading
 from ha.HAClasses import *
+from twilio.rest import TwilioRestClient
 
 # state values
 off = 0
@@ -26,6 +27,12 @@ seqRunning = 1
 
 valvesPool = 0
 valvesSpa = 1
+
+# send an sms notification
+def smsNotify():
+    smsClient = TwilioRestClient(smsSid, smsToken)
+    for smsTo in spaReadySms:
+        smsClient.sms.messages.create(to=smsTo, from_=smsFrom, body="Spa is ready")
 
 class SpaInterface(HAInterface):
     def __init__(self, name, valveControl, pumpControl, heaterControl, lightControl, tempSensor):
@@ -97,7 +104,7 @@ class SpaInterface(HAInterface):
             self.startupSequence.setState(seqStart, wait=False)
             startEvent = EventThread("spaStarting", self.startupSequence.getState, seqStopped, self.setState, spaWarming)
             startEvent.start()
-            tempEvent = EventThread("spaWarming", self.tempSensor.getState, spaTempTarget, self.setState, endState) # sms
+            tempEvent = EventThread("spaWarming", self.tempSensor.getState, spaTempTarget, self.spaReady, endState)
             tempEvent.start()
         elif state == spaStopping:
             self.shutdownSequence.setState(seqStart, wait=False)
@@ -105,6 +112,10 @@ class SpaInterface(HAInterface):
             stopEvent.start()
         self.state = state
 
+    def spaReady(self, state):
+        self.setState(state)
+        smsNotify()
+        
 class EventThread(threading.Thread):
     def __init__(self, name, checkFunction, checkValue, actionFunction, actionValue):
         threading.Thread.__init__(self, target=self.asyncEvent)

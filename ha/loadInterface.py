@@ -1,5 +1,4 @@
 from ha.HAClasses import *
-from ha.HAConf import *
 
 class HALoadInterface(HAInterface):
     def __init__(self, theName, theInterface):
