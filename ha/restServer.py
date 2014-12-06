@@ -116,10 +116,6 @@ class RestRequestHandler(BaseHTTPRequestHandler):
     def do_DELETE(self):
         self.send_response(501)         # not implemented
 
-    # logging
-    def log_message(self, format, *args):
-       if debugRest: log(format%(args))
-
     # Locate the resource or attribute specified by the path
     def getResFromPath(self, resource, path):
         (name, sep, path) = path.partition("/")
