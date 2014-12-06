@@ -4,7 +4,6 @@ import json
 import threading
 from jinja2 import Environment, FileSystemLoader
 from ha.HAClasses import *
-from ha.htmlUtils import *
 from ha.restInterface import *
 from ha.restServer import *
 from ha.timeInterface import *
