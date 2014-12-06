@@ -1,6 +1,5 @@
 import x10
 import time
-from util.logging import *
 from ha.HAClasses import *
 
 class X10Interface(HAInterface):
