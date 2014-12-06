@@ -2,7 +2,6 @@ from ha.HAClasses import *
 from ha.GPIOInterface import *
 from ha.I2CInterface import *
 from ha.restServer import *
-from ha.logging import *
 
 if __name__ == "__main__":
     resources = HACollection("resources")

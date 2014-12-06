@@ -3,7 +3,6 @@ from ha.dbInterface import *
 from ha.solarInterface import *
 from ha.loadInterface import *
 from ha.restServer import *
-from ha.logging import *
 
 if __name__ == "__main__":
 

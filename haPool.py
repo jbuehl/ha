@@ -5,7 +5,6 @@ from ha.pentairInterface import *
 from ha.powerInterface import *
 from ha.spaInterface import *
 from ha.restServer import *
-from ha.logging import *
 
 # Force usb serial devices to associate with specific devices based on which port they are plugged into
 

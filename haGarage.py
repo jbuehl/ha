@@ -2,7 +2,6 @@ from ha.HAClasses import *
 from ha.GPIOInterface import *
 from ha.lightInterface import *
 from ha.restServer import *
-from ha.logging import *
 
 if __name__ == "__main__":
     resources = HACollection("resources")
@@ -16,7 +15,8 @@ if __name__ == "__main__":
     lightInterface = LightInterface("Lights", gpioInterface)
     
     # Lights
-    sensors.addRes(HAControl("garageBackDoorLight", lightInterface, 0, type="light", group="Lights", label="Garage back door"))
+    sensors.addRes(HAControl("garageBackDoorLight", lightInterface, 0, type="light", group="Lights", label="Garage back door light"))
+#    sensors.addRes(HASensor("garageBackDoorSwitch", lightInterface, 1, type="light", group="Lights", label="Garage back door switch"))
 
     # Schedules
     schedule.addTask(HATask("Garage back light on sunset", HASchedTime(event="sunset"), sensors["garageBackDoorLight"], 1))
