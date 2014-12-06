@@ -1,4 +1,3 @@
-from ha.logging import *
 from ha.HAClasses import *
 from BaseHTTPServer import HTTPServer
 from BaseHTTPServer import BaseHTTPRequestHandler
