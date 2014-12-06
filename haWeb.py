@@ -7,6 +7,7 @@ from ha.HAClasses import *
 from ha.htmlUtils import *
 from ha.restInterface import *
 from ha.restServer import *
+from ha.timeInterface import *
 
 beaconPort = 7379
 
@@ -59,7 +60,7 @@ class WebRoot(object):
             script = updateScript(30)
         # lock.acquire()
         reply = self.env.get_template("default.html").render(title="4319 Shadyglade", script=script, 
-                            groups=[[group, self.resources.getGroup(group)] for group in ["Temperature", "Solar", "Power", "Pool", "Lights", "Doors", "Sprinklers", "Tasks"]],
+                            groups=[[group, self.resources.getGroup(group)] for group in ["Time", "Temperature", "Pool", "Lights", "Doors", "Sprinklers", "Solar", "Power", "Tasks"]],
                             buttons=buttons)
         # lock.release()
         return reply
@@ -182,6 +183,12 @@ if __name__ == "__main__":
 
     # load the resources from the HA servers
     resources = HACollection("resources")
+
+    # time resources
+    timeInterface = TimeInterface("time")
+    resources.addRes(HASensor("theDayOfWeek", timeInterface, "%A", type="time", group="Time", label="Day of week"))
+    resources.addRes(HASensor("theDate", timeInterface, "%B %d %Y", type="time", group="Time", label="Date"))
+    resources.addRes(HASensor("theTime", timeInterface, "%I:%M %p", type="time", group="Time", label="Time"))
 
     # start the process to listen for services
     beacon = BeaconClient("beaconClient", resources, socket.gethostname()+":"+str(beaconPort))
