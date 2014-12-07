@@ -1,4 +1,4 @@
-
+import json
 import time
 import threading
 from ha.HAClasses import *
@@ -28,11 +28,16 @@ seqRunning = 1
 valvesPool = 0
 valvesSpa = 1
 
+# get the value of a variable from a file
+def getValue(fileName):
+    return json.load(open(fileName))
+    
 # send an sms notification
-def smsNotify():
-    smsClient = TwilioRestClient(smsSid, smsToken)
-    for smsTo in spaReadySms:
-        smsClient.sms.messages.create(to=smsTo, from_=smsFrom, body="Spa is ready")
+def smsNotify(numbers, message):
+    smsClient = TwilioRestClient(getValue(smsSid), getValue(smsToken))
+    smsFrom = getValue(notifyFromNumber)
+    for smsTo in getValue(numbers):
+        smsClient.sms.messages.create(to=smsTo, from_=smsFrom, body=message)
 
 class SpaInterface(HAInterface):
     def __init__(self, name, valveControl, pumpControl, heaterControl, lightControl, tempSensor):
@@ -69,8 +74,8 @@ class SpaInterface(HAInterface):
     def read(self, addr):
         return self.state
 
-    def write(self, addr, value):
     # Implements the state diagram
+    def write(self, addr, value):
         if value == spaOff:
             if (self.state == spaOn) or (self.state == spaStandby) or (self.state == spaWarming):
                 self.setState(spaStopping)
@@ -93,8 +98,8 @@ class SpaInterface(HAInterface):
         else:
             log(self.name, "unknown state", value)
 
-    def setState(self, state, endState=None):
     # Implements state transitions
+    def setState(self, state, endState=None):
         if debugState: log(self.name, "setState ", state)
         if state == spaOn:
             self.onSequence.setState(seqStart, wait=True)
@@ -114,8 +119,10 @@ class SpaInterface(HAInterface):
 
     def spaReady(self, state):
         self.setState(state)
-        smsNotify()
+        smsNotify(spaReadyNotifyNumbers, "Spa is ready")
         
+# start a thread to wait for the state of the specified sensor to reach the specified value
+# then call the specified action function with the specified action value
 class EventThread(threading.Thread):
     def __init__(self, name, checkFunction, checkValue, actionFunction, actionValue):
         threading.Thread.__init__(self, target=self.asyncEvent)
@@ -126,8 +133,6 @@ class EventThread(threading.Thread):
         self.actionValue = actionValue
 
     def asyncEvent(self):
-    # wait for the state of the specified sensor to reach the specified check value
-    # then call the specified action function with the specified action value
         if debugThread: log(self.name, "started")
         while self.checkFunction() != self.checkValue:
             time.sleep(1)

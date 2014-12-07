@@ -11,7 +11,7 @@ class HARestInterface(HAInterface):
         self.secure = secure
         if debugRest: log(self.name, self.hostname, self.secure)
         if self.secure:
-            self.keyDir = "/root/keys/"
+            self.keyDir = keyDir
             self.crtFile = self.keyDir+self.hostname+"-client.crt"
             self.keyFile = self.keyDir+self.hostname+"-client.key"
             self.caFile = self.keyDir+"ca.crt"

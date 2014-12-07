@@ -8,12 +8,17 @@ running = True
 latLong = (34.1486, -118.3965)
 tempScale = "F"
 webPort = 80
+keyDir = "/root/keys/"
+smsSid = keyDir+"twilio.sid"
+smsToken = keyDir+"twilio.tkn"
+notifyFromNumber = keyDir+"notifyFromNumber"
 
 # General debugging
 debug = True
 debugObject = True
 debugState = True
 debugThread = True
+sysLogging = True
 
 # X10 interface
 x10Device = "/dev/ttyUSB0"
@@ -40,6 +45,7 @@ debugTime = True
 
 # spa interface
 spaTempTarget = 100
+spaReadyNotifyNumbers = keyDir+"spaReadyNotifyNumbers"
 
 # REST interface
 debugRest = False
@@ -48,7 +54,7 @@ debugRestPut = False
 
 # Web interface
 debugHttp = False
-debugWeb = True
+debugWeb = False
 
 # Scheduler
 debugEvent = True

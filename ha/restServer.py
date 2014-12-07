@@ -17,7 +17,6 @@ class RestServer(object):
         self.beacon = beacon
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
         if secure:
-            keyDir = "/root/keys/"
             self.server.socket = ssl.wrap_socket (self.server.socket, 
                                                   #server_side=True,
                                                   #ssl_version=ssl.PROTOCOL_TLSv1, 
@@ -110,12 +109,16 @@ class RestRequestHandler(BaseHTTPRequestHandler):
 
     # add a resource to the collection specified in the path using parameters specified in the data
     def do_POST(self):
-        self.send_response(501)         # not implemented
+        self.send_error(501)         # not implemented
 
     # delete the resource specified in the path from the collection
     def do_DELETE(self):
-        self.send_response(501)         # not implemented
+        self.send_error(501)         # not implemented
 
+    # this suppresses logging from BaseHTTPServer
+    def log_message(self, format, *args):
+        return
+        
     # Locate the resource or attribute specified by the path
     def getResFromPath(self, resource, path):
         (name, sep, path) = path.partition("/")

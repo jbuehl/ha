@@ -2,11 +2,20 @@ import time
 import datetime
 import threading
 import copy
+import syslog
 from collections import OrderedDict
-from ha.logging import *
 from dateutil import tz
 from ha.sunriseset import *
 from ha.HAConf import *
+
+def log(*args):
+    message = args[0]+" "
+    for arg in args[1:]:
+        message += arg.__str__()+" "
+    if sysLogging:
+        syslog.syslog(message)
+    else:
+        print message
 
 # normalize state values from boolean to integers
 def normalState(value):
