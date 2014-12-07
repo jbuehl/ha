@@ -43,6 +43,44 @@ views = {"power": HAView({}, "%d W"),
 
 buttons = [] #"index", "solar", "lights", "pool", "spa", "sprinklers", "doors"]
              
+######################################################################################
+# javascript
+######################################################################################
+
+def refreshScript(interval):
+    script  = "<script type='text/javascript'>\n"
+    script += "function refresh() {\n"
+    script += "	   location.reload(true)\n"
+    script += "}\n"
+    script += "window.setInterval('refresh()',"+str(interval*1000)+");\n"
+    script += "</script>\n"
+    return script
+
+def redirectScript(location, interval):
+    script  = "<script type='text/javascript'>\n"
+    script += "function redirect() {\n"
+    script += "	   location='"+location+"';\n"
+    script += "}\n"
+    script += "window.setInterval('redirect()',"+str(interval*1000)+");\n"
+    script += "</script>\n"
+    return script
+
+def updateScript(interval):
+    script  = "<script type='text/javascript'>\n"
+    script += "$(document).ready(function() {\n"
+    script += "    var refreshId = setInterval(function() {\n"
+    script += "      $.getJSON( 'update', {}, function(data) {\n"
+    script += "        $.each( data, function(key, val) {\n"
+    script += "          $('#'+key).text(val[1]);\n"
+    script += "          $('#'+key).attr('class', val[0]+'_'+val[1]);\n"
+    script += "          });\n"
+    script += "        });\n"
+    script += "      }, "+str(interval*1000)+");\n"
+    script += "    $.ajaxSetup({cache: false});\n"
+    script += "    });\n"
+    script += "</script>\n"
+    return script
+
 class WebRoot(object):
     def __init__(self, resources, env):
         self.resources = resources
