@@ -30,19 +30,21 @@ if __name__ == "__main__":
     sensors.addRes(HAControl("xmasLights", x10Interface, "A1", type="light", group="Lights", label="Xmas lights"))
     sensors.addRes(HAControl("frontLights", x10Interface, "A2", type="light", group="Lights", label="Front lights"))
     sensors.addRes(HAControl("backLights", x10Interface, "A3", type="light", group="Lights", label="Back lights"))
+    sensors.addRes(HAControl("bedroomLight", x10Interface, "A4", type="light", group="Lights", label="Bedroom light"))
     sensors.addRes(HAControl("bbqLights", x10Interface, "A6", type="light", group="Lights", label="Barbeque lights"))
     sensors.addRes(HAControl("backYardLights", x10Interface, "A7", type="light", group="Lights", label="Back yard lights"))
     sensors.addRes(HAScene("outsideLights", [sensors["frontLights"], 
                                              sensors["backLights"],
-                                             sensors["xmasLights"]], [[0,1], [0,1], [0,1]], group="Lights", label="Outside"))
+                                             sensors["bedroomLight"],
+                                             sensors["xmasLights"]], [[0,1], [0,1], [0,1], [0,1]], group="Lights", label="Outside"))
 
     # Water
-    sensors.addRes(HAControl("recircPump", x10Interface, "A4", "Water"))
+    sensors.addRes(HAControl("recircPump", x10Interface, "A8", "Water", label="Hot water"))
 
     # Schedules
     schedule.addTask(HATask("Outside lights on sunset", HASchedTime(event="sunset"), sensors["outsideLights"], 1))
     schedule.addTask(HATask("Outside lights off midnight", HASchedTime(hour=[23,0], minute=[00]), sensors["outsideLights"], 0))
-    schedule.addTask(HATask("Outside lights off 5pm", HASchedTime(hour=[17], minute=[01], month=[May, Jun, Jul, Aug, Sep, Oct]), sensors["outsideLights"], 0))
+#    schedule.addTask(HATask("Outside lights off 5pm", HASchedTime(hour=[17], minute=[01], month=[May, Jun, Jul, Aug, Sep, Oct]), sensors["outsideLights"], 0))
     schedule.addTask(HATask("Outside lights off sunrise", HASchedTime(event="sunrise"), sensors["outsideLights"], 0))
     
     schedule.addTask(HATask("Hot water recirc on", HASchedTime(hour=[05], minute=[02]), sensors["recircPump"], 1))

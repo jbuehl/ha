@@ -97,7 +97,7 @@ class WebRoot(object):
             script = updateScript(30)
         # lock.acquire()
         reply = self.env.get_template("default.html").render(title="4319 Shadyglade", script=script, 
-                            groups=[[group, self.resources.getGroup(group)] for group in ["Time", "Temperature", "Pool", "Lights", "Doors", "Sprinklers", "Solar", "Power", "Tasks"]],
+                            groups=[[group, self.resources.getGroup(group)] for group in ["Time", "Temperature", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Tasks"]],
                             buttons=buttons)
         # lock.release()
         return reply
