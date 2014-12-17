@@ -34,6 +34,7 @@ class X10Interface(HAInterface):
         x10.sendCommands(self.interface.interface, theAddr+" "+state)
         self.state[theAddr] = theValue
         self.writeState()
+        time.sleep(.5)      # delay to enhance reliability - FIXME
     
     def readState(self):
         try:
