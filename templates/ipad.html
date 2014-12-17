@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+<head>
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+    <link rel='stylesheet' type='text/css' href='css/panel.css'> 
+    <script src='js/jquery.js'></script>
+    {{ script }}
+</head>
+<body>
+    {% for g in groups %}
+    <h2>{{ g[0] }}</h2>
+    <table border=0 width=1024 style='table-layout:fixed'>
+        <col width=180><col width=140><col width=320>
+        {% for r in g[1] %}
+        <tr>
+            <td><div class=label>{{ r.label }}</div></td>
+            <td><div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState() }}">{{ r.getViewState() }}</div></td>
+            <td>
+                {% if r.className != "HASensor" %}
+                <div class=control>
+                <form name='control' action='' method='get'>
+                    {% for v in r.view.setValues.values() %}
+                    <input type='submit' name='action' value='{{ v }}' />
+                    {% endfor %}
+                    <input type='hidden' name='resource' value='{{ r.name }}' />
+                </form>
+                    {% if r.className == "HATask" %}
+                        {{ r.control.name }}: {{ r.control.view.setValues[r.controlState] }}<br>
+                        {{ r.schedTime.__str__().replace(",","<br>") }}
+                    {% endif %}
+                    {% if r.className == "HASequence" %}
+                        {{ r.__str__().replace(",","<br>") }}
+                    {% endif %}
+                </div>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endfor %}
+</body>
+</html>
+
