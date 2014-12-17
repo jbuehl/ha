@@ -102,6 +102,27 @@ class WebRoot(object):
         # lock.release()
         return reply
 
+    # iPad    
+    @cherrypy.expose
+    def ipad(self, action=None, resource=None):
+        if debugWeb: log("get", action, resource)
+        if resource:
+            self.resources[resource].setViewState(action)
+            script = redirectScript("/ipad", 5)
+        else:
+            script = updateScript(30)
+        # lock.acquire()
+        groups = [["Pool", self.resources.getResList(["poolPump", "spa","airTemp", "poolTemp", "spaTemp"])], 
+                  ["Lights", self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
+                  ["Shades", self.resources.getResList(["shade1", "shade2", "shade3", "shade4"])], 
+                  ["Sprinklers", self.resources.getResList(["backLawn", "backBeds", "sideBeds"])]
+                  ]
+        reply = self.env.get_template("ipad.html").render(title="4319 Shadyglade", script=script, 
+                            groups=groups,
+                            buttons=buttons)
+        # lock.release()
+        return reply
+
     # Solar    
     @cherrypy.expose
     def solar(self):
