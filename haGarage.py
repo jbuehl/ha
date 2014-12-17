@@ -15,13 +15,16 @@ if __name__ == "__main__":
     lightInterface = LightInterface("Lights", gpioInterface)
     
     # Lights
-    sensors.addRes(HAControl("garageBackDoorLight", lightInterface, 0, type="light", group="Lights", label="Garage back door light"))
+    sensors.addRes(HAControl("frontLights", lightInterface, 0, type="light", group="Lights", label="Front lights"))
+    sensors.addRes(HAControl("garageBackDoorLight", lightInterface, 1, type="light", group="Lights", label="Garage back door light"))
 #    sensors.addRes(HASensor("garageBackDoorSwitch", lightInterface, 1, type="light", group="Lights", label="Garage back door switch"))
+    sensors.addRes(HAScene("garageLights", [sensors["frontLights"],
+                                             sensors["garageBackDoorLight"]], [[0,1], [0,1]], group="Lights", label="Garage"))
 
     # Schedules
-    schedule.addTask(HATask("Garage back light on sunset", HASchedTime(event="sunset"), sensors["garageBackDoorLight"], 1))
-    schedule.addTask(HATask("Garage back light off midnight", HASchedTime(hour=[23,0], minute=[00]), sensors["garageBackDoorLight"], 0))
-    schedule.addTask(HATask("Garage back light off sunrise", HASchedTime(event="sunrise"), sensors["garageBackDoorLight"], 0))
+    schedule.addTask(HATask("Garage lights on sunset", HASchedTime(event="sunset"), sensors["garageLights"], 1))
+    schedule.addTask(HATask("Garage lights off midnight", HASchedTime(hour=[23,0], minute=[00]), sensors["garageLights"], 0))
+    schedule.addTask(HATask("Garage lights off sunrise", HASchedTime(event="sunrise"), sensors["garageLights"], 0))
 
     # Start interfaces
     lightInterface.start()
