@@ -1,0 +1,29 @@
+@import "/css/default.css";
+
+body {
+    background-color: #424242;
+    }
+
+* {
+	color: LightGray;
+	font-size: 24px;
+    }
+
+h2 {
+	color: LightYellow;
+	font-size: 16px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    }
+
+.label {
+    font-size: 24px;
+    }
+
+input {
+    height: 28px;
+    width: 60px;
+	font-size: 20px;
+    }
+
+
