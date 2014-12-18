@@ -106,7 +106,10 @@ class AqualinkInterface(HAInterface):
 
 
     def read(self, theAddr):
-        return self.equipDict[theAddr].state
+        if theAddr == "spaTemp" and self.equipDict["spa"].state == False:
+            return "--"
+        else:
+            return self.equipDict[theAddr].state
 
     def write(self, theAddr, theValue):
         self.equipDict[theAddr].changeState(theValue)
