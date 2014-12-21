@@ -41,6 +41,7 @@ if __name__ == "__main__":
 
     # Schedules
     schedule.addTask(HATask("Bedroom light on sunset", HASchedTime(event="sunset"), sensors["bedroomLight"], 1))
+    schedule.addTask(HATask("Bedroom light off sunrise", HASchedTime(event="sunrise"), sensors["bedroomLight"], 0))
     schedule.addTask(HATask("Outside lights on sunset", HASchedTime(event="sunset"), sensors["outsideLights"], 1))
     schedule.addTask(HATask("Outside lights off midnight", HASchedTime(hour=[23,0], minute=[00]), sensors["outsideLights"], 0))
 #    schedule.addTask(HATask("Outside lights off 5pm", HASchedTime(hour=[17], minute=[01], month=[May, Jun, Jul, Aug, Sep, Oct]), sensors["outsideLights"], 0))
