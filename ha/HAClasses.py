@@ -168,7 +168,7 @@ class HASensor(HAResource):
             self.label = label
         self.location = location
         if view == None:
-            self.view = HAView({0:"Off", 1:"On"}, "%s")
+            self.view = HAView()
         else:
             self.view = view
         self.__dict__["state"] = None   # dummy class variable so hasattr() returns True
@@ -214,7 +214,7 @@ class HASensor(HAResource):
 # state values to display values, an optional format string, and an optional transform function.
 # Reverse mappings of display values to state values may also be specified.
 class HAView(object):
-    def __init__(self, values={0:"Off", 1:"On"}, format="%s", transform=None, setValues=None):
+    def __init__(self, values={None:"", 0:"Off", 1:"On"}, format="%s", transform=None, setValues={0:"Off", 1:"On"}):
         self.values = values
         self.format = format
         self.transform = transform
@@ -377,10 +377,11 @@ class HAScene(HAControl):
             return HAControl.setState(self, theState)
 
     def getState(self):
-        if self.interface.name == "None":
-            return self.sceneState
-        else:
-            return HAControl.getState(self)
+#        if self.interface.name == "None":
+#            return self.sceneState
+#        else:
+#            return HAControl.getState(self)
+        return None
 
     def doScene(self):
         if debugThread: log(self.name, "started")

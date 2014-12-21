@@ -34,7 +34,7 @@ if __name__ == "__main__":
     sensors.addRes(HAControl("bbqLights", x10Interface, "A6", type="light", group="Lights", label="Barbeque lights"))
     sensors.addRes(HAControl("backYardLights", x10Interface, "A7", type="light", group="Lights", label="Back yard lights"))
     sensors.addRes(HAScene("outsideLights", [sensors["backLights"],
-                                             sensors["xmasLights"]], [[0,1], [0,1]], group="Lights", label="Outside"))
+                                             sensors["xmasLights"]], group="Lights", label="Outside"))
 
     # Water
     sensors.addRes(HAControl("recircPump", x10Interface, "A8", "Water", label="Hot water"))

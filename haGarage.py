@@ -19,7 +19,7 @@ if __name__ == "__main__":
     sensors.addRes(HAControl("garageBackDoorLight", lightInterface, 1, type="light", group="Lights", label="Garage back door light"))
 #    sensors.addRes(HASensor("garageBackDoorSwitch", lightInterface, 1, type="light", group="Lights", label="Garage back door switch"))
     sensors.addRes(HAScene("garageLights", [sensors["frontLights"],
-                                             sensors["garageBackDoorLight"]], [[0,1], [0,1]], group="Lights", label="Garage"))
+                                             sensors["garageBackDoorLight"]], group="Lights", label="Garage"))
 
     # Schedules
     schedule.addTask(HATask("Garage lights on sunset", HASchedTime(event="sunset"), sensors["garageLights"], 1))

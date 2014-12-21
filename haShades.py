@@ -22,7 +22,7 @@ if __name__ == "__main__":
     sensors.addRes(HAScene("allShades", [sensors["shade1"], 
                                       sensors["shade2"],
                                       sensors["shade3"],
-                                      sensors["shade4"]], [[0,1], [0,1], [0,1], [0,1]], type="shade", group="Doors", label="All shades"))
+                                      sensors["shade4"]], type="shade", group="Doors", label="All shades"))
 
     # Schedules
     schedule.addTask(HATask("Shades down", HASchedTime(hour=[13], minute=[00], month=[May, Jun, Jul, Aug, Sep]), sensors["allShades"], 1, enabled=True))
