@@ -12,7 +12,7 @@ if __name__ == "__main__":
 
     # Interfaces
     gpioInterface = GPIOInterface("GPIO")
-    lightInterface = LightInterface("Lights", gpioInterface)
+    lightInterface = LightInterface("Garage", gpioInterface)
     
     # Lights
     sensors.addRes(HAControl("frontLights", lightInterface, 0, type="light", group="Lights", label="Front lights"))
