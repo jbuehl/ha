@@ -1,6 +1,6 @@
 from ha.HAClasses import *
 from ha.GPIOInterface import *
-from ha.lightInterface import *
+from ha.applianceInterface import *
 from ha.restServer import *
 
 if __name__ == "__main__":
@@ -12,12 +12,12 @@ if __name__ == "__main__":
 
     # Interfaces
     gpioInterface = GPIOInterface("GPIO")
-    lightInterface = LightInterface("Garage", gpioInterface)
+    applianceInterface = ApplianceInterface("garage", gpioInterface)
     
     # Lights
-    sensors.addRes(HAControl("frontLights", lightInterface, 0, type="light", group="Lights", label="Front lights"))
-    sensors.addRes(HAControl("garageBackDoorLight", lightInterface, 1, type="light", group="Lights", label="Garage back door light"))
-#    sensors.addRes(HASensor("garageBackDoorSwitch", lightInterface, 1, type="light", group="Lights", label="Garage back door switch"))
+    sensors.addRes(HAControl("frontLights", applianceInterface, 0, type="light", group="Lights", label="Front lights"))
+    sensors.addRes(HAControl("garageBackDoorLight", applianceInterface, 1, type="light", group="Lights", label="Garage back door light"))
+#    sensors.addRes(HASensor("garageBackDoorSwitch", applianceInterface, 1, type="light", group="Lights", label="Garage back door switch"))
     sensors.addRes(HAScene("garageLights", [sensors["frontLights"],
                                              sensors["garageBackDoorLight"]], group="Lights", label="Garage"))
 
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     schedule.addTask(HATask("Garage lights off sunrise", HASchedTime(event="sunrise"), sensors["garageLights"], 0))
 
     # Start interfaces
-    lightInterface.start()
+    applianceInterface.start()
     schedule.start()
     restServer = RestServer(resources)
     restServer.start()

@@ -1,6 +1,6 @@
 from ha.HAClasses import *
 from ha.GPIOInterface import *
-from ha.lightInterface import *
+from ha.applianceInterface import *
 from ha.restServer import *
 
 if __name__ == "__main__":
@@ -12,16 +12,16 @@ if __name__ == "__main__":
 
     # Interfaces
     gpioInterface = GPIOInterface("GPIO")
-    lightInterface = LightInterface("Lights", gpioInterface)
+    applianceInterface = ApplianceInterface("Lights", gpioInterface)
     
     # Lights
-    sensors.addRes(HAControl("testLight", lightInterface, 0, type="light", group="Lights", label="Test light"))
-    sensors.addRes(HASensor("testSwitch", lightInterface, 1, type="light", group="Lights", label="Test switch"))
+    sensors.addRes(HAControl("testLight", applianceInterface, 0, type="light", group="Lights", label="Test light"))
+    sensors.addRes(HASensor("testSwitch", applianceInterface, 1, type="light", group="Lights", label="Test switch"))
 
     # Schedules
 
     # Start interfaces
-    lightInterface.start()
+    applianceInterface.start()
     schedule.start()
     restServer = RestServer(resources)
     restServer.start()

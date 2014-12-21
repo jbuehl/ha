@@ -2,7 +2,7 @@ import json
 from ha.GPIOInterface import *
 from ha.HAClasses import *
 
-class LightInterface(HAInterface):
+class ApplianceInterface(HAInterface):
     def __init__(self, name, interface):
         HAInterface.__init__(self, name, interface)
         self.stateFile = stateDir+name+".state"
@@ -11,15 +11,17 @@ class LightInterface(HAInterface):
         # read the state from the file if it exists
         try:
             self.state = json.load(open(self.stateFile))
+            if debugState: log(self.name, "reading", self.stateFile, self.state)
         except:
             self.state = {}
         # set the state of all the devices on the interface
         for addr in self.state.keys():
-            self.interface.write(GPIOAddr(0, 0, addr, 1), self.state[addr])
+            # addr must be converted to int because json stringified it when dumped
+            self.interface.write(GPIOAddr(0, 0, int(addr), 1), self.state[addr])
 
     def read(self, addr):
         try:
-            return self.state[addr]
+            return self.state[str(addr)]    # keys are saved as strings
         except:
             # if the device does not exist, create it and set the state to 0
             self.write(addr, 0)
@@ -28,6 +30,7 @@ class LightInterface(HAInterface):
     def write(self, addr, value):
         # set the state of the device and save it
         self.interface.write(GPIOAddr(0, 0, addr, 1), value)
-        self.state[addr] = value
+        self.state[str(addr)] = value   # keys are saved as strings
+        if debugState: log(self.name, "writing", self.stateFile, self.state)
         json.dump(self.state, open(self.stateFile, "w"))
 
