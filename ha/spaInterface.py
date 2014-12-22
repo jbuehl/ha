@@ -107,16 +107,21 @@ class SpaInterface(HAInterface):
             self.standbySequence.setState(seqStart, wait=True)
         elif state == spaStarting:
             self.startupSequence.setState(seqStart, wait=False)
-            startEvent = EventThread("spaStarting", self.startupSequence.getState, seqStopped, self.setState, spaWarming)
+            startEvent = EventThread("spaStarting", self.startupSequence.getState, seqStopped, self.spaStarted, spaWarming)
             startEvent.start()
-            tempEvent = EventThread("spaWarming", self.tempSensor.getState, spaTempTarget, self.spaReady, endState)
-            tempEvent.start()
         elif state == spaStopping:
             self.shutdownSequence.setState(seqStart, wait=False)
             stopEvent = EventThread("spaStopping", self.shutdownSequence.getState, seqStopped, self.setState, spaOff)
             stopEvent.start()
         self.state = state
 
+    # called when startup sequence is complete
+    def spaStarted(self, state):
+        self.setState(state)
+        tempEvent = EventThread("spaWarming", self.tempSensor.getState, spaTempTarget, self.spaReady, endState)
+        tempEvent.start()
+
+    # called when target temperature is reached        
     def spaReady(self, state):
         self.setState(state)
         smsNotify(spaReadyNotifyNumbers, "Spa is ready")
