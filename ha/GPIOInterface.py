@@ -11,7 +11,8 @@ class GPIOInterface(HAInterface):
     ioPullupRegister = 0x0c
     ioRegister = 0x12
     # direct GPIO
-    pins = [12, 16, 18, 22, 15, 13, 11, 7]
+    pins = [12, 16, 18, 22, 15, 13, 11, 7, \    # A/B
+            32, 36, 38, 40, 37, 35, 33, 31]     # B+
     
     def __init__(self, name, I2CInterface=None):
         self.name = name
