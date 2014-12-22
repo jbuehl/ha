@@ -72,7 +72,8 @@ def updateScript(interval):
     script += "      $.getJSON( 'update', {}, function(data) {\n"
     script += "        $.each( data, function(key, val) {\n"
     script += "          $('#'+key).text(val[1]);\n"
-    script += "          $('#'+key).attr('class', val[0]+'_'+val[1]);\n"
+#    script += "          $('#'+key).attr('class', val[0]+'_'+val[1]);\n"
+    script += "          $('#'+key).attr('class', val[0]);\n"
     script += "          });\n"
     script += "        });\n"
     script += "      }, "+str(interval*1000)+");\n"
@@ -119,6 +120,27 @@ class WebRoot(object):
                   ]
         reply = self.env.get_template("ipad.html").render(title="4319 Shadyglade", script=script, 
                             groups=groups,
+                            buttons=buttons)
+        # lock.release()
+        return reply
+
+    # iPhone 3GS    
+    @cherrypy.expose
+    def iphone3gs(self, action=None, resource=None):
+        if debugWeb: log("get", action, resource)
+        if resource:
+            self.resources[resource].setViewState(action)
+            script = redirectScript("/iphone3gs", 5)
+        else:
+            script = updateScript(30)
+        # lock.acquire()
+        resources = self.resources.getResList(["frontLights", "backLights", "bedroomLight"])
+        reply = self.env.get_template("iphone3gs.html").render(title="4319 Shadyglade", script=script, 
+                            time=self.resources["theTime"],
+                            ampm=self.resources["theAmPm"],
+                            day=self.resources["theDay"],
+                            temp=self.resources["airTemp"],
+                            resources=resources,
                             buttons=buttons)
         # lock.release()
         return reply
@@ -190,11 +212,17 @@ class WebRoot(object):
     # Update the states of all resources
     @cherrypy.expose
     def update(self, _=None):
+        # types whose class does not depend on their value
+        staticTypes = ["time", "date", "tempF"]
         updates = {}
         # lock.acquire()
         for resource in self.resources:
             try:
-                updates[resource] = (self.resources[resource].type, self.resources[resource].getViewState())
+                resClass = self.resources[resource].type
+                resState = self.resources[resource].getViewState()
+                if resClass not in staticTypes:
+                    resClass += "_"+resState
+                updates[resource] = (resClass, resState)
             except:
                 pass
         # lock.release()
@@ -244,9 +272,12 @@ if __name__ == "__main__":
 
     # time resources
     timeInterface = TimeInterface("time")
-    resources.addRes(HASensor("theDayOfWeek", timeInterface, "%A", type="time", group="Time", label="Day of week"))
-    resources.addRes(HASensor("theDate", timeInterface, "%B %d %Y", type="time", group="Time", label="Date"))
-    resources.addRes(HASensor("theTime", timeInterface, "%I:%M %p", type="time", group="Time", label="Time"))
+    resources.addRes(HASensor("theDayOfWeek", timeInterface, "%A", type="date", group="Time", label="Day of week"))
+    resources.addRes(HASensor("theDate", timeInterface, "%B %d %Y", type="date", group="Time", label="Date"))
+    resources.addRes(HASensor("theTimeAmPm", timeInterface, "%I:%M %p", type="time", group="Time", label="Time"))
+    resources.addRes(HASensor("theDay", timeInterface, "%a %B %d %Y", type="date", label="Day"))
+    resources.addRes(HASensor("theTime", timeInterface, "%I:%M", type="time", label="Time"))
+    resources.addRes(HASensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
 
     # start the process to listen for services
     beacon = BeaconClient("beaconClient", resources, socket.gethostname()+":"+str(beaconPort))
