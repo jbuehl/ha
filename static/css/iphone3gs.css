@@ -4,6 +4,10 @@ body {
     background-color: #424242;
     }
 
+* {
+    font-size: 18px;
+    }
+    
 .time {
 	color: LightYellow;
 	font-size: 120px;
@@ -26,16 +30,6 @@ body {
 .tempF {
 	color: LightGray;
 	font-size: 24px;
-    }
-
-.light_Off {
-	font-size: 18px;
-	color: SlateGray;
-    }
-
-.light_On {
-	font-size: 18px;
-	color: #FFFF66;
     }
 
 .label {

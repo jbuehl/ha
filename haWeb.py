@@ -28,7 +28,7 @@ views = {"power": HAView({}, "%d W"),
          "shade": HAView({None:"", 0:"Up", 1:"Down", 2:"Raising", 3:"Lowering"}, "%s", None, {0:"Up", 1:"Down"}),
          "spa": HAView({0:"Off", 1:"On", 2:"Starting", 3:"Warming", 4:"Standby", 5:"Stopping"}, "%s", None, {0:"Off", 1:"On", 4:"Stby"}),
          "poolValves": HAView({0:"Pool", 1:"Spa"}, "%s"),
-         "pump": HAView({0:"Off", 1:"Lo", 2:"Med", 3:"Hi", 4:"Max"}, "%s"),
+         "pump": HAView({0:"Off", 1:"Lo", 2:"Med", 3:"Hi", 4:"Max"}, "%s", None, {0:"Off", 1:"Lo", 2:"Med", 3:"Hi", 4:"Max"}),
          "pumpSpeed": HAView({}, "%d RPM"),
          "pumpFlow": HAView({}, "%d GPM"),
          "cleaner": HAView({0:"Off", 1:"On", 2:"Ena"}, "%s", None, {0:"Off", 1:"On"}),
@@ -103,7 +103,7 @@ class WebRoot(object):
         # lock.release()
         return reply
 
-    # iPad    
+    # iPad - 1024x768   
     @cherrypy.expose
     def ipad(self, action=None, resource=None):
         if debugWeb: log("get", action, resource)
@@ -118,13 +118,13 @@ class WebRoot(object):
                   ["Shades", self.resources.getResList(["shade1", "shade2", "shade3", "shade4"])], 
                   ["Sprinklers", self.resources.getResList(["backLawn", "backBeds", "sideBeds"])]
                   ]
-        reply = self.env.get_template("ipad.html").render(title="4319 Shadyglade", script=script, 
+        reply = self.env.get_template("ipad.html").render(script=script, 
                             groups=groups,
                             buttons=buttons)
         # lock.release()
         return reply
 
-    # iPhone 3GS    
+    # iPhone 3GS - 320x480    
     @cherrypy.expose
     def iphone3gs(self, action=None, resource=None):
         if debugWeb: log("get", action, resource)
@@ -134,8 +134,8 @@ class WebRoot(object):
         else:
             script = updateScript(30)
         # lock.acquire()
-        resources = self.resources.getResList(["frontLights", "backLights", "bedroomLight"])
-        reply = self.env.get_template("iphone3gs.html").render(title="4319 Shadyglade", script=script, 
+        resources = self.resources.getResList(["frontLights", "backLights", "bedroomLight", "recircPump"])
+        reply = self.env.get_template("iphone3gs.html").render(script=script, 
                             time=self.resources["theTime"],
                             ampm=self.resources["theAmPm"],
                             day=self.resources["theDay"],
