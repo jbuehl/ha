@@ -37,7 +37,7 @@ if __name__ == "__main__":
                                              sensors["xmasLights"]], group="Lights", label="Outside"))
 
     # Water
-    sensors.addRes(HAControl("recircPump", x10Interface, "A8", "Water", label="Hot water"))
+    sensors.addRes(HAControl("recircPump", x10Interface, "A8", type="hotwater", group="Water", label="Hot water"))
 
     # Schedules
     schedule.addTask(HATask("Bedroom light on sunset", HASchedTime(event="sunset"), sensors["bedroomLight"], 1))

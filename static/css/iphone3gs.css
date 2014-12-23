@@ -10,7 +10,7 @@ body {
     
 .time {
 	color: LightYellow;
-	font-size: 120px;
+	font-size: 108px;
 	text-align: center;
     margin-top: 0px;
     margin-bottom: 0px;
@@ -23,13 +23,15 @@ body {
 
 .date {
 	color: LightGray;
-	font-size: 16px;
+	font-size: 18px;
+	text-align: left;
 	margin-left: 12px;
     }
 
 .tempF {
-	color: LightGray;
-	font-size: 24px;
+	color: LightYellow;
+	font-size: 28px;
+	text-align: right;
     }
 
 .label {

@@ -213,7 +213,7 @@ class WebRoot(object):
     @cherrypy.expose
     def update(self, _=None):
         # types whose class does not depend on their value
-        staticTypes = ["time", "date", "tempF"]
+        staticTypes = ["time", "ampm", "date", "tempF"]
         updates = {}
         # lock.acquire()
         for resource in self.resources:

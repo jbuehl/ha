@@ -188,6 +188,14 @@ td {
 	color: OrangeRed;
     }
 
+.hotwater_Off {
+	color: Blue;
+    }
+
+.hotwater_On {
+	color: Red;
+    }
+
 .heater_Off {
 	color: SlateGray;
     }
