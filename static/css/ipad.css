@@ -9,11 +9,30 @@ body {
 	font-size: 24px;
     }
 
-h2 {
+.time {
+	color: Turquoise;
+	font-size: 24px;
+	text-align: right;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    }
+
+.ampm {
+	color: Turquoise;
+	font-size: 24px;
+	text-align: left;
+    }
+
+.date {
+	color: Turquoise;
+	font-size: 24px;
+	text-align: left;
+	margin-left: 12px;
+    }
+
+.tempF {
 	color: LightYellow;
-	font-size: 16px;
-    margin-top: 4px;
-    margin-bottom: 4px;
+	font-size: 24px;
     }
 
 .label {
@@ -22,8 +41,10 @@ h2 {
 
 input {
     height: 28px;
-    width: 60px;
+    width: 80px;
 	font-size: 20px;
+	text-align: center;
+	border: 0px;
     }
 
 

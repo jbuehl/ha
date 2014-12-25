@@ -113,12 +113,16 @@ class WebRoot(object):
         else:
             script = updateScript(30)
         # lock.acquire()
-        groups = [["Pool", self.resources.getResList(["poolPump", "spa","airTemp", "poolTemp", "spaTemp"])], 
+        groups = [["Pool", self.resources.getResList(["poolPump", "clean1hr", "spa", "poolTemp", "spaTemp"])], 
                   ["Lights", self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
                   ["Shades", self.resources.getResList(["shade1", "shade2", "shade3", "shade4"])], 
                   ["Sprinklers", self.resources.getResList(["backLawn", "backBeds", "sideBeds"])]
                   ]
         reply = self.env.get_template("ipad.html").render(script=script, 
+                            time=self.resources["theTime"],
+                            ampm=self.resources["theAmPm"],
+                            day=self.resources["theDay"],
+                            temp=self.resources["airTemp"],
                             groups=groups,
                             buttons=buttons)
         # lock.release()

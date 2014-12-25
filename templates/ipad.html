@@ -3,17 +3,22 @@
 <head>
     <title>{{ title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
-    <link rel='stylesheet' type='text/css' href='css/panel.css'> 
+    <link rel='stylesheet' type='text/css' href='css/ipad.css'> 
     <script src='js/jquery.js'></script>
     {{ script }}
 </head>
 <body>
+    <table border=0 width=1024 style='table-layout:fixed'>
+        <col width=62><col width=58><col width=814><col width=78>
+        <tr>
+            <td><div id="{{ time.name }}" class="time">{{ time.getViewState() }}</div></td>
+            <td><div id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState() }}</div></td>
+            <td><div id="{{ day.name }}" class="date">{{ day.getViewState() }}</div></td>
+            <td><div id="{{ temp.name }}" class="tempF">{{ temp.getViewState() }}</div></td>
+        </tr>
+    </table>
     {% for g in groups %}
-    <h2>{{ g[0] }}</h2>
+    <br>
     <table border=0 width=1024 style='table-layout:fixed'>
         <col width=180><col width=140><col width=320>
         {% for r in g[1] %}

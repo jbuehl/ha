@@ -82,6 +82,8 @@ if __name__ == "__main__":
     sensors.addRes(HASequence("cleanMode", [HACycle(sensors["poolPump"], duration=3600, startState=3), 
                                               HACycle(sensors["poolPump"], duration=0, startState=0)
                                               ], group="Pool", label="Clean mode"))
+    sensors.addRes(HASequence("clean1hr", [HACycle(sensors["poolCleaner"], duration=3600, startState=1), 
+                                              ], group="Pool", label="Clean 1 hr"))
 
     # Power
     sensors.addRes(HASensor("poolPumpPower", pentairInterface, 2, type="power", group="Power", label="Pool pump"))
