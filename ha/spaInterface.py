@@ -107,7 +107,7 @@ class SpaInterface(HAInterface):
             self.standbySequence.setState(seqStart, wait=True)
         elif state == spaStarting:
             self.startupSequence.setState(seqStart, wait=False)
-            startEvent = EventThread("spaStarting", self.startupSequence.getState, seqStopped, self.spaStarted, spaWarming)
+            startEvent = EventThread("spaStarting", self.startupSequence.getState, seqStopped, self.spaStarted, endState)
             startEvent.start()
         elif state == spaStopping:
             self.shutdownSequence.setState(seqStart, wait=False)
@@ -116,8 +116,8 @@ class SpaInterface(HAInterface):
         self.state = state
 
     # called when startup sequence is complete
-    def spaStarted(self, state):
-        self.setState(state)
+    def spaStarted(self, endState):
+        self.setState(spaWarming)
         tempEvent = EventThread("spaWarming", self.tempSensor.getState, spaTempTarget, self.spaReady, endState)
         tempEvent.start()
 
