@@ -19,6 +19,9 @@ def kilo(value):
     
 def mega(value):
     return value/1000000.0
+
+def seqCountdown(resource):
+    pass
     
 # view definitions    
 views = {"power": HAView({}, "%d W"),
@@ -27,7 +30,7 @@ views = {"power": HAView({}, "%d W"),
          "door": HAView({0:"Closed", 1:"Open"}, "%s"),
          "shade": HAView({None:"", 0:"Up", 1:"Down", 2:"Raising", 3:"Lowering"}, "%s", None, {0:"Up", 1:"Down"}),
          "spa": HAView({0:"Off", 1:"On", 2:"Starting", 3:"Warming", 4:"Standby", 5:"Stopping"}, "%s", None, {0:"Off", 1:"On", 4:"Stby"}),
-         "poolValves": HAView({0:"Pool", 1:"Spa"}, "%s"),
+         "poolValves": HAView({0:"Pool", 1:"Spa"}, "%s", None, {0:"Pool", 1:"Spa"}),
          "pump": HAView({0:"Off", 1:"Lo", 2:"Med", 3:"Hi", 4:"Max"}, "%s", None, {0:"Off", 1:"Lo", 2:"Med", 3:"Hi", 4:"Max"}),
          "pumpSpeed": HAView({}, "%d RPM"),
          "pumpFlow": HAView({}, "%d GPM"),
