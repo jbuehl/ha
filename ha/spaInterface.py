@@ -1,6 +1,8 @@
 import json
 import time
 import threading
+import requests
+import urllib
 from ha.HAClasses import *
 from twilio.rest import TwilioRestClient
 
@@ -39,6 +41,10 @@ def smsNotify(numbers, message):
     for smsTo in getValue(numbers):
         smsClient.sms.messages.create(to=smsTo, from_=smsFrom, body=message)
 
+# send an iOS app notofication
+def iosNotify(app, message):
+    requests.get("http://"+app+".appspot.com/notify?message="+urllib.quote(message))
+    
 class SpaInterface(HAInterface):
     def __init__(self, name, valveControl, pumpControl, heaterControl, lightControl, tempSensor):
         HAInterface.__init__(self, name, None)
@@ -125,6 +131,7 @@ class SpaInterface(HAInterface):
     def spaReady(self, state):
         self.setState(state)
         smsNotify(spaReadyNotifyNumbers, "Spa is ready")
+        iosNotify("shadyglade-app", "Spa is ready")
         
 # start a thread to wait for the state of the specified sensor to reach the specified value
 # then call the specified action function with the specified action value
