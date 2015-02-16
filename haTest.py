@@ -1,6 +1,7 @@
 from ha.HAClasses import *
+from ha.I2CInterface import *
 from ha.GPIOInterface import *
-from ha.applianceInterface import *
+#from ha.applianceInterface import *
 from ha.restServer import *
 
 if __name__ == "__main__":
@@ -11,17 +12,18 @@ if __name__ == "__main__":
     resources.addRes(schedule)
 
     # Interfaces
-    gpioInterface = GPIOInterface("GPIO")
-    applianceInterface = ApplianceInterface("Lights", gpioInterface)
+    i2c1 = HAI2CInterface("I2C1", 1)
+    gpioInterface = GPIOInterface("GPIO", i2c1, addr=0x20, inOut=[0x00, 0xff])
+#    applianceInterface = ApplianceInterface("Lights", gpioInterface)
     
     # Lights
-    sensors.addRes(HAControl("testLight", applianceInterface, 0, type="light", group="Lights", label="Test light"))
-    sensors.addRes(HASensor("testSwitch", applianceInterface, 1, type="light", group="Lights", label="Test switch"))
+    sensors.addRes(HAControl("testLight", gpioInterface, GPIOAddr(0,0,0), type="light", group="Lights", label="Test light"))
+    sensors.addRes(HASensor("testSwitch", gpioInterface, GPIOAddr(0,1,0), type="light", group="Lights", label="Test switch"))
 
     # Schedules
 
     # Start interfaces
-    applianceInterface.start()
+    gpioInterface.start()
     schedule.start()
     restServer = RestServer(resources)
     restServer.start()
