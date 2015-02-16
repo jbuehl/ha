@@ -8,7 +8,7 @@ from ha.restInterface import *
 from ha.restServer import *
 from ha.timeInterface import *
 
-beaconPort = 7379
+restPort = 7478
 
 # transform functions for views
 def ctof(tempc):
@@ -287,7 +287,7 @@ if __name__ == "__main__":
     resources.addRes(HASensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
 
     # start the process to listen for services
-    beacon = BeaconClient("beaconClient", resources, socket.gethostname()+":"+str(beaconPort))
+    beacon = BeaconClient("beaconClient", resources, socket.gethostname()+":"+str(restPort))
     beacon.start()
     
     # set up the web server
@@ -321,6 +321,6 @@ if __name__ == "__main__":
     cherrypy.engine.start()
 
     # start the REST server for this service
-    restServer = RestServer(resources, beaconPort, secure=True)
+    restServer = RestServer(resources, restPort)
     restServer.start()
 

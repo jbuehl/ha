@@ -1,4 +1,5 @@
 from ha.HAClasses import *
+from SocketServer import ThreadingMixIn
 from BaseHTTPServer import HTTPServer
 from BaseHTTPServer import BaseHTTPRequestHandler
 import json
@@ -10,21 +11,12 @@ import ssl
 # RESTful web services server interface
 
 class RestServer(object):
-    def __init__(self, resources, port=7378, secure=False, beacon=True):
+    def __init__(self, resources, port=7378, beacon=True):
         self.resources = resources
         self.hostname = socket.gethostname()
         self.port = port
         self.beacon = beacon
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
-        if secure:
-            self.server.socket = ssl.wrap_socket (self.server.socket, 
-                                                  #server_side=True,
-                                                  #ssl_version=ssl.PROTOCOL_TLSv1, 
-                                                  cert_reqs=ssl.CERT_REQUIRED,
-                                                  certfile=keyDir+self.hostname+".crt", 
-                                                  keyfile=keyDir+self.hostname+".key", 
-                                                  ca_certs=keyDir+"ca.crt",
-                                                  )
 
     def start(self):
         if self.beacon:
@@ -63,7 +55,7 @@ class BeaconThread(threading.Thread):
             time.sleep(1)
         if debugThread: log(self.name, "terminated")
 
-class RestHTTPServer(HTTPServer):
+class RestHTTPServer(ThreadingMixIn, HTTPServer):
     def __init__(self, server_address, RequestHandlerClass, resources):
         HTTPServer.__init__(self, server_address, RequestHandlerClass)
         self.resources = resources
