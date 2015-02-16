@@ -26,6 +26,9 @@ sysLogging = True
 x10Device = "/dev/ttyUSB0"
 debugLights = True
 
+# I2C interfce
+debugI2C = False
+
 # Data base interface
 dbRetryInterval = 60
 debugSql = False
