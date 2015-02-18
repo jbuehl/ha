@@ -2,31 +2,31 @@
 import smbus
 from ha.HAClasses import *
 
-class HAI2CInterface(HAInterface):
-    def __init__(self, theName, theInterface):
-        HAInterface.__init__(self, theName, theInterface)
+class I2CInterface(HAInterface):
+    def __init__(self, name, interface):
+        HAInterface.__init__(self, name, interface)
         self.bus = smbus.SMBus(self.interface)
 
-    def read(self, theAddr):
+    def read(self, addr):
         try:
-            if debugI2C: log(self.name, "readByte", theAddr)
-            return self.bus.read_byte_data(*theAddr)
+            if debugI2C: log(self.name, "readByte", addr)
+            return self.bus.read_byte_data(*addr)
         except:
             return 0
 
-    def readWord(self, theAddr):
+    def readWord(self, addr):
         try:
-            if debugI2C: log(self.name, "readWord", theAddr)
-            return self.bus.read_word_data(*theAddr)
+            if debugI2C: log(self.name, "readWord", addr)
+            return self.bus.read_word_data(*addr)
         except:
             return 0
 
-    def write(self, theAddr, theValue):
-        if debugI2C: log(self.name, "writeByte", theAddr, theValue)
-        self.bus.write_byte_data(*theAddr+(theValue,))
+    def write(self, addr, value):
+        if debugI2C: log(self.name, "writeByte", addr, value)
+        self.bus.write_byte_data(*addr+(value,))
 
-    def writeWord(self, theAddr, theValue):
-        if debugI2C: log(self.name, "writeWord", theAddr, theValue)
-        self.bus.write_word_data(*theAddr+(theValue,))
+    def writeWord(self, addr, value):
+        if debugI2C: log(self.name, "writeWord", addr, value)
+        self.bus.write_word_data(*addr+(value,))
 
 
