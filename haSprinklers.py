@@ -12,7 +12,7 @@ if __name__ == "__main__":
 
     # Interfaces
     nullInterface = HAInterface("Null", HAInterface("None"))
-    i2c1 = HAI2CInterface("I2C1", 1)
+    i2c1 = I2CInterface("I2C1", 1)
     gpioInterface = GPIOInterface("GPIO", i2c1)
     
     sensors.addRes(HAControl("Null", nullInterface, None))
