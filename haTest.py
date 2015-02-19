@@ -12,8 +12,8 @@ if __name__ == "__main__":
     resources.addRes(schedule)
 
     # Interfaces
-    i2c1 = HAI2CInterface("I2C1", 1)
-    gpioInterface = GPIOInterface("GPIO", i2c1, addr=0x20, inOut=[0x00, 0xff])
+    i2c1 = I2CInterface("I2C1", 1)
+    gpioInterface = GPIOInterface("GPIO", i2c1, addr=0x20, config=[(0x00, 0x00), (0x01, 0xff), (0x03, 0xff), (0x0d, 0xff)])
 #    applianceInterface = ApplianceInterface("Lights", gpioInterface)
     
     # Lights
