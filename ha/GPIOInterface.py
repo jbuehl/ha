@@ -1,8 +1,7 @@
-
 from ha.HAClasses import *
-#import RPi.GPIO as gpio
 import RPIO as gpio
 
+# Interface to GPIO either directly or via MCP23017 I2C I/O expander
 class GPIOInterface(HAInterface):
     # MCP23017 I2C I/O expander
     ioDirRegister = 0x00
@@ -12,27 +11,26 @@ class GPIOInterface(HAInterface):
     pins = [12, 16, 18, 22, 15, 13, 11, 7]   # A/B
 #            32, 36, 38, 40, 37, 35, 33, 31]     # B+
     
-    def __init__(self, name, I2CInterface=None, addr=0x20, inOut=[0x00, 0x00]):
+    def __init__(self, name, interface=None, addr=0x20, 
+                config=[(0x00, 0x00), (0x01, 0x00)]): # default is all pins are output
         self.name = name
-        if I2CInterface:
-            HAInterface.__init__(self, name, I2CInterface)
+        if interface:
+            HAInterface.__init__(self, name, interface)
             self.addr = addr
-            self.inOut = inOut
+            self.config = config
         else:
             self.interface = None
+    
+    def start(self):
+        if self.interface:
+            for config in self.config:
+                self.interface.write((self.addr, config[0]), config[1])
+        else:   # direct only supports output - FIXME
             gpio.setwarnings(False)
             gpio.setmode(gpio.BOARD)
             for pin in GPIOInterface.pins:
 	            gpio.setup(pin, gpio.OUT)
 	            gpio.output(pin, 0)
-    
-    def start(self):
-        if self.interface:
-            for bank in range(2):
-                self.interface.write((self.addr, GPIOInterface.ioDirRegister+bank), self.inOut[bank])     # direction
-                self.interface.write((self.addr, GPIOInterface.ioPullupRegister+bank), self.inOut[bank])  # pullup
-        else:
-            pass
 
     def read(self, gpioAddr):
         if self.interface:
@@ -54,7 +52,7 @@ class GPIOInterface(HAInterface):
 class GPIOAddr(object):
     def __init__(self, control, bank, start, width=1):
         self.control = control  # the I/O chip (deprecated, use a separate instance of GPIOInterface per chip)
-        self.bank = bank        # the 8 bit bank of I/O pins within the chip
+        self.bank = bank        # the 8 bit bank of I/O pins within the chip (A=0, B=1)
         self.start = start      # the starting pin
         self.width = width      # the number of pins
 
