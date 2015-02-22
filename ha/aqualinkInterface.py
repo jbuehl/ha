@@ -107,6 +107,7 @@ class AqualinkInterface(HAInterface):
 
     def read(self, theAddr):
         if theAddr == "spaTemp" and self.equipDict["spa"].state == False:
+            self.setSpaTemp((self.poolTemp.state, self.tempScale)) # force to pool temp if spa is off
             return "--"
         else:
             return self.equipDict[theAddr].state
