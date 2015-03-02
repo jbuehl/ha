@@ -129,7 +129,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                 else:
                     (name, sep, path) = path.partition("/")
                     if sep == "":   # no more elements left in path
-                        if hasattr(resource, name):
+                        if name in dir(resource):
                             return (resource, name) # path matches resource and attr
         return (None, None)         # no match
 
