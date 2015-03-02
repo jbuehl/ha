@@ -20,14 +20,16 @@ debug = True
 debugObject = True
 debugState = True
 debugThread = True
+debugInterrupt = True
 sysLogging = True
 
 # X10 interface
 x10Device = "/dev/ttyUSB0"
 debugLights = True
 
-# I2C interfce
+# I2C and GPIO interfaces
 debugI2C = False
+debugGPIO = False
 
 # Data base interface
 dbRetryInterval = 60
