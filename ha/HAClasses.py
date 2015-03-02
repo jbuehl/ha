@@ -35,14 +35,20 @@ class HAResource(object):
 
 # Base class for Interfaces 
 class HAInterface(HAResource):
-    def __init__(self, theName, theInterface=None):
+    def __init__(self, theName, theInterface=None, persistence=None):
         HAResource.__init__(self, theName)
         self.interface = theInterface
+        self.persistence = persistence
+        self.sensors = []
 
     def start(self):
+        if self.persistence:
+            self.persistence.start()
         return True
         
     def stop(self):
+        if self.persistence:
+            self.persistence.stop()
         return True
         
     def read(self, theAddr):
@@ -51,6 +57,9 @@ class HAInterface(HAResource):
     def write(self, theAddr, theValue):
         return True
 
+    def addSensor(self, sensor):
+        return True
+        
 # Resource collection 
 
 # todo
@@ -154,7 +163,7 @@ class HACollection(HAResource, OrderedDict):
 # The state is associated with a unique address on an interface.
 # Sensors can also optionally be associated with a group and a physical location.
 class HASensor(HAResource):
-    def __init__(self, theName, theInterface, theAddr=None, group="", type="sensor", location=None, label="", view=None):
+    def __init__(self, theName, theInterface, theAddr=None, group="", type="sensor", location=None, label="", view=None, interrupt=None):
         HAResource.__init__(self, theName)
         self.type = type
         self.interface = theInterface
@@ -171,11 +180,26 @@ class HASensor(HAResource):
             self.view = HAView()
         else:
             self.view = view
+        self.interrupt = interrupt
+        self.event = threading.Event()
+        if self.interface:
+            self.interface.addSensor(self)
         self.__dict__["state"] = None   # dummy class variable so hasattr() returns True
+        self.__dict__["stateChange"] = None   # dummy class variable so hasattr() returns True
 
     # Return the state of the sensor by reading the value from the address on the interface.
     def getState(self):
         return self.interface.read(self.addr)
+
+    # Wait for the state of the sensor to change if an interrupt routine was specified
+    def getStateChange(self):
+        if self.interrupt:
+            # the interrupt routine must set the event after the state is changed
+            self.event.clear()
+            if debugInterrupt: log(self.name, "event clear")
+            self.event.wait()
+            if debugInterrupt: log(self.name, "event wait")
+        return self.getState()
 
     # Return the printable string value for the state of the sensor
     def getViewState(self):
@@ -185,10 +209,12 @@ class HASensor(HAResource):
     def setState(self, theState, wait=False):
         return False
 
-    # override to handle special case of state
+    # override to handle special cases of state and stateChange
     def __getattribute__(self, attr):
         if attr == "state":
             return self.getState()
+        elif attr == "stateChange":
+            return self.getStateChange()
         else:
             return HAResource.__getattribute__(self, attr)
             
@@ -247,8 +273,8 @@ class HAView(object):
 
 # A Control is a Sensor whose state can be set        
 class HAControl(HASensor):
-    def __init__(self, theName, theInterface, theAddr=None, group="", type="control", location=None, view=None, label=""):
-        HASensor.__init__(self, theName, theInterface, theAddr, group=group, type=type, location=location, view=view, label=label)
+    def __init__(self, theName, theInterface, theAddr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
+        HASensor.__init__(self, theName, theInterface, theAddr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.running = False
 
     # Set the state of the control by writing the value to the address on the interface.
