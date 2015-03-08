@@ -4,9 +4,15 @@ import math
 import datetime
 from dateutil import tz
 
+# is the sun up at the specified time
+def sunIsUp(date, latLong):
+    return sunrise(date, latLong) > sunset(date, latLong)
+    
+# return the time of the next sunrise after the specified time
 def sunrise(date, latLong):
     return sunRiseSet(date, latLong[0], latLong[1], True)
     
+# return the time of the next sunset after the specified time
 def sunset(date, latLong):
     return sunRiseSet(date, latLong[0], latLong[1], False)
     
