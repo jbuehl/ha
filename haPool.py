@@ -5,6 +5,7 @@ from ha.pentairInterface import *
 from ha.powerInterface import *
 from ha.spaInterface import *
 from ha.restServer import *
+from ha.timeInterface import *
 
 # Force usb serial devices to associate with specific devices based on which port they are plugged into
 
@@ -23,6 +24,20 @@ serial1Config = {"baudrate": 9600,
                  "parity": serial.PARITY_NONE, 
                  "stopbits": serial.STOPBITS_ONE}
 
+# control that can only be turned on if all the specified sensors are in the specified states
+class DependentControl(HAControl):
+    def __init__(self, theName, theInterface, control, sensors, theAddr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
+        HAControl.__init__(self, theName, theInterface, theAddr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+        self.control = control
+        self.sensors = sensors
+
+    def setState(self, theState, wait=False):
+        if debugState: log(self.name, "setState ", theState)
+        for sensor in self.sensors:
+            if sensor[0].getState() != sensor[1]:
+                return
+        self.control.setState(theState)
+
 if __name__ == "__main__":
     resources = HACollection("resources")
     sensors = HACollection("sensors")
@@ -37,6 +52,7 @@ if __name__ == "__main__":
     aqualinkInterface = AqualinkInterface("Aqualink", serial0)
     pentairInterface = PentairInterface("Pentair", serial1)
     powerInterface = HAPowerInterface("Power", HAInterface("None"), powerTbl)
+    timeInterface = TimeInterface("Time")
     
     sensors.addRes(HAControl("Null", nullInterface, None))
     
@@ -76,8 +92,12 @@ if __name__ == "__main__":
     sensors.addRes(HASensor("date", aqualinkInterface, "date", group="Pool", label="Controller date"))
     sensors.addRes(HASensor("time", aqualinkInterface, "time", group="Pool", label="Controller time"))
 
-    spaInterface = SpaInterface("SpaInterface", poolValves, poolPump, spaHeater, spaLight, spaTemp)
-    sensors.addRes(HAControl("spa", spaInterface, None, group="Pool", label="Spa", type="spa"))
+    # Spa
+    dayLight = HASensor("daylight", timeInterface, "daylight")
+    spaLightNight = DependentControl("spaLightNight", None, spaLight, [(poolValves, 1), (dayLight, 0)])
+    spaInterface = SpaInterface("SpaInterface", poolValves, poolPump, spaHeater, spaLightNight, spaTemp)
+    spa = HAControl("spa", spaInterface, None, group="Pool", label="Spa", type="spa")
+    sensors.addRes(spa)
     
     sensors.addRes(HASequence("cleanMode", [HACycle(sensors["poolPump"], duration=3600, startState=3), 
                                               HACycle(sensors["poolPump"], duration=0, startState=0)
@@ -94,6 +114,7 @@ if __name__ == "__main__":
 
     # Schedules
     schedule.addTask(HATask("Pool cleaning", HASchedTime(hour=[8], minute=[0]), sensors["cleanMode"], 1))
+    schedule.addTask(HATask("Spa light on sunset", HASchedTime(event="sunset"), spaLightNight, 1))
 
     # Start interfaces
     aqualinkInterface.start()
