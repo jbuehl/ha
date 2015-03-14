@@ -48,11 +48,12 @@ debugAck = False
 debugStatus = True
 debugAction = True
 debugMsg = False
-debugTime = True
+debugTime = False
 
 # spa interface
 spaTempTarget = 100
 spaReadyNotifyNumbers = keyDir+"spaReadyNotifyNumbers"
+debugSpaLight = True
 
 # REST interface
 debugRest = False
