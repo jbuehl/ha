@@ -7,7 +7,7 @@ class TimeInterface(HAInterface):
 
     def read(self, addr=None):
         if addr:
-            if addr == "daytime":
+            if addr == "daylight":
                 return normalState(sunIsUp(todaysDate()[0], latLong))
             else:
                 return time.strftime(addr).lstrip("0")
