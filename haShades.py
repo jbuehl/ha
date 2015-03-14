@@ -25,12 +25,13 @@ if __name__ == "__main__":
                                       sensors["shade4"]], type="shade", group="Doors", label="All shades"))
 
     # Schedules
-    schedule.addTask(HATask("Shades down", HASchedTime(hour=[13], minute=[00], month=[May, Jun, Jul, Aug, Sep]), sensors["allShades"], 1, enabled=True))
+    schedule.addTask(HATask("Shades down", HASchedTime(hour=[13], minute=[00], month=[Apr, May, Jun, Jul, Aug, Sep]), sensors["allShades"], 1, enabled=True))
     schedule.addTask(HATask("Shades up Jun, Jul", HASchedTime(hour=[18], minute=[30], month=[Jun, Jul]), sensors["allShades"], 0, enabled=True))
     schedule.addTask(HATask("Shades up May, Aug", HASchedTime(hour=[18], minute=[15], month=[May, Aug]), sensors["allShades"], 0, enabled=True))
-    schedule.addTask(HATask("Shades up Sep", HASchedTime(hour=[18], minute=[00], month=[Sep]), sensors["allShades"], 0, enabled=True))
+    schedule.addTask(HATask("Shades up Apr, Sep", HASchedTime(hour=[18], minute=[00], month=[Apr, Sep]), sensors["allShades"], 0, enabled=True))
 
     # Start interfaces
+    gpioInterface.start()
     shadeInterface.start()
     schedule.start()
     restServer = RestServer(resources)
