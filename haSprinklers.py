@@ -35,6 +35,7 @@ if __name__ == "__main__":
 #    sensors.addRes(HASequence("gardenSequence", [HACycle(sensors["backBeds"], 600)], group="Water", label="Garden 10 min"))
 #    sensors.addRes(HASequence("backLawnSequence", [HACycle(sensors["backLawn"], 1200)], group="Water", label="Back lawn 20 min"))
 #    sensors.addRes(HASequence("sideBedSequence", [HACycle(sensors["sideBeds"], 900)], group="Water", label="Side beds 15 min"))
+    sensors.addRes(HASequence("frontLawnSequence", [HACycle(sensors["frontLawn"], 300)], group="Water", label="Front lawn 5 min"))
     sensors.addRes(HASequence("gardenSequence", [HACycle(sensors["backBeds"], 300)], group="Water", label="Garden 5 min"))
     sensors.addRes(HASequence("backLawnSequence", [HACycle(sensors["backLawn"], 600)], group="Water", label="Back lawn 10 min"))
     sensors.addRes(HASequence("sideBedSequence", [HACycle(sensors["sideBeds"], 600)], group="Water", label="Side beds 10 min"))
