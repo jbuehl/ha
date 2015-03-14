@@ -5,40 +5,46 @@ from ha.GPIOInterface import *
 from ha.HAClasses import *
 
 class ShadeInterface(HAInterface):
-    def __init__(self, theName, theInterface):
-        HAInterface.__init__(self, theName, theInterface)
+    def __init__(self, name, interface):
+        HAInterface.__init__(self, name, interface)
         self.state = [0, 0, 0, 0]
         self.travelTime = [15, 15, 12, 12]
         self.timers = [None, None, None, None]
         self.gpio_lock = threading.Lock()
 
-    def read(self, theAddr):
+    def read(self, addr):
         try:
-            return self.state[theAddr]
+            return self.state[addr]
         except:
             return 0
 
-    def write(self, theAddr, theValue):
-        self.newValue = theValue
-        self.state[theAddr] = theValue + 2  # moving
+    def write(self, addr, value):
+        self.newValue = value
+        self.state[addr] = value + 2  # moving
 
+        if debugShades: log(self.name, "state", addr, self.state[addr])
         with self.gpio_lock:
             # set the direction
-            self.interface.write(GPIOAddr(0, 0, theAddr*2, 1), theValue)
+            if debugShades: log(self.name, "direction", addr*2, value)
+            self.interface.write(GPIOAddr(0, 0, addr*2, 1), value)
             # start the motion
-            self.interface.write(GPIOAddr(0, 0, theAddr*2+1, 1), 1)
+            if debugShades: log(self.name, "motion", addr*2+1, 1)
+            self.interface.write(GPIOAddr(0, 0, addr*2+1, 1), 1)
 
-        if self.timers[theAddr]:
-            self.timers[theAddr].cancel()
+        if self.timers[addr]:
+            self.timers[addr].cancel()
 
         def _stop():
             with self.gpio_lock:
                 # stop the motion
-                self.interface.write(GPIOAddr(0, 0, theAddr*2+1, 1), 0)
+                if debugShades: log(self.name, "motion", addr*2+1, 1)
+                self.interface.write(GPIOAddr(0, 0, addr*2+1, 1), 0)
                 # reset the direction
-                self.interface.write(GPIOAddr(0, 0, theAddr*2, 1), 0)
-                self.state[theAddr] = self.newValue # done moving
+                if debugShades: log(self.name, "direction", addr*2, 0)
+                self.interface.write(GPIOAddr(0, 0, addr*2, 1), 0)
+                self.state[addr] = self.newValue # done moving
+                if debugShades: log(self.name, "state", addr, self.state[addr])
 
-        self.timers[theAddr] = threading.Timer(self.travelTime[theAddr], _stop)
-        self.timers[theAddr].start()
+        self.timers[addr] = threading.Timer(self.travelTime[addr], _stop)
+        self.timers[addr].start()
 
