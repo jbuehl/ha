@@ -41,6 +41,7 @@ class GPIOInterface(HAInterface):
             self.sensors = [None]*8
         else:
             self.interface = None
+            self.bank = 0
     
     def start(self):
         gpio.setwarnings(False)
@@ -63,8 +64,10 @@ class GPIOInterface(HAInterface):
             gpio.wait_for_interrupts(threaded=True)
         else:   # direct only supports output - FIXME
             for pin in GPIOInterface.gpioPins:
-	            gpio.setup(pin, gpio.OUT)
-	            gpio.output(pin, 0)
+                if debugGPIO: log(self.name, "setup", pin, gpio.OUT)
+                gpio.setup(pin, gpio.OUT)
+                if debugGPIO: log(self.name, "write", pin, 0)
+                gpio.output(pin, 0)
 
     def read(self, gpioAddr):
         if self.interface:
@@ -79,9 +82,8 @@ class GPIOInterface(HAInterface):
         for i in range(8):
             if (intFlags << i) & 0x01:
                 try:
+                    self.sensors[i].notify()
                     if debugGPIO: log(self.name, "calling", self.sensors[i].name, (self.state << i) & 0x01)
-                    self.sensors[i].event.set()
-                    if debugInterrupt: log(self.sensors[i].name, "event set")
                     self.sensors[i].interrupt(self.sensors[i], (self.state << i) & 0x01)
                 except:
                     pass
@@ -100,7 +102,8 @@ class GPIOInterface(HAInterface):
             self.interface.write((self.addr, GPIOInterface.GPIO+self.bank), byte)
             self.state = byte
         else:
-        		gpio.output(GPIOInterface.gpioPins[gpioAddr.start], value)
+            if debugGPIO: log(self.name, "write", gpioAddr.start, value)
+            gpio.output(GPIOInterface.gpioPins[gpioAddr.start], value)
             
     def addSensor(self, sensor):
         self.sensors[sensor.addr.start] = sensor
