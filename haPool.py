@@ -34,6 +34,7 @@ class DependentControl(HAControl):
     def setState(self, theState, wait=False):
         if debugState: log(self.name, "setState ", theState)
         for sensor in self.sensors:
+            if debugSpaLight: log(self.name, sensor[0].name, sensor[0].getState())
             if sensor[0].getState() != sensor[1]:
                 return
         self.control.setState(theState)
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     aqualinkInterface = AqualinkInterface("Aqualink", serial0)
     pentairInterface = PentairInterface("Pentair", serial1)
     powerInterface = HAPowerInterface("Power", HAInterface("None"), powerTbl)
-    timeInterface = TimeInterface("Time")
+#    timeInterface = TimeInterface("Time")
     
     sensors.addRes(HAControl("Null", nullInterface, None))
     
@@ -93,11 +94,12 @@ if __name__ == "__main__":
     sensors.addRes(HASensor("time", aqualinkInterface, "time", group="Pool", label="Controller time"))
 
     # Spa
-    dayLight = HASensor("daylight", timeInterface, "daylight")
-    spaLightNight = DependentControl("spaLightNight", None, spaLight, [(poolValves, 1), (dayLight, 0)])
-    spaInterface = SpaInterface("SpaInterface", poolValves, poolPump, spaHeater, spaLightNight, spaTemp)
+#    dayLight = HASensor("daylight", timeInterface, "daylight")
+    spaInterface = SpaInterface("SpaInterface", poolValves, poolPump, spaHeater, spaLight, spaTemp)
     spa = HAControl("spa", spaInterface, None, group="Pool", label="Spa", type="spa")
+    spaLightNight = DependentControl("spaLightNight", None, spaLight, [(spa, 1)])
     sensors.addRes(spa)
+    sensors.addRes(spaLightNight)
     
     sensors.addRes(HASequence("cleanMode", [HACycle(sensors["poolPump"], duration=3600, startState=3), 
                                               HACycle(sensors["poolPump"], duration=0, startState=0)
