@@ -41,7 +41,7 @@ def smsNotify(numbers, message):
     for smsTo in getValue(numbers):
         smsClient.sms.messages.create(to=smsTo, from_=smsFrom, body=message)
 
-# send an iOS app notofication
+# send an iOS app notification
 def iosNotify(app, message):
     requests.get("http://"+app+".appspot.com/notify?message="+urllib.quote(message))
     
@@ -63,11 +63,11 @@ class SpaInterface(HAInterface):
                               ])
         self.onSequence = HASequence("spaOn", 
                              [HACycle(self.pumpControl, duration=0, startState=pumpMax),
-                              HACycle(self.lightControl, duration=0, startState=on)
+#                              HACycle(self.lightControl, duration=0, startState=on)
                               ])
         self.standbySequence = HASequence("spaStandby", 
                              [HACycle(self.pumpControl, duration=0, startState=pumpMed),
-                              HACycle(self.lightControl, duration=0, startState=on)
+#                              HACycle(self.lightControl, duration=0, startState=on)
                               ])
         self.shutdownSequence = HASequence("spaShutdown", 
                              [HACycle(self.pumpControl, duration=0, startState=pumpMed),
