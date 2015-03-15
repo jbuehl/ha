@@ -1,5 +1,6 @@
 import MySQLdb
 import time
+import threading
 from ha.HAClasses import *
 
 class HADbInterface(HAInterface):
@@ -10,6 +11,7 @@ class HADbInterface(HAInterface):
         self.userName = userName
         self.password = password
         self.db = None
+        self.lock = threading.Lock()
 
     def start(self):
         while not self.db:
@@ -22,13 +24,14 @@ class HADbInterface(HAInterface):
     def read(self, sql):
         if debugSql: log("sql", sql)
         try:
-            cur = self.db.cursor()
-            if cur.execute(sql) > 0:
-                result = cur.fetchall()[0][0]
-            else:
-                result = "-"
-            self.db.commit()
-            cur.close()
+            with self.lock:
+                cur = self.db.cursor()
+                if cur.execute(sql) > 0:
+                    result = cur.fetchall()[0][0]
+                else:
+                    result = "-"
+                self.db.commit()
+                cur.close()
             return result
         except:
             return "-"
