@@ -17,8 +17,8 @@ if __name__ == "__main__":
     loadInterface = HALoadInterface("Loads", dbInterface)
     
     # Temperature
-    sensors.addRes(HASensor("inverterTemp", solarInterface, ("stats", "avg", "Temp"), "Temperature", label="Inverter temp", type="tempC"))
-#    sensors.addRes(HASensor("roofTemp", solarInterface, ("stats", "", "Topt"), "Temperature", label="Roof temp", type="tempC"))
+    sensors.addRes(HASensor("inverterTemp", solarInterface, ("inverters", "avg", "Temp"), "Temperature", label="Inverter temp", type="tempC"))
+    sensors.addRes(HASensor("roofTemp", solarInterface, ("optimizers", "avg", "Temp"), "Temperature", label="Roof temp", type="tempC"))
 
     # Solar
     sensors.addRes(HASensor("currentPower", solarInterface, ("inverters", "sum", "Pac"), "Solar", label="Current power", type="KW"))
