@@ -55,6 +55,9 @@ spaTempTarget = 100
 spaReadyNotifyNumbers = keyDir+"spaReadyNotifyNumbers"
 debugSpaLight = True
 
+# Shades interface
+debugShades = False
+
 # REST interface
 debugRest = False
 debugRestGet = False
@@ -78,6 +81,10 @@ debugPentairData = False
 
 # Solar interface
 solarIp = "192.168.1.13:7380"
+solarFileName = "/root/solar.json"
+
+# Loads interface
+loadFileName = "/root/power.json"
 
 # Power interface
 powerTbl = {"poolCleaner": 1500,
