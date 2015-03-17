@@ -97,7 +97,7 @@ if __name__ == "__main__":
 #    dayLight = HASensor("daylight", timeInterface, "daylight")
     spaInterface = SpaInterface("SpaInterface", poolValves, poolPump, spaHeater, spaLight, spaTemp)
     spa = HAControl("spa", spaInterface, None, group="Pool", label="Spa", type="spa")
-    spaLightNight = DependentControl("spaLightNight", None, spaLight, [(spa, 1)])
+    spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(spa, 1)])
     sensors.addRes(spa)
     sensors.addRes(spaLightNight)
     
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
     # Schedules
     schedule.addTask(HATask("Pool cleaning", HASchedTime(hour=[8], minute=[0]), sensors["cleanMode"], 1))
-    schedule.addTask(HATask("Spa light on sunset", HASchedTime(event="sunset"), spaLightNight, 1))
+    schedule.addTask(HATask("Spa light on sunset", HASchedTime(event="sunset"), sensors["spaLightNight"], 1))
 
     # Start interfaces
     aqualinkInterface.start()
