@@ -3,7 +3,7 @@ import json
 import os
 import time
 
-class HAFileInterface(HAInterface):
+class FileInterface(HAInterface):
     def __init__(self, name, fileName, readOnly=False):
         HAInterface.__init__(self, name, None)
         self.fileName = fileName
