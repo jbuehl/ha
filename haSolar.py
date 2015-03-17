@@ -1,7 +1,6 @@
 from ha.HAClasses import *
-from ha.dbInterface import *
+from ha.fileInterface import *
 from ha.solarInterface import *
-from ha.loadInterface import *
 from ha.restServer import *
 
 if __name__ == "__main__":
@@ -12,9 +11,8 @@ if __name__ == "__main__":
     resources.addRes(sensors)
 
     # Interfaces
-    dbInterface = HADbInterface("DB", "solar")
-    solarInterface = HASolarInterface("Solar", dbInterface)
-    loadInterface = HALoadInterface("Loads", dbInterface)
+    fileInterface = FileInterface("File", solarFileName, readOnly=True)
+    solarInterface = HASolarInterface("Solar", fileInterface)
     
     # Temperature
     sensors.addRes(HASensor("inverterTemp", solarInterface, ("inverters", "avg", "Temp"), "Temperature", label="Inverter temp", type="tempC"))
@@ -27,18 +25,8 @@ if __name__ == "__main__":
 #    sensors.addRes(HASensor("yearlyEnergy", solarInterface, ("stats", "", "Eyear"), "Solar", label="Energy this year", type="MWh"))
     sensors.addRes(HASensor("lifetimeEnergy", solarInterface, ("inverters", "sum", "Etot"), "Solar", label="Lifetime energy", type="MWh"))
 
-    # Loads
-    sensors.addRes(HASensor("lightsLoad", loadInterface, ("loads", "", "lights"), "Power", label="Lights", type="KVA"))
-    sensors.addRes(HASensor("plugsLoad", loadInterface, ("loads", "", "plugs"), "Power", label="Plugs", type="KVA"))
-    sensors.addRes(HASensor("appl1Load", loadInterface, ("loads", "", "appl1"), "Power", label="Appliances 1", type="KVA"))
-    sensors.addRes(HASensor("appl2Load", loadInterface, ("loads", "", "appl2"), "Power", label="Appliances 2", type="KVA"))
-    sensors.addRes(HASensor("cookingLoad", loadInterface, ("loads", "", "cooking"), "Power", label="Stove & oven", type="KVA"))
-    sensors.addRes(HASensor("acLoad", loadInterface, ("loads", "", "ac"), "Power", label="Air conditioners", type="KVA"))
-    sensors.addRes(HASensor("poolLoad", loadInterface, ("loads", "", "pool"), "Power", label="Pool equipment", type="KVA"))
-    sensors.addRes(HASensor("backLoad", loadInterface, ("loads", "", "back"), "Power", label="Back house", type="KVA"))
-
     # Start interfaces
-    dbInterface.start()
+    fileInterface.start()
     solarInterface.start()
     restServer = RestServer(resources)
     restServer.start()
