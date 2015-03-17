@@ -318,6 +318,8 @@ if __name__ == "__main__":
     access_log = cherrypy.log.access_log
     for handler in tuple(access_log.handlers):
         access_log.removeHandler(handler)
+    cherrypy.engine.timeout_monitor.unsubscribe()
+    cherrypy.engine.autoreload.unsubscribe()
     cherrypy.engine.start()
 
     # start the REST server for this service
