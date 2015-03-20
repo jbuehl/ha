@@ -29,10 +29,15 @@ if __name__ == "__main__":
     sensors.addRes(HAScene("garageLights", [sensors["frontLights"],
                                              sensors["garageBackDoorLight"]], group="Lights", label="Garage"))
 
+    # Water
+    sensors.addRes(HAControl("recircPump", gpio0, GPIOAddr(0,0,3), type="hotwater", group="Water", label="Hot water"))
+
     # Schedules
     schedule.addTask(HATask("Garage lights on sunset", HASchedTime(event="sunset"), sensors["garageLights"], 1))
     schedule.addTask(HATask("Garage lights off midnight", HASchedTime(hour=[23,0], minute=[00]), sensors["garageLights"], 0))
     schedule.addTask(HATask("Garage lights off sunrise", HASchedTime(event="sunrise"), sensors["garageLights"], 0))
+    schedule.addTask(HATask("Hot water recirc on", HASchedTime(hour=[05], minute=[0]), sensors["recircPump"], 1))
+    schedule.addTask(HATask("Hot water recirc off", HASchedTime(hour=[23], minute=[0]), sensors["recircPump"], 0))
 
     # Start interfaces
     gpio0.start()
