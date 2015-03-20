@@ -28,7 +28,6 @@ if __name__ == "__main__":
     
     # Lights
     sensors.addRes(HAControl("xmasLights", x10Interface, "A1", type="light", group="Lights", label="Xmas lights"))
-#    sensors.addRes(HAControl("frontLights", x10Interface, "A2", type="light", group="Lights", label="Front lights"))
     sensors.addRes(HAControl("backLights", x10Interface, "A3", type="light", group="Lights", label="Back lights"))
     sensors.addRes(HAControl("bedroomLight", x10Interface, "A4", type="light", group="Lights", label="Bedroom light"))
     sensors.addRes(HAControl("bbqLights", x10Interface, "A6", type="light", group="Lights", label="Barbeque lights"))
@@ -36,22 +35,13 @@ if __name__ == "__main__":
     sensors.addRes(HAScene("outsideLights", [sensors["backLights"],
                                              sensors["xmasLights"]], group="Lights", label="Outside"))
 
-    # Water
-    sensors.addRes(HAControl("recircPump", x10Interface, "A8", type="hotwater", group="Water", label="Hot water"))
-
     # Schedules
     schedule.addTask(HATask("Bedroom light on sunset", HASchedTime(event="sunset"), sensors["bedroomLight"], 1))
     schedule.addTask(HATask("Bedroom light off sunrise", HASchedTime(event="sunrise"), sensors["bedroomLight"], 0))
     schedule.addTask(HATask("Outside lights on sunset", HASchedTime(event="sunset"), sensors["outsideLights"], 1))
     schedule.addTask(HATask("Outside lights off midnight", HASchedTime(hour=[23,0], minute=[00]), sensors["outsideLights"], 0))
-#    schedule.addTask(HATask("Outside lights off 5pm", HASchedTime(hour=[17], minute=[01], month=[May, Jun, Jul, Aug, Sep, Oct]), sensors["outsideLights"], 0))
     schedule.addTask(HATask("Outside lights off sunrise", HASchedTime(event="sunrise"), sensors["outsideLights"], 0))
     
-    schedule.addTask(HATask("Hot water recirc on", HASchedTime(hour=[05], minute=[02]), sensors["recircPump"], 1))
-    schedule.addTask(HATask("Hot water recirc off", HASchedTime(hour=[23], minute=[02]), sensors["recircPump"], 0))
-
-#    schedule.addTask(HATask("test on", HASchedTime(year=2014,month=2,day=3,hour=15,minute=58), sensors["frontLights"], 1))
-#    schedule.addTask(HATask("test off", HASchedTime(year=2014,month=2,day=3,hour=15,minute=59), sensors["frontLights"], 0))
 
     # Start interfaces
     x10Interface.start()
