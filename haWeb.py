@@ -2,6 +2,7 @@ import os
 import cherrypy
 import json
 import threading
+import time
 from jinja2 import Environment, FileSystemLoader
 from ha.HAClasses import *
 from ha.restInterface import *
@@ -192,7 +193,7 @@ class WebRoot(object):
         if resource:
             self.resources[resource].setViewState(action)
         return self.env.get_template("group.html").render(title="Sprinklers", css="sprinklers.css", 
-                            resources=self.resources.getResList(["gardenSequence", "backLawnSequence", "sideBedSequence", "backLawn", "backBeds", "sideBeds", "frontLawn"]), 
+                            resources=self.resources.getResList(["frontLawnSequence", "gardenSequence", "backLawnSequence", "sideBedSequence"]), 
                             buttons=buttons)
 
     # Doors    
@@ -235,25 +236,38 @@ class WebRoot(object):
         # lock.release()
         return json.dumps(updates)        
 
-class BeaconClient(threading.Thread):
-    """ Beacon client thread.
+# State client thread.
+class StateClient(threading.Thread):
 
-    """
-    def __init__(self, theName, resources, selfBeacon=""):
-        """ Initialize the thread."""        
-        threading.Thread.__init__(self, target=self.doBeacon)
-        self.name = theName
+    def __init__(self, name, resources, restInterfaces):
+        threading.Thread.__init__(self, target=self.doState)
+        self.name = name
         self.servers = {}
         self.resources = resources
-        self.selfBeacon = selfBeacon
+        self.restInterfaces = restInterfaces
+                
+    def doState(self):
+        if debugThread: log(self.name, "started")
+        while running:
+            for interface in self.restInterfaces:
+                interface.readStates()
+            time.sleep(10)
+
+# Rest client thread.
+class RestClient(threading.Thread):
+
+    def __init__(self, name, resources, restInterfaces, selfRest=""):
+        threading.Thread.__init__(self, target=self.doRest)
+        self.name = name
+        self.servers = {}
+        self.resources = resources
+        self.restInterfaces = restInterfaces
+        self.selfRest = selfRest
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.bind(("", 4242))
                 
-    def doBeacon(self):
-        """ Message handling loop.
-        """
+    def doRest(self):
         if debugThread: log(self.name, "started")
-        # wake up every second
         while running:
             # loop until the program state changes to not running
             (data, addr) = self.socket.recvfrom(4096)
@@ -262,10 +276,12 @@ class BeaconClient(threading.Thread):
             serverName = server[0]+":"+str(server[1])
             serverAddr = addr[0]+":"+str(server[1])
             serverResources = server[2]
-            if serverName != self.selfBeacon:   # ignore the beacon from this service
+            if serverName != self.selfRest:   # ignore the beacon from this service
                 if serverAddr not in self.servers.values():
                     # lock.acquire()
-                    resources.load(HARestInterface(serverName, serverAddr, secure=False), "/"+serverResources["name"])
+                    restInterface = HARestInterface(serverName, serverAddr, secure=False)
+                    self.restInterfaces.append(restInterface)
+                    resources.load(restInterface, "/"+serverResources["name"])
                     resources.addViews(views)
                     # lock.release()
                     self.servers[serverName] = serverAddr
@@ -287,8 +303,13 @@ if __name__ == "__main__":
     resources.addRes(HASensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
 
     # start the process to listen for services
-    beacon = BeaconClient("beaconClient", resources, socket.gethostname()+":"+str(restPort))
-    beacon.start()
+    restInterfaces = []
+    restClient = RestClient("restClient", resources, restInterfaces, socket.gethostname()+":"+str(restPort))
+    restClient.start()
+    
+    # start the process to get sensor states
+    stateClient = StateClient("stateClient", resources, restInterfaces)
+    stateClient.start()
     
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
