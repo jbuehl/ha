@@ -53,8 +53,6 @@ if __name__ == "__main__":
     powerInterface = HAPowerInterface("Power", HAInterface("None"), powerTbl)
 #    timeInterface = TimeInterface("Time")
     
-    resources.addRes(HAControl("Null", nullInterface, None))
-    
     # Lights
     poolLight = HAControl("poolLight", aqualinkInterface, "aux4", type="light", group="Lights", label="Pool light")
     spaLight = HAControl("spaLight", aqualinkInterface, "aux5", type="light", group="Lights", label="Spa light")
