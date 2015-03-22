@@ -8,11 +8,25 @@ import threading
 import socket
 import ssl
 
-# RESTful web services server interface
+# Sensor that returns the states of all sensors in a list of resources
+class ResourceStateSensor(HASensor):
+    def __init__(self, name, interface, resources, addr=None, group="", type="sensor", location=None, view=None, label="", interrupt=None):
+        HASensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+        self.resources = resources
 
+    def getState(self):
+        state = {}
+        for sensor in self.resources.values():
+            if (sensor != self) and (sensor.type != "schedule"):
+                state[sensor.name] = sensor.getState()
+        if debugRestStates: log(self.name, state)
+        return state
+
+# RESTful web services server interface
 class RestServer(object):
     def __init__(self, resources, port=7378, beacon=True):
         self.resources = resources
+        self.resources.addRes(ResourceStateSensor("states", HAInterface("None"), self.resources))
         self.hostname = socket.gethostname()
         self.port = port
         self.beacon = beacon
@@ -25,13 +39,9 @@ class RestServer(object):
         self.server.serve_forever()
         
 class BeaconThread(threading.Thread):
-    """ Message handling thread.
-
-    """
-    def __init__(self, theName, port, resources):
-        """ Initialize the thread."""        
+    def __init__(self, name, port, resources):
         threading.Thread.__init__(self, target=self.doBeacon)
-        self.name = theName
+        self.name = name
         self.port = port
         self.hostname = socket.gethostname()
         self.resources = resources
@@ -39,8 +49,6 @@ class BeaconThread(threading.Thread):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         
     def doBeacon(self):
-        """ Message handling loop.
-        """
         if debugThread: log(self.name, "started")
         loopCount = 0
         beaconInterval = 10
@@ -65,8 +73,8 @@ class RestRequestHandler(BaseHTTPRequestHandler):
 
     # return the attribute of the resource specified in the path
     def do_GET(self):
-        if debugRest or debugRestGet: log("path:", self.path)
-        if debugRest or debugRestGet: log("headers:", self.headers.__str__())
+        if debugRestGet: log("path:", self.path)
+        if debugRestGet: log("headers:", self.headers.__str__())
         (resource, attr) = self.getResFromPath(self.server.resources, urllib.unquote(self.path).lstrip("/"))
         if resource:
             self.send_response(200)     # success
@@ -81,13 +89,13 @@ class RestRequestHandler(BaseHTTPRequestHandler):
 
     # set the attribute of the resource specified in the path to the value specified in the data
     def do_PUT(self):
-        if debugRest or debugRestPut: log("path:", self.path)
-        if debugRest or debugRestPut: log("headers:", self.headers.__str__())
+        if debugRestPut: log("path:", self.path)
+        if debugRestPut: log("headers:", self.headers.__str__())
         (resource, attr) = self.getResFromPath(self.server.resources, urllib.unquote(self.path).lstrip("/"))
         if resource:
             try:
                 data = self.rfile.read(int(self.headers['Content-Length']))
-                if debugRest or debugRestPut: log("data:", data)
+                if debugRestPut: log("data:", data)
                 if self.headers['Content-type'] == "application/json":
                     data = json.loads(data)
                 resource.__setattr__(attr, data[attr])
