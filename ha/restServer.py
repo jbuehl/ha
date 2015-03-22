@@ -19,7 +19,7 @@ class ResourceStateSensor(HASensor):
         for sensor in self.resources.values():
             if (sensor != self) and (sensor.type != "schedule"):
                 state[sensor.name] = sensor.getState()
-        if debugRestStates: log(self.name, state)
+#        if debugRestStates: log(self.name, state)
         return state
 
 # RESTful web services server interface

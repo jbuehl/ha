@@ -28,10 +28,16 @@ class HARestInterface(HAInterface):
             return self.readState(addr)
 
     def readStates(self):
-        if debugRestStates: log(self.name, "readStates")
-        for addr in self.states.keys():
-            self.states[addr] = self.readState(addr)
-
+#        for addr in self.states.keys():
+#            self.states[addr] = self.readState(addr)
+        states = self.readState("/resources/states/state")
+        if debugRestStates: log(self.name, "readStates", states)
+        for sensor in states.keys():
+            try:
+                self.states[self.sensors[sensor].addr] = states[sensor]
+            except:
+                log(self.name, "key error", sensor)
+        
     def readState(self, addr):
         if debugRestStates: log(self.name, "readState", addr)
         url = self.interface+urllib.quote(addr)
