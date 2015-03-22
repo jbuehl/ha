@@ -16,9 +16,10 @@ class HARestInterface(HAInterface):
             self.keyFile = self.keyDir+self.hostname+"-client.key"
             self.caFile = self.keyDir+"ca.crt"
             if debugRest: log(self.name, self.crtFile, self.keyFile, self.caFile)
-        self.sensors = {}
-        self.states = {}
+        self.sensors = {}   # sensors using this instance of the interface
+        self.states = {}    # state cache
 
+    # return the state value for the specified sensor address from the cache
     def read(self, addr):
         try:
             if self.states[addr] == None:
@@ -27,17 +28,17 @@ class HARestInterface(HAInterface):
         except:
             return self.readState(addr)
 
+    # load state values of all sensor addresses into the cache
     def readStates(self):
-#        for addr in self.states.keys():
-#            self.states[addr] = self.readState(addr)
         states = self.readState("/resources/states/state")
         if debugRestStates: log(self.name, "readStates", states)
         for sensor in states.keys():
             try:
                 self.states[self.sensors[sensor].addr] = states[sensor]
             except:
-                log(self.name, "key error", sensor)
-        
+                if debug: log(self.name, "sensor not found", sensor)
+
+    # load the state value of the specified sensor address intp the cache        
     def readState(self, addr):
         if debugRestStates: log(self.name, "readState", addr)
         url = self.interface+urllib.quote(addr)
