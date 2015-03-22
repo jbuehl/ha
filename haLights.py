@@ -17,9 +17,7 @@ if __name__ == "__main__":
 
     # Collections
     resources = HACollection("resources")
-    sensors = HACollection("sensors")
     schedule = HASchedule("schedule")
-    resources.addRes(sensors)
     resources.addRes(schedule)
 
     # Interfaces
@@ -27,20 +25,20 @@ if __name__ == "__main__":
     x10Interface = X10Interface("x10", serial2)
     
     # Lights
-    sensors.addRes(HAControl("xmasLights", x10Interface, "A1", type="light", group="Lights", label="Xmas lights"))
-    sensors.addRes(HAControl("backLights", x10Interface, "A3", type="light", group="Lights", label="Back lights"))
-    sensors.addRes(HAControl("bedroomLight", x10Interface, "A4", type="light", group="Lights", label="Bedroom light"))
-    sensors.addRes(HAControl("bbqLights", x10Interface, "A6", type="light", group="Lights", label="Barbeque lights"))
-    sensors.addRes(HAControl("backYardLights", x10Interface, "A7", type="light", group="Lights", label="Back yard lights"))
-    sensors.addRes(HAScene("outsideLights", [sensors["backLights"],
-                                             sensors["xmasLights"]], group="Lights", label="Outside"))
+    resources.addRes(HAControl("xmasLights", x10Interface, "A1", type="light", group="Lights", label="Xmas lights"))
+    resources.addRes(HAControl("backLights", x10Interface, "A3", type="light", group="Lights", label="Back lights"))
+    resources.addRes(HAControl("bedroomLight", x10Interface, "A4", type="light", group="Lights", label="Bedroom light"))
+    resources.addRes(HAControl("bbqLights", x10Interface, "A6", type="light", group="Lights", label="Barbeque lights"))
+    resources.addRes(HAControl("backYardLights", x10Interface, "A7", type="light", group="Lights", label="Back yard lights"))
+    resources.addRes(HAScene("outsideLights", [resources["backLights"],
+                                             resources["xmasLights"]], group="Lights", label="Outside"))
 
     # Schedules
-    schedule.addTask(HATask("Bedroom light on sunset", HASchedTime(event="sunset"), sensors["bedroomLight"], 1))
-    schedule.addTask(HATask("Bedroom light off sunrise", HASchedTime(event="sunrise"), sensors["bedroomLight"], 0))
-    schedule.addTask(HATask("Outside lights on sunset", HASchedTime(event="sunset"), sensors["outsideLights"], 1))
-    schedule.addTask(HATask("Outside lights off midnight", HASchedTime(hour=[23,0], minute=[00]), sensors["outsideLights"], 0))
-    schedule.addTask(HATask("Outside lights off sunrise", HASchedTime(event="sunrise"), sensors["outsideLights"], 0))
+    schedule.addTask(HATask("Bedroom light on sunset", HASchedTime(event="sunset"), resources["bedroomLight"], 1))
+    schedule.addTask(HATask("Bedroom light off sunrise", HASchedTime(event="sunrise"), resources["bedroomLight"], 0))
+    schedule.addTask(HATask("Outside lights on sunset", HASchedTime(event="sunset"), resources["outsideLights"], 1))
+    schedule.addTask(HATask("Outside lights off midnight", HASchedTime(hour=[23,0], minute=[00]), resources["outsideLights"], 0))
+    schedule.addTask(HATask("Outside lights off sunrise", HASchedTime(event="sunrise"), resources["outsideLights"], 0))
     
 
     # Start interfaces
