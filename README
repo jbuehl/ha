@@ -37,6 +37,7 @@ HA uses an object model that is defined by the following classes:
         view
         location
         getState()
+        getStateChange()
         
     HAControl defines the model for a sensor whose state can be changed.
         setState(value)
@@ -66,6 +67,7 @@ The systemd service definitions are defined in ha*.service.
     haSprinklers.py
     haPool.py	
     haSolar.py
+    haLoads.py
     	
 A service that aggregates all the servers and provides a web interface is implemented in 
 haWeb.py.
@@ -136,11 +138,11 @@ Examples:
 
         GET hostname:7378/resources/shade1/state
 
-        0
+        {"state": 0}
 
     4. Set the state of the resource "shade1" to 1.
 
         PUT hostname:7378/resources/shade1/state
 
-        1
+        {"state": 1}
 
