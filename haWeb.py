@@ -120,7 +120,7 @@ class WebRoot(object):
         groups = [["Pool", self.resources.getResList(["poolPump", "clean1hr", "spa", "poolTemp", "spaTemp"])], 
                   ["Lights", self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
                   ["Shades", self.resources.getResList(["shade1", "shade2", "shade3", "shade4"])], 
-                  ["Sprinklers", self.resources.getResList(["backLawn", "backBeds", "sideBeds"])]
+                  ["Sprinklers", self.resources.getResList(["backLawnSequence", "sideBedSequence", "frontLawnSequence"])]
                   ]
         reply = self.env.get_template("ipad.html").render(script=script, 
                             time=self.resources["theTime"],
