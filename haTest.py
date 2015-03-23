@@ -17,8 +17,8 @@ if __name__ == "__main__":
 #    applianceInterface = ApplianceInterface("Lights", gpioInterface)
     
     # Lights
-    sensors.addRes(HAControl("testLight", gpioInterface, GPIOAddr(0,0,0), type="light", group="Lights", label="Test light"))
-    sensors.addRes(HASensor("testSwitch", gpioInterface, GPIOAddr(0,1,0), type="light", group="Lights", label="Test switch"))
+    sensors.addRes(HAControl("testLight", gpioInterface, 0, type="light", group="Lights", label="Test light"))
+    sensors.addRes(HASensor("testSwitch", gpioInterface, 0, type="light", group="Lights", label="Test switch"))
 
     # Schedules
 

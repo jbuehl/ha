@@ -17,7 +17,7 @@ class ApplianceInterface(HAInterface):
         # set the state of all the devices on the interface
         for addr in self.state.keys():
             # addr must be converted to int because json stringified it when dumped
-            self.interface.write(GPIOAddr(0, 0, int(addr), 1), self.state[addr])
+            self.interface.write(int(addr), self.state[addr])
 
     def read(self, addr):
         try:
@@ -29,7 +29,7 @@ class ApplianceInterface(HAInterface):
 
     def write(self, addr, value):
         # set the state of the device and save it
-        self.interface.write(GPIOAddr(0, 0, addr, 1), value)
+        self.interface.write(addr, value)
         self.state[str(addr)] = value   # keys are saved as strings
         if debugState: log(self.name, "writing", self.stateFile, self.state)
         json.dump(self.state, open(self.stateFile, "w"))
