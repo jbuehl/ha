@@ -3,36 +3,29 @@ import time
 from ha.HAClasses import *
 
 class X10Interface(HAInterface):
-    def __init__(self, theName, serialInterface):
-        HAInterface.__init__(self, theName, serialInterface)
+    def __init__(self, name, interface=None, event=None):
+        HAInterface.__init__(self, name, interface=interface, event=event)
         self.state = {"A1":0, "A2":0, "A3":0, "A4":0, "A5":0, "A6":0, "A7":0, "A8":0}
         self.stateFileName = "x10.state"
         self.readState()
 
     def start(self):
         if debugThread: log(self.name, "started")
-#        self.interface = ""
-#        try:
-#            self.interface = serialInterface.interface
-#            HCInterface.__init__(self, theName, theApp, serialInterface)
-#            if debugThread: log(self.name, "started")
-#        except:
-#            log("Error opening X10 interface on", self.device)
 
-    def read(self, theAddr):
+    def read(self, addr):
         try:
-            return self.state[theAddr]
+            return self.state[addr]
         except:
             return 0
         
-    def write(self, theAddr, theValue):
-        if theValue:
+    def write(self, addr, value):
+        if value:
             state = "On"
         else:
             state = "Off"
-        if debugLights: log(self.name,  theAddr, state)
-        x10.sendCommands(self.interface.interface, theAddr+" "+state)
-        self.state[theAddr] = theValue
+        if debugLights: log(self.name,  addr, state)
+        x10.sendCommands(self.interface.device, addr+" "+state)
+        self.state[addr] = value
         self.writeState()
         time.sleep(.5)      # delay to enhance reliability - FIXME
     

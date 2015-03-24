@@ -8,27 +8,29 @@ def frontLightSwitch(sensor, state):
 #    sensors["frontLights"].setState(state)
     
 if __name__ == "__main__":
+    # Resources
     global sensors
     resources = HACollection("resources")
     schedule = HASchedule("schedule")
     resources.addRes(schedule)
 
     # Interfaces
-    i2c1 = I2CInterface("I2C1", 1)
+    stateChangeEvent = threading.Event()
+    i2c1 = I2CInterface("I2C1", bus=1, event=stateChangeEvent)
     gpio0 = GPIOInterface("GPIO0", i2c1, addr=0x20, bank=0, inOut=0x00)
     gpio1 = GPIOInterface("GPIO1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(GPIOInterface.IPOL+1, 0x7f)])
     
     # Lights
-    resources.addRes(HAControl("frontLights", gpio0, GPIOAddr(0,0,0), type="light", group="Lights", label="Front lights"))
-    resources.addRes(HAControl("garageBackDoorLight", gpio0, GPIOAddr(0,0,1), type="light", group="Lights", label="Garage back door light"))
-    resources.addRes(HASensor("frontLightSwitch", gpio1, GPIOAddr(0,1,0), type="light", group="Lights", label="Front light switch", interrupt=frontLightSwitch))
-#    resources.addRes(HAControl("testLight", gpio0, GPIOAddr(0,0,7), type="light", group="Lights", label="Test output"))
-#    resources.addRes(HASensor("testSwitch", gpio1, GPIOAddr(0,1,7), type="light", group="Lights", label="Test input"))
+    resources.addRes(HAControl("frontLights", gpio0, 0, type="light", group="Lights", label="Front lights"))
+    resources.addRes(HAControl("garageBackDoorLight", gpio0, 1, type="light", group="Lights", label="Garage back door light"))
+    resources.addRes(HASensor("frontLightSwitch", gpio1, 0, type="light", group="Lights", label="Front light switch", interrupt=frontLightSwitch))
+#    resources.addRes(HAControl("testLight", gpio0, 7, type="light", group="Lights", label="Test output"))
+#    resources.addRes(HASensor("testSwitch", gpio1, 7, type="light", group="Lights", label="Test input"))
     resources.addRes(HAScene("garageLights", [resources["frontLights"],
                                              resources["garageBackDoorLight"]], group="Lights", label="Garage"))
 
     # Water
-    resources.addRes(HAControl("recircPump", gpio0, GPIOAddr(0,0,3), type="hotwater", group="Water", label="Hot water"))
+    resources.addRes(HAControl("recircPump", gpio0, 3, type="hotwater", group="Water", label="Hot water"))
 
     # Schedules
     schedule.addTask(HATask("Garage lights on sunset", HASchedTime(event="sunset"), resources["garageLights"], 1))
@@ -41,6 +43,6 @@ if __name__ == "__main__":
     gpio0.start()
     gpio1.start()
     schedule.start()
-    restServer = RestServer(resources)
+    restServer = RestServer(resources, event=stateChangeEvent)
     restServer.start()
 

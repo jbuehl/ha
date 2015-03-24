@@ -14,14 +14,14 @@ from ha.restServer import *
 serial2Config = {"baudrate": 9600}
 
 if __name__ == "__main__":
-
-    # Collections
+    # Resources
     resources = HACollection("resources")
     schedule = HASchedule("schedule")
     resources.addRes(schedule)
 
     # Interfaces
-    serial2 = HASerialInterface("serial2", x10Device, serial2Config)
+    stateChangeEvent = threading.Event()
+    serial2 = HASerialInterface("serial2", device=x10Device, config=serial2Config, event=stateChangeEvent)
     x10Interface = X10Interface("x10", serial2)
     
     # Lights
@@ -44,6 +44,6 @@ if __name__ == "__main__":
     # Start interfaces
     x10Interface.start()
     schedule.start()
-    restServer = RestServer(resources)
+    restServer = RestServer(resources, event=stateChangeEvent)
     restServer.start()
     

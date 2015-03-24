@@ -1,8 +1,8 @@
 from ha.HAClasses import *
 
 class HASolarInterface(HAInterface):
-    def __init__(self, name, interface):
-        HAInterface.__init__(self, name, interface)
+    def __init__(self, name, interface=None, event=None):
+        HAInterface.__init__(self, name, interface=interface, event=event)
 #        self.sql = """select %s(%s.%s) from %s,
 #	            (select date, max(time) time, id from %s
 #		            where date = curdate()

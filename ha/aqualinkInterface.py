@@ -12,8 +12,8 @@ from ha.HAClasses import *
 ########################################################################################################
 class AqualinkInterface(HAInterface):
     # constructor
-    def __init__(self, theName, serialInterface):
-        HAInterface.__init__(self, theName, serialInterface)
+    def __init__(self, name, interface=None, event=None):
+        HAInterface.__init__(self, name, interface=interface, event=event)
         
         self.stateChanged = True
         self.stateFileName = "root/ha/pool.state"   # FIXME
@@ -141,6 +141,8 @@ class AqualinkInterface(HAInterface):
             stateFile.write("solarTemp = "+str(self.solarTemp.state)+"\n")
             stateFile.close()
             self.stateChanged = False
+            if self.event:
+                self.event.set()
                 
     def doCron(self):
         if debugThread: log("cron", "started")
@@ -266,38 +268,6 @@ class Equipment(HAResource):
             if wait:
                 self.action.event.wait()
 
-#class Mode(Equipment):
-#    # a Mode is defined by an ordered list of Equipment that is turned on or off
-#    def __init__(self, name, thePool, theEquipList):
-#        Equipment.__init__(self, name, thePool)
-#        self.equipList = theEquipList
-
-#    def changeState(self, newState=None):
-#        # turns the list of equipment on or off
-#        if debugAction: log(self.name, self.state, newState)
-#        if newState != None:
-#            self.newState = newState
-#        else:
-#            # toggle if new state is not specified
-#            self.newState = not self.state
-#        # do the work in a thread so this function returns asynchronously
-#        modeThread = threading.Thread(target=self.doMode)
-#        modeThread.start()
-
-#    def doMode(self):
-#        if debugAction: log(self.name, "mode started", self.newState)
-#        if self.newState == Equipment.stateOn:
-#            # turn on equipment list in order
-#            for equip in self.equipList:
-#                equip.changeState(self.newState, wait=True)
-#        else:
-#            # turn off equipment list in reverse order
-#             for equip in reversed(self.equipList):
-#                equip.changeState(self.newState, wait=True)
-#        if debugAction: log(self.name, "mode completed")
-#        self.state = self.newState
-#        #log(self.name, self.printState())
-                
 ########################################################################################################
 # Base Aqualink control panel
 ########################################################################################################

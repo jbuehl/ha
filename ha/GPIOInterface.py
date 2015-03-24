@@ -24,21 +24,22 @@ class GPIOInterface(HAInterface):
     gpioPins = [12, 16, 18, 22, 15, 13, 11, 7]   # A/B
 #            32, 36, 38, 40, 37, 35, 33, 31]     # B+
     
-    def __init__(self, name, interface=None, addr=0x20, # I2C address of MCP23017
+    def __init__(self, name, interface=None, event=None,
+                                             addr=0x20, # I2C address of MCP23017
                                              bank=0,    # bank within MCP23017 A=0, B=1
                                              inOut=0x00,# I/O direction out=0, in=1
                                              config=[]):# additional configuration
+        HAInterface.__init__(self, name, interface=interface, event=event)
         global gpioInterface
         gpioInterface = self
         self.name = name
         if interface:
-            HAInterface.__init__(self, name, interface)
             self.addr = addr
             self.bank = bank
             self.inOut = inOut
             self.config = config
             self.state = 0x00
-            self.sensors = [None]*8
+#            self.sensors = [None]*8
         else:
             self.interface = None
             self.bank = 0
@@ -69,9 +70,9 @@ class GPIOInterface(HAInterface):
                 if debugGPIO: log(self.name, "write", pin, 0)
                 gpio.output(pin, 0)
 
-    def read(self, gpioAddr):
+    def read(self, addr):
         if self.interface:
-            return (self.state >> gpioAddr.start) & ((1<<gpioAddr.width)-1)
+            return (self.state >> addr) & 0x01
         else:
             return 0
 
@@ -93,28 +94,28 @@ class GPIOInterface(HAInterface):
         if debugGPIO: log(self.name, "read", self.addr, GPIOInterface.GPIO+self.bank, byte)
         self.state = byte
     
-    def write(self, gpioAddr, value):
+    def write(self, addr, value):
         if self.interface:
             byte = self.state
-            mask = ((1<<gpioAddr.width)-1)<<gpioAddr.start
-            byte = (byte & (~mask)) | ((value << gpioAddr.start) & mask)
+            mask = 0x01<<addr
+            byte = (byte & (~mask)) | ((value << addr) & mask)
             if debugGPIO: log(self.name, "write", self.addr, GPIOInterface.GPIO+self.bank, byte)
             self.interface.write((self.addr, GPIOInterface.GPIO+self.bank), byte)
             self.state = byte
         else:
-            if debugGPIO: log(self.name, "write", gpioAddr.start, value)
-            gpio.output(GPIOInterface.gpioPins[gpioAddr.start], value)
+            if debugGPIO: log(self.name, "write", addr, value)
+            gpio.output(GPIOInterface.gpioPins[addr], value)
             
-    def addSensor(self, sensor):
-        self.sensors[sensor.addr.start] = sensor
+#    def addSensor(self, sensor):
+#        self.sensors[sensor.addr.start] = sensor
 
-class GPIOAddr(object):
-    def __init__(self, control, bank, start, width=1):
-        self.control = control  # the I/O chip (deprecated, use a separate instance of GPIOInterface per chip)
-        self.bank = bank        # the 8 bit bank of I/O pins within the chip (A=0, B=1)
-        self.start = start      # the starting pin
-        self.width = width      # the number of pins
+#class GPIOAddr(object):
+#    def __init__(self, control, bank, start, width=1):
+#        self.control = control  # the I/O chip (deprecated, use a separate instance of GPIOInterface per chip)
+#        self.bank = bank        # the 8 bit bank of I/O pins within the chip (A=0, B=1)
+#        self.start = start      # the starting pin
+#        self.width = width      # the number of pins
 
-    def __str__(self):
-        return "(%2d, %2d, %2d, %2d)"%(self.control, self.bank, self.start, self.width)
+#    def __str__(self):
+#        return "(%2d, %2d, %2d, %2d)"%(self.control, self.bank, self.start, self.width)
 

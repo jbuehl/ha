@@ -7,29 +7,43 @@ import urllib
 import threading
 import socket
 import ssl
+import time
 
 # Sensor that returns the states of all sensors in a list of resources
 class ResourceStateSensor(HASensor):
-    def __init__(self, name, interface, resources, addr=None, group="", type="sensor", location=None, view=None, label="", interrupt=None):
+    def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, view=None, label="", interrupt=None):
         HASensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.resources = resources
+        self.event = event
 
     def getState(self):
         state = {}
         for sensor in self.resources.values():
             if (sensor != self) and (sensor.type != "schedule"):
                 state[sensor.name] = sensor.getState()
-#        if debugRestStates: log(self.name, state)
         return state
+
+    def getStateChange(self):
+        if debugInterrupt: log(self.name, "getStateChange")
+        if self.event:
+            self.event.clear()
+            if debugInterrupt: log(self.name, "event clear", self.event)
+            self.event.wait()
+            if debugInterrupt: log(self.name, "event wait", self.event)
+        else:
+            time.sleep(10)
+        return self.getState()
 
 # RESTful web services server interface
 class RestServer(object):
-    def __init__(self, resources, port=7378, beacon=True):
+    def __init__(self, resources, port=7378, beacon=True, event=None):
         self.resources = resources
-        self.resources.addRes(ResourceStateSensor("states", HAInterface("None"), self.resources))
+        self.event = event
+        self.resources.addRes(ResourceStateSensor("states", HAInterface("None"), self.resources, self.event))
         self.hostname = socket.gethostname()
         self.port = port
         self.beacon = beacon
+        self.event = event
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
 
     def start(self):

@@ -25,8 +25,8 @@ def normalState(value):
     
 # Base class for Resources
 class HAResource(object):
-    def __init__(self, theName):
-        self.name = theName
+    def __init__(self, name):
+        self.name = name
         if debugObject: log(self.name, "created")
         self.className = self.__class__.__name__    # hack for web templates - FIXME
 
@@ -35,11 +35,22 @@ class HAResource(object):
 
 # Base class for Interfaces 
 class HAInterface(HAResource):
-    def __init__(self, theName, theInterface=None, persistence=None):
-        HAResource.__init__(self, theName)
-        self.interface = theInterface
+    def __init__(self, name, interface=None, event=None, persistence=None):
+        HAResource.__init__(self, name)
+        self.interface = interface
+        # optional sensor state persistence layer
         self.persistence = persistence
-        self.sensors = []
+        # sensor state change event
+        if event != None:                   # use the specified one
+            self.event = event
+        elif self.interface:
+            self.event = interface.event    # otherwise inherit event from this interface's interface
+        else:
+            self.event = None
+        if debugInterrupt: log(self.name, "event", self.event)
+        self.sensors = {}   # sensors using this instance of the interface by name
+        self.sensorAddrs = {}   # sensors using this instance of the interface by addr
+        self.states = {}    # state cache
 
     def start(self):
         if self.persistence:
@@ -51,14 +62,17 @@ class HAInterface(HAResource):
             self.persistence.stop()
         return True
         
-    def read(self, theAddr):
+    def read(self, addr):
         return True
         
-    def write(self, theAddr, theValue):
+    def write(self, addr, theValue):
         return True
 
     def addSensor(self, sensor):
-        return True
+        self.sensors[sensor.name] = sensor
+        self.sensorAddrs[sensor.addr] = sensor
+        self.states[sensor.addr] = 0
+        sensor.event = self.event
         
 # Resource collection 
 
@@ -69,8 +83,8 @@ class HAInterface(HAResource):
 # - lock
        
 class HACollection(HAResource, OrderedDict):
-    def __init__(self, theName):
-        HAResource.__init__(self, theName)
+    def __init__(self, name):
+        HAResource.__init__(self, name)
         OrderedDict.__init__(self)
         self.type = "collection"
         self.lock = threading.Lock()
@@ -104,7 +118,7 @@ class HACollection(HAResource, OrderedDict):
     # this does not replicate the collection hierarchy being read
     def load(self, interface, path, views={}, level=0):
         node = interface.read(path)
-        if debugRest:
+        if debugRestResources:
             if node != {}:
                 log("    "*(level)+node["name"])
                 for attr in node.keys():
@@ -127,16 +141,18 @@ class HACollection(HAResource, OrderedDict):
                     location=node["location"], label=node["label"]))
             elif node["class"] == "HASequence":
                 self.addRes(HASequence(node["name"], [], group=node["group"], type=node["type"], label=node["label"], 
-                    theInterface=interface, theAddr=path+"/state"))
+                    interface=interface, addr=path+"/state"))
             elif node["class"] == "HAScene":
                 self.addRes(HAScene(node["name"], [], group=node["group"], type=node["type"], label=node["label"], 
-                    theInterface=interface, theAddr=path+"/state"))
+                    interface=interface, addr=path+"/state"))
             elif node["class"] == "HATask":
                 self.addRes(HATask(node["name"], theControl=self[node["control"]], theState=node["controlState"], 
                     theSchedTime=HASchedTime(**node["schedTime"]), 
-                    theInterface=interface, theAddr=path+"/state",))
+                    interface=interface, addr=path+"/state",))
+            else:
+                if debug: log(self.name, "loadResource", node["name"], "class", node["class"], "not created")
         except:
-            pass
+            if debug: log(self.name, "loadResource", node["name"], "class", node["class"], "not created")
 
     # add Views to each resource
     def addViews(self, views):            
@@ -163,11 +179,11 @@ class HACollection(HAResource, OrderedDict):
 # The state is associated with a unique address on an interface.
 # Sensors can also optionally be associated with a group and a physical location.
 class HASensor(HAResource):
-    def __init__(self, theName, theInterface, theAddr=None, group="", type="sensor", location=None, label="", view=None, interrupt=None):
-        HAResource.__init__(self, theName)
+    def __init__(self, name, interface, addr=None, group="", type="sensor", location=None, label="", view=None, interrupt=None, event=None):
+        HAResource.__init__(self, name)
         self.type = type
-        self.interface = theInterface
-        self.addr = theAddr
+        self.interface = interface
+        self.addr = addr
         if self.addr == None:
             self.addr = self.name
         self.group = group
@@ -180,10 +196,12 @@ class HASensor(HAResource):
             self.view = HAView()
         else:
             self.view = view
-        self.interrupt = interrupt
-        self.event = threading.Event()
         if self.interface:
             self.interface.addSensor(self)
+        self.interrupt = interrupt
+        if event:
+            self.event = event
+        if debugInterrupt: log(self.name, "event", self.event)
         self.__dict__["state"] = None   # dummy class variable so hasattr() returns True
         self.__dict__["stateChange"] = None   # dummy class variable so hasattr() returns True
 
@@ -193,14 +211,20 @@ class HASensor(HAResource):
 
     # Wait for the state of the sensor to change if an interrupt routine was specified
     def getStateChange(self):
-        if self.interrupt:
-            # the interrupt routine must set the event after the state is changed
+        if self.event:
+            # the routine that changes state must call notify() after the state is changed
             self.event.clear()
-            if debugInterrupt: log(self.name, "event clear")
+            if debugInterrupt: log(self.name, "event clear", self.event)
             self.event.wait()
-            if debugInterrupt: log(self.name, "event wait")
+            if debugInterrupt: log(self.name, "event wait", self.event)
         return self.getState()
 
+    # Trigger the sending of a state change notification
+    def notify(self):
+        if self.event:
+            self.event.set()
+            if debugInterrupt: log(self.name, "event set", self.event)
+        
     # Return the printable string value for the state of the sensor
     def getViewState(self):
         return self.view.getViewState(self)
@@ -273,14 +297,15 @@ class HAView(object):
 
 # A Control is a Sensor whose state can be set        
 class HAControl(HASensor):
-    def __init__(self, theName, theInterface, theAddr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
-        HASensor.__init__(self, theName, theInterface, theAddr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+    def __init__(self, name, interface, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None, event=None):
+        HASensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt, event=event)
         self.running = False
 
     # Set the state of the control by writing the value to the address on the interface.
     def setState(self, theState, wait=False):
         if debugState: log(self.name, "setState ", theState)
         self.interface.write(self.addr, theState)
+        self.notify()
         return True
 
     # Set the state of the control to the state value corresponding to the specified display value
@@ -303,8 +328,8 @@ class HACycle(object):
                             
 # a Sequence is a Control that consists of a set of Cycles that are run in the specified order
 class HASequence(HAControl):
-    def __init__(self, theName, theCycleList, theInterface=HAInterface("None"), theAddr=None, group="", type="sequence", view=None, label=""):
-        HAControl.__init__(self, theName, theInterface, theAddr, group=group, type=type, view=view, label=label)
+    def __init__(self, name, theCycleList, interface=HAInterface("None"), addr=None, group="", type="sequence", view=None, label=""):
+        HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.cycleList = theCycleList
         self.running = False
 
@@ -382,8 +407,8 @@ class HASequence(HAControl):
             
 # A Scene is a set of Controls whose state can be changed together
 class HAScene(HAControl):
-    def __init__(self, theName, theControlList, theStateList=[], theInterface=HAInterface("None"), theAddr=None, group="", type="scene", view=None, label=""):
-        HAControl.__init__(self, theName, theInterface, theAddr, group=group, type=type, view=view, label=label)
+    def __init__(self, name, theControlList, theStateList=[], interface=HAInterface("None"), addr=None, group="", type="scene", view=None, label=""):
+        HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.controlList = theControlList
         self.sceneState = 0
         if theStateList == []:
@@ -452,14 +477,17 @@ def listize(x):
                                
 # the Scheduler manages a list of Tasks and runs them at the times specified
 class HASchedule(HACollection):
-    def __init__(self, theName):
-        HACollection.__init__(self, theName)
+    def __init__(self, name):
+        HACollection.__init__(self, name)
         self.type = "schedule"
         self.schedThread = threading.Thread(target=self.doSchedule)
 
     def start(self):
         self.schedThread.start()
 
+    def getState(self):
+        return 1
+        
     def addRes(self, resource):
         HACollection.addRes(self, resource)
         if resource.schedTime.event != "":
@@ -518,8 +546,8 @@ class HASchedule(HACollection):
 
 # a Task specifies a control to be set to a specified state at a specified time
 class HATask(HAControl):
-    def __init__(self, theName, theSchedTime, theControl, theState, theParent=None, enabled=True, theInterface=HAInterface("None"), theAddr=None, type="task", group="Tasks", view=None, label=""):
-        HAControl.__init__(self, theName, theInterface, theAddr, group=group, type=type, view=view, label=label)
+    def __init__(self, name, theSchedTime, theControl, theState, theParent=None, enabled=True, interface=HAInterface("None"), addr=None, type="task", group="Tasks", view=None, label=""):
+        HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.schedTime = theSchedTime
         self.control = theControl
         self.controlState = theState

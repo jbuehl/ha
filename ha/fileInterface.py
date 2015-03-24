@@ -1,11 +1,12 @@
 from ha.HAClasses import *
 import json
 import os
+import threading
 import time
 
 class FileInterface(HAInterface):
-    def __init__(self, name, fileName, readOnly=False):
-        HAInterface.__init__(self, name, None)
+    def __init__(self, name, interface=None, event=None, fileName="", readOnly=False):
+        HAInterface.__init__(self, name, interface=interface, event=event)
         self.fileName = fileName
         self.readOnly = readOnly
 
@@ -18,6 +19,15 @@ class FileInterface(HAInterface):
             # create a new file
             self.data = {}
             self.writeData()
+        # thread to periodically check for file changes
+        def readData():
+            if debugFileThread: log(self.name, "readData started")
+            while running:
+                time.sleep(filePollInterval)
+                if  os.stat(self.fileName).st_mtime > self.mtime:
+                    self.readData()
+        readStatesThread = threading.Thread(target=readData)
+        readStatesThread.start()
 
     def read(self, addr):
         try:
@@ -39,13 +49,13 @@ class FileInterface(HAInterface):
             self.writeData()
 
     def readData(self):
-        self.file = open(self.fileName)
-        self.data = json.load(self.file)
-        self.file.close()
+        self.data = json.load(open(self.fileName))
+        if self.event:
+            self.event.set()
 
     def writeData(self):
-        self.file = open(self.fileName, "w")
-        json.dump(self.data, self.file)
-        self.file.close()
+        json.dump(self.data, open(self.fileName, "w"))
         self.mtime = time.time()
+        if self.event:
+            self.event.set()
 

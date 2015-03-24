@@ -4,12 +4,12 @@ from ha.solarInterface import *
 from ha.restServer import *
 
 if __name__ == "__main__":
-
-    # Collections
+    # Resources
     resources = HACollection("resources")
 
     # Interfaces
-    fileInterface = FileInterface("File", solarFileName, readOnly=True)
+    stateChangeEvent = threading.Event()
+    fileInterface = FileInterface("File", fileName=solarFileName, readOnly=True, event=stateChangeEvent)
     solarInterface = HASolarInterface("Solar", fileInterface)
     
     # Temperature
@@ -26,6 +26,6 @@ if __name__ == "__main__":
     # Start interfaces
     fileInterface.start()
     solarInterface.start()
-    restServer = RestServer(resources)
+    restServer = RestServer(resources, event=stateChangeEvent)
     restServer.start()
     

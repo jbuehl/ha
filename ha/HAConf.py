@@ -60,10 +60,14 @@ debugShades = False
 
 # REST interface
 debugRest = False
+debugRestResources = False
 debugRestGet = False
 debugRestPut = False
+debugRestStates = False
 
 # Web interface
+webLogging = False
+webUpdateInterval = 10
 debugHttp = False
 debugWeb = False
 
@@ -78,6 +82,10 @@ pentairAddr = '\x60'
 pentairSpeeds = [0, 1200, 1800, 2400, 3200]
 debugPentairThread = False
 debugPentairData = False
+
+# File interface
+debugFileThread = True
+filePollInterval = 10
 
 # Solar interface
 solarIp = "192.168.1.13:7380"

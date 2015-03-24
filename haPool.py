@@ -40,17 +40,19 @@ class DependentControl(HAControl):
         self.control.setState(theState)
 
 if __name__ == "__main__":
+    # Resources
     resources = HACollection("resources")
     schedule = HASchedule("schedule")
     resources.addRes(schedule)
 
     # Interfaces
+    stateChangeEvent = threading.Event()
     nullInterface = HAInterface("Null", HAInterface("None"))
-    serial0 = HASerialInterface("Serial0", aqualinkDevice, serial0Config)
-    serial1 = HASerialInterface("Serial1", pentairDevice, serial1Config)
+    serial0 = HASerialInterface("Serial0", device=aqualinkDevice, config=serial0Config, event=stateChangeEvent)
+    serial1 = HASerialInterface("Serial1", device=pentairDevice, config=serial1Config, event=stateChangeEvent)
     aqualinkInterface = AqualinkInterface("Aqualink", serial0)
     pentairInterface = PentairInterface("Pentair", serial1)
-    powerInterface = HAPowerInterface("Power", HAInterface("None"), powerTbl)
+    powerInterface = HAPowerInterface("Power", HAInterface("None"), event=stateChangeEvent)
 #    timeInterface = TimeInterface("Time")
     
     # Lights
@@ -118,6 +120,6 @@ if __name__ == "__main__":
     aqualinkInterface.start()
     pentairInterface.start()
     schedule.start()
-    restServer = RestServer(resources, 7379)
+    restServer = RestServer(resources, port=7379, event=stateChangeEvent)
     restServer.start()
 

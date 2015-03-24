@@ -99,7 +99,7 @@ class WebRoot(object):
             self.resources[resource].setViewState(action)
             script = redirectScript("/", 5)
         else:
-            script = updateScript(30)
+            script = updateScript(webUpdateInterval)
         # lock.acquire()
         reply = self.env.get_template("default.html").render(title="4319 Shadyglade", script=script, 
                             groups=[[group, self.resources.getGroup(group)] for group in ["Time", "Temperature", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Tasks"]],
@@ -115,7 +115,7 @@ class WebRoot(object):
             self.resources[resource].setViewState(action)
             script = redirectScript("/ipad", 5)
         else:
-            script = updateScript(30)
+            script = updateScript(webUpdateInterval)
         # lock.acquire()
         groups = [["Pool", self.resources.getResList(["poolPump", "clean1hr", "spa", "poolTemp", "spaTemp"])], 
                   ["Lights", self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
@@ -140,7 +140,7 @@ class WebRoot(object):
             self.resources[resource].setViewState(action)
             script = redirectScript("/iphone3gs", 5)
         else:
-            script = updateScript(30)
+            script = updateScript(webUpdateInterval)
         # lock.acquire()
         resources = self.resources.getResList(["frontLights", "backLights", "bedroomLight", "recircPump"])
         reply = self.env.get_template("iphone3gs.html").render(script=script, 
@@ -225,33 +225,34 @@ class WebRoot(object):
         updates = {}
         # lock.acquire()
         for resource in self.resources:
-            try:
-                resClass = self.resources[resource].type
-                resState = self.resources[resource].getViewState()
-                if resClass not in staticTypes:
-                    resClass += "_"+resState
-                updates[resource] = (resClass, resState)
-            except:
-                pass
+            if self.resources[resource].name != "states":
+                try:
+                    resClass = self.resources[resource].type
+                    resState = self.resources[resource].getViewState()
+                    if resClass not in staticTypes:
+                        resClass += "_"+resState
+                    updates[resource] = (resClass, resState)
+                except:
+                    pass
         # lock.release()
         return json.dumps(updates)        
 
 # State client thread.
-class StateClient(threading.Thread):
+#class StateClient(threading.Thread):
 
-    def __init__(self, name, resources, restInterfaces):
-        threading.Thread.__init__(self, target=self.doState)
-        self.name = name
-        self.servers = {}
-        self.resources = resources
-        self.restInterfaces = restInterfaces
-                
-    def doState(self):
-        if debugThread: log(self.name, "started")
-        while running:
-            for interface in self.restInterfaces:
-                interface.readStates()
-            time.sleep(10)
+#    def __init__(self, name, resources, restInterfaces):
+#        threading.Thread.__init__(self, target=self.doState)
+#        self.name = name
+#        self.servers = {}
+#        self.resources = resources
+#        self.restInterfaces = restInterfaces
+#                
+#    def doState(self):
+#        if debugThread: log(self.name, "started")
+#        while running:
+#            for interface in self.restInterfaces:
+#                interface.readStates()
+#            time.sleep(10)
 
 # Rest client thread.
 class RestClient(threading.Thread):
@@ -279,7 +280,7 @@ class RestClient(threading.Thread):
             if serverName != self.selfRest:   # ignore the beacon from this service
                 if serverAddr not in self.servers.values():
                     # lock.acquire()
-                    restInterface = HARestInterface(serverName, serverAddr, secure=False)
+                    restInterface = HARestInterface(serverName, server=serverAddr, secure=False)
                     self.restInterfaces.append(restInterface)
                     resources.load(restInterface, "/"+serverResources["name"])
                     resources.addViews(views)
@@ -307,9 +308,9 @@ if __name__ == "__main__":
     restClient = RestClient("restClient", resources, restInterfaces, socket.gethostname()+":"+str(restPort))
     restClient.start()
     
-    # start the process to get sensor states
-    stateClient = StateClient("stateClient", resources, restInterfaces)
-    stateClient.start()
+#    # start the process to get sensor states
+#    stateClient = StateClient("stateClient", resources, restInterfaces)
+#    stateClient.start()
     
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
@@ -336,9 +337,10 @@ if __name__ == "__main__":
     cherrypy.config.update(globalConfig)
     root = WebRoot(resources, Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates'))))
     cherrypy.tree.mount(root, "/", appConfig)
-    access_log = cherrypy.log.access_log
-    for handler in tuple(access_log.handlers):
-        access_log.removeHandler(handler)
+    if not webLogging:
+        access_log = cherrypy.log.access_log
+        for handler in tuple(access_log.handlers):
+            access_log.removeHandler(handler)
     cherrypy.engine.timeout_monitor.unsubscribe()
     cherrypy.engine.autoreload.unsubscribe()
     cherrypy.engine.start()

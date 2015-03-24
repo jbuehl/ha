@@ -1,15 +1,19 @@
+import threading
+
 from ha.HAClasses import *
 from ha.GPIOInterface import *
 from ha.shadeInterface import *
 from ha.restServer import *
 
 if __name__ == "__main__":
+    # Resources
     resources = HACollection("resources")
     schedule = HASchedule("schedule")
     resources.addRes(schedule)
 
     # Interfaces
-    gpioInterface = GPIOInterface("GPIO")
+    stateChangeEvent = threading.Event()
+    gpioInterface = GPIOInterface("GPIO", event=stateChangeEvent)
     shadeInterface = ShadeInterface("Shades", gpioInterface)
     
     # Doors
@@ -32,6 +36,6 @@ if __name__ == "__main__":
     gpioInterface.start()
     shadeInterface.start()
     schedule.start()
-    restServer = RestServer(resources)
+    restServer = RestServer(resources, event=stateChangeEvent)
     restServer.start()
 

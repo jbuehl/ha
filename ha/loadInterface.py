@@ -1,8 +1,8 @@
 from ha.HAClasses import *
 
 class LoadInterface(HAInterface):
-    def __init__(self, name, interface):
-        HAInterface.__init__(self, name, interface)
+    def __init__(self, name, interface=None, event=None):
+        HAInterface.__init__(self, name, interface=interface, event=event)
 #        self.sql = """select loads.%s from loads,
 #	                    (select max(time) time from loads where date = curdate()) max
 #	                    where loads.date = curdate() and loads.time = max.time;	

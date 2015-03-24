@@ -33,8 +33,8 @@ pc = 75.28
 ########################################################################################################
 class PentairInterface(HAInterface):
     # constructor
-    def __init__(self, theName, serialInterface):
-        HAInterface.__init__(self, theName, serialInterface)
+    def __init__(self, name, interface=None, event=None):
+        HAInterface.__init__(self, name, interface=interface, event=event)
         # in theory there could be multiple pumps on an interface, but assume just one for now
         self.addr = pentairAddr
         
@@ -54,12 +54,12 @@ class PentairInterface(HAInterface):
         msgThread = PentairMsgThread("pentair msg", self)
         msgThread.start()
 
-    def read(self, theAddr):
-        return self.state[theAddr]
+    def read(self, addr):
+        return self.state[addr]
 
-    def write(self, theAddr, theState):
-        if theState in range(0, 5):
-            self.reqSpeed = theState
+    def write(self, addr, value):
+        if value in range(0, 5):
+            self.reqSpeed = value
 
     def readState(self):
         self.sendMsg((self.addr, setCtrlCmd, '\xff'))

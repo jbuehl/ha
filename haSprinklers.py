@@ -4,30 +4,29 @@ from ha.I2CInterface import *
 from ha.restServer import *
 
 if __name__ == "__main__":
+    # Resources
     resources = HACollection("resources")
     schedule = HASchedule("schedule")
     resources.addRes(schedule)
 
     # Interfaces
-    nullInterface = HAInterface("Null", HAInterface("None"))
-    i2c1 = I2CInterface("I2C1", 1)
+    stateChangeEvent = threading.Event()
+    i2c1 = I2CInterface("I2C1", bus=1, event=stateChangeEvent)
     gpioInterface = GPIOInterface("GPIO", i2c1)
     
-    resources.addRes(HAControl("Null", nullInterface, None))
-    
     # Doors
-#    resources.addRes(HASensor("frontDoor", gpioInterface, GPIOAddr(0,0,2,1), type="door", group="Doors", label="Front"))
-#    resources.addRes(HASensor("familyRoomDoor", gpioInterface, GPIOAddr(0,0,1,1), type="door", group="Doors", label="Family room"))
-#    resources.addRes(HASensor("masterBedDoor", gpioInterface, GPIOAddr(0,0,0,1), type="door", group="Doors", label="Master bedroom"))
-#    resources.addRes(HASensor("garageBackDoor", gpioInterface, GPIOAddr(0,0,3,1), type="door", group="Doors", label="Garage back"))
-#    resources.addRes(HADoorSensor("Garage door", gpioInterface, GPIOAddr(0,0,5,1), type="door", group="Doors"))
-#    resources.addRes(HADoorSensor("Garage door house", gpioInterface, GPIOAddr(0,0,4,1), type="door", group="Doors"))
+#    resources.addRes(HASensor("frontDoor", gpioInterface, 2, type="door", group="Doors", label="Front"))
+#    resources.addRes(HASensor("familyRoomDoor", gpioInterface, 1, type="door", group="Doors", label="Family room"))
+#    resources.addRes(HASensor("masterBedDoor", gpioInterface, 0, type="door", group="Doors", label="Master bedroom"))
+#    resources.addRes(HASensor("garageBackDoor", gpioInterface, 3, type="door", group="Doors", label="Garage back"))
+#    resources.addRes(HADoorSensor("Garage door", gpioInterface, 5, type="door", group="Doors"))
+#    resources.addRes(HADoorSensor("Garage door house", gpioInterface, 4, type="door", group="Doors"))
 
     # Sprinklers
-    resources.addRes(HAControl("frontLawn", gpioInterface, GPIOAddr(0,0,3,1), group="Water", label="Front lawn")) # yellow
-    resources.addRes(HAControl("backLawn", gpioInterface, GPIOAddr(0,0,2,1), group="Water", label="Back lawn")) # green
-    resources.addRes(HAControl("backBeds", gpioInterface, GPIOAddr(0,0,1,1), group="Water", label="Back beds")) # blue
-    resources.addRes(HAControl("sideBeds", gpioInterface, GPIOAddr(0,0,0,1), group="Water", label="Side beds")) # red
+    resources.addRes(HAControl("frontLawn", gpioInterface, 3, group="Water", label="Front lawn")) # yellow
+    resources.addRes(HAControl("backLawn", gpioInterface, 2, group="Water", label="Back lawn")) # green
+    resources.addRes(HAControl("backBeds", gpioInterface, 1, group="Water", label="Back beds")) # blue
+    resources.addRes(HAControl("sideBeds", gpioInterface, 0, group="Water", label="Side beds")) # red
     resources.addRes(HASequence("frontLawnSequence", [HACycle(resources["frontLawn"], 600)], group="Water", label="Front lawn 10 min"))
     resources.addRes(HASequence("gardenSequence", [HACycle(resources["backBeds"], 300)], group="Water", label="Garden 5 min"))
     resources.addRes(HASequence("backLawnSequence", [HACycle(resources["backLawn"], 600)], group="Water", label="Back lawn 10 min"))
@@ -45,6 +44,6 @@ if __name__ == "__main__":
     # Start interfaces
     gpioInterface.start()
     schedule.start()
-    restServer = RestServer(resources)
+    restServer = RestServer(resources, event=stateChangeEvent)
     restServer.start()
 

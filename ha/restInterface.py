@@ -5,8 +5,9 @@ import socket
 from ha.HAClasses import *
 
 class HARestInterface(HAInterface):
-    def __init__(self, name, interface, secure=False):
-        HAInterface.__init__(self, name, interface)
+    def __init__(self, name, interface=None, event=None, server="", secure=False):
+        HAInterface.__init__(self, name, interface=interface, event=event)
+        self.server = server
         self.hostname = socket.gethostname()
         self.secure = secure
         if debugRest: log(self.name, self.hostname, self.secure)
@@ -16,8 +17,13 @@ class HARestInterface(HAInterface):
             self.keyFile = self.keyDir+self.hostname+"-client.key"
             self.caFile = self.keyDir+"ca.crt"
             if debugRest: log(self.name, self.crtFile, self.keyFile, self.caFile)
-        self.sensors = {}   # sensors using this instance of the interface
-        self.states = {}    # state cache
+        def readStates():
+            if debugRestStates: log(self.name, "readStates started")
+            while running:
+                self.readStates("/resources/states/stateChange")
+#                time.sleep(10)
+        readStatesThread = threading.Thread(target=readStates)
+        readStatesThread.start()
 
     # return the state value for the specified sensor address from the cache
     def read(self, addr):
@@ -29,19 +35,23 @@ class HARestInterface(HAInterface):
             return self.readState(addr)
 
     # load state values of all sensor addresses into the cache
-    def readStates(self):
-        states = self.readState("/resources/states/state")
+    def readStates(self, addr="/resources/states/state"):
+        states = self.readState(addr)
+        while len(states) == 0:
+            time.sleep(10)
+            states = self.readState(addr)
         if debugRestStates: log(self.name, "readStates", states)
-        for sensor in states.keys():
+        sensors = states[states.keys()[0]]
+        for sensor in sensors.keys():
             try:
-                self.states[self.sensors[sensor].addr] = states[sensor]
+                self.states[self.sensors[sensor].addr] = sensors[sensor]
             except:
-                if debug: log(self.name, "sensor not found", sensor)
+                if debugRestStates: log(self.name, "sensor not found", sensor)
 
-    # load the state value of the specified sensor address intp the cache        
+    # load the state value of the specified sensor address into the cache        
     def readState(self, addr):
         if debugRestStates: log(self.name, "readState", addr)
-        url = self.interface+urllib.quote(addr)
+        url = self.server+urllib.quote(addr)
         try:
             if self.secure:
                 if debugRestGet: log(self.name, "GET", "https://"+url)
@@ -64,7 +74,7 @@ class HARestInterface(HAInterface):
             return {}
 
     def write(self, addr, value):
-        url = self.interface+urllib.quote(addr)
+        url = self.server+urllib.quote(addr)
         try:
             if self.secure:
                 if debugRestPut: log(self.name, "PUT", "https://"+url)
@@ -85,9 +95,4 @@ class HARestInterface(HAInterface):
                 return False
         except:
             return False
-
-    def addSensor(self, sensor):
-        self.sensors[sensor.name] = sensor
-        self.states[sensor.addr] = None
-
 

@@ -4,12 +4,12 @@ from ha.loadInterface import *
 from ha.restServer import *
 
 if __name__ == "__main__":
-
-    # Collections
+    # Resources
     resources = HACollection("resources")
 
     # Interfaces
-    fileInterface = FileInterface("File", loadFileName, readOnly=True)
+    stateChangeEvent = threading.Event()
+    fileInterface = FileInterface("File", fileName=loadFileName, readOnly=True, event=stateChangeEvent)
     loadInterface = LoadInterface("Loads", fileInterface)
 
     # Loads
@@ -25,6 +25,6 @@ if __name__ == "__main__":
     # Start interfaces
     fileInterface.start()
     loadInterface.start()
-    restServer = RestServer(resources)
+    restServer = RestServer(resources, event=stateChangeEvent)
     restServer.start()
     
