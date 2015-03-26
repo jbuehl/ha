@@ -9,8 +9,6 @@ from ha.restInterface import *
 from ha.restServer import *
 from ha.timeInterface import *
 
-restPort = 7478
-
 # transform functions for views
 def ctof(tempc):
     return tempc*9/5+23
@@ -46,7 +44,15 @@ views = {"power": HAView({}, "%d W"),
          }
 
 buttons = [] #"index", "solar", "lights", "pool", "spa", "sprinklers", "doors"]
-             
+
+pageResources = {"index": [],
+                 "ipad": [],
+                 "iphone3gs": [],
+                 "": [],
+                }
+
+stateChangeEvent = threading.Event()
+                            
 ######################################################################################
 # javascript
 ######################################################################################
@@ -70,20 +76,38 @@ def redirectScript(location, interval):
     return script
 
 def updateScript(interval):
-    script  = "<script type='text/javascript'>\n"
-    script += "$(document).ready(function() {\n"
-    script += "    var refreshId = setInterval(function() {\n"
-    script += "      $.getJSON( 'update', {}, function(data) {\n"
-    script += "        $.each( data, function(key, val) {\n"
-    script += "          $('#'+key).text(val[1]);\n"
-#    script += "          $('#'+key).attr('class', val[0]+'_'+val[1]);\n"
-    script += "          $('#'+key).attr('class', val[0]);\n"
-    script += "          });\n"
-    script += "        });\n"
-    script += "      }, "+str(interval*1000)+");\n"
-    script += "    $.ajaxSetup({cache: false});\n"
-    script += "    });\n"
-    script += "</script>\n"
+    script  = ""
+    script += """
+<script type='text/javascript'>
+    $(document).ready(function() {
+        var pending = false;
+        var refreshId = setInterval(function() {
+            if (!pending) {
+                pending = true;
+                $.getJSON('update', {}, function(data) {
+                    $.each( data, function(key, val) {
+                        $('#'+key).text(val[1]);
+                        $('#'+key).attr('class', val[0]);
+                        });
+                    pending = false;
+                    });
+                };
+            }, %s);
+        $.ajaxSetup({cache: false});
+        });
+</script>
+""" % (str(interval*1000))
+    script += """
+<script type='text/javascript'>
+    $(document).ready(function() {
+        $(".button").click(function() {
+            event.preventDefault();
+            $.post('submit', {"action": this['defaultValue'], "resource": this['form']['children']['0']['defaultValue']});
+            return false;
+            });
+        });
+</script>
+"""
     return script
 
 class WebRoot(object):
@@ -94,12 +118,13 @@ class WebRoot(object):
     # Everything    
     @cherrypy.expose
     def index(self, action=None, resource=None):
-        if debugWeb: log("get", action, resource)
-        if resource:
-            self.resources[resource].setViewState(action)
-            script = redirectScript("/", 5)
-        else:
-            script = updateScript(webUpdateInterval)
+        if debugWeb: log("/", "get", action, resource)
+#        if resource:
+#            self.resources[resource].setViewState(action)
+#            script = redirectScript("/", 5)
+#        else:
+#            script = updateScript(webUpdateInterval)
+        script = updateScript(webUpdateInterval)
         # lock.acquire()
         reply = self.env.get_template("default.html").render(title="4319 Shadyglade", script=script, 
                             groups=[[group, self.resources.getGroup(group)] for group in ["Time", "Temperature", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Tasks"]],
@@ -107,15 +132,24 @@ class WebRoot(object):
         # lock.release()
         return reply
 
+    # Submit    
+    @cherrypy.expose
+    def submit(self, action=None, resource=None):
+        if debugWeb: log("/submit", "post", action, resource)
+        self.resources[resource].setViewState(action)
+        reply = ""
+        return reply
+
     # iPad - 1024x768   
     @cherrypy.expose
     def ipad(self, action=None, resource=None):
-        if debugWeb: log("get", action, resource)
-        if resource:
-            self.resources[resource].setViewState(action)
-            script = redirectScript("/ipad", 5)
-        else:
-            script = updateScript(webUpdateInterval)
+        if debugWeb: log("/ipad", "get", action, resource)
+#        if resource:
+#            self.resources[resource].setViewState(action)
+#            script = redirectScript("/", 5)
+#        else:
+#            script = updateScript(webUpdateInterval)
+        script = updateScript(webUpdateInterval)
         # lock.acquire()
         groups = [["Pool", self.resources.getResList(["poolPump", "clean1hr", "spa", "poolTemp", "spaTemp"])], 
                   ["Lights", self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
@@ -135,12 +169,13 @@ class WebRoot(object):
     # iPhone 3GS - 320x480    
     @cherrypy.expose
     def iphone3gs(self, action=None, resource=None):
-        if debugWeb: log("get", action, resource)
-        if resource:
-            self.resources[resource].setViewState(action)
-            script = redirectScript("/iphone3gs", 5)
-        else:
-            script = updateScript(webUpdateInterval)
+        if debugWeb: log("/iphone3gs", "get", action, resource)
+#        if resource:
+#            self.resources[resource].setViewState(action)
+#            script = redirectScript("/", 5)
+#        else:
+#            script = updateScript(webUpdateInterval)
+        script = updateScript(webUpdateInterval)
         # lock.acquire()
         resources = self.resources.getResList(["frontLights", "backLights", "bedroomLight", "recircPump"])
         reply = self.env.get_template("iphone3gs.html").render(script=script, 
@@ -223,6 +258,11 @@ class WebRoot(object):
         # types whose class does not depend on their value
         staticTypes = ["time", "ampm", "date", "tempF"]
         updates = {}
+        if webUpdateStateChange:
+            stateChangeEvent.clear()
+            if debugInterrupt: log("update", "event clear", stateChangeEvent)
+            stateChangeEvent.wait()
+            if debugInterrupt: log("update", "event wait", stateChangeEvent)
         # lock.acquire()
         for resource in self.resources:
             if self.resources[resource].name != "states":
@@ -236,23 +276,6 @@ class WebRoot(object):
                     pass
         # lock.release()
         return json.dumps(updates)        
-
-# State client thread.
-#class StateClient(threading.Thread):
-
-#    def __init__(self, name, resources, restInterfaces):
-#        threading.Thread.__init__(self, target=self.doState)
-#        self.name = name
-#        self.servers = {}
-#        self.resources = resources
-#        self.restInterfaces = restInterfaces
-#                
-#    def doState(self):
-#        if debugThread: log(self.name, "started")
-#        while running:
-#            for interface in self.restInterfaces:
-#                interface.readStates()
-#            time.sleep(10)
 
 # Rest client thread.
 class RestClient(threading.Thread):
@@ -280,10 +303,12 @@ class RestClient(threading.Thread):
             if serverName != self.selfRest:   # ignore the beacon from this service
                 if serverAddr not in self.servers.values():
                     # lock.acquire()
-                    restInterface = HARestInterface(serverName, server=serverAddr, secure=False)
+                    restInterface = HARestInterface(serverName, server=serverAddr, event=stateChangeEvent, secure=False)
                     self.restInterfaces.append(restInterface)
                     resources.load(restInterface, "/"+serverResources["name"])
                     resources.addViews(views)
+                    # fill the cache
+                    restInterface.readStates()
                     # lock.release()
                     self.servers[serverName] = serverAddr
         if debugThread: log(self.name, "terminated")
@@ -291,7 +316,7 @@ class RestClient(threading.Thread):
 
 if __name__ == "__main__":
 
-    # load the resources from the HA servers
+    # resources
     resources = HACollection("resources")
 
     # time resources
@@ -305,7 +330,7 @@ if __name__ == "__main__":
 
     # start the process to listen for services
     restInterfaces = []
-    restClient = RestClient("restClient", resources, restInterfaces, socket.gethostname()+":"+str(restPort))
+    restClient = RestClient("restClient", resources, restInterfaces, socket.gethostname()+":"+str(webRestPort))
     restClient.start()
     
 #    # start the process to get sensor states
@@ -346,6 +371,6 @@ if __name__ == "__main__":
     cherrypy.engine.start()
 
     # start the REST server for this service
-    restServer = RestServer(resources, restPort)
+    restServer = RestServer(resources, port=webRestPort, event=stateChangeEvent)
     restServer.start()
 

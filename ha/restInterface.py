@@ -17,11 +17,14 @@ class HARestInterface(HAInterface):
             self.keyFile = self.keyDir+self.hostname+"-client.key"
             self.caFile = self.keyDir+"ca.crt"
             if debugRest: log(self.name, self.crtFile, self.keyFile, self.caFile)
+        # start the thread to update the cache when states change
         def readStates():
             if debugRestStates: log(self.name, "readStates started")
             while running:
                 self.readStates("/resources/states/stateChange")
-#                time.sleep(10)
+                if self.event:
+                    self.event.set()
+                    if debugInterrupt: log(self.name, "event set", self.event)
         readStatesThread = threading.Thread(target=readStates)
         readStatesThread.start()
 
@@ -40,11 +43,10 @@ class HARestInterface(HAInterface):
         while len(states) == 0:
             time.sleep(10)
             states = self.readState(addr)
-        if debugRestStates: log(self.name, "readStates", states)
-        sensors = states[states.keys()[0]]
-        for sensor in sensors.keys():
+        if debugRestStates: log(self.name, "readStates", "states", states)
+        for sensor in states.keys():
             try:
-                self.states[self.sensors[sensor].addr] = sensors[sensor]
+                self.states[self.sensors[sensor].addr] = states[sensor]
             except:
                 if debugRestStates: log(self.name, "sensor not found", sensor)
 
@@ -64,7 +66,7 @@ class HARestInterface(HAInterface):
             if debugRestGet: log(self.name, "status", r.status_code)
             if r.status_code == 200:
                 attr = addr.split("/")[-1]
-                if attr == "state":
+                if (attr == "state") or (attr == "stateChange"):
                     return r.json()[attr]
                 else:
                     return r.json()

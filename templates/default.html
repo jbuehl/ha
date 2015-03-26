@@ -26,10 +26,10 @@
                 {% if r.className != "HASensor" %}
                 <div class=control>
                 <form name='control' action='' method='get'>
-                    {% for v in r.view.setValues.values() %}
-                    <input type='submit' name='action' value='{{ v }}' />
-                    {% endfor %}
                     <input type='hidden' name='resource' value='{{ r.name }}' />
+                    {% for v in r.view.setValues.values() %}
+                    <input type='submit' class='button' name='action' value='{{ v }}' />
+                    {% endfor %}
                 </form>
                     {% if r.className == "HATask" %}
                         {{ r.control.name }}: {{ r.control.view.setValues[r.controlState] }}<br>

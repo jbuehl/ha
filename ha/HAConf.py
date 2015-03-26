@@ -7,7 +7,6 @@ running = True
 # Environment
 latLong = (34.1486, -118.3965)
 tempScale = "F"
-webPort = 80
 rootDir = "/root/"
 keyDir = rootDir+"keys/"
 stateDir = rootDir+"state/"
@@ -20,7 +19,7 @@ debug = True
 debugObject = True
 debugState = True
 debugThread = True
-debugInterrupt = True
+debugInterrupt = False
 sysLogging = True
 
 # X10 interface
@@ -63,13 +62,16 @@ debugRest = False
 debugRestResources = False
 debugRestGet = False
 debugRestPut = False
-debugRestStates = False
+debugRestStates = True
 
 # Web interface
+webPort = 80
+webRestPort = 7478
+webUpdateInterval = 1
+webUpdateStateChange = True
 webLogging = False
-webUpdateInterval = 10
 debugHttp = False
-debugWeb = False
+debugWeb = True
 
 # Scheduler
 debugEvent = True
