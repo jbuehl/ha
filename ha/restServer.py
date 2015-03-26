@@ -8,6 +8,7 @@ import threading
 import socket
 import ssl
 import time
+import copy
 
 # Sensor that returns the states of all sensors in a list of resources
 class ResourceStateSensor(HASensor):
@@ -15,13 +16,14 @@ class ResourceStateSensor(HASensor):
         HASensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.resources = resources
         self.event = event
+        self.states = {}
 
     def getState(self):
-        state = {}
         for sensor in self.resources.values():
             if (sensor != self) and (sensor.type != "schedule"):
-                state[sensor.name] = sensor.getState()
-        return state
+                self.states[sensor.name] = sensor.getState()
+        if debugStateChange: log(self.name, "getState", self.states)
+        return self.states
 
     def getStateChange(self):
         if debugInterrupt: log(self.name, "getStateChange")
@@ -32,7 +34,20 @@ class ResourceStateSensor(HASensor):
             if debugInterrupt: log(self.name, "event wait", self.event)
         else:
             time.sleep(10)
-        return self.getState()
+        lastState = copy.copy(self.states)
+        newState = self.getState()
+        if debugStateChange: log(self.name, "newState", newState)
+        if debugStateChange: log(self.name, "lastState", lastState)
+        changeState = {}
+        for sensor in newState.keys():
+            try:
+                if debugStateChange: log(self.name, "sensor", sensor, "last", lastState[sensor], "new", newState[sensor])
+                if newState[sensor] != lastState[sensor]:
+                    changeState[sensor] = newState[sensor]
+            except KeyError:
+                changeState[sensor] = newState[sensor]
+        if debugStateChange: log(self.name, "changeState", changeState)
+        return changeState
 
 # RESTful web services server interface
 class RestServer(object):

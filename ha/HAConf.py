@@ -18,6 +18,7 @@ notifyFromNumber = keyDir+"notifyFromNumber"
 debug = True
 debugObject = True
 debugState = True
+debugStateChange = False
 debugThread = True
 debugInterrupt = False
 sysLogging = True
