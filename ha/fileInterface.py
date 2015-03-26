@@ -32,8 +32,10 @@ class FileInterface(HAInterface):
     def read(self, addr):
         try:
             # if the file has been modified since it was last read, read it again
-            if  os.stat(self.fileName).st_mtime > self.mtime:
+            mtime = os.stat(self.fileName).st_mtime
+            if mtime  > self.mtime:
                 self.readData()
+                self.mtime = mtime
             return self.data[addr]
         except:
             return None
