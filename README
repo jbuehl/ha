@@ -86,6 +86,15 @@ Resource paths:
     optionally  followed by a HASensor name, optionally followed by an HASensor 
     attribute name.
 
+    The HASensor attribute "state" returns the current state of the sensor.  The
+    attribute "stateChange" waits and returns the state of a sensor when the state
+    changes.
+
+    Each resource collection includes a resource named "states" whose "state" attribute
+    consists of a dictionary of all the states of the HASensors in the collection.  It
+    also has an attribute called "stateChange" that waits and returns the states of any
+    sensors whose state has changed since the last get of the states.
+
 Verbs:
     The following verbs are defined:
     GET - return the value of the specified resource
@@ -125,8 +134,8 @@ Examples:
         "poolCleanerPower", "spaBlowerPower", "poolLightPower", "spaLightPower", 
         "Pool cleaning"], "name": "resources"}
 
-    2. Return the attributes for the resource "shade1".  Note that the attribute 
-       "state" is not included.
+    2. Return the attributes for the resource "shade1".  Note that the attributes 
+       "state" or "stateChange" are not included.
 
         GET hostname:7378/resources/shade1
 
@@ -134,7 +143,7 @@ Examples:
         "location": null, "interface": "rpi04:7378", "type": "shade", "class": 
         "HAControl", "label": "Shade 1"}
      
-    3. Return the state of the resource "shade1".
+    3. Return the current state of the resource "shade1".
 
         GET hostname:7378/resources/shade1/state
 
@@ -145,4 +154,28 @@ Examples:
         PUT hostname:7378/resources/shade1/state
 
         {"state": 1}
+     
+    5. Return the state of the resource "lightsLoad" when the state changes.  This will
+       block and wait indefinitely until the state changes.
+
+        GET hostname:7378/resources/lightsLoad/stateChange
+
+        {"stateChange": 27.48}
+
+    6. Return the current states of all resources on the specified host.
+
+        GET hostname:7378/resources/states/state
+
+        {"state": {"acLoad": 0.0, "cookingLoad": 0.0, "poolLoad": 50.879999999999995, 
+        "backLoad": 985.2, "plugsLoad": 278.4, "appl1Load": 24.0, "lightsLoad": 27.6, 
+        "appl2Load": 20.520000000000003}}
+
+    7. Return the state of the current states of all resources on the specified host 
+       when a state changes.  This will block and wait indefinitely until at least one 
+       state changes.
+
+        GET hostname:7378/resources/states/stateChange
+
+        {"stateChange": {"backLoad": 980.8799999999999, "poolLoad": 59.28}}
+
 
