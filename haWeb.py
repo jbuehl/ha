@@ -53,63 +53,6 @@ pageResources = {"index": [],
 
 stateChangeEvent = threading.Event()
                             
-######################################################################################
-# javascript
-######################################################################################
-
-def refreshScript(interval):
-    script  = "<script type='text/javascript'>\n"
-    script += "function refresh() {\n"
-    script += "	   location.reload(true)\n"
-    script += "}\n"
-    script += "window.setInterval('refresh()',"+str(interval*1000)+");\n"
-    script += "</script>\n"
-    return script
-
-def redirectScript(location, interval):
-    script  = "<script type='text/javascript'>\n"
-    script += "function redirect() {\n"
-    script += "	   location='"+location+"';\n"
-    script += "}\n"
-    script += "window.setInterval('redirect()',"+str(interval*1000)+");\n"
-    script += "</script>\n"
-    return script
-
-def updateScript(interval):
-    script  = ""
-    script += """
-<script type='text/javascript'>
-    $(document).ready(function() {
-        var pending = false;
-        var refreshId = setInterval(function() {
-            if (!pending) {
-                pending = true;
-                $.getJSON('update', {}, function(data) {
-                    $.each( data, function(key, val) {
-                        $('#'+key).text(val[1]);
-                        $('#'+key).attr('class', val[0]);
-                        });
-                    pending = false;
-                    });
-                };
-            }, %s);
-        $.ajaxSetup({cache: false});
-        });
-</script>
-""" % (str(interval*1000))
-    script += """
-<script type='text/javascript'>
-    $(document).ready(function() {
-        $(".button").click(function() {
-            event.preventDefault();
-            $.post('submit', {"action": this['defaultValue'], "resource": this['form']['children']['0']['defaultValue']});
-            return false;
-            });
-        });
-</script>
-"""
-    return script
-
 class WebRoot(object):
     def __init__(self, resources, env):
         self.resources = resources
@@ -119,14 +62,8 @@ class WebRoot(object):
     @cherrypy.expose
     def index(self, action=None, resource=None):
         if debugWeb: log("/", "get", action, resource)
-#        if resource:
-#            self.resources[resource].setViewState(action)
-#            script = redirectScript("/", 5)
-#        else:
-#            script = updateScript(webUpdateInterval)
-        script = updateScript(webUpdateInterval)
         # lock.acquire()
-        reply = self.env.get_template("default.html").render(title="4319 Shadyglade", script=script, 
+        reply = self.env.get_template("default.html").render(title="4319 Shadyglade", script="", 
                             groups=[[group, self.resources.getGroup(group)] for group in ["Time", "Temperature", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Tasks"]],
                             buttons=buttons)
         # lock.release()
@@ -144,19 +81,13 @@ class WebRoot(object):
     @cherrypy.expose
     def ipad(self, action=None, resource=None):
         if debugWeb: log("/ipad", "get", action, resource)
-#        if resource:
-#            self.resources[resource].setViewState(action)
-#            script = redirectScript("/", 5)
-#        else:
-#            script = updateScript(webUpdateInterval)
-        script = updateScript(webUpdateInterval)
         # lock.acquire()
         groups = [["Pool", self.resources.getResList(["poolPump", "clean1hr", "spa", "poolTemp", "spaTemp"])], 
                   ["Lights", self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
                   ["Shades", self.resources.getResList(["shade1", "shade2", "shade3", "shade4"])], 
                   ["Sprinklers", self.resources.getResList(["backLawnSequence", "sideBedSequence", "frontLawnSequence"])]
                   ]
-        reply = self.env.get_template("ipad.html").render(script=script, 
+        reply = self.env.get_template("ipad.html").render(script="", 
                             time=self.resources["theTime"],
                             ampm=self.resources["theAmPm"],
                             day=self.resources["theDay"],
@@ -170,15 +101,9 @@ class WebRoot(object):
     @cherrypy.expose
     def iphone3gs(self, action=None, resource=None):
         if debugWeb: log("/iphone3gs", "get", action, resource)
-#        if resource:
-#            self.resources[resource].setViewState(action)
-#            script = redirectScript("/", 5)
-#        else:
-#            script = updateScript(webUpdateInterval)
-        script = updateScript(webUpdateInterval)
         # lock.acquire()
         resources = self.resources.getResList(["frontLights", "backLights", "bedroomLight", "recircPump"])
-        reply = self.env.get_template("iphone3gs.html").render(script=script, 
+        reply = self.env.get_template("iphone3gs.html").render(script="", 
                             time=self.resources["theTime"],
                             ampm=self.resources["theAmPm"],
                             day=self.resources["theDay"],
