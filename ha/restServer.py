@@ -16,8 +16,9 @@ class ResourceStateSensor(HASensor):
         HASensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.resources = resources
         self.event = event
-        self.states = {}
+        self.states = {}    # current sensor states
 
+    # return the current state of all sensors in the collection
     def getState(self):
         for sensor in self.resources.values():
             if (sensor != self) and (sensor.type != "schedule"):
@@ -25,23 +26,24 @@ class ResourceStateSensor(HASensor):
         if debugStateChange: log(self.name, "getState", self.states)
         return self.states
 
+    # return the state of any sensors that have changed since the last getState() call
     def getStateChange(self):
         if debugInterrupt: log(self.name, "getStateChange")
-        if self.event:
+        lastState = copy.copy(self.states)
+        if debugStateChange: log(self.name, "lastState", lastState)
+        if self.event:      # wait for state change event
             self.event.clear()
             if debugInterrupt: log(self.name, "event clear", self.event)
             self.event.wait()
             if debugInterrupt: log(self.name, "event wait", self.event)
-        else:
+        else:               # no event specified, return periodically
             time.sleep(10)
-        lastState = copy.copy(self.states)
         newState = self.getState()
         if debugStateChange: log(self.name, "newState", newState)
-        if debugStateChange: log(self.name, "lastState", lastState)
         changeState = {}
         for sensor in newState.keys():
             try:
-                if debugStateChange: log(self.name, "sensor", sensor, "last", lastState[sensor], "new", newState[sensor])
+#                if debugStateChange: log(self.name, "sensor", sensor, "last", lastState[sensor], "new", newState[sensor])
                 if newState[sensor] != lastState[sensor]:
                     changeState[sensor] = newState[sensor]
             except KeyError:
