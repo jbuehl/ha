@@ -28,7 +28,7 @@ views = {"power": HAView({}, "%d W"),
          "tempF": HAView({}, "%d F"),
          "door": HAView({0:"Closed", 1:"Open"}, "%s"),
          "shade": HAView({None:"", 0:"Up", 1:"Down", 2:"Raising", 3:"Lowering"}, "%s", None, {0:"Up", 1:"Down"}),
-         "spa": HAView({0:"Off", 1:"On", 2:"Starting", 3:"Warming", 4:"Standby", 5:"Stopping"}, "%s", None, {0:"Off", 1:"On", 4:"Stby"}),
+         "spa": HAView({0:"Off", 1:"On", 2:"Starting", 3:"Warming", 4:"Standby", 5:"Stopping"}, "%s", None, {0:"Off", 1:"On"}), #, 4:"Stby"}),
          "poolValves": HAView({0:"Pool", 1:"Spa"}, "%s", None, {0:"Pool", 1:"Spa"}),
          "pump": HAView({0:"Off", 1:"Lo", 2:"Med", 3:"Hi", 4:"Max"}, "%s", None, {0:"Off", 1:"Lo", 2:"Med", 3:"Hi", 4:"Max"}),
          "pumpSpeed": HAView({}, "%d RPM"),
@@ -93,6 +93,21 @@ class WebRoot(object):
                             day=self.resources["theDay"],
                             temp=self.resources["airTemp"],
                             groups=groups,
+                            buttons=buttons)
+        # lock.release()
+        return reply
+
+    # iPhone 5 - 320x568    
+    @cherrypy.expose
+    def iphone5(self, action=None, resource=None):
+        if debugWeb: log("/iphone5", "get", action, resource)
+        # lock.acquire()
+        resources = self.resources.getResList(["spaTemp", "spa", "frontLights", "backLights", "shade1", "shade2", "shade3", "shade4", "backLawn", "sideBeds", "frontLawn"])
+        reply = self.env.get_template("iphone5.html").render(script="", 
+                            time=self.resources["theTime"],
+                            ampm=self.resources["theAmPm"],
+                            temp=self.resources["airTemp"],
+                            resources=resources,
                             buttons=buttons)
         # lock.release()
         return reply

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+<head>
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+    <link rel='stylesheet' type='text/css' href='css/iphone5.css'> 
+    <script src='js/jquery.js'></script>
+    <script src='js/update.js'></script>
+    <script src='js/submit.js'></script>
+    {{ script }}
+</head>
+<body>
+    <table border=0 width=320 style='table-layout:fixed'>
+        <col width=60><col width=100><col width=60>
+        <tr>
+            <td><div id="{{ time.name }}" class="time">{{ time.getViewState() }}</div></td>
+            <td><div id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState() }}</div></td>
+            <td><div id="{{ temp.name }}" class="tempF">{{ temp.getViewState() }}</div></td>
+        </tr>
+    </table>
+    <table border=0 width=320 style='table-layout:fixed'>
+        <col width=120><col width=72><col width=128>
+        {% for r in resources %}
+        <tr>
+            <td><div class=label>{{ r.label }}</div></td>
+            <td><div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState() }}">{{ r.getViewState() }}</div></td>
+            <td>
+                {% if r.className != "HASensor" %}
+                <div class=control>
+                <form name='control' action='' method='get'>
+                    <input type='hidden' name='resource' value='{{ r.name }}' />
+                    {% for v in r.view.setValues.values() %}
+                    <input type='submit' class='button' name='action' value='{{ v }}' />
+                    {% endfor %}
+                </form>
+                </div>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
+
