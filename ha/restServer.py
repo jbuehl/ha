@@ -39,11 +39,9 @@ class ResourceStateSensor(HASensor):
         else:               # no event specified, return periodically
             time.sleep(10)
         newState = self.getState()
-        if debugStateChange: log(self.name, "newState", newState)
         changeState = {}
         for sensor in newState.keys():
             try:
-#                if debugStateChange: log(self.name, "sensor", sensor, "last", lastState[sensor], "new", newState[sensor])
                 if newState[sensor] != lastState[sensor]:
                     changeState[sensor] = newState[sensor]
             except KeyError:
