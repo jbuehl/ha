@@ -24,7 +24,7 @@ class FileInterface(HAInterface):
             if debugFileThread: log(self.name, "readData started")
             while running:
                 time.sleep(filePollInterval)
-                if  os.stat(self.fileName).st_mtime > self.mtime:
+                if self.modified():
                     self.readData()
         readStatesThread = threading.Thread(target=readData)
         readStatesThread.start()
@@ -32,10 +32,8 @@ class FileInterface(HAInterface):
     def read(self, addr):
         try:
             # if the file has been modified since it was last read, read it again
-            mtime = os.stat(self.fileName).st_mtime
-            if mtime  > self.mtime:
+            if self.modified():
                 self.readData()
-                self.mtime = mtime
             return self.data[addr]
         except:
             return None
@@ -50,12 +48,26 @@ class FileInterface(HAInterface):
         if not self.readOnly:
             self.writeData()
 
+    def modified(self):
+        mtime = os.stat(self.fileName).st_mtime
+        if debugFile: log(self.name, "modified", mtime, "last", self.mtime)
+        if mtime > self.mtime:
+            self.mtime = mtime
+            return True
+        else:
+            return False
+    
     def readData(self):
-        self.data = json.load(open(self.fileName))
+        try:
+            self.data = json.load(open(self.fileName))
+        except:
+            log(self.name, "readData file read error")
+        if debugFile: log(self.name, "readData", self.data)
         if self.event:
             self.event.set()
 
     def writeData(self):
+        if debugFile: log(self.name, "writeData". self.data)
         json.dump(self.data, open(self.fileName, "w"))
         self.mtime = time.time()
         if self.event:
