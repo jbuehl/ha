@@ -87,16 +87,18 @@ if __name__ == "__main__":
     resources.addRes(spaHeater)
     resources.addRes(spaBlower)
 #    resources.addRes(HAHeaterControl("Pool heater", aqualinkInterface, "poolHtr", group="Pool"))
-#    resources.addRes(HASensor("model", aqualinkInterface, "model", group="Pool", label="Controller model"))
-    resources.addRes(HASensor("date", aqualinkInterface, "date", group="Pool", label="Controller date"))
-    resources.addRes(HASensor("time", aqualinkInterface, "time", group="Pool", label="Controller time"))
+#    resources.addRes(HASensor("model", aqualinkInterface, "poolModel", group="Pool", label="Controller model"))
+    resources.addRes(HASensor("poolDate", aqualinkInterface, "poolDate", group="Pool", label="Controller date"))
+    resources.addRes(HASensor("poolTime", aqualinkInterface, "poolTime", group="Pool", label="Controller time"))
 
     # Spa
 #    dayLight = HASensor("daylight", timeInterface, "daylight")
     spaInterface = SpaInterface("SpaInterface", poolValves, poolPump, spaHeater, spaLight, spaTemp)
-    spa = HAControl("spa", spaInterface, None, group="Pool", label="Spa", type="spa")
+    spa = HAControl("spa", spaInterface, 0, group="Pool", label="Spa", type="spa")
+    spa1 = HAControl("spa1", spaInterface, 1, group="Pool", label="Spa", type="spa1")
     spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(spa, 1)])
     resources.addRes(spa)
+    resources.addRes(spa1)
     resources.addRes(spaLightNight)
     
     resources.addRes(HASequence("cleanMode", [HACycle(resources["poolPump"], duration=3600, startState=3), 

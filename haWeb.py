@@ -10,35 +10,42 @@ from ha.restServer import *
 from ha.timeInterface import *
 
 # transform functions for views
-def ctof(tempc):
-    return tempc*9/5+23
+def ctofFormat(value):
+    return value*9/5+23
 
-def kilo(value):
+def kiloFormat(value):
     return value/1000.0
     
-def mega(value):
+def megaFormat(value):
     return value/1000000.0
 
-def seqCountdown(resource):
+def seqCountdownFormat(resource):
     pass
-    
+
+def spaTempFormat(value):
+    if value == 0:
+        return "Off"
+    else:
+        return "%d F"%(value)
+        
 # view definitions    
 views = {"power": HAView({}, "%d W"),
-         "tempC": HAView({}, "%d F", ctof),
+         "tempC": HAView({}, "%d F", ctofFormat),
          "tempF": HAView({}, "%d F"),
          "door": HAView({0:"Closed", 1:"Open"}, "%s"),
          "shade": HAView({None:"", 0:"Up", 1:"Down", 2:"Raising", 3:"Lowering"}, "%s", None, {0:"Up", 1:"Down"}),
-         "spa": HAView({0:"Off", 1:"On", 2:"Starting", 3:"Warming", 4:"Standby", 5:"Stopping"}, "%s", None, {0:"Off", 1:"On"}), #, 4:"Stby"}),
+         "spa": HAView({0:"Off", 1:"On", 2:"Starting", 3:"Warming", 4:"Standby", 5:"Stopping"}, "%s", None, {0:"Off", 1:"On", 4:"Stby"}),
+         "spa1": HAView({}, "%s", spaTempFormat, {0:"Off", 1:"On"}),
          "poolValves": HAView({0:"Pool", 1:"Spa"}, "%s", None, {0:"Pool", 1:"Spa"}),
          "pump": HAView({0:"Off", 1:"Lo", 2:"Med", 3:"Hi", 4:"Max"}, "%s", None, {0:"Off", 1:"Lo", 2:"Med", 3:"Hi", 4:"Max"}),
          "pumpSpeed": HAView({}, "%d RPM"),
          "pumpFlow": HAView({}, "%d GPM"),
          "cleaner": HAView({0:"Off", 1:"On", 2:"Ena"}, "%s", None, {0:"Off", 1:"On"}),
          "heater": HAView({0:"Off", 1:"On", 4:"Ena"}, "%s", None, {0:"Off", 1:"On"}),
-         "KVA": HAView({}, "%7.3f KVA", kilo),
-         "KW": HAView({}, "%7.3f KW", kilo),
-         "KWh": HAView({}, "%7.3f KWh", kilo),
-         "MWh": HAView({}, "%7.3f MWh", mega),
+         "KVA": HAView({}, "%7.3f KVA", kiloFormat),
+         "KW": HAView({}, "%7.3f KW", kiloFormat),
+         "KWh": HAView({}, "%7.3f KWh", kiloFormat),
+         "MWh": HAView({}, "%7.3f MWh", megaFormat),
          "sequence": HAView({0:"Stopped", 1:"Running"}, "%s", None, {0:"Stop", 1:"Run"}),
          "task": HAView({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"})
          }
@@ -102,7 +109,7 @@ class WebRoot(object):
     def iphone5(self, action=None, resource=None):
         if debugWeb: log("/iphone5", "get", action, resource)
         # lock.acquire()
-        resources = self.resources.getResList(["spaTemp", "spa", "frontLights", "backLights", "shade1", "shade2", "shade3", "shade4", "backLawn", "sideBeds", "frontLawn"])
+        resources = self.resources.getResList(["spa1", "frontLights", "backLights", "shade1", "shade2", "shade3", "shade4", "backLawn", "sideBeds", "frontLawn"])
         reply = self.env.get_template("iphone5.html").render(script="", 
                             time=self.resources["theTime"],
                             ampm=self.resources["theAmPm"],

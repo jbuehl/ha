@@ -19,10 +19,10 @@ class AqualinkInterface(HAInterface):
         self.stateFileName = "root/ha/pool.state"   # FIXME
 
         # identity
-        self.model = Device("model", "")
-        self.title = Device("title", "")
-        self.date = Device("date", "")
-        self.time = Device("time", "")
+        self.model = Device("poolModel", "")
+        self.title = Device("poolTitle", "")
+        self.date = Device("poolDate", "")
+        self.time = Device("poolTime", "")
 
         # configuration
         self.options = 0
@@ -108,7 +108,7 @@ class AqualinkInterface(HAInterface):
     def read(self, theAddr):
         if theAddr == "spaTemp" and self.equipDict["spa"].state == False:
             self.setSpaTemp((self.poolTemp.state, self.tempScale)) # force to pool temp if spa is off
-            return "--"
+            return 0
         else:
             return self.equipDict[theAddr].state
 
