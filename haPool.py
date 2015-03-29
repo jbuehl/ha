@@ -66,7 +66,7 @@ if __name__ == "__main__":
     # Temperature
     airTemp = HASensor("airTemp", aqualinkInterface, "airTemp", "Temperature",label="Air temp", type="tempF")
     poolTemp = HASensor("poolTemp", aqualinkInterface, "poolTemp", "Temperature", label="Pool temp", type="tempF")
-    spaTemp = HASensor("spaTemp", aqualinkInterface, "spaTemp", "Temperature", label="Spa temp", type="tempF")
+    spaTemp = HASensor("spaTemp", aqualinkInterface, "spaTemp", "Temperature", label="Spa temp", type="spaTemp")
     resources.addRes(airTemp)
     resources.addRes(poolTemp)
     resources.addRes(spaTemp)
@@ -95,7 +95,7 @@ if __name__ == "__main__":
 #    dayLight = HASensor("daylight", timeInterface, "daylight")
     spaInterface = SpaInterface("SpaInterface", poolValves, poolPump, spaHeater, spaLight, spaTemp)
     spa = HAControl("spa", spaInterface, 0, group="Pool", label="Spa", type="spa")
-    spa1 = HAControl("spa1", spaInterface, 1, group="Pool", label="Spa", type="spa1")
+    spa1 = HAControl("spa1", spaInterface, 1, group="Pool", label="Spa", type="spaTemp")
     spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(spa, 1)])
     resources.addRes(spa)
     resources.addRes(spa1)

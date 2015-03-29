@@ -49,7 +49,7 @@
                 $('.tempC').each(function(){
                     $(this).css('color', tempColor(parseInt($(this).text())));
                     });
-                $('.spa1').each(function(){
+                $('.spaTemp').each(function(){
                     $(this).css('color', tempColor(parseInt($(this).text())));
                     });
                 };

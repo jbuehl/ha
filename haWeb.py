@@ -35,7 +35,7 @@ views = {"power": HAView({}, "%d W"),
          "door": HAView({0:"Closed", 1:"Open"}, "%s"),
          "shade": HAView({None:"", 0:"Up", 1:"Down", 2:"Raising", 3:"Lowering"}, "%s", None, {0:"Up", 1:"Down"}),
          "spa": HAView({0:"Off", 1:"On", 2:"Starting", 3:"Warming", 4:"Standby", 5:"Stopping"}, "%s", None, {0:"Off", 1:"On", 4:"Stby"}),
-         "spa1": HAView({}, "%s", spaTempFormat, {0:"Off", 1:"On"}),
+         "spaTemp": HAView({}, "%s", spaTempFormat, {0:"Off", 1:"On"}),
          "poolValves": HAView({0:"Pool", 1:"Spa"}, "%s", None, {0:"Pool", 1:"Spa"}),
          "pump": HAView({0:"Off", 1:"Lo", 2:"Med", 3:"Hi", 4:"Max"}, "%s", None, {0:"Off", 1:"Lo", 2:"Med", 3:"Hi", 4:"Max"}),
          "pumpSpeed": HAView({}, "%d RPM"),
@@ -203,7 +203,7 @@ class WebRoot(object):
     @cherrypy.expose
     def update(self, _=None):
         # types whose class does not depend on their value
-        staticTypes = ["time", "ampm", "date", "tempF", "tempC", "spa1"]
+        staticTypes = ["time", "ampm", "date", "tempF", "tempC", "spaTemp"]
         updates = {}
         if webUpdateStateChange:
             stateChangeEvent.clear()
