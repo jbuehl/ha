@@ -89,7 +89,7 @@ class WebRoot(object):
     def ipad(self, action=None, resource=None):
         if debugWeb: log("/ipad", "get", action, resource)
         # lock.acquire()
-        groups = [["Pool", self.resources.getResList(["poolPump", "clean1hr", "spa", "poolTemp", "spaTemp"])], 
+        groups = [["Pool", self.resources.getResList(["poolPump", "clean1hr", "spa1", "poolTemp"])], 
                   ["Lights", self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
                   ["Shades", self.resources.getResList(["shade1", "shade2", "shade3", "shade4"])], 
                   ["Sprinklers", self.resources.getResList(["backLawnSequence", "sideBedSequence", "frontLawnSequence"])]
@@ -203,7 +203,7 @@ class WebRoot(object):
     @cherrypy.expose
     def update(self, _=None):
         # types whose class does not depend on their value
-        staticTypes = ["time", "ampm", "date", "tempF"]
+        staticTypes = ["time", "ampm", "date", "tempF", "tempC", "spa1"]
         updates = {}
         if webUpdateStateChange:
             stateChangeEvent.clear()
