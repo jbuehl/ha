@@ -146,7 +146,7 @@ class HACollection(HAResource, OrderedDict):
                 self.addRes(HAScene(node["name"], [], group=node["group"], type=node["type"], label=node["label"], 
                     interface=interface, addr=path+"/state"))
             elif node["class"] == "HATask":
-                self.addRes(HATask(node["name"], theControl=self[node["control"]], theState=node["controlState"], 
+                self.addRes(HATask(node["name"], theControl=self[node["control"]], state=node["controlState"], 
                     theSchedTime=HASchedTime(**node["schedTime"]), 
                     interface=interface, addr=path+"/state",))
             else:
@@ -230,7 +230,7 @@ class HASensor(HAResource):
         return self.view.getViewState(self)
 
     # Define this function for sensors even though it does nothing        
-    def setState(self, theState, wait=False):
+    def setState(self, state, wait=False):
         return False
 
     # override to handle special cases of state and stateChange
@@ -302,9 +302,9 @@ class HAControl(HASensor):
         self.running = False
 
     # Set the state of the control by writing the value to the address on the interface.
-    def setState(self, theState, wait=False):
-        if debugState: log(self.name, "setState ", theState)
-        self.interface.write(self.addr, theState)
+    def setState(self, state, wait=False):
+        if debugState: log(self.name, "setState ", state)
+        self.interface.write(self.addr, state)
         self.notify()
         return True
 
@@ -326,11 +326,11 @@ class HACycle(object):
     def __str__(self):
         return self.control.name+" "+self.duration.__str__()+" "+self.delay.__str__()+" "+self.startState.__str__()+" "+self.endState.__str__()
                             
-# a Sequence is a Control that consists of a set of Cycles that are run in the specified order
+# a Sequence is a Control that consists of a list of Cycles that are run in the specified order
 class HASequence(HAControl):
-    def __init__(self, name, theCycleList, interface=HAInterface("None"), addr=None, group="", type="sequence", view=None, label=""):
-        HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
-        self.cycleList = theCycleList
+    def __init__(self, name, cycleList, addr=None, interface=HAInterface("None"), event=None, group="", type="sequence", view=None, label=""):
+        HAControl.__init__(self, name, addr=addr, interface=interface, event=event, group=group, type=type, view=view, label=label)
+        self.cycleList = cycleList
         self.running = False
 
     def getState(self):
@@ -339,43 +339,64 @@ class HASequence(HAControl):
         else:
             return HAControl.getState(self)
         
-    def setState(self, theState, wait=False):
+    def setState(self, state, wait=False):
         if self.interface.name == "None":
-            if debugState: log(self.name, "setState ", theState)
-            if theState and not(self.running):
-                self.runCycle(wait)
-            elif (not theState) and self.running:
-                self.stopCycle()
+            if debugState: log(self.name, "setState ", state, wait)
+            if state and not(self.running):
+                self.runCycles(wait)
+            elif (not state) and self.running:
+                self.stopCycles()
             return True
         else:
-            return HAControl.setState(self, theState)
+            return HAControl.setState(self, state)
             
-    def runCycle(self, wait=False):
-    # Run the list of Cycles
-        if debugState: log(self.name, "runCycle ")
-        if wait:
-            # Run it synchronously.
-            self.doCycle()
-        else:
-            # Run it asynchronously in a separate thread.
-            self.cycleThread = threading.Thread(target=self.doCycle)
+    # Run the Cycles in the list
+    def runCycles(self, wait=False):
+        if debugState: log(self.name, "runCycles", wait)
+        # thread that runs the cycles
+        def runCycles():
+            if debugThread: log(self.name, "started")
+            self.running = True
+            for cycle in self.cycleList:
+                if not self.running:
+                    break
+                self.runCycle(cycle)
+            self.running = False
+            self.notify()
+            if debugThread: log(self.name, "finished")
+        if wait:    # Run it synchronously
+            runCycles()
+        else:       # Run it asynchronously in a separate thread
+            self.cycleThread = threading.Thread(target=runCycles)
             self.cycleThread.start()
 
-    def stopCycle(self):
-        if debugThread: log(self.name, "stopped")
+    # Stop all Cycles in the list
+    def stopCycles(self):
         self.running = False
         for cycle in self.cycleList:
             cycle.control.setState(cycle.endState)
-        
-    def doCycle(self):
-        if debugThread: log(self.name, "started")
-        self.running = True
+        self.notify()
+        if debugThread: log(self.name, "stopped")
+
+    # state change notification to all control events since the sequence doean't have an event
+    def notify(self):
+        time.sleep(2)   # short delay to ensure the state change event for the sequence isn't missed
         for cycle in self.cycleList:
+            cycle.control.notify()
+
+    # Run the specified Cycle
+    def runCycle(self, cycle):
+        if cycle.delay > 0:
+            if debugThread: log(self.name, cycle.control.name, "delaying", cycle.delay)
+            self.wait(cycle.delay)
             if not self.running:
-                break
-            self.controlCycle(cycle)
-        self.running = False
-        if debugThread: log(self.name, "finished")
+                return
+        if debugThread: log(self.name, cycle.control.name, "started")
+        cycle.control.setState(cycle.startState)
+        if cycle.duration > 0:
+            self.wait(cycle.duration)
+            cycle.control.setState(cycle.endState)
+        if debugThread: log(self.name, cycle.control.name, "finished")
 
     # wait the specified number of seconds
     # break immediately if the sequence is stopped
@@ -385,20 +406,6 @@ class HASequence(HAControl):
                 break
             time.sleep(1)
     
-    def controlCycle(self, cycle):
-    # Run the specified Cycle
-        if debugThread: log(self.name, cycle.control.name, "started")
-        if cycle.delay > 0:
-            if debugThread: log(self.name, "delaying", cycle.delay)
-            self.wait(cycle.delay)
-            if not self.running:
-                return
-        cycle.control.setState(cycle.startState)
-        if cycle.duration > 0:
-            self.wait(cycle.duration)
-            cycle.control.setState(cycle.endState)
-        if debugThread: log(self.name, cycle.control.name, "finished")
-
     def __str__(self):
         msg = ""
         for cycle in self.cycleList:
@@ -407,25 +414,25 @@ class HASequence(HAControl):
             
 # A Scene is a set of Controls whose state can be changed together
 class HAScene(HAControl):
-    def __init__(self, name, theControlList, theStateList=[], interface=HAInterface("None"), addr=None, group="", type="scene", view=None, label=""):
+    def __init__(self, name, theControlList, stateList=[], interface=HAInterface("None"), addr=None, group="", type="scene", view=None, label=""):
         HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.controlList = theControlList
         self.sceneState = 0
-        if theStateList == []:
+        if stateList == []:
             self.stateList = [[0,1]]*(len(self.controlList))
         else:
-            self.stateList = theStateList
+            self.stateList = stateList
 
-    def setState(self, theState, wait=False):
+    def setState(self, state, wait=False):
         if self.interface.name == "None":
-            if debugState: log(self.name, "setState ", theState)
-            self.sceneState = theState  # use Cycle - FIXME
+            if debugState: log(self.name, "setState ", state)
+            self.sceneState = state  # use Cycle - FIXME
             # Run it asynchronously in a separate thread.
             self.sceneThread = threading.Thread(target=self.doScene)
             self.sceneThread.start()
             return True
         else:
-            return HAControl.setState(self, theState)
+            return HAControl.setState(self, state)
 
     def getState(self):
 #        if self.interface.name == "None":
@@ -546,11 +553,11 @@ class HASchedule(HACollection):
 
 # a Task specifies a control to be set to a specified state at a specified time
 class HATask(HAControl):
-    def __init__(self, name, theSchedTime, theControl, theState, theParent=None, enabled=True, interface=HAInterface("None"), addr=None, type="task", group="Tasks", view=None, label=""):
+    def __init__(self, name, theSchedTime, theControl, state, theParent=None, enabled=True, interface=HAInterface("None"), addr=None, type="task", group="Tasks", view=None, label=""):
         HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.schedTime = theSchedTime
         self.control = theControl
-        self.controlState = theState
+        self.controlState = state
         self.parent = theParent
         self.enabled = normalState(enabled)
 
