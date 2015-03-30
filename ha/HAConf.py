@@ -18,9 +18,9 @@ notifyFromNumber = keyDir+"notifyFromNumber"
 debug = True
 debugObject = True
 debugState = True
-debugStateChange = False
+debugStateChange = True
 debugThread = True
-debugInterrupt = False
+debugInterrupt = True
 sysLogging = True
 
 # X10 interface
@@ -56,7 +56,7 @@ spaReadyNotifyNumbers = keyDir+"spaReadyNotifyNumbers"
 debugSpaLight = True
 
 # Shades interface
-debugShades = False
+debugShades = True
 
 # REST interface
 debugRest = False
@@ -87,6 +87,7 @@ debugPentairThread = False
 debugPentairData = False
 
 # File interface
+debugFile = True
 debugFileThread = True
 filePollInterval = 10
 
