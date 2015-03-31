@@ -17,6 +17,7 @@ class ResourceStateSensor(HASensor):
         self.resources = resources
         self.event = event
         self.states = {}    # current sensor states
+        self.lastStates = {}
 
     # return the current state of all sensors in the collection
     def getState(self):
@@ -29,25 +30,25 @@ class ResourceStateSensor(HASensor):
     # return the state of any sensors that have changed since the last getState() call
     def getStateChange(self):
         if debugInterrupt: log(self.name, "getStateChange")
-        lastState = copy.copy(self.states)
-        if debugStateChange: log(self.name, "lastState", lastState)
         if self.event:      # wait for state change event
-            self.event.clear()
-            if debugInterrupt: log(self.name, "event clear", self.event)
+            if debugInterrupt: log(self.name, "event wait")
             self.event.wait()
-            if debugInterrupt: log(self.name, "event wait", self.event)
+            if debugInterrupt: log(self.name, "event clear")
+            self.event.clear()
         else:               # no event specified, return periodically
             time.sleep(10)
-        newState = self.getState()
-        changeState = {}
-        for sensor in newState.keys():
+        if debugStateChange: log(self.name, "lastState", self.lastStates)
+        newStates = self.getState()
+        changeStates = {}
+        for sensor in newStates.keys():
             try:
-                if newState[sensor] != lastState[sensor]:
-                    changeState[sensor] = newState[sensor]
+                if newStates[sensor] != self.lastStates[sensor]:
+                    changeStates[sensor] = newStates[sensor]
             except KeyError:
-                changeState[sensor] = newState[sensor]
-        if debugStateChange: log(self.name, "changeState", changeState)
-        return changeState
+                changeStates[sensor] = newStates[sensor]
+        self.lastStates = copy.copy(self.states)
+        if debugStateChange: log(self.name, "changeStates", changeStates)
+        return changeStates
 
 # RESTful web services server interface
 class RestServer(object):

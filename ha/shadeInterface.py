@@ -49,7 +49,7 @@ class ShadeInterface(HAInterface):
                 if debugShades: log(self.name, "direction", addr, 0)
                 self.interface.write(addr*2, 0)
                 self.states[addr] = self.newValue # done moving
-                time.sleep(addr)    # wait a different amount of time for each shade - FIXME
+#                time.sleep(addr)    # wait a different amount of time for each shade - FIXME
                 self.sensorAddrs[addr].notify()
                 if debugShades: log(self.name, "state", addr, self.states[addr])
         self.timers[addr] = threading.Timer(self.travelTime[addr], doneMoving)

@@ -201,7 +201,7 @@ class HASensor(HAResource):
         self.interrupt = interrupt
         if event:
             self.event = event
-        if debugInterrupt: log(self.name, "event", self.event)
+        if debugInterrupt: log(self.name, "event")
         self.__dict__["state"] = None   # dummy class variable so hasattr() returns True
         self.__dict__["stateChange"] = None   # dummy class variable so hasattr() returns True
 
@@ -214,16 +214,16 @@ class HASensor(HAResource):
         if self.event:
             # the routine that changes state must call notify() after the state is changed
             self.event.clear()
-            if debugInterrupt: log(self.name, "event clear", self.event)
+            if debugInterrupt: log(self.name, "event clear")
             self.event.wait()
-            if debugInterrupt: log(self.name, "event wait", self.event)
+            if debugInterrupt: log(self.name, "event wait")
         return self.getState()
 
     # Trigger the sending of a state change notification
     def notify(self):
         if self.event:
             self.event.set()
-            if debugInterrupt: log(self.name, "event set", self.event)
+            if debugInterrupt: log(self.name, "event set")
         
     # Return the printable string value for the state of the sensor
     def getViewState(self):
