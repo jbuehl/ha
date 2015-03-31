@@ -3,7 +3,7 @@
         var refreshId = setInterval(function() {
             if (!pending) {     // don't allow multiple pending requests
                 pending = true;
-                $.getJSON('update', {}, function(data) {    // get updaated values
+                $.getJSON('update', {}, function(data) {    // get updated values
                     $.each( data, function(key, val) {      // set value and class of each
                         $('#'+key).text(val[1]);
                         $('#'+key).attr('class', val[0]);
@@ -11,34 +11,34 @@
                     pending = false;
                     });
                 var tempColor = function(temp) {        // set temp color based on temp value
-                    if (temp > 126){
+                    if (temp > 120){                    // magenta
                         var red = 252;
                         var green = 0;
                         var blue = 252;
                         }
-                    else if (temp > 105){
+                    else if (temp > 102){               // red
                         var red = 252;
                         var green = 0;
-                        var blue = (temp-105)*12;
+                        var blue = (temp-102)*14;
                         }
-                    else if (temp > 84){
+                    else if (temp > 84){                // yellow
                         var red = 252;
-                        var green = (105-temp)*12;
+                        var green = (102-temp)*14;
                         var blue = 0;
                         }
-                    else if (temp > 63){
-                        var red = (temp-63)*12;
+                    else if (temp > 66){                // green
+                        var red = (temp-66)*14;
                         var green = 252;
                         var blue = 0;
                         }
-                    else if (temp > 42){
+                    else if (temp > 48){                // cyan
                         var red = 0;
                         var green = 252;
-                        var blue = (63-temp)*12;
+                        var blue = (66-temp)*14;
                         }
-                    else if (temp > 21){
+                    else if (temp > 30){                // blue
                         var red = 0;
-                        var green = (temp-21)*12;
+                        var green = (temp-30)*14;
                         var blue = 252;
                         }
                     else{
