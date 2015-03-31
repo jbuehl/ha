@@ -59,6 +59,42 @@ pageResources = {"index": [],
                 }
 
 stateChangeEvent = threading.Event()
+
+# set temp color based on temp value
+def tempColor(tempString):
+    try:
+        temp = int(tempString.split(" ")[0])
+    except:
+        temp = 0       
+    if temp > 120:                 # magenta
+        red = 252
+        green = 0
+        blue = 252
+    elif temp > 102:               # red
+        red = 252
+        green = 0
+        blue = (temp-102)*14
+    elif temp > 84:                # yellow
+        red = 252
+        green = (102-temp)*14
+        blue = 0
+    elif temp > 66:                # green
+        red = (temp-66)*14
+        green = 252
+        blue = 0
+    elif temp > 48:                # cyan
+        red = 0
+        green = 252
+        blue = (66-temp)*14
+    elif temp > 30:                # blue
+        red = 0
+        green = (temp-30)*14
+        blue = 252
+    else:
+        red = 0
+        green = 0
+        blue = 252
+    return 'rgb('+str(red)+','+str(green)+','+str(blue)+')'
                             
 class WebRoot(object):
     def __init__(self, resources, env):
@@ -202,23 +238,26 @@ class WebRoot(object):
     # Update the states of all resources
     @cherrypy.expose
     def update(self, _=None):
-        # types whose class does not depend on their value
-        staticTypes = ["time", "ampm", "date", "tempF", "tempC", "spaTemp"]
+        staticTypes = ["time", "ampm", "date"]          # types whose class does not depend on their value
+        tempTypes = ["tempF", "tempC", "spaTemp"]       # temperatures
         updates = {}
         if webUpdateStateChange:
-            stateChangeEvent.clear()
-            if debugInterrupt: log("update", "event clear", stateChangeEvent)
+            if debugInterrupt: log("update", "event wait")
             stateChangeEvent.wait()
-            if debugInterrupt: log("update", "event wait", stateChangeEvent)
+            if debugInterrupt: log("update", "event clear")
+            stateChangeEvent.clear()
         # lock.acquire()
         for resource in self.resources:
             if self.resources[resource].name != "states":
                 try:
-                    resClass = self.resources[resource].type
                     resState = self.resources[resource].getViewState()
-                    if resClass not in staticTypes:
-                        resClass += "_"+resState
-                    updates[resource] = (resClass, resState)
+                    resClass = self.resources[resource].type
+                    if resClass in tempTypes:
+                        updates[resource] = ("temp", resState, tempColor(resState))
+                    else:
+                        if resClass not in staticTypes:
+                            resClass += "_"+resState
+                        updates[resource] = (resClass, resState, "")
                 except:
                     pass
         # lock.release()
