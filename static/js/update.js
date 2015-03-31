@@ -10,36 +10,41 @@
                         });
                     pending = false;
                     });
-                var tempColor = function(value) {        // set temp color based on temp value
-                    if (value > 130){
-                        var red = 255;
-                        var green = 0;
-                        var blue = 255;
-                        }
-                    else if (value > 105){
+                var tempColor = function(temp) {        // set temp color based on temp value
+                    if (temp > 145){
                         var red = 250;
                         var green = 0;
-                        var blue = (value-105)*10;
+                        var blue = 250;
                         }
-                    else if (value > 80){
+                    else if (temp > 120){
                         var red = 250;
-                        var green = (105-value)*10;
+                        var green = 0;
+                        var blue = (temp-120)*10;
+                        }
+                    else if (temp > 95){
+                        var red = 250;
+                        var green = (120-temp)*10;
                         var blue = 0;
                         }
-                    else if (value > 55){
-                        var red = (value-55)*10;
-                        var green = (value-30)*5;
+                    else if (temp > 70){
+                        var red = (temp-70)*10;
+                        var green = 250;
                         var blue = 0;
                         }
-                    else if (value > 30){
+                    else if (temp > 45){
                         var red = 0;
-                        var green = (value-30)*5;
-                        var blue = (55-value)*10;
+                        var green = 250;
+                        var blue = (70-temp)*10;
+                        }
+                    else if (temp > 20){
+                        var red = 0;
+                        var green = (temp-20)*10;
+                        var blue = 250;
                         }
                     else{
                         var red = 0;
                         var green = 0;
-                        var blue = 255;
+                        var blue = 250;
                         }
                     return 'rgb('+red.toString()+','+green.toString()+','+blue.toString()+')';
                     }
