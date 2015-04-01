@@ -109,7 +109,7 @@ class SpaInterface(HAInterface):
 
     # Implements state transitions
     def setState(self, state, endState=None):
-        if debugState: log(self.name, "setState ", state)
+        debug('debugState', self.name, "setState ", state)
         if state == spaOn:
             self.onSequence.setState(seqStart, wait=True)
         elif state == spaStandby:
@@ -148,9 +148,9 @@ class EventThread(threading.Thread):
         self.actionValue = actionValue
 
     def asyncEvent(self):
-        if debugThread: log(self.name, "started")
+        debug('debugThread', self.name, "started")
         while self.checkFunction() != self.checkValue:
             time.sleep(1)
         self.actionFunction(self.actionValue)
-        if debugThread: log(self.name, "terminated")
+        debug('debugThread', self.name, "terminated")
 

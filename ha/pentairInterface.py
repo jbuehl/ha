@@ -49,7 +49,7 @@ class PentairInterface(HAInterface):
         self.reqSpeed = -1          # the speed to which it is being requested to be set manually
         
     def start(self):
-        if debugPentairData: log(self.name, "starting pentair interface", self.interface.name)
+        debug('debugPentairData', self.name, "starting pentair interface", self.interface.name)
         self.interface.start()
         msgThread = PentairMsgThread("pentair msg", self)
         msgThread.start()
@@ -102,17 +102,17 @@ class PentairInterface(HAInterface):
             pmsg = PentairMsg(iface=self.interface)
             # stop reading if a message with a valid checksum is read
             if checksum16(pmsg.msg[0:-2]) == pmsg.sum:
-                if debugPentairData: log(self.name, "-->", pmsg.printState())
+                debug('debugPentairData', self.name, "-->", pmsg.printState())
                 return (pmsg.src, pmsg.cmd, pmsg.dat)
             else:
-                if debugPentairData: log(self.name, "-->", pmsg.printState(), 
+                debug('debugPentairData', self.name, "-->", pmsg.printState(), 
                                   "*** bad checksum ***")
 
     def sendMsg(self, (dst, cmd, dat)):
         """ Send a message.
         The destination address, command, and data are specified as a tuple."""
         pmsg = PentairMsg(dst=dst, src=ctrlAddr, cmd=cmd, dat=dat)
-        if debugPentairData: log(self.name, "<--", pmsg.printState())
+        debug('debugPentairData', self.name, "<--", pmsg.printState())
         self.interface.write(None, FIL+NUL+FIL+pmsg.msg)
 
 class PentairMsg(object):
@@ -164,8 +164,8 @@ class PentairMsgThread(threading.Thread):
     def doMsg(self):
         """ Message handling loop.
         """
-        if debugThread: log(self.name, "started")
-        if debugPentairThread: log(self.name, "reading status")
+        debug('debugThread', self.name, "started")
+        debug('debugPentairThread', self.name, "reading status")
         self.interface.readState()
         loopCount = 0
         refreshInterval = 25
@@ -175,7 +175,7 @@ class PentairMsgThread(threading.Thread):
             if not running: break
             # set the speed if there was a request to change it
             if self.interface.reqSpeed >= 0:
-                if debugPentairThread: log(self.name, "setting speed to", self.interface.reqSpeed)
+                debug('debugPentairThread', self.name, "setting speed to", self.interface.reqSpeed)
                 self.interface.setSpeed(self.interface.reqSpeed)
                 self.interface.manSpeed = self.interface.reqSpeed
                 self.interface.reqSpeed = -1
@@ -184,14 +184,14 @@ class PentairMsgThread(threading.Thread):
             if loopCount == refreshInterval:
                 # if the pump has been manually set, resend the message to maintain the speed
                 if self.interface.manSpeed > 0:
-                    if debugPentairThread: log(self.name, "maintaining speed", self.interface.manSpeed)
+                    debug('debugPentairThread', self.name, "maintaining speed", self.interface.manSpeed)
                     self.interface.setSpeed(self.interface.manSpeed)
-#                if debugPentairThread: log(self.name, "reading status")
+#                debug('debugPentairThread', self.name, "reading status")
                 self.interface.readState()
                 loopCount = 0
             loopCount += 1
             time.sleep(1)
-        if debugThread: log(self.name, "terminated")
+        debug('debugThread', self.name, "terminated")
 
 def checksum16(msg):
     """ Compute the 16 bit checksum of a string of bytes."""                

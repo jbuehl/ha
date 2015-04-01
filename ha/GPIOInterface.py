@@ -2,7 +2,7 @@ from ha.HAClasses import *
 import RPIO as gpio
 
 def intCallback(gpioId, value):
-    if debugGPIO: log(gpioInterface.name, "interrupt", gpioId, value)
+    debug('debugGPIO', gpioInterface.name, "interrupt", gpioId, value)
     gpioInterface.interrupt()
 
 # Interface to GPIO either directly or via MCP23017 I2C I/O expander
@@ -55,7 +55,7 @@ class GPIOInterface(HAInterface):
             self.interface.write((self.addr, GPIOInterface.IOCON), 0x04)
             # additional configuration
             for config in self.config:
-                if debugGPIO: log(self.name, "start", self.addr, config[0], config[1])
+                debug('debugGPIO', self.name, "start", self.addr, config[0], config[1])
                 self.interface.write((self.addr, config[0]), config[1])
             # get the current state
             self.readState()
@@ -65,9 +65,9 @@ class GPIOInterface(HAInterface):
             gpio.wait_for_interrupts(threaded=True)
         else:   # direct only supports output - FIXME
             for pin in GPIOInterface.gpioPins:
-                if debugGPIO: log(self.name, "setup", pin, gpio.OUT)
+                debug('debugGPIO', self.name, "setup", pin, gpio.OUT)
                 gpio.setup(pin, gpio.OUT)
-                if debugGPIO: log(self.name, "write", pin, 0)
+                debug('debugGPIO', self.name, "write", pin, 0)
                 gpio.output(pin, 0)
 
     def read(self, addr):
@@ -78,20 +78,20 @@ class GPIOInterface(HAInterface):
 
     def interrupt(self):
         intFlags = self.interface.read((self.addr, GPIOInterface.INTF+self.bank))
-        if debugGPIO: log(self.name, "interrupt", self.addr, GPIOInterface.INTF+self.bank, intFlags)
+        debug('debugGPIO', self.name, "interrupt", self.addr, GPIOInterface.INTF+self.bank, intFlags)
         self.readState()
         for i in range(8):
             if (intFlags << i) & 0x01:
                 try:
                     self.sensors[i].notify()
-                    if debugGPIO: log(self.name, "calling", self.sensors[i].name, (self.state << i) & 0x01)
+                    debug('debugGPIO', self.name, "calling", self.sensors[i].name, (self.state << i) & 0x01)
                     self.sensors[i].interrupt(self.sensors[i], (self.state << i) & 0x01)
                 except:
                     pass
 
     def readState(self):
         byte = self.interface.read((self.addr, GPIOInterface.GPIO+self.bank))
-        if debugGPIO: log(self.name, "read", self.addr, GPIOInterface.GPIO+self.bank, byte)
+        debug('debugGPIO', self.name, "read", self.addr, GPIOInterface.GPIO+self.bank, byte)
         self.state = byte
     
     def write(self, addr, value):
@@ -99,11 +99,11 @@ class GPIOInterface(HAInterface):
             byte = self.state
             mask = 0x01<<addr
             byte = (byte & (~mask)) | ((value << addr) & mask)
-            if debugGPIO: log(self.name, "write", self.addr, GPIOInterface.GPIO+self.bank, byte)
+            debug('debugGPIO', self.name, "write", self.addr, GPIOInterface.GPIO+self.bank, byte)
             self.interface.write((self.addr, GPIOInterface.GPIO+self.bank), byte)
             self.state = byte
         else:
-            if debugGPIO: log(self.name, "write", addr, value)
+            debug('debugGPIO', self.name, "write", addr, value)
             gpio.output(GPIOInterface.gpioPins[addr], value)
             
 #    def addSensor(self, sensor):

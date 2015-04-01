@@ -5,17 +5,23 @@
 running = True
 
 # Environment
-latLong = (34.1486, -118.3965)
-tempScale = "F"
 rootDir = "/root/"
+configDir = rootDir+"conf/"
 keyDir = rootDir+"keys/"
 stateDir = rootDir+"state/"
+
+# Localization
+latLong = (34.1486, -118.3965)
+tempScale = "F"
+
+# Notification
 smsSid = keyDir+"twilio.sid"
 smsToken = keyDir+"twilio.tkn"
 notifyFromNumber = keyDir+"notifyFromNumber"
 
 # General debugging
-debug = True
+#debug = True
+debugConf = True
 debugObject = True
 debugState = True
 debugStateChange = True
@@ -92,16 +98,12 @@ debugFileThread = True
 filePollInterval = 10
 
 # Solar interface
-solarIp = "192.168.1.13:7380"
-solarFileName = "/root/solar.json"
+#solarIp = "192.168.1.13:7380"
+solarFileName = rootDir+"solar.json"
 
 # Loads interface
-loadFileName = "/root/power.json"
+loadFileName = rootDir+"power.json"
 
 # Power interface
-powerTbl = {"poolCleaner": 1500,
-            "poolLight": 491,
-            "spaLight": 276,
-            "spaBlower": 712}
-
+powerTbl = {"poolCleaner": 1500, "poolLight": 491, "spaLight": 276, "spaBlower": 712}
 

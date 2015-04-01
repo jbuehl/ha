@@ -28,30 +28,30 @@ class ShadeInterface(HAInterface):
         self.newValue = value
         self.states[addr] = value + 2  # moving
         self.sensorAddrs[addr].notify()
-        if debugShades: log(self.name, "state", addr, self.states[addr])
+        debug('debugShades', self.name, "state", addr, self.states[addr])
         # cancel the timer if it is running
         if self.timers[addr]:
             self.timers[addr].cancel()
         with self.lock:
             # set the direction
-            if debugShades: log(self.name, "direction", addr, value)
+            debug('debugShades', self.name, "direction", addr, value)
             self.interface.write(addr*2, value)
             # start the motion
-            if debugShades: log(self.name, "motion", addr, 1)
+            debug('debugShades', self.name, "motion", addr, 1)
             self.interface.write(addr*2+1, 1)
         # clean up and set the final state when motion is finished
         def doneMoving():
             with self.lock:
                 # stop the motion
-                if debugShades: log(self.name, "motion", addr, 0)
+                debug('debugShades', self.name, "motion", addr, 0)
                 self.interface.write(addr*2+1, 0)
                 # reset the direction
-                if debugShades: log(self.name, "direction", addr, 0)
+                debug('debugShades', self.name, "direction", addr, 0)
                 self.interface.write(addr*2, 0)
                 self.states[addr] = self.newValue # done moving
 #                time.sleep(addr)    # wait a different amount of time for each shade - FIXME
                 self.sensorAddrs[addr].notify()
-                if debugShades: log(self.name, "state", addr, self.states[addr])
+                debug('debugShades', self.name, "state", addr, self.states[addr])
         self.timers[addr] = threading.Timer(self.travelTime[addr], doneMoving)
         self.timers[addr].start()
 

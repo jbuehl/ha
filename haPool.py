@@ -32,9 +32,9 @@ class DependentControl(HAControl):
         self.resources = resources
 
     def setState(self, theState, wait=False):
-        if debugState: log(self.name, "setState ", theState)
+        debug('debugState', self.name, "setState ", theState)
         for sensor in self.resources:
-            if debugSpaLight: log(self.name, sensor[0].name, sensor[0].getState())
+            debug('debugSpaLight', self.name, sensor[0].name, sensor[0].getState())
             if sensor[0].getState() != sensor[1]:
                 return
         self.control.setState(theState)

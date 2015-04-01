@@ -102,7 +102,7 @@ class AqualinkInterface(HAInterface):
             cronThread = threading.Thread(target=self.doCron)
             cronThread.start()
 
-        if debugThread: log(self.name, "started")
+        debug('debugThread', self.name, "started")
 
 
     def read(self, theAddr):
@@ -145,7 +145,7 @@ class AqualinkInterface(HAInterface):
                 self.event.set()
                 
     def doCron(self):
-        if debugThread: log("cron", "started")
+        debug('debugThread', "cron", "started")
         checkInterval = 10 # how often to check the time in minutes
         while True:
             self.checkTime()
@@ -158,16 +158,16 @@ class AqualinkInterface(HAInterface):
             poolTime = time.strptime(self.date.state+self.time.state, '%m/%d/%y %a%I:%M %p')
             diffTime = datetime.datetime(realTime.tm_year, realTime.tm_mon, realTime.tm_mday, realTime.tm_hour, realTime.tm_min) -\
                        datetime.datetime(poolTime.tm_year, poolTime.tm_mon, poolTime.tm_mday, poolTime.tm_hour, poolTime.tm_min)
-            if debugTime: log("controller time", time.asctime(poolTime))
-            if debugTime: log("local time", time.asctime(realTime))
-            if debugTime: log("time difference", diffTime)
+            debug('debugTime', "controller time", time.asctime(poolTime))
+            debug('debugTime', "local time", time.asctime(realTime))
+            debug('debugTime', "time difference", diffTime)
             if abs(diffTime.days*24*60 + diffTime.seconds/60) > offTime:    # time difference in minutes
                 setTime = (realTime.tm_year - poolTime.tm_year,
                         realTime.tm_mon - poolTime.tm_mon,
                         realTime.tm_mday - poolTime.tm_mday,
                         realTime.tm_hour - poolTime.tm_hour,
                         realTime.tm_min - poolTime.tm_min)
-                if debugTime: log("adjusting by", setTime.__str__())
+                debug('debugTime', "adjusting by", setTime.__str__())
                 self.panel.adjustTime(setTime)
 
     def setModel(self, model, rev=""):
@@ -311,7 +311,7 @@ class Panel(HAResource):
     def getAckMsg(self):
         args = struct.pack("!B", self.ack)+struct.pack("!B", self.button.code)
         if self.button != self.btnNone:
-            if debugAck: log(self.name, "ack", args.encode("hex"))
+            debug('debugAck', self.name, "ack", args.encode("hex"))
         self.button = self.btnNone
         return (struct.pack("!B", self.cmdAck.code), args)
         
@@ -321,32 +321,32 @@ class Panel(HAResource):
         try:
             self.cmdTable[cmdCode](self, args)
         except KeyError:
-            if debugMsg: log(self.name, "unknown", cmd.encode("hex"), args.encode("hex"))
+            debug('debugMsg', self.name, "unknown", cmd.encode("hex"), args.encode("hex"))
 
     # probe command           
     def handleProbe(self, args):
         cmd = self.cmdProbe
-        if debugProbe: log(self.name, cmd.name)
+        debug('debugProbe', self.name, cmd.name)
 
     # ack command
     def handleAck(self, args):
         cmd = self.cmdAck
         if args != self.lastAck:       # only display changed values
             self.lastAck = args
-            if debugAck and monitorMode: log(self.name, cmd.name, args.encode("hex"))
+            debug('debugAck and monitorMode', self.name, cmd.name, args.encode("hex"))
 
     # status command
     def handleStatus(self, args):
         cmd = self.cmdStatus
         if args != self.lastStatus:    # only display changed values
             self.lastStatus = args
-            if debugStatus: log(self.name, cmd.name, args.encode("hex"))
+            debug('debugStatus', self.name, cmd.name, args.encode("hex"))
         self.statusEvent.set()
 
     # message command
     def handleMsg(self, args):
         cmd = self.cmdMsg
-        if debugMsg: log(self.name, cmd.name, args.encode("hex"))
+        debug('debugMsg', self.name, cmd.name, args.encode("hex"))
         
 class Button(object):
     def __init__(self, theName, theCode):
@@ -374,15 +374,15 @@ class ActionThread(threading.Thread):
             action.event.clear()
 
     def doAction(self):
-        if debugAction: log(self.name, "action started")
+        debug('debugAction', self.name, "action started")
         for action in self.sequence:
             if not running: break
             self.panel.button = action.button # set the button to be sent to start the action
-            if debugAction: log(self.name, "button", action.button.name, "sent")
+            debug('debugAction', self.name, "button", action.button.name, "sent")
             action.event.wait()              # wait for the event that corresponds to the completion
-            if debugAction: log(self.name, "button", action.button.name, "completed")
+            debug('debugAction', self.name, "button", action.button.name, "completed")
             time.sleep(1)
-        if debugAction: log(self.name, "action completed")
+        debug('debugAction', self.name, "action completed")
 
 class Action(object):
     # An Action consists of a command and an event.
@@ -477,7 +477,7 @@ class AllButtonPanel(Panel):
             
     def adjustTime(self, timeDiff):
         # create and execute a sequence that adjusts the time on the controller by the specified difference.
-        if debug: log(self.name)
+        debug('debug', self.name)
         seq = [self.menuAction] + self.dupAction(3) + [self.enterAction]+\
                self.dupAction(timeDiff[0]) + [self.enterAction] +\
                self.dupAction(timeDiff[1]) + [self.enterAction] +\
@@ -488,27 +488,27 @@ class AllButtonPanel(Panel):
         action.start()
 
     def menu(self):
-        if debug: log(self.name)
+        debug('debug', self.name)
         action = ActionThread("menu", [self.menuAction], self)
         action.start()
 
     def left(self):
-        if debug: log(self.name)
+        debug('debug', self.name)
         action = ActionThread("left", [self.leftAction], self)
         action.start()
 
     def right(self):
-        if debug: log(self.name)
+        debug('debug', self.name)
         action = ActionThread("right", [self.rightAction], self)
         action.start()
 
     def cancel(self):
-        if debug: log(self.name)
+        debug('debug', self.name)
         action = ActionThread("cancel", [self.cancelAction], self)
         action.start()
 
     def enter(self):
-        if debug: log(self.name)
+        debug('debug', self.name)
         action = ActionThread("enter", [self.enterAction], self)
         action.start()
 
@@ -524,13 +524,13 @@ class AllButtonPanel(Panel):
         cmd = self.cmdStatus
         status = int(args.encode("hex"), 16)
         if status != self.lastStatus:    # only process changed values
-            if debugStatus: log(self.name, cmd.name, "%010x"%(status))
+            debug('debugStatus', self.name, cmd.name, "%010x"%(status))
             for equip in self.equipList:
                 shift = min(filter(lambda s: (equip.mask >> s) & 1 != 0, xrange(8*cmd.argLen)))
                 newState = (status & equip.mask) >> shift
                 oldState = (self.lastStatus & equip.mask) >> shift
                 if newState != oldState:
-                    if debugStatus: log(self.name, cmd.name, equip.equip.name, "state current", "%x"%oldState, "new", "%x"%newState)
+                    debug('debugStatus', self.name, cmd.name, equip.equip.name, "state current", "%x"%oldState, "new", "%x"%newState)
                     # set the equipment state
                     equip.equip.setState(newState)
                     # set the event
@@ -552,7 +552,7 @@ class AllButtonPanel(Panel):
         try:
             line = struct.unpack("!B", args[0])[0]
             msg = args[1:].replace("\0", " ").strip(" ")
-            if debugMsg: log(self.name, cmd.name, line, args[1:])
+            debug('debugMsg', self.name, cmd.name, line, args[1:])
             msgParts = msg.split()
             if line == 0:
                 self.msgEvent.set()
@@ -612,7 +612,7 @@ class Interface(HAResource):
         Open the serial port and find the start of a message."""
         HAResource.__init__(self, theName)
         self.pool = thePool
-        if debugData: log(self.name, "opening RS485 port", self.pool.interface.name)
+        debug('debugData', self.name, "opening RS485 port", self.pool.interface.name)
         thePool.interface.start()
         self.port = thePool.interface.inPort
         self.msg = "\x00\x00"
@@ -620,13 +620,13 @@ class Interface(HAResource):
         # skip bytes until synchronized with the start of a message
         while (self.msg[-1] != STX) or (self.msg[-2] != DLE):
             self.msg += self.port.read(1)
-            if debugRaw: self.debugRaw(self.msg[-1])
+            debug('debugRaw: self.debugRaw(self.msg[-1])
         self.msg = self.msg[-2:]
-        if debugData: log(self.name, "synchronized")
+        debug('debugData', self.name, "synchronized")
         # start up the read thread
         readThread = ReadThread("Read", self.pool)
         readThread.start()
-        if debugThread: log(self.name, "ready")
+        debug('debugThread', self.name, "ready")
           
     def readMsg(self):
         """ Read the next valid message from the serial port.
@@ -636,13 +636,13 @@ class Interface(HAResource):
             dleFound = False
             # read what is probably the DLE STX
             self.msg += self.port.read(2)                   
-            if debugRaw: 
+            debug('debugRaw: 
                 self.debugRaw(self.msg[-2])
                 self.debugRaw(self.msg[-1])
             while (self.msg[-1] != ETX) or (not dleFound):  
                 # read until DLE ETX
                 self.msg += self.port.read(1)
-                if debugRaw: self.debugRaw(self.msg[-1])
+                debug('debugRaw: self.debugRaw(self.msg[-1])
                 if self.msg[-1] == DLE:                     
                     # \x10 read, tentatively is a DLE
                     dleFound = True
@@ -660,16 +660,16 @@ class Interface(HAResource):
             args = self.msg[4:-3]
             checksum = self.msg[-3:-2]
             dleetx = self.msg[-2:]
-            if debugData: debugMsg = dlestx.encode("hex")+" "+dest.encode("hex")+" "+\
+            debug('debugData: debugMsg = dlestx.encode("hex")+" "+dest.encode("hex")+" "+\
                                      cmd.encode("hex")+" "+args.encode("hex")+" "+\
                                      checksum.encode("hex")+" "+dleetx.encode("hex")
             self.msg = ""
             # stop reading if a message with a valid checksum is read
             if self.checksum(dlestx+dest+cmd+args) == checksum:
-                if debugData: log(self.name, "-->", debugMsg)
+                debug('debugData', self.name, "-->", debugMsg)
                 return (dest, cmd, args)
             else:
-                if debugData: log(self.name, "-->", debugMsg, 
+                debug('debugData', self.name, "-->", debugMsg, 
                                   "*** bad checksum ***")
 
     def sendMsg(self, (dest, cmd, args)):
@@ -681,7 +681,7 @@ class Interface(HAResource):
             # if a byte in the message has the value \x10 insert a NUL after it
             if msg[i] == DLE:
                 msg = msg[0:i+1]+NUL+msg[i+1:]
-        if debugData: log(self.name, "<--", msg[0:2].encode("hex"), 
+        debug('debugData', self.name, "<--", msg[0:2].encode("hex"), 
                           msg[2:3].encode("hex"), msg[3:4].encode("hex"), 
                           msg[4:-3].encode("hex"), msg[-3:-2].encode("hex"), 
                           msg[-2:].encode("hex"))
@@ -717,7 +717,7 @@ class ReadThread(threading.Thread):
         """ Message handling loop.
         Read messages from the interface and if they are addressed to one of the
         panels, send an Ack to the controller and process the command."""
-        if debugThread: log(self.name, "started")
+        debug('debugThread', self.name, "started")
         while running:
             # read until the program state changes to not running
             if not running: break
@@ -740,5 +740,5 @@ class ReadThread(threading.Thread):
         for panel in self.pool.panels.values():   
             for event in panel.events:
                 event.set()
-        if debugThread: log(self.name, "terminated")
+        debug('debugThread', self.name, "terminated")
            

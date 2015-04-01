@@ -9,24 +9,24 @@ class I2CInterface(HAInterface):
 
     def read(self, addr):
         try:
-            if debugI2C: log(self.name, "readByte", addr)
+            debug('debugI2C', self.name, "readByte", addr)
             return self.bus.read_byte_data(*addr)
         except:
             return 0
 
     def readWord(self, addr):
         try:
-            if debugI2C: log(self.name, "readWord", addr)
+            debug('debugI2C', self.name, "readWord", addr)
             return self.bus.read_word_data(*addr)
         except:
             return 0
 
     def write(self, addr, value):
-        if debugI2C: log(self.name, "writeByte", addr, value)
+        debug('debugI2C', self.name, "writeByte", addr, value)
         self.bus.write_byte_data(*addr+(value,))
 
     def writeWord(self, addr, value):
-        if debugI2C: log(self.name, "writeWord", addr, value)
+        debug('debugI2C', self.name, "writeWord", addr, value)
         self.bus.write_word_data(*addr+(value,))
 
 

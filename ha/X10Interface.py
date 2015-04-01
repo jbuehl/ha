@@ -10,7 +10,7 @@ class X10Interface(HAInterface):
         self.readState()
 
     def start(self):
-        if debugThread: log(self.name, "started")
+        debug('debugThread', self.name, "started")
 
     def read(self, addr):
         try:
@@ -23,7 +23,7 @@ class X10Interface(HAInterface):
             state = "On"
         else:
             state = "Off"
-        if debugLights: log(self.name,  addr, state)
+        debug('debugLights', self.name,  addr, state)
         x10.sendCommands(self.interface.device, addr+" "+state)
         self.state[addr] = value
         self.writeState()

@@ -11,7 +11,7 @@ class ApplianceInterface(HAInterface):
         # read the state from the file if it exists
         try:
             self.state = json.load(open(self.stateFile))
-            if debugState: log(self.name, "reading", self.stateFile, self.state)
+            debug('debugState', self.name, "reading", self.stateFile, self.state)
         except:
             self.state = {}
         # set the state of all the devices on the interface
@@ -31,6 +31,6 @@ class ApplianceInterface(HAInterface):
         # set the state of the device and save it
         self.interface.write(addr, value)
         self.state[str(addr)] = value   # keys are saved as strings
-        if debugState: log(self.name, "writing", self.stateFile, self.state)
+        debug('debugState', self.name, "writing", self.stateFile, self.state)
         json.dump(self.state, open(self.stateFile, "w"))
 

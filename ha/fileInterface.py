@@ -23,9 +23,9 @@ class FileInterface(HAInterface):
         if self.changeMonitor:
             # thread to periodically check for file changes
             def readData():
-                if debugFileThread: log(self.name, "readData started")
+                debug('debugFileThread', self.name, "readData started")
                 while running:
-                    if debugFileThread: log(self.name, "waiting", filePollInterval)
+                    debug('debugFileThread', self.name, "waiting", filePollInterval)
                     time.sleep(filePollInterval)
                     if self.modified():
                         self.readData()
@@ -53,7 +53,7 @@ class FileInterface(HAInterface):
 
     def modified(self):
         mtime = os.stat(self.fileName).st_mtime
-        if debugFile: log(self.name, "modified", mtime, "last", self.mtime)
+        debug('debugFile', self.name, "modified", mtime, "last", self.mtime)
         if mtime > self.mtime:
             self.mtime = mtime
             return True
@@ -65,12 +65,12 @@ class FileInterface(HAInterface):
             self.data = json.load(open(self.fileName))
         except:
             log(self.name, "readData file read error")
-        if debugFile: log(self.name, "readData", self.data)
+        debug('debugFile', self.name, "readData", self.data)
         if self.event:
             self.event.set()
 
     def writeData(self):
-        if debugFile: log(self.name, "writeData". self.data)
+        debug('debugFile', self.name, "writeData". self.data)
         json.dump(self.data, open(self.fileName, "w"))
         self.mtime = time.time()
         if self.event:

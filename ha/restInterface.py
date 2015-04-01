@@ -10,21 +10,21 @@ class HARestInterface(HAInterface):
         self.server = server
         self.hostname = socket.gethostname()
         self.secure = secure
-        if debugRest: log(self.name, self.hostname, self.secure)
+        debug('debugRest', self.name, self.hostname, self.secure)
         if self.secure:
             self.keyDir = keyDir
             self.crtFile = self.keyDir+self.hostname+"-client.crt"
             self.keyFile = self.keyDir+self.hostname+"-client.key"
             self.caFile = self.keyDir+"ca.crt"
-            if debugRest: log(self.name, self.crtFile, self.keyFile, self.caFile)
+            debug('debugRest', self.name, self.crtFile, self.keyFile, self.caFile)
         # start the thread to update the cache when states change
         def readStates():
-            if debugRestStates: log(self.name, "readStates started")
+            debug('debugRestStates', self.name, "readStates started")
             while running:
                 self.readStates("/resources/states/stateChange")
                 if self.event:
                     self.event.set()
-                    if debugInterrupt: log(self.name, "event set", self.event)
+                    debug('debugInterrupt', self.name, "event set", self.event)
         readStatesThread = threading.Thread(target=readStates)
         readStatesThread.start()
 
@@ -43,27 +43,27 @@ class HARestInterface(HAInterface):
         while len(states) == 0:
             time.sleep(10)
             states = self.readState(addr)
-        if debugRestStates: log(self.name, "readStates", "states", states)
+        debug('debugRestStates', self.name, "readStates", "states", states)
         for sensor in states.keys():
             try:
                 self.states[self.sensors[sensor].addr] = states[sensor]
             except:
-                if debugRestStates: log(self.name, "sensor not found", sensor)
+                debug('debugRestStates', self.name, "sensor not found", sensor)
 
     # load the state value of the specified sensor address into the cache        
     def readState(self, addr):
-        if debugRestStates: log(self.name, "readState", addr)
+        debug('debugRestStates', self.name, "readState", addr)
         url = self.server+urllib.quote(addr)
         try:
             if self.secure:
-                if debugRestGet: log(self.name, "GET", "https://"+url)
+                debug('debugRestGet', self.name, "GET", "https://"+url)
                 r = requests.get("https://"+url,
                                  cert=(self.crtFile, self.keyFile), 
                                  verify=False)
             else:
-                if debugRestGet: log(self.name, "GET", "http://"+url)
+                debug('debugRestGet', self.name, "GET", "http://"+url)
                 r = requests.get("http://"+url)
-            if debugRestGet: log(self.name, "status", r.status_code)
+            debug('debugRestGet', self.name, "status", r.status_code)
             if r.status_code == 200:
                 attr = addr.split("/")[-1]
                 if (attr == "state") or (attr == "stateChange"):
@@ -79,18 +79,18 @@ class HARestInterface(HAInterface):
         url = self.server+urllib.quote(addr)
         try:
             if self.secure:
-                if debugRestPut: log(self.name, "PUT", "https://"+url)
+                debug('debugRestPut', self.name, "PUT", "https://"+url)
                 r = requests.put("https://"+url,
                                  headers={"content-type":"application/json"}, 
                                  data=json.dumps({addr.split("/")[-1]:value}),
                                  cert=(self.crtFile, self.keyFile), 
                                  verify=False)
             else:
-                if debugRestPut: log(self.name, "PUT", "http://"+url)
+                debug('debugRestPut', self.name, "PUT", "http://"+url)
                 r = requests.put("http://"+url, 
                                  headers={"content-type":"application/json"}, 
                                  data=json.dumps({addr.split("/")[-1]:value}))
-            if debugRestPut: log(self.name, "status", r.status_code)
+            debug('debugRestPut', self.name, "status", r.status_code)
             if r.status_code == 200:
                 return True
             else:

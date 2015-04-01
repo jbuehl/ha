@@ -17,7 +17,7 @@ class ConfigInterface(HAInterface):
                 value = parts[1].lstrip(" ")
                 try:
                     globals()[attr] = eval(value)
-                    if debugConf: log(self.name, attr, "=", value)
+                    debug('debugConf', self.name, attr, "=", value)
                 except:
                     log(self.name, "error evaluating", attr, "=", value)
                               

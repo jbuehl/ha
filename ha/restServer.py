@@ -24,20 +24,20 @@ class ResourceStateSensor(HASensor):
         for sensor in self.resources.values():
             if (sensor != self) and (sensor.type != "schedule"):
                 self.states[sensor.name] = sensor.getState()
-        if debugStateChange: log(self.name, "getState", self.states)
+        debug('debugStateChange', self.name, "getState", self.states)
         return self.states
 
     # return the state of any sensors that have changed since the last getState() call
     def getStateChange(self):
-        if debugInterrupt: log(self.name, "getStateChange")
+        debug('debugInterrupt', self.name, "getStateChange")
         if self.event:      # wait for state change event
-            if debugInterrupt: log(self.name, "event wait")
+            debug('debugInterrupt', self.name, "event wait")
             self.event.wait()
-            if debugInterrupt: log(self.name, "event clear")
+            debug('debugInterrupt', self.name, "event clear")
             self.event.clear()
         else:               # no event specified, return periodically
             time.sleep(10)
-        if debugStateChange: log(self.name, "lastState", self.lastStates)
+        debug('debugStateChange', self.name, "lastState", self.lastStates)
         newStates = self.getState()
         changeStates = {}
         for sensor in newStates.keys():
@@ -47,7 +47,7 @@ class ResourceStateSensor(HASensor):
             except KeyError:
                 changeStates[sensor] = newStates[sensor]
         self.lastStates = copy.copy(self.states)
-        if debugStateChange: log(self.name, "changeStates", changeStates)
+        debug('debugStateChange', self.name, "changeStates", changeStates)
         return changeStates
 
 # RESTful web services server interface
@@ -79,7 +79,7 @@ class BeaconThread(threading.Thread):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         
     def doBeacon(self):
-        if debugThread: log(self.name, "started")
+        debug('debugThread', self.name, "started")
         loopCount = 0
         beaconInterval = 10
         # wake up every second
@@ -91,7 +91,7 @@ class BeaconThread(threading.Thread):
                 loopCount = 0
             loopCount += 1
             time.sleep(1)
-        if debugThread: log(self.name, "terminated")
+        debug('debugThread', self.name, "terminated")
 
 class RestHTTPServer(ThreadingMixIn, HTTPServer):
     def __init__(self, server_address, RequestHandlerClass, resources):
@@ -103,8 +103,8 @@ class RestRequestHandler(BaseHTTPRequestHandler):
 
     # return the attribute of the resource specified in the path
     def do_GET(self):
-        if debugRestGet: log("path:", self.path)
-        if debugRestGet: log("headers:", self.headers.__str__())
+        debug('debugRestGet', "path:", self.path)
+        debug('debugRestGet', "headers:", self.headers.__str__())
         (resource, attr) = self.getResFromPath(self.server.resources, urllib.unquote(self.path).lstrip("/"))
         if resource:
             self.send_response(200)     # success
@@ -119,13 +119,13 @@ class RestRequestHandler(BaseHTTPRequestHandler):
 
     # set the attribute of the resource specified in the path to the value specified in the data
     def do_PUT(self):
-        if debugRestPut: log("path:", self.path)
-        if debugRestPut: log("headers:", self.headers.__str__())
+        debug('debugRestPut', "path:", self.path)
+        debug('debugRestPut', "headers:", self.headers.__str__())
         (resource, attr) = self.getResFromPath(self.server.resources, urllib.unquote(self.path).lstrip("/"))
         if resource:
             try:
                 data = self.rfile.read(int(self.headers['Content-Length']))
-                if debugRestPut: log("data:", data)
+                debug('debugRestPut', "data:", data)
                 if self.headers['Content-type'] == "application/json":
                     data = json.loads(data)
                 resource.__setattr__(attr, data[attr])

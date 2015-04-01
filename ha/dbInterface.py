@@ -22,7 +22,7 @@ class HADbInterface(HAInterface):
                 time.sleep(dbRetryInterval)
 
     def read(self, sql):
-        if debugSql: log("sql", sql)
+        debug('debugSql', "sql", sql)
         try:
             with self.lock:
                 cur = self.db.cursor()

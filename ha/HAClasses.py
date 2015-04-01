@@ -17,6 +17,12 @@ def log(*args):
     else:
         print message
 
+def debug(*args):
+    try:
+        if eval(args[0]):
+            log(*args[1:])
+    except: pass
+        
 # normalize state values from boolean to integers
 def normalState(value):
     if value == True: return 1
@@ -27,7 +33,7 @@ def normalState(value):
 class HAResource(object):
     def __init__(self, name):
         self.name = name
-        if debugObject: log(self.name, "created")
+        debug('debugObject', self.name, "created")
         self.className = self.__class__.__name__    # hack for web templates - FIXME
 
     def __str__(self, level=0):
@@ -47,7 +53,7 @@ class HAInterface(HAResource):
             self.event = interface.event    # otherwise inherit event from this interface's interface
         else:
             self.event = None
-        if debugInterrupt: log(self.name, "event", self.event)
+        debug('debugInterrupt', self.name, "event", self.event)
         self.sensors = {}   # sensors using this instance of the interface by name
         self.sensorAddrs = {}   # sensors using this instance of the interface by addr
         self.states = {}    # state cache
@@ -150,9 +156,9 @@ class HACollection(HAResource, OrderedDict):
                     theSchedTime=HASchedTime(**node["schedTime"]), 
                     interface=interface, addr=path+"/state",))
             else:
-                if debug: log(self.name, "loadResource", node["name"], "class", node["class"], "not created")
+                debug('debug', self.name, "loadResource", node["name"], "class", node["class"], "not created")
         except:
-            if debug: log(self.name, "loadResource", node["name"], "class", node["class"], "not created")
+            debug('debug', self.name, "loadResource", node["name"], "class", node["class"], "not created")
 
     # add Views to each resource
     def addViews(self, views):            
@@ -201,7 +207,7 @@ class HASensor(HAResource):
         self.interrupt = interrupt
         if event:
             self.event = event
-        if debugInterrupt: log(self.name, "event")
+        debug('debugInterrupt', self.name, "event")
         self.__dict__["state"] = None   # dummy class variable so hasattr() returns True
         self.__dict__["stateChange"] = None   # dummy class variable so hasattr() returns True
 
@@ -214,16 +220,16 @@ class HASensor(HAResource):
         if self.event:
             # the routine that changes state must call notify() after the state is changed
             self.event.clear()
-            if debugInterrupt: log(self.name, "event clear")
+            debug('debugInterrupt', self.name, "event clear")
             self.event.wait()
-            if debugInterrupt: log(self.name, "event wait")
+            debug('debugInterrupt', self.name, "event wait")
         return self.getState()
 
     # Trigger the sending of a state change notification
     def notify(self):
         if self.event:
             self.event.set()
-            if debugInterrupt: log(self.name, "event set")
+            debug('debugInterrupt', self.name, "event set")
         
     # Return the printable string value for the state of the sensor
     def getViewState(self):
@@ -303,7 +309,7 @@ class HAControl(HASensor):
 
     # Set the state of the control by writing the value to the address on the interface.
     def setState(self, state, wait=False):
-        if debugState: log(self.name, "setState ", state)
+        debug('debugState', self.name, "setState ", state)
         self.interface.write(self.addr, state)
         self.notify()
         return True
@@ -341,7 +347,7 @@ class HASequence(HAControl):
         
     def setState(self, state, wait=False):
         if self.interface.name == "None":
-            if debugState: log(self.name, "setState ", state, wait)
+            debug('debugState', self.name, "setState ", state, wait)
             if state and not(self.running):
                 self.runCycles(wait)
             elif (not state) and self.running:
@@ -352,10 +358,10 @@ class HASequence(HAControl):
             
     # Run the Cycles in the list
     def runCycles(self, wait=False):
-        if debugState: log(self.name, "runCycles", wait)
+        debug('debugState', self.name, "runCycles", wait)
         # thread that runs the cycles
         def runCycles():
-            if debugThread: log(self.name, "started")
+            debug('debugThread', self.name, "started")
             self.running = True
             for cycle in self.cycleList:
                 if not self.running:
@@ -363,7 +369,7 @@ class HASequence(HAControl):
                 self.runCycle(cycle)
             self.running = False
             self.notify()
-            if debugThread: log(self.name, "finished")
+            debug('debugThread', self.name, "finished")
         if wait:    # Run it synchronously
             runCycles()
         else:       # Run it asynchronously in a separate thread
@@ -376,7 +382,7 @@ class HASequence(HAControl):
         for cycle in self.cycleList:
             cycle.control.setState(cycle.endState)
         self.notify()
-        if debugThread: log(self.name, "stopped")
+        debug('debugThread', self.name, "stopped")
 
     # state change notification to all control events since the sequence doean't have an event
     def notify(self):
@@ -387,16 +393,16 @@ class HASequence(HAControl):
     # Run the specified Cycle
     def runCycle(self, cycle):
         if cycle.delay > 0:
-            if debugThread: log(self.name, cycle.control.name, "delaying", cycle.delay)
+            debug('debugThread', self.name, cycle.control.name, "delaying", cycle.delay)
             self.wait(cycle.delay)
             if not self.running:
                 return
-        if debugThread: log(self.name, cycle.control.name, "started")
+        debug('debugThread', self.name, cycle.control.name, "started")
         cycle.control.setState(cycle.startState)
         if cycle.duration > 0:
             self.wait(cycle.duration)
             cycle.control.setState(cycle.endState)
-        if debugThread: log(self.name, cycle.control.name, "finished")
+        debug('debugThread', self.name, cycle.control.name, "finished")
 
     # wait the specified number of seconds
     # break immediately if the sequence is stopped
@@ -425,7 +431,7 @@ class HAScene(HAControl):
 
     def setState(self, state, wait=False):
         if self.interface.name == "None":
-            if debugState: log(self.name, "setState ", state)
+            debug('debugState', self.name, "setState ", state)
             self.sceneState = state  # use Cycle - FIXME
             # Run it asynchronously in a separate thread.
             self.sceneThread = threading.Thread(target=self.doScene)
@@ -442,12 +448,12 @@ class HAScene(HAControl):
         return None
 
     def doScene(self):
-        if debugThread: log(self.name, "started")
+        debug('debugThread', self.name, "started")
         self.running = True
         for controlIdx in range(len(self.controlList)):
             self.controlList[controlIdx].setState(self.stateList[controlIdx][self.sceneState])
         self.running = False
-        if debugThread: log(self.name, "finished")
+        debug('debugThread', self.name, "finished")
 
 Mon = 0
 Tue = 1
@@ -504,30 +510,30 @@ class HASchedule(HACollection):
     # add a task to the scheduler list
     def addTask(self, theTask):
         self.addRes(theTask)
-        if debugEvent: log(self.name, "adding", theTask.__str__())
+        debug('debugEvent', self.name, "adding", theTask.__str__())
 
     # delete a task from the scheduler list
     def delTask(self, taskName):
         self.delRes(taskName)
-        if debugEvent: log(self.name, "deleting", taskName)
+        debug('debugEvent', self.name, "deleting", taskName)
 
     # Scheduler thread
     def doSchedule(self):
-        if debugThread: log(self.name, "started")
+        debug('debugThread', self.name, "started")
         while True:
             # wake up every minute on the 00 second
             (now, tomorrow) = todaysDate()
             sleepTime = 60 - now.second
-            if debugSched: log(self.name, "sleeping ", sleepTime)
+            debug('debugSched', self.name, "sleeping ", sleepTime)
             time.sleep(sleepTime)
 #            if not running:
 #                break
             (now, tomorrow) = todaysDate()
-            if debugSched: log(self.name, "waking up", now)
+            debug('debugSched', self.name, "waking up", now)
             # run through the schedule and check if any tasks should be run
             # need to handle cases where the schedule could be modified while this is running - FIXME
             for taskName in self.keys():
-                if debugSched: log(self.name, "checking ", taskName)
+                debug('debugSched', self.name, "checking ", taskName)
                 task = self[taskName] #self.schedule[taskName]
                 # the task should be run if the current date/time matches all specified fields in the SchedTime
                 if (task.schedTime.event == ""): # don't run tasks that specify an event
@@ -539,7 +545,7 @@ class HASchedule(HACollection):
                                         if (task.schedTime.weekday == []) or (now.weekday() in task.schedTime.weekday):
                                             if task.enabled:
                                                 # run the task
-                                                if debugEvent: log(self.name, "running", taskName)
+                                                debug('debugEvent', self.name, "running", taskName)
                                                 task.control.setState(task.controlState)
                 if task.schedTime.last:
                     if task.schedTime.last <= now:
@@ -549,7 +555,7 @@ class HASchedule(HACollection):
                         if task.parent:
                             self.addTask(task.parent.child())
                         del(task)
-            if debugSched: log(self.name, self.__str__())
+            debug('debugSched', self.name, self.__str__())
 
 # a Task specifies a control to be set to a specified state at a specified time
 class HATask(HAControl):

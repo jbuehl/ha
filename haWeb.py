@@ -104,7 +104,7 @@ class WebRoot(object):
     # Everything    
     @cherrypy.expose
     def index(self, action=None, resource=None):
-        if debugWeb: log("/", "get", action, resource)
+        debug('debugWeb', "/", "get", action, resource)
         # lock.acquire()
         reply = self.env.get_template("default.html").render(title="4319 Shadyglade", script="", 
                             groups=[[group, self.resources.getGroup(group)] for group in ["Time", "Temperature", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Tasks"]],
@@ -115,7 +115,7 @@ class WebRoot(object):
     # Submit    
     @cherrypy.expose
     def submit(self, action=None, resource=None):
-        if debugWeb: log("/submit", "post", action, resource)
+        debug('debugWeb', "/submit", "post", action, resource)
         self.resources[resource].setViewState(action)
         reply = ""
         return reply
@@ -123,7 +123,7 @@ class WebRoot(object):
     # iPad - 1024x768   
     @cherrypy.expose
     def ipad(self, action=None, resource=None):
-        if debugWeb: log("/ipad", "get", action, resource)
+        debug('debugWeb', "/ipad", "get", action, resource)
         # lock.acquire()
         groups = [["Pool", self.resources.getResList(["poolPump", "clean1hr", "spa1", "poolTemp"])], 
                   ["Lights", self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
@@ -143,7 +143,7 @@ class WebRoot(object):
     # iPhone 5 - 320x568    
     @cherrypy.expose
     def iphone5(self, action=None, resource=None):
-        if debugWeb: log("/iphone5", "get", action, resource)
+        debug('debugWeb', "/iphone5", "get", action, resource)
         # lock.acquire()
         resources = self.resources.getResList(["spa1", "frontLights", "backLights", "shade1", "shade2", "shade3", "shade4", "backLawn", "sideBeds", "frontLawn"])
         reply = self.env.get_template("iphone5.html").render(script="", 
@@ -158,7 +158,7 @@ class WebRoot(object):
     # iPhone 3GS - 320x480    
     @cherrypy.expose
     def iphone3gs(self, action=None, resource=None):
-        if debugWeb: log("/iphone3gs", "get", action, resource)
+        debug('debugWeb', "/iphone3gs", "get", action, resource)
         # lock.acquire()
         resources = self.resources.getResList(["frontLights", "backLights", "bedroomLight", "recircPump"])
         reply = self.env.get_template("iphone3gs.html").render(script="", 
@@ -242,9 +242,9 @@ class WebRoot(object):
         tempTypes = ["tempF", "tempC", "spaTemp"]       # temperatures
         updates = {}
         if webUpdateStateChange:
-            if debugInterrupt: log("update", "event wait")
+            debug('debugInterrupt', "update", "event wait")
             stateChangeEvent.wait()
-            if debugInterrupt: log("update", "event clear")
+            debug('debugInterrupt', "update", "event clear")
             stateChangeEvent.clear()
         # lock.acquire()
         for resource in self.resources:
@@ -277,7 +277,7 @@ class RestClient(threading.Thread):
         self.socket.bind(("", 4242))
                 
     def doRest(self):
-        if debugThread: log(self.name, "started")
+        debug('debugThread', self.name, "started")
         while running:
             # loop until the program state changes to not running
             (data, addr) = self.socket.recvfrom(4096)
@@ -297,7 +297,7 @@ class RestClient(threading.Thread):
                     restInterface.readStates()
                     # lock.release()
                     self.servers[serverName] = serverAddr
-        if debugThread: log(self.name, "terminated")
+        debug('debugThread', self.name, "terminated")
 
 
 if __name__ == "__main__":
