@@ -5,10 +5,11 @@ import threading
 import time
 
 class FileInterface(HAInterface):
-    def __init__(self, name, interface=None, event=None, fileName="", readOnly=False):
+    def __init__(self, name, interface=None, event=None, fileName="", readOnly=False, changeMonitor=True):
         HAInterface.__init__(self, name, interface=interface, event=event)
         self.fileName = fileName
         self.readOnly = readOnly
+        self.changeMonitor = changeMonitor
 
     def start(self):
         try:
@@ -19,15 +20,17 @@ class FileInterface(HAInterface):
             # create a new file
             self.data = {}
             self.writeData()
-        # thread to periodically check for file changes
-        def readData():
-            if debugFileThread: log(self.name, "readData started")
-            while running:
-                time.sleep(filePollInterval)
-                if self.modified():
-                    self.readData()
-        readStatesThread = threading.Thread(target=readData)
-        readStatesThread.start()
+        if self.changeMonitor:
+            # thread to periodically check for file changes
+            def readData():
+                if debugFileThread: log(self.name, "readData started")
+                while running:
+                    if debugFileThread: log(self.name, "waiting", filePollInterval)
+                    time.sleep(filePollInterval)
+                    if self.modified():
+                        self.readData()
+            readStatesThread = threading.Thread(target=readData)
+            readStatesThread.start()
 
     def read(self, addr):
         try:
