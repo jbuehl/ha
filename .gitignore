@@ -1,4 +1,4 @@
-HATest.py
+haTest.py
 test*
 *.pyc
 .DS_Store
