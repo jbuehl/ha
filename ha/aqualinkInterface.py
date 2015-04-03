@@ -620,7 +620,7 @@ class Interface(HAResource):
         # skip bytes until synchronized with the start of a message
         while (self.msg[-1] != STX) or (self.msg[-2] != DLE):
             self.msg += self.port.read(1)
-            debug('debugRaw: self.debugRaw(self.msg[-1])
+            self.debugRaw(self.msg[-1])
         self.msg = self.msg[-2:]
         debug('debugData', self.name, "synchronized")
         # start up the read thread
@@ -636,13 +636,12 @@ class Interface(HAResource):
             dleFound = False
             # read what is probably the DLE STX
             self.msg += self.port.read(2)                   
-            debug('debugRaw: 
-                self.debugRaw(self.msg[-2])
-                self.debugRaw(self.msg[-1])
+            self.debugRaw(self.msg[-2])
+            self.debugRaw(self.msg[-1])
             while (self.msg[-1] != ETX) or (not dleFound):  
                 # read until DLE ETX
                 self.msg += self.port.read(1)
-                debug('debugRaw: self.debugRaw(self.msg[-1])
+                self.debugRaw(self.msg[-1])
                 if self.msg[-1] == DLE:                     
                     # \x10 read, tentatively is a DLE
                     dleFound = True
@@ -660,9 +659,10 @@ class Interface(HAResource):
             args = self.msg[4:-3]
             checksum = self.msg[-3:-2]
             dleetx = self.msg[-2:]
-            debug('debugData: debugMsg = dlestx.encode("hex")+" "+dest.encode("hex")+" "+\
-                                     cmd.encode("hex")+" "+args.encode("hex")+" "+\
-                                     checksum.encode("hex")+" "+dleetx.encode("hex")
+#            if debugData: debugMsg = dlestx.encode("hex")+" "+dest.encode("hex")+" "+\
+#                                     cmd.encode("hex")+" "+args.encode("hex")+" "+\
+#                                     checksum.encode("hex")+" "+dleetx.encode("hex")
+            debugMsg = ""
             self.msg = ""
             # stop reading if a message with a valid checksum is read
             if self.checksum(dlestx+dest+cmd+args) == checksum:
@@ -695,7 +695,7 @@ class Interface(HAResource):
         """ Debug raw serial data."""
         self.debugRawMsg += byte
         if len(self.debugRawMsg) == 16:
-            log(self.name, self.debugRawMsg).encode("hex")
+            debug('debugRaw', self.name, self.debugRawMsg.encode("hex"))
             self.debugRawMsg = ""
             
     def __del__(self):
