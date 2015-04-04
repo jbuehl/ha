@@ -24,7 +24,7 @@ class HARestInterface(HAInterface):
                 self.readStates("/resources/states/stateChange")
                 if self.event:
                     self.event.set()
-                    debug('debugInterrupt', self.name, "event set", self.event)
+                    debug('debugInterrupt', self.name, "event set")
         readStatesThread = threading.Thread(target=readStates)
         readStatesThread.start()
 

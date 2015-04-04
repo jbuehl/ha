@@ -9,6 +9,7 @@ rootDir = "/root/"
 configDir = rootDir+"conf/"
 keyDir = rootDir+"keys/"
 stateDir = rootDir+"state/"
+sysLogging = True
 
 # Localization
 latLong = (34.1486, -118.3965)
@@ -20,14 +21,20 @@ smsToken = keyDir+"twilio.tkn"
 notifyFromNumber = keyDir+"notifyFromNumber"
 
 # General debugging
-debugEnable = True
-debugConf = True
-debugObject = True
-debugState = True
-debugStateChange = True
-debugThread = True
-debugInterrupt = True
-sysLogging = True
+debugEnable = False
+debugConf = False
+debugObject = False
+debugState = False
+debugStateChange = False
+debugThread = False
+debugInterrupt = False
+
+# REST interface
+debugRest = False
+debugRestResources = False
+debugRestGet = False
+debugRestPut = False
+debugRestStates = True
 
 # X10 interface
 #x10Device = "/dev/ttyUSB0"
@@ -63,13 +70,6 @@ sysLogging = True
 
 # Shades interface
 #debugShades = True
-
-# REST interface
-#debugRest = False
-#debugRestResources = False
-#debugRestGet = False
-#debugRestPut = False
-#debugRestStates = True
 
 # Web interface
 #webPort = 80
