@@ -3,13 +3,16 @@ import datetime
 import threading
 import copy
 import syslog
+import sys
+import os
 from collections import OrderedDict
 from dateutil import tz
 from ha.sunriseset import *
 from ha.HAConf import *
 
+# log a message
 def log(*args):
-    message = args[0]+" "
+    message = args[0]+" "   # first argument is the object doing the logging
     for arg in args[1:]:
         message += arg.__str__()+" "
     if sysLogging:
@@ -17,11 +20,30 @@ def log(*args):
     else:
         print message
 
+# log a debug message
 def debug(*args):
+    if debugEnable:   # global debug flag enables debugging
+        try:
+            if globals()[args[0]]:
+                log(*args[1:])
+        except:
+            pass
+            
+# read configuration files
+for configFileName in os.listdir(configDir):
+    debug('debugConf', "config open", configFileName)
     try:
-        if eval(args[0]):
-            log(*args[1:])
-    except: pass
+        with open(configDir+configFileName) as configFile:
+            configLines = [configLine.rstrip('\n') for configLine in configFile]
+        for configLine in configLines:
+            if (len(configLine) > 0) and (configLine[0] != "#"):
+                try:
+                    exec(configLine)
+                    debug('debugConf', "config read", configLine)
+                except:
+                    log("config", "error evaluating", configLine)
+    except:
+        log("config", "error reading", configDir+configFileName)
         
 # normalize state values from boolean to integers
 def normalState(value):
@@ -177,8 +199,8 @@ class HACollection(HAResource, OrderedDict):
                     
     def __str__(self, level=0):
         msg = self.name+" "+self.__class__.__name__
-        for resource in self.values():
-            msg += "\n"+"    "*(level+1)+resource.__str__(level+1)
+#        for resource in self.values():
+#            msg += "\n"+"    "*(level+1)+resource.__str__(level+1)
         return msg
 
 # A Sensor represents a device that has a state that is represented by a scalar value.
