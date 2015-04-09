@@ -34,7 +34,7 @@ debugRest = False
 debugRestResources = False
 debugRestGet = False
 debugRestPut = False
-debugRestStates = True
+debugRestStates = False
 
 # X10 interface
 #x10Device = "/dev/ttyUSB0"
