@@ -11,7 +11,7 @@ from ha.timeInterface import *
 
 # transform functions for views
 def ctofFormat(value):
-    return value*9/5+23
+    return value*9/5+32
 
 def kiloFormat(value):
     return value/1000.0
