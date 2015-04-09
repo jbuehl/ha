@@ -27,7 +27,7 @@ if __name__ == "__main__":
     resources.addRes(HAControl("backLawn", gpioInterface, 2, group="Water", label="Back lawn")) # green
     resources.addRes(HAControl("backBeds", gpioInterface, 1, group="Water", label="Back beds")) # blue
     resources.addRes(HAControl("sideBeds", gpioInterface, 0, group="Water", label="Side beds")) # red
-    resources.addRes(HASequence("frontLawnSequence", [HACycle(resources["frontLawn"], 600)], group="Water", label="Front lawn 10 min"))
+    resources.addRes(HASequence("frontLawnSequence", [HACycle(resources["frontLawn"], 900)], group="Water", label="Front lawn 15 min"))
     resources.addRes(HASequence("gardenSequence", [HACycle(resources["backBeds"], 300)], group="Water", label="Garden 5 min"))
     resources.addRes(HASequence("backLawnSequence", [HACycle(resources["backLawn"], 600)], group="Water", label="Back lawn 10 min"))
     resources.addRes(HASequence("sideBedSequence", [HACycle(resources["sideBeds"], 600)], group="Water", label="Side beds 10 min"))
@@ -36,7 +36,7 @@ if __name__ == "__main__":
 #    resources.addRes(HASensor("insideTemp", i2c1, (0x48, 0x00), "Temperature", label="Inside temp", type="tempC"))
 
     # Schedules
-    schedule.addTask(HATask("frontLawnTask", HASchedTime(hour=[7], minute=[00], weekday=[Sun, Mon, Tue, Wed, Thu, Fri, Sat]), resources["frontLawnSequence"], 1, enabled=True))
+    schedule.addTask(HATask("frontLawnTask", HASchedTime(hour=[22], minute=[00], weekday=[Sun, Mon, Tue, Wed, Thu, Fri, Sat]), resources["frontLawnSequence"], 1, enabled=True))
     schedule.addTask(HATask("gardenTask", HASchedTime(hour=[7], minute=[00], weekday=[Sun, Mon, Tue, Wed, Thu, Fri, Sat], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["gardenSequence"], 1, enabled=True))
     schedule.addTask(HATask("backLawnTask", HASchedTime(hour=[7], minute=[10], weekday=[Tue, Thu, Sat], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["backLawnSequence"], 1, enabled=True))
     schedule.addTask(HATask("sideBedTask", HASchedTime(hour=[7], minute=[30], weekday=[Sat], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["sideBedSequence"], 1, enabled=True))
