@@ -9,8 +9,7 @@ class TC74Interface(HAInterface):
     def read(self, addr):
         debug('debugTemp', self.name, "read", addr)
         try:
-            tempC = self.interface.read((addr, 0))
-            return tempC
+            return float(self.interface.read((addr, 0))) * 9 / 5 + 32
         except:
             return 0
 

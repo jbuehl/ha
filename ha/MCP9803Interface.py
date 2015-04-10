@@ -10,8 +10,7 @@ class MCP9803Interface(HAInterface):
         try:
             self.interface.write(addr, (1, 0xe1)) # 12 bit mode + one shot
             t=self.interface.readWord((addr, 0))
-            tempC = (float(((t&0x00ff)<<4) | ((t&0xf000)>>12)) * .0625)
-            return tempC
+            return (float(((t&0x00ff)<<4) | ((t&0xf000)>>12)) * .0625) * 9 / 5 + 32
         except:
             return 0
 
