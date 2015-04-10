@@ -18,12 +18,12 @@ class TempInterface(HAInterface):
 
     def read(self, addr):
         debug('debugTemp', self.name, "read", addr)
-        return self.states[self.sensorAddrs[addr].name]
+        return self.states[addr]
 
     def readData(self):
         debug('debugTemp', self.name, "readData sensors", self.sensors, self.sensorAddrs)
         for sensor in self.sensors.keys():
-            self.states[sensor] = self.interface.read(self.sensors[sensor].addr)
+            self.states[self.sensors[sensor].addr] = self.interface.read(self.sensors[sensor].addr)
         debug('debugTemp', self.name, "readData states", self.states)
         if self.event:
             self.event.set()

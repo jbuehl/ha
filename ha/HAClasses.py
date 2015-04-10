@@ -97,6 +97,7 @@ class HAInterface(HAResource):
         return True
 
     def addSensor(self, sensor):
+        debug('debugObject', self.name, "sensor", sensor.name)
         self.sensors[sensor.name] = sensor
         self.sensorAddrs[sensor.addr] = sensor
         self.states[sensor.addr] = 0
