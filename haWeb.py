@@ -237,17 +237,24 @@ class WebRoot(object):
 
     # Update the states of all resources
     @cherrypy.expose
-    def update(self, _=None):
+    def state(self, _=None):
+        return self.update( self.resources)
+        
+    # Update the states of resources that have changed
+    @cherrypy.expose
+    def stateChange(self, _=None):
+        debug('debugInterrupt', "update", "event wait")
+        stateChangeEvent.wait()
+        debug('debugInterrupt', "update", "event clear")
+        stateChangeEvent.clear()
+        return self.update(self.resources)
+
+    # Update the states of the specified resources
+    def update(self, resources):
         staticTypes = ["time", "ampm", "date"]          # types whose class does not depend on their value
         tempTypes = ["tempF", "tempC", "spaTemp"]       # temperatures
         updates = {}
-        if webUpdateStateChange:
-            debug('debugInterrupt', "update", "event wait")
-            stateChangeEvent.wait()
-            debug('debugInterrupt', "update", "event clear")
-            stateChangeEvent.clear()
-        # lock.acquire()
-        for resource in self.resources:
+        for resource in resources:
             if self.resources[resource].name != "states":
                 try:
                     resState = self.resources[resource].getViewState()
