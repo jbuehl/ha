@@ -134,7 +134,7 @@ class WebRoot(object):
                             time=self.resources["theTime"],
                             ampm=self.resources["theAmPm"],
                             day=self.resources["theDay"],
-                            temp=self.resources["airTemp"],
+                            temp=self.resources["deckTemp"],
                             groups=groups,
                             buttons=buttons)
         # lock.release()
@@ -149,7 +149,7 @@ class WebRoot(object):
         reply = self.env.get_template("iphone5.html").render(script="", 
                             time=self.resources["theTime"],
                             ampm=self.resources["theAmPm"],
-                            temp=self.resources["airTemp"],
+                            temp=self.resources["deckTemp"],
                             resources=resources,
                             buttons=buttons)
         # lock.release()
@@ -165,7 +165,7 @@ class WebRoot(object):
                             time=self.resources["theTime"],
                             ampm=self.resources["theAmPm"],
                             day=self.resources["theDay"],
-                            temp=self.resources["airTemp"],
+                            temp=self.resources["deckTemp"],
                             resources=resources,
                             buttons=buttons)
         # lock.release()

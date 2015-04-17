@@ -3,8 +3,9 @@ import time
 from ha.HAClasses import *
 
 class TempInterface(HAInterface):
-    def __init__(self, theName, theInterface):
+    def __init__(self, theName, theInterface, sample=1):
         HAInterface.__init__(self, theName, theInterface)
+        self.sample = sample
 
     def start(self):
         # data sampling thread
@@ -33,7 +34,7 @@ class TempInterface(HAInterface):
                     except KeyError:                # a sensor was added during the sample period
                         temp[addr] = sample[addr]
                 samples += 1
-                time.sleep(1)
+                time.sleep(self.sample)
                 
         readStatesThread = threading.Thread(target=readData)
         readStatesThread.start()
