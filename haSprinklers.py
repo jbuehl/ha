@@ -1,6 +1,9 @@
 from ha.HAClasses import *
 from ha.GPIOInterface import *
 from ha.I2CInterface import *
+from ha.TC74Interface import *
+from ha.MCP9803Interface import *
+from ha.tempInterface import *
 from ha.restServer import *
 
 if __name__ == "__main__":
@@ -13,6 +16,10 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
     i2c1 = I2CInterface("I2C1", bus=1, event=stateChangeEvent)
     gpioInterface = GPIOInterface("GPIO", i2c1)
+    tc74 = TC74Interface("TC74", i2c1)
+    mcp9803 = MCP9803Interface("MCP9803", i2c1)
+    tc74Temp = TempInterface("tc74Temp", tc74)
+    mcp9803Temp = TempInterface("mcp9803Temp", mcp9803)
     
     # Doors
 #    resources.addRes(HASensor("frontDoor", gpioInterface, 2, type="door", group="Doors", label="Front"))
@@ -33,8 +40,10 @@ if __name__ == "__main__":
     resources.addRes(HASequence("sideBedSequence", [HACycle(resources["sideBeds"], 600)], group="Water", label="Side beds 10 min"))
 
     # Temperature
-#    resources.addRes(HASensor("insideTemp", i2c1, (0x48, 0x00), "Temperature", label="Inside temp", type="tempC"))
-
+    resources.addRes(HASensor("bedroomTemp", mcp9803Temp, 0x48, group="Temperature", label="Bedroom temp", type="tempF"))
+    resources.addRes(HASensor("kitchenTemp", tc74Temp, 0x4e, group="Temperature", label="Kitchen temp", type="tempF"))
+    resources.addRes(HASensor("atticTemp", tc74Temp, 0x4f, group="Temperature", label="Attic temp", type="tempF"))
+    
     # Schedules
     schedule.addTask(HATask("frontLawnTask", HASchedTime(hour=[22], minute=[00], weekday=[Sun, Mon, Tue, Wed, Thu, Fri, Sat]), resources["frontLawnSequence"], 1, enabled=True))
     schedule.addTask(HATask("gardenTask", HASchedTime(hour=[7], minute=[00], weekday=[Sun, Mon, Tue, Wed, Thu, Fri, Sat], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["gardenSequence"], 1, enabled=True))
@@ -43,6 +52,8 @@ if __name__ == "__main__":
 
     # Start interfaces
     gpioInterface.start()
+    tc74Temp.start()
+    mcp9803Temp.start()
     schedule.start()
     restServer = RestServer(resources, event=stateChangeEvent)
     restServer.start()
