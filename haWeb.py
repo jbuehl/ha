@@ -22,6 +22,12 @@ def megaFormat(value):
 def seqCountdownFormat(resource):
     pass
 
+def tempFormat(value):
+    if value == 0:
+        return "--"
+    else:
+        return "%d F"%(value)
+        
 def spaTempFormat(value):
     if value == 0:
         return "Off"
@@ -31,7 +37,7 @@ def spaTempFormat(value):
 # view definitions    
 views = {"power": HAView({}, "%d W"),
          "tempC": HAView({}, "%d F", ctofFormat),
-         "tempF": HAView({}, "%d F"),
+         "tempF": HAView({}, "%d F", tempFormat),
          "door": HAView({0:"Closed", 1:"Open"}, "%s"),
          "shade": HAView({None:"", 0:"Up", 1:"Down", 2:"Raising", 3:"Lowering"}, "%s", None, {0:"Up", 1:"Down"}),
          "spa": HAView({0:"Off", 1:"On", 2:"Starting", 3:"Warming", 4:"Standby", 5:"Stopping"}, "%s", None, {0:"Off", 1:"On", 4:"Stby"}),
@@ -90,10 +96,14 @@ def tempColor(tempString):
         red = 0
         green = (temp-30)*14
         blue = 252
-    else:
+    elif temp > 0:
         red = 0
         green = 0
         blue = 252
+    else:
+        red = 112
+        green = 128
+        blue = 144
     return 'rgb('+str(red)+','+str(green)+','+str(blue)+')'
                             
 class WebRoot(object):
