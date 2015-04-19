@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import os
 import cherrypy
 import json
@@ -36,8 +38,12 @@ def spaTempFormat(value):
         
 # view definitions    
 views = {"power": HAView({}, "%d W"),
+#         "tempC": HAView({}, "%d °", ctofFormat),
+#         "tempF": HAView({}, "%d °", tempFormat),
          "tempC": HAView({}, "%d F", ctofFormat),
          "tempF": HAView({}, "%d F", tempFormat),
+         "barometer": HAView({}, "%5.2f in"),
+         "humidity": HAView({}, "%d %%"),
          "door": HAView({0:"Closed", 1:"Open"}, "%s"),
          "shade": HAView({None:"", 0:"Up", 1:"Down", 2:"Raising", 3:"Lowering"}, "%s", None, {0:"Up", 1:"Down"}),
          "spa": HAView({0:"Off", 1:"On", 2:"Starting", 3:"Warming", 4:"Standby", 5:"Stopping"}, "%s", None, {0:"Off", 1:"On", 4:"Stby"}),
