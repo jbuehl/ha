@@ -64,7 +64,7 @@ if __name__ == "__main__":
                                           resources["spaLight"]], type="light", group="Lights", label="Pool and spa"))
 
     # Temperature
-    airTemp = HASensor("airTemp", aqualinkInterface, "airTemp", "Temperature",label="Air temp", type="tempF")
+    airTemp = HASensor("poolEquipTemp", aqualinkInterface, "airTemp", "Temperature",label="Pool equip temp", type="tempF")
     poolTemp = HASensor("poolTemp", aqualinkInterface, "poolTemp", "Temperature", label="Pool temp", type="tempF")
     spaTemp = HASensor("spaTemp", aqualinkInterface, "spaTemp", "Temperature", label="Spa temp", type="spaTemp")
     resources.addRes(airTemp)
