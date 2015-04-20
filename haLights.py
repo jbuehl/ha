@@ -17,7 +17,6 @@ if __name__ == "__main__":
     # Resources
     resources = HACollection("resources")
     schedule = HASchedule("schedule")
-    resources.addRes(schedule)
 
     # Interfaces
     stateChangeEvent = threading.Event()
@@ -34,6 +33,7 @@ if __name__ == "__main__":
                                              resources["xmasLights"]], group="Lights", label="Outside"))
 
     # Schedules
+    resources.addRes(schedule)
     schedule.addTask(HATask("Bedroom light on sunset", HASchedTime(event="sunset"), resources["bedroomLight"], 1))
     schedule.addTask(HATask("Bedroom light off sunrise", HASchedTime(event="sunrise"), resources["bedroomLight"], 0))
     schedule.addTask(HATask("Outside lights on sunset", HASchedTime(event="sunset"), resources["outsideLights"], 1))

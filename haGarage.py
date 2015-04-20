@@ -14,7 +14,6 @@ if __name__ == "__main__":
     global sensors
     resources = HACollection("resources")
     schedule = HASchedule("schedule")
-    resources.addRes(schedule)
 
     # Interfaces
     stateChangeEvent = threading.Event()
@@ -40,6 +39,7 @@ if __name__ == "__main__":
     resources.addRes(HASensor("garageTemp", temp, 0x4d, group="Temperature", label="Garage temp", type="tempF"))
     
     # Schedules
+    resources.addRes(schedule)
     schedule.addTask(HATask("Garage lights on sunset", HASchedTime(event="sunset"), resources["garageLights"], 1))
     schedule.addTask(HATask("Garage lights off midnight", HASchedTime(hour=[23,0], minute=[00]), resources["garageLights"], 0))
     schedule.addTask(HATask("Garage lights off sunrise", HASchedTime(event="sunrise"), resources["garageLights"], 0))

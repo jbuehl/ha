@@ -10,7 +10,6 @@ if __name__ == "__main__":
     # Resources
     resources = HACollection("resources")
     schedule = HASchedule("schedule")
-    resources.addRes(schedule)
 
     # Interfaces
     stateChangeEvent = threading.Event()
@@ -45,6 +44,7 @@ if __name__ == "__main__":
     resources.addRes(HASensor("atticTemp", tc74Temp, 0x4f, group="Temperature", label="Attic temp", type="tempF"))
     
     # Schedules
+    resources.addRes(schedule)
     schedule.addTask(HATask("frontLawnTask", HASchedTime(hour=[22], minute=[00], weekday=[Sun, Mon, Tue, Wed, Thu, Fri, Sat]), resources["frontLawnSequence"], 1, enabled=True))
     schedule.addTask(HATask("gardenTask", HASchedTime(hour=[7], minute=[00], weekday=[Sun, Mon, Tue, Wed, Thu, Fri, Sat], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["gardenSequence"], 1, enabled=True))
     schedule.addTask(HATask("backLawnTask", HASchedTime(hour=[7], minute=[10], weekday=[Tue, Thu, Sat], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["backLawnSequence"], 1, enabled=True))

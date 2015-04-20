@@ -43,7 +43,6 @@ if __name__ == "__main__":
     # Resources
     resources = HACollection("resources")
     schedule = HASchedule("schedule")
-    resources.addRes(schedule)
 
     # Interfaces
     stateChangeEvent = threading.Event()
@@ -115,6 +114,7 @@ if __name__ == "__main__":
     resources.addRes(HASensor("spaLightPower", powerInterface, resources["spaLight"], type="power", group="Power", label="Spa light"))
 
     # Schedules
+    resources.addRes(schedule)
     schedule.addTask(HATask("Pool cleaning", HASchedTime(hour=[8], minute=[0]), resources["cleanMode"], 1))
     schedule.addTask(HATask("Spa light on sunset", HASchedTime(event="sunset"), resources["spaLightNight"], 1))
 

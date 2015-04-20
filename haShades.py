@@ -9,7 +9,6 @@ if __name__ == "__main__":
     # Resources
     resources = HACollection("resources")
     schedule = HASchedule("schedule")
-    resources.addRes(schedule)
 
     # Interfaces
     stateChangeEvent = threading.Event()
@@ -27,6 +26,7 @@ if __name__ == "__main__":
                                       resources["shade4"]], type="shade", group="Doors", label="All shades"))
 
     # Schedules
+    resources.addRes(schedule)
     schedule.addTask(HATask("Shades down", HASchedTime(hour=[13], minute=[00], month=[Apr, May, Jun, Jul, Aug, Sep]), resources["allShades"], 1, enabled=True))
     schedule.addTask(HATask("Shades up Jun, Jul", HASchedTime(hour=[18], minute=[30], month=[Jun, Jul]), resources["allShades"], 0, enabled=True))
     schedule.addTask(HATask("Shades up May, Aug", HASchedTime(hour=[18], minute=[15], month=[May, Aug]), resources["allShades"], 0, enabled=True))
