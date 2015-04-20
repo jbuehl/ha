@@ -10,8 +10,8 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
     camera = CameraInterface("Camera", event=stateChangeEvent)
     
-    # Temperature
-    resources.addRes(HASensor("edisonTemp", temp, 0x4b, group="Temperature", label="Edison temp", type="tempF"))
+    # Cameras
+    resources.addRes(Camera("camera", camera, None, group="Cameras", label="Camera", type="camera"))
     
     # Schedules
 

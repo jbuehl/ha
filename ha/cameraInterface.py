@@ -9,22 +9,71 @@
 #    get image
 #    get video
 
+# Modes:
+#    image
+#    video
+#    motion
+
 import subprocess
 from ha.HAClasses import *
 
 class CameraInterface(HAInterface):
     def __init__(self, name, interface=None, event=None):
         HAInterface.__init__(self, name, interface=interface, event=event)
-        self.bus = bus
 
     def read(self, addr):
-        try:
-            debug('debugI2C', self.name, "readByte", addr)
-            return int(subprocess.check_output("i2cget -y %d %d %d b"%(self.bus, addr[0], addr[1]),shell=True),16)
-        except:
-            return 0
+        debug('debugCamera', self.name, "read", addr)
+        return 1
 
     def write(self, addr, value):
-        debug('debugI2C', self.name, "writeByte", addr, value)
-        subprocess.check_output("i2cset -y %d %d %d %d b"%(self.bus, addr[0], addr[1], value),shell=True)
+        debug('debugCamera', self.name, "write", addr, value)
+
+class Camera(HAControl):
+    def __init__(self, name, interface, mode="image", addr=None, group="", type="camera", location=None, view=None, label="", interrupt=None, event=None):
+        HAControl.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt, event=event)
+        self.mode = mode
+        self.imageFileName = "/root/test.jpg"
+        self.__dict__["image"] = None   # dummy class variable so hasattr() returns True
+        self.__dict__["video"] = None   # dummy class variable so hasattr() returns True
+        self.attrTypes = {"image": "image/jpeg"}
+
+    # Set the mode of the camera
+    def setMode(self, mode):
+        debug('debugCamera', self.name, "setMode ", mode)
+        self.mode = mode
+        return True
+
+    # return the current image
+    def getImage(self):
+        debug('debugCamera', self.name, "getImage")
+#        try:
+        subprocess.check_output("/opt/vc/bin/raspistill -v -o %s"%(self.imageFileName),shell=True)
+        with open(self.imageFileName) as imageFile:
+            image = imageFile.read()
+#        except:
+#            image = ""
+        return image
+
+    # return the video stream
+    def getVideo(self):
+        debug('debugCamera', self.name, "getVideo")
+        try:
+            subprocess.check_output("/opt/vc/bin/raspistill -v -o %s"%(self.imageFileName),shell=True)
+            with open(self.imageFileName) as imageFile:
+                return imageFile.read()
+        except:
+            return ""
+
+    # override to handle special cases of image and video
+    def __getattribute__(self, attr):
+        if attr == "image":
+            return self.getImage()
+        elif attr == "video":
+            return self.getVideo()
+        else:
+            return HAControl.__getattribute__(self, attr)
+            
+    # dictionary of pertinent attributes
+    def dict(self):
+        return HAControl.dict(self)#.update({"mode":self.mode})
 
