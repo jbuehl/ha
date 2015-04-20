@@ -123,7 +123,7 @@ class WebRoot(object):
         debug('debugWeb', "/", "get", action, resource)
         # lock.acquire()
         reply = self.env.get_template("default.html").render(title="4319 Shadyglade", script="", 
-                            groups=[[group, self.resources.getGroup(group)] for group in ["Time", "Temperature", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Tasks"]],
+                            groups=[[group, self.resources.getGroup(group)] for group in ["Time", "Temperature", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Cameras", "Tasks"]],
                             buttons=buttons)
         # lock.release()
         return reply
