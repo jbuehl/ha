@@ -175,8 +175,8 @@ class HACollection(HAResource, OrderedDict):
                 self.addRes(HAScene(node["name"], [], group=node["group"], type=node["type"], label=node["label"], 
                     interface=interface, addr=path+"/state"))
             elif node["class"] == "HATask":
-                self.addRes(HATask(node["name"], theControl=self[node["control"]], state=node["controlState"], 
-                    theSchedTime=HASchedTime(**node["schedTime"]), 
+                self.addRes(HATask(node["name"], control=self[node["control"]], state=node["controlState"], 
+                    schedTime=HASchedTime(**node["schedTime"]), 
                     interface=interface, addr=path+"/state",))
             else:
                 debug('debug', self.name, "loadResource", node["name"], "class", node["class"], "not created")
@@ -582,10 +582,10 @@ class HASchedule(HACollection):
 
 # a Task specifies a control to be set to a specified state at a specified time
 class HATask(HAControl):
-    def __init__(self, name, theSchedTime, theControl, state, theParent=None, enabled=True, interface=HAInterface("None"), addr=None, type="task", group="Tasks", view=None, label=""):
+    def __init__(self, name, schedTime, control, state, theParent=None, enabled=True, interface=HAInterface("None"), addr=None, type="task", group="Tasks", view=None, label=""):
         HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
-        self.schedTime = theSchedTime
-        self.control = theControl
+        self.schedTime = schedTime
+        self.control = control
         self.controlState = state
         self.parent = theParent
         self.enabled = normalState(enabled)
