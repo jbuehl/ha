@@ -1,3 +1,4 @@
+
 from ha.HAClasses import *
 from SocketServer import ThreadingMixIn
 from BaseHTTPServer import HTTPServer
@@ -21,12 +22,19 @@ class ResourceStateSensor(HASensor):
 
     # return the current state of all sensors in the collection
     def getState(self):
-        for sensor in self.resources.values():
-            if (sensor != self) and (sensor.type != "schedule"):
-                self.states[sensor.name] = sensor.getState()
+        self.getStates(self.resources)
         debug('debugStateChange', self.name, "getState", self.states)
         return self.states
 
+    # return the current state of all sensors in the specified collection
+    def getStates(self, resources):
+        for sensor in resources.values():
+            if sensor != self:
+                if sensor.type == "schedule":
+                    self.getStates(sensor)
+                else:
+                    self.states[sensor.name] = sensor.getState()
+    
     # return the state of any sensors that have changed since the last getState() call
     def getStateChange(self):
         debug('debugInterrupt', self.name, "getStateChange")
@@ -108,10 +116,20 @@ class RestRequestHandler(BaseHTTPRequestHandler):
         (resource, attr) = self.getResFromPath(self.server.resources, urllib.unquote(self.path).lstrip("/"))
         if resource:
             self.send_response(200)     # success
-            self.send_header("Content-type", "application/json")
+            if attr:    # determine the type of the attribute of the resource
+                try:
+                    contentType = resource.attrTypes[attr]
+                except:
+                    contentType = "application/json"
+            else:
+                contentType = "application/json"
+            self.send_header("Content-type", contentType)
             self.end_headers()
             if attr:    # return the specific attribute of the resource
-                self.wfile.write(json.dumps({attr:resource.__getattribute__(attr)}))
+                if contentType == "application/json":
+                    self.wfile.write(json.dumps({attr:resource.__getattribute__(attr)}))
+                else:
+                    self.wfile.write(resource.__getattribute__(attr))
             else:       # return all attributes of the resource
                 self.wfile.write(json.dumps(resource.dict()))
         else:
