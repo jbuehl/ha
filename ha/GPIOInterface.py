@@ -43,7 +43,6 @@ class GPIOInterface(HAInterface):
             self.inOut = inOut
             self.config = config
             self.state = 0x00
-#            self.sensors = [None]*8
         else:
             self.interface = None
             self.bank = 0
@@ -114,16 +113,3 @@ class GPIOInterface(HAInterface):
             debug('debugGPIO', self.name, "write", addr, value)
             gpio.output(GPIOInterface.gpioPins[addr], value)
             
-#    def addSensor(self, sensor):
-#        self.sensors[sensor.addr.start] = sensor
-
-#class GPIOAddr(object):
-#    def __init__(self, control, bank, start, width=1):
-#        self.control = control  # the I/O chip (deprecated, use a separate instance of GPIOInterface per chip)
-#        self.bank = bank        # the 8 bit bank of I/O pins within the chip (A=0, B=1)
-#        self.start = start      # the starting pin
-#        self.width = width      # the number of pins
-
-#    def __str__(self):
-#        return "(%2d, %2d, %2d, %2d)"%(self.control, self.bank, self.start, self.width)
-
