@@ -1,9 +1,11 @@
 from ha.HAClasses import *
 import RPIO as gpio
 
-def intCallback(gpioId, value):
-    debug('debugGPIO', gpioInterface.name, "interrupt", gpioId, value)
-    gpioInterface.interrupt()
+gpioInterfaces = {}
+
+def interruptCallback(pin, value):
+    debug('debugGPIO', "interruptCallback", "pin:", pin, "value:", value)
+    gpioInterfaces[pin].interrupt()
 
 # Interface to GPIO either directly or via MCP23017 I2C I/O expander
 class GPIOInterface(HAInterface):
@@ -20,6 +22,8 @@ class GPIOInterface(HAInterface):
     GPIO = 0x12
     OLAT = 0x14
 
+    interruptPins = [23, 24]
+    
     # direct GPIO
     gpioPins = [12, 16, 18, 22, 15, 13, 11, 7]   # A/B
 #            32, 36, 38, 40, 37, 35, 33, 31]     # B+
@@ -30,8 +34,8 @@ class GPIOInterface(HAInterface):
                                              inOut=0x00,# I/O direction out=0, in=1
                                              config=[]):# additional configuration
         HAInterface.__init__(self, name, interface=interface, event=event)
-        global gpioInterface
-        gpioInterface = self
+        global gpioInterfaces
+        gpioInterfaces[GPIOInterface.interruptPins[bank]] = self
         self.name = name
         if interface:
             self.addr = addr
@@ -46,7 +50,6 @@ class GPIOInterface(HAInterface):
     
     def start(self):
         gpio.setwarnings(False)
-        gpio.setmode(gpio.BOARD)
         if self.interface:
             # configure the MCP23017
             self.interface.write((self.addr, GPIOInterface.IODIR+self.bank), self.inOut)
@@ -60,34 +63,39 @@ class GPIOInterface(HAInterface):
             # get the current state
             self.readState()
             # set up the interrupt handling
-            intPin = GPIOInterface.gpioPins[self.bank]
-            gpio.add_interrupt_callback(intPin, intCallback, edge="falling", pull_up_down=gpio.PUD_UP)
+            gpio.add_interrupt_callback(GPIOInterface.interruptPins[self.bank], interruptCallback, edge="falling", pull_up_down=gpio.PUD_UP)
             gpio.wait_for_interrupts(threaded=True)
         else:   # direct only supports output - FIXME
+            gpio.setmode(gpio.BOARD)
             for pin in GPIOInterface.gpioPins:
                 debug('debugGPIO', self.name, "setup", pin, gpio.OUT)
                 gpio.setup(pin, gpio.OUT)
                 debug('debugGPIO', self.name, "write", pin, 0)
                 gpio.output(pin, 0)
 
+    # interrupt handler
+    def interrupt(self):
+        intFlags = self.interface.read((self.addr, GPIOInterface.INTF+self.bank))
+        debug('debugGPIO', self.name, "interrupt", "addr:", self.addr, "bank:", self.bank, "intFlags:", intFlags)
+        self.readState()
+        for i in range(8):
+            if (intFlags >> i) & 0x01:
+#                try:
+                    sensor = self.sensorAddrs[i]
+                    state = (self.state >> i) & 0x01
+                    debug('debugGPIO', self.name, "notifying", sensor.name)
+                    sensor.notify()
+                    if sensor.interrupt:
+                        debug('debugGPIO', self.name, "calling", sensor.name, state)
+                        sensor.interrupt(sensor, state)
+#                except:
+#                    pass
+
     def read(self, addr):
         if self.interface:
             return (self.state >> addr) & 0x01
         else:
             return 0
-
-    def interrupt(self):
-        intFlags = self.interface.read((self.addr, GPIOInterface.INTF+self.bank))
-        debug('debugGPIO', self.name, "interrupt", self.addr, GPIOInterface.INTF+self.bank, intFlags)
-        self.readState()
-        for i in range(8):
-            if (intFlags << i) & 0x01:
-                try:
-                    self.sensors[i].notify()
-                    debug('debugGPIO', self.name, "calling", self.sensors[i].name, (self.state << i) & 0x01)
-                    self.sensors[i].interrupt(self.sensors[i], (self.state << i) & 0x01)
-                except:
-                    pass
 
     def readState(self):
         byte = self.interface.read((self.addr, GPIOInterface.GPIO+self.bank))
