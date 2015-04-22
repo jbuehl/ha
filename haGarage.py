@@ -19,9 +19,9 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
     i2c1 = I2CInterface("I2C1", bus=1, event=stateChangeEvent)
     gpio0 = GPIOInterface("GPIO0", i2c1, addr=0x20, bank=0, inOut=0x00)
-    gpio1 = GPIOInterface("GPIO1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(GPIOInterface.IPOL+1, 0x7f)])
+    gpio1 = GPIOInterface("GPIO1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(GPIOInterface.IPOL+1, 0x7d)])
     tc74 = TC74Interface("TC74", i2c1)
-    temp = TempInterface("Temp", tc74)
+    temp = TempInterface("Temp", tc74, sample=10)
     
     # Lights
     resources.addRes(HAControl("frontLights", gpio0, 0, type="light", group="Lights", label="Front lights"))
@@ -31,6 +31,9 @@ if __name__ == "__main__":
 #    resources.addRes(HASensor("testSwitch", gpio1, 7, type="light", group="Lights", label="Test input"))
     resources.addRes(HAScene("garageLights", [resources["frontLights"],
                                              resources["garageBackDoorLight"]], group="Lights", label="Garage"))
+
+    # Doors
+    resources.addRes(HASensor("garageBackDoor", gpio1, 1, type="door", group="Doors", label="Garage Door"))
 
     # Water
     resources.addRes(HAControl("recircPump", gpio0, 3, type="hotwater", group="Water", label="Hot water"))
