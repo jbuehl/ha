@@ -103,6 +103,10 @@ class HAInterface(HAResource):
         self.states[sensor.addr] = 0
         sensor.event = self.event
         
+    # return the data type of the state of the specified sensor
+    def getStateType(self, sensor):
+        return int
+        
 # Resource collection 
 
 # todo
@@ -238,6 +242,10 @@ class HASensor(HAResource):
     def getState(self):
         return self.interface.read(self.addr)
 
+    # return the data type of the state
+    def getStateType(self):
+        return self.interface.getStateType(self)
+        
     # Wait for the state of the sensor to change if an interrupt routine was specified
     def getStateChange(self):
         if self.event:
