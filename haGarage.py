@@ -7,11 +7,11 @@ from ha.restServer import *
 
 def frontLightSwitch(sensor, state):
     log(sensor.name, "state:", state)
-#    sensors["frontLights"].setState(state)
+    resources["frontLights"].setState(state)
     
 if __name__ == "__main__":
     # Resources
-    global sensors
+    global resources
     resources = HACollection("resources")
     schedule = HASchedule("schedule")
 

@@ -5,7 +5,11 @@ gpioInterfaces = {}
 
 def interruptCallback(pin, value):
     debug('debugGPIO', "interruptCallback", "pin:", pin, "value:", value)
-    gpioInterfaces[pin].interrupt()
+    try:
+        gpioInterfaces[pin].interrupt()
+    except:
+        log("interruptCallback", "unknown interrupt", "pin:", pin, "value:", value, "gpioInterfaces:", gpioInterfaces)
+    
 
 # Interface to GPIO either directly or via MCP23017 I2C I/O expander
 class GPIOInterface(HAInterface):
@@ -57,7 +61,7 @@ class GPIOInterface(HAInterface):
             self.interface.write((self.addr, GPIOInterface.IOCON), 0x04)
             # additional configuration
             for config in self.config:
-                debug('debugGPIO', self.name, "start", self.addr, config[0], config[1])
+                debug('debugGPIO', self.name, "start", "addr: 0x%02x"%self.addr, "reg: 0x%02x"%config[0], "value: 0x%02x"%config[1])
                 self.interface.write((self.addr, config[0]), config[1])
             # get the current state
             self.readState()
@@ -75,7 +79,7 @@ class GPIOInterface(HAInterface):
     # interrupt handler
     def interrupt(self):
         intFlags = self.interface.read((self.addr, GPIOInterface.INTF+self.bank))
-        debug('debugGPIO', self.name, "interrupt", "addr:", self.addr, "bank:", self.bank, "intFlags:", intFlags)
+        debug('debugGPIO', self.name, "interrupt", "addr: 0x%02x"%self.addr, "bank:", self.bank, "intFlags: 0x%02x"%intFlags)
         self.readState()
         for i in range(8):
             if (intFlags >> i) & 0x01:
@@ -98,7 +102,7 @@ class GPIOInterface(HAInterface):
 
     def readState(self):
         byte = self.interface.read((self.addr, GPIOInterface.GPIO+self.bank))
-        debug('debugGPIO', self.name, "read", self.addr, GPIOInterface.GPIO+self.bank, byte)
+        debug('debugGPIO', self.name, "read", "addr: 0x%02x"%self.addr, "reg: 0x%02x"%(GPIOInterface.GPIO+self.bank), "value: 0x%02x"%byte)
         self.state = byte
     
     def write(self, addr, value):
@@ -106,10 +110,10 @@ class GPIOInterface(HAInterface):
             byte = self.state
             mask = 0x01<<addr
             byte = (byte & (~mask)) | ((value << addr) & mask)
-            debug('debugGPIO', self.name, "write", self.addr, GPIOInterface.GPIO+self.bank, byte)
+            debug('debugGPIO', self.name, "write", "addr: 0x%02x"%self.addr, "reg: 0x%02x"%(GPIOInterface.GPIO+self.bank), "value: 0x%02x"%byte)
             self.interface.write((self.addr, GPIOInterface.GPIO+self.bank), byte)
             self.state = byte
         else:
-            debug('debugGPIO', self.name, "write", addr, value)
+            debug('debugGPIO', self.name, "write", "addr: 0x%02x"%addr, "value: 0x%02x"%value)
             gpio.output(GPIOInterface.gpioPins[addr], value)
             
