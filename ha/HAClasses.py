@@ -107,6 +107,12 @@ class HAInterface(HAResource):
     def getStateType(self, sensor):
         return int
         
+    # Trigger the sending of a state change notification
+    def notify(self):
+        if self.event:
+            self.event.set()
+            debug('debugInterrupt', self.name, "event set")
+        
 # Resource collection 
 
 # todo
