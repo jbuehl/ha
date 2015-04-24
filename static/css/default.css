@@ -188,12 +188,16 @@ td {
 	color: OrangeRed;
     }
 
+.cameraRecord_Recording {
+	color: Red;
+    }
+
 .hotwater_Off {
-	color: Blue;
+	color: BlueViolet;
     }
 
 .hotwater_On {
-	color: Red;
+	color: OrangeRed;
     }
 
 .heater_Off {

@@ -54,6 +54,9 @@ views = {"power": HAView({}, "%d W"),
          "pumpFlow": HAView({}, "%d GPM"),
          "cleaner": HAView({0:"Off", 1:"On", 2:"Ena"}, "%s", None, {0:"Off", 1:"On"}),
          "heater": HAView({0:"Off", 1:"On", 4:"Ena"}, "%s", None, {0:"Off", 1:"On"}),
+         "cameraMode": HAView({0:"Still", 1:"Video", 2:"Motion"}, "%s", None, {0:"Still", 1:"Video", 2:"Motion"}),
+         "cameraEnable": HAView({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"}),
+         "cameraRecord": HAView({0:"Stopped", 1:"Recording"}, "%s", None, {0:"Stop", 1:"Rec"}),
          "KVA": HAView({}, "%7.3f KVA", kiloFormat),
          "KW": HAView({}, "%7.3f KW", kiloFormat),
          "KWh": HAView({}, "%7.3f KWh", kiloFormat),
@@ -176,7 +179,7 @@ class WebRoot(object):
     def iphone3gs(self, action=None, resource=None):
         debug('debugWeb', "/iphone3gs", "get", action, resource)
         # lock.acquire()
-        resources = self.resources.getResList(["frontLights", "backLights", "bedroomLight", "recircPump"])
+        resources = self.resources.getResList(["frontLights", "backLights", "bedroomLight", "recircPump", "garageBackDoor"])
         reply = self.env.get_template("iphone3gs.html").render(script="", 
                             time=self.resources["theTime"],
                             ampm=self.resources["theAmPm"],

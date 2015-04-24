@@ -32,7 +32,7 @@ class ResourceStateSensor(HASensor):
             if sensor != self:
                 if sensor.type == "schedule":
                     self.getStates(sensor)
-                else:
+                elif sensor.getStateType() != dict:
                     self.states[sensor.name] = sensor.getState()
     
     # return the state of any sensors that have changed since the last getState() call
@@ -116,22 +116,20 @@ class RestRequestHandler(BaseHTTPRequestHandler):
         (resource, attr) = self.getResFromPath(self.server.resources, urllib.unquote(self.path).lstrip("/"))
         if resource:
             self.send_response(200)     # success
-            if attr:    # determine the type of the attribute of the resource
-                try:
-                    contentType = resource.attrTypes[attr]
-                except:
+            if attr:    # determine the content type of the attribute of the resource
+                data = resource.__getattribute__(attr)
+                try:                    # see if the content type is specified
+                    contentType = data["contentType"]
+                    data = data["data"]
+                except:                 # return a jsonised dictionary
                     contentType = "application/json"
+                    data = json.dumps({attr:data})
             else:
                 contentType = "application/json"
+                data = json.dumps(resource.dict())
             self.send_header("Content-type", contentType)
             self.end_headers()
-            if attr:    # return the specific attribute of the resource
-                if contentType == "application/json":
-                    self.wfile.write(json.dumps({attr:resource.__getattribute__(attr)}))
-                else:
-                    self.wfile.write(resource.__getattribute__(attr))
-            else:       # return all attributes of the resource
-                self.wfile.write(json.dumps(resource.dict()))
+            self.wfile.write(data)
         else:
             self.send_error(404)     # resource not found
 
