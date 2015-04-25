@@ -81,7 +81,7 @@ class SpaInterface(HAInterface):
         if addr == 0:
             return self.state
         else:
-            return self.tempSensor.getState()
+            return "%d %d"%(self.tempSensor.getState(), self.state)
 
     # Implements the state diagram
     def write(self, addr, value):
