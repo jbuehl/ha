@@ -28,10 +28,10 @@ import threading
 from ha.HAClasses import *
 
 class CameraInterface(HAInterface):
-    def __init__(self, name, interface=None, event=None, mode=modeStill, image="", enabled=True):
+    def __init__(self, name, interface=None, event=None, mode=modeStill, imageDir="", enabled=True):
         HAInterface.__init__(self, name, interface=interface, event=event)
         self.mode = mode
-        self.imageFileName = image
+        self.imageFileName = imageDir+self.name
         self.enabled = enabled
         self.recording = False
 
@@ -113,10 +113,11 @@ class CameraInterface(HAInterface):
 
     def takePicture(self):
         def takePicture():
-            try:
-                subprocess.check_output("/opt/vc/bin/raspistill -v -o %s"%(self.imageFileName), shell=True)
-            except:
-                pass
+#            try:
+            subprocess.check_output("/opt/vc/bin/raspistill -v -o %s.jpg"%(self.imageFileName), shell=True)
+            subprocess.check_output("/usr/bin/convert %s.jpg -resize 120x90 %s-thumb.jpg"%(self.imageFileName, self.imageFileName), shell=True)
+#            except:
+#                pass
             self.recording = False
             self.notify()
         takePictureThread = threading.Thread(target=takePicture)
@@ -125,7 +126,7 @@ class CameraInterface(HAInterface):
     # return the current image
     def getImage(self):
         debug('debugCamera', self.name, "getImage")
-        with open(self.imageFileName) as imageFile:
+        with open(self.imageFileName+".jpg") as imageFile:
             image = imageFile.read()
         debug('debugCamera', self.name, len(image), "bytes read")
         return {"contentType": "image/jpeg", "data": image}
@@ -137,4 +138,8 @@ class CameraInterface(HAInterface):
     # return the thumbnail
     def getThumb(self):
         debug('debugCamera', self.name, "getThumb")
+        with open(self.imageFileName+"-thumb.jpg") as imageFile:
+            image = imageFile.read()
+        debug('debugCamera', self.name, len(image), "bytes read")
+        return {"contentType": "image/jpeg", "data": image}
 

@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
     # Interfaces
     stateChangeEvent = threading.Event()
-    camera1 = CameraInterface("Camera", image="/root/test.jpg", event=stateChangeEvent)
+    camera1 = CameraInterface("Camera1", imageDir="/root/", event=stateChangeEvent)
     
     # Cameras
     resources.addRes(HASensor("camera1", camera1, "image", group="Cameras", label="Camera 1", type="image"))
