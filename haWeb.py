@@ -151,8 +151,8 @@ class WebRoot(object):
         # lock.acquire()
         groups = [["Pool", self.resources.getResList(["poolTemp", "spa1"])], 
                   ["Lights", self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
-                  ["Shades", self.resources.getResList(["shade1", "shade2", "shade3", "shade4", "allShades"])], 
-                  ["Sprinklers", self.resources.getResList(["backLawnSequence", "sideBedSequence", "gardenSequence", "frontLawnSequence"])]
+                  ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
+                  ["Sprinklers", self.resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
                   ]
         reply = self.env.get_template("ipad.html").render(script="", 
                             time=self.resources["theTime"],
@@ -169,7 +169,7 @@ class WebRoot(object):
     def iphone5(self, action=None, resource=None):
         debug('debugWeb', "/iphone5", "get", action, resource)
         # lock.acquire()
-        resources = self.resources.getResList(["spa1", "frontLights", "backLights", "shade1", "shade2", "shade3", "shade4", "backLawn", "sideBeds", "frontLawn"])
+        resources = self.resources.getResList(["spa1", "frontLights", "backLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "sideBeds", "frontLawn"])
         reply = self.env.get_template("iphone5.html").render(script="", 
                             time=self.resources["theTime"],
                             ampm=self.resources["theAmPm"],
