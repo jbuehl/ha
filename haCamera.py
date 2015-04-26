@@ -1,26 +1,31 @@
+import socket
 from ha.HAClasses import *
 from ha.cameraInterface import *
 from ha.restServer import *
 
 if __name__ == "__main__":
+    # Environment
+    cameraName = socket.gethostname()
+    cameraDisplay = cameraName[:-1].capitalize()+" "+cameraName[-1]
+
     # Resources
     resources = HACollection("resources")
 
     # Interfaces
     stateChangeEvent = threading.Event()
-    camera1 = CameraInterface("Camera1", imageDir="/root/", event=stateChangeEvent)
+    camera = CameraInterface(cameraName, imageDir="/root/", event=stateChangeEvent)
     
     # Cameras
-    resources.addRes(HASensor("camera1", camera1, "image", group="Cameras", label="Camera 1", type="image"))
-    resources.addRes(HASensor("camera1thumb", camera1, "thumb", group="Cameras", label="Camera 1 thumbnail", type="image"))
-    resources.addRes(HAControl("camera1mode", camera1, "mode", group="Cameras", label="Camera 1 mode", type="cameraMode"))
-    resources.addRes(HAControl("camera1enable", camera1, "enable", group="Cameras", label="Camera 1 enable", type="cameraEnable"))
-    resources.addRes(HAControl("camera1record", camera1, "record", group="Cameras", label="Camera 1 record", type="cameraRecord"))
+    resources.addRes(HASensor(cameraName+"image", camera, "image", group="Cameras", label=cameraDisplay, type="image"))
+    resources.addRes(HASensor(cameraName+"thumb", camera, "thumb", group="Cameras", label=cameraDisplay+" thumbnail", type="image"))
+    resources.addRes(HAControl(cameraName+"mode", camera, "mode", group="Cameras", label=cameraDisplay+" mode", type="cameraMode"))
+    resources.addRes(HAControl(cameraName+"enable", camera, "enable", group="Cameras", label=cameraDisplay+" enable", type="cameraEnable"))
+    resources.addRes(HAControl(cameraName+"record", camera, "record", group="Cameras", label=cameraDisplay+" record", type="cameraRecord"))
     
     # Schedules
 
     # Start interfaces
-    camera1.start()
+    camera.start()
     restServer = RestServer(resources, event=stateChangeEvent)
     restServer.start()
 
