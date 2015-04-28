@@ -28,10 +28,11 @@ import threading
 from ha.HAClasses import *
 
 class CameraInterface(HAInterface):
-    def __init__(self, name, interface=None, event=None, mode=modeStill, imageDir="", enabled=True):
+    def __init__(self, name, interface=None, event=None, mode=modeStill, imageDir="", rotation=0, enabled=True):
         HAInterface.__init__(self, name, interface=interface, event=event)
         self.mode = mode
         self.imageFileName = imageDir+self.name
+        self.rotation = rotation
         self.enabled = enabled
         self.recording = False
 
@@ -114,7 +115,7 @@ class CameraInterface(HAInterface):
     def takePicture(self):
         def takePicture():
 #            try:
-            subprocess.check_output("/opt/vc/bin/raspistill -v -o %s.jpg"%(self.imageFileName), shell=True)
+            subprocess.check_output("/opt/vc/bin/raspistill -rot %d -o %s.jpg"%(self.rotation, self.imageFileName), shell=True)
             subprocess.check_output("/usr/bin/convert %s.jpg -resize 120x90 %s-thumb.jpg"%(self.imageFileName, self.imageFileName), shell=True)
 #            except:
 #                pass
