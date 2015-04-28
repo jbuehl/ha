@@ -27,6 +27,8 @@ HA uses an object model that is defined by the following classes:
         stop()
         read(addr)
         write(addr, value)
+        notify()
+        getStateType(HASensor)
         
     HASensor defines the model for the basic HA sensor.
         interface
@@ -36,8 +38,10 @@ HA uses an object model that is defined by the following classes:
         group
         view
         location
+        notify()
         getState()
         getStateChange()
+        getStateType()
         
     HAControl defines the model for a sensor whose state can be changed.
         setState(value)
