@@ -14,7 +14,14 @@ $(document).ready(function() {
         update(data);
         });
     var pending = false;    // true while an update request is pending
+    var count = 0;
     var refreshId = setInterval(function() {
+        if (count == 60) {     // every minute
+            $.getJSON('state', {}, function(data) {    // get state values
+                update(data);
+                count = 0;
+                });
+            };
         if (!pending) {     // don't allow multiple pending requests
             pending = true;
             $.getJSON('stateChange', {}, function(data) {    // get updated state values
@@ -22,6 +29,7 @@ $(document).ready(function() {
                 pending = false;
                 });
             };
+        count = count + 1;
         }, 1000);
     $.ajaxSetup({cache: false});
     });
