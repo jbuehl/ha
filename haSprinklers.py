@@ -30,26 +30,31 @@ if __name__ == "__main__":
 
     # Sprinklers
     resources.addRes(HAControl("frontLawn", gpioInterface, 3, group="Water", label="Front lawn")) # yellow
+    resources.addRes(HAControl("garden", gpioInterface, 4, group="Water", label="Garden")) # red
     resources.addRes(HAControl("backLawn", gpioInterface, 2, group="Water", label="Back lawn")) # green
     resources.addRes(HAControl("backBeds", gpioInterface, 1, group="Water", label="Back beds")) # blue
     resources.addRes(HAControl("sideBeds", gpioInterface, 0, group="Water", label="Side beds")) # red
+
+    # Sequences
     resources.addRes(HASequence("frontLawnSequence", [HACycle(resources["frontLawn"], 900)], group="Water", label="Front lawn 15 min"))
-    resources.addRes(HASequence("gardenSequence", [HACycle(resources["backBeds"], 300)], group="Water", label="Garden 5 min"))
+    resources.addRes(HASequence("gardenSequence", [HACycle(resources["garden"], 300)], group="Water", label="Garden 5 min"))
     resources.addRes(HASequence("backLawnSequence", [HACycle(resources["backLawn"], 600)], group="Water", label="Back lawn 10 min"))
     resources.addRes(HASequence("sideBedSequence", [HACycle(resources["sideBeds"], 600)], group="Water", label="Side beds 10 min"))
+    resources.addRes(HASequence("backBedSequence", [HACycle(resources["backBeds"], 600)], group="Water", label="Back beds 10 min"))
+
+    # Schedules
+    resources.addRes(schedule)
+    schedule.addTask(HATask("frontLawnTask", HASchedTime(hour=[21], minute=[00], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["frontLawnSequence"], 1, enabled=True))
+    schedule.addTask(HATask("gardenTask", HASchedTime(hour=[21], minute=[15], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["gardenSequence"], 1, enabled=True))
+    schedule.addTask(HATask("backLawnTask", HASchedTime(hour=[21], minute=[20], weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["backLawnSequence"], 1, enabled=True))
+    schedule.addTask(HATask("sideBedTask", HASchedTime(hour=[21], minute=[30], weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["sideBedSequence"], 1, enabled=True))
+    schedule.addTask(HATask("backBedTask", HASchedTime(hour=[21], minute=[40], weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["backBedSequence"], 1, enabled=True))
 
     # Temperature
     resources.addRes(HASensor("bedroomTemp", mcp9803Temp, 0x48, group="Temperature", label="Bedroom temp", type="tempF"))
     resources.addRes(HASensor("kitchenTemp", tc74Temp, 0x4e, group="Temperature", label="Kitchen temp", type="tempF"))
     resources.addRes(HASensor("atticTemp", tc74Temp, 0x4f, group="Temperature", label="Attic temp", type="tempF"))
     
-    # Schedules
-    resources.addRes(schedule)
-    schedule.addTask(HATask("frontLawnTask", HASchedTime(hour=[22], minute=[00]), resources["frontLawnSequence"], 1, enabled=True))
-    schedule.addTask(HATask("gardenTask", HASchedTime(hour=[7], minute=[00], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["gardenSequence"], 1, enabled=True))
-    schedule.addTask(HATask("backLawnTask", HASchedTime(hour=[7], minute=[10], weekday=[Tue, Thu, Sat], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["backLawnSequence"], 1, enabled=True))
-    schedule.addTask(HATask("sideBedTask", HASchedTime(hour=[7], minute=[30], weekday=[Sat], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["sideBedSequence"], 1, enabled=True))
-
     # Start interfaces
     gpioInterface.start()
     tc74Temp.start()
