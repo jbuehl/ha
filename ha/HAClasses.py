@@ -79,6 +79,7 @@ class HAInterface(HAResource):
         self.sensors = {}   # sensors using this instance of the interface by name
         self.sensorAddrs = {}   # sensors using this instance of the interface by addr
         self.states = {}    # state cache
+        self.enabled = True
 
     def start(self):
         if self.persistence:
