@@ -85,6 +85,7 @@ class BeaconThread(threading.Thread):
         self.resources = resources
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        self.timeStamp = time.time()
         
     def doBeacon(self):
         debug('debugThread', self.name, "started")
@@ -95,7 +96,7 @@ class BeaconThread(threading.Thread):
             # loop until the program state changes to not running
             if not running: break
             if loopCount == beaconInterval:
-                self.socket.sendto(json.dumps((self.hostname, self.port, self.resources.dict())), ("<broadcast>", 4242))
+                self.socket.sendto(json.dumps((self.hostname, self.port, self.resources.dict(), self.timeStamp)), ("<broadcast>", 4242))
                 loopCount = 0
             loopCount += 1
             time.sleep(1)
