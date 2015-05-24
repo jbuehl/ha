@@ -9,6 +9,7 @@ from jinja2 import Environment, FileSystemLoader
 from ha.HAClasses import *
 from ha.restInterface import *
 from ha.restServer import *
+from ha.restCache import *
 from ha.timeInterface import *
 
 # transform functions for views
@@ -79,6 +80,7 @@ pageResources = {"index": [],
                 }
 
 stateChangeEvent = threading.Event()
+resourceLock = threading.Lock()
 
 # set temp color based on temp value
 def tempColor(tempString):
@@ -132,6 +134,7 @@ class WebRoot(object):
         # lock.acquire()
         reply = self.env.get_template("default.html").render(title="4319 Shadyglade", script="", 
                             groups=[[group, self.resources.getGroup(group)] for group in ["Time", "Temperature", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Cameras", "Tasks"]],
+                            views=views,
                             buttons=buttons)
         # lock.release()
         return reply
@@ -140,7 +143,7 @@ class WebRoot(object):
     @cherrypy.expose
     def submit(self, action=None, resource=None):
         debug('debugWeb', "/submit", "post", action, resource)
-        self.resources[resource].setViewState(action)
+        self.resources[resource].setViewState(action, views)
         reply = ""
         return reply
 
@@ -160,6 +163,7 @@ class WebRoot(object):
                             day=self.resources["theDay"],
                             temp=self.resources["deckTemp"],
                             groups=groups,
+                            views=views,
                             buttons=buttons)
         # lock.release()
         return reply
@@ -169,12 +173,13 @@ class WebRoot(object):
     def iphone5(self, action=None, resource=None):
         debug('debugWeb', "/iphone5", "get", action, resource)
         # lock.acquire()
-        resources = self.resources.getResList(["spa1", "frontLights", "backLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "sideBeds", "frontLawn"])
+        resources = self.resources.getResList(["spa1", "frontLights", "backLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"])
         reply = self.env.get_template("iphone5.html").render(script="", 
                             time=self.resources["theTime"],
                             ampm=self.resources["theAmPm"],
                             temp=self.resources["deckTemp"],
                             resources=resources,
+                            views=views,
                             buttons=buttons)
         # lock.release()
         return reply
@@ -191,6 +196,7 @@ class WebRoot(object):
                             day=self.resources["theDay"],
                             temp=self.resources["deckTemp"],
                             resources=resources,
+                            views=views,
                             buttons=buttons)
         # lock.release()
         return reply
@@ -200,51 +206,57 @@ class WebRoot(object):
     def solar(self):
         return self.env.get_template("group.html").render(title="Solar", css="solar.css", 
                             resources=self.resources.getResList(["currentPower", "todaysEnergy", "lifetimeEnergy"]), 
+                            views=views,
                             buttons=buttons)
 
     # Lights    
     @cherrypy.expose
     def lights(self, action=None, resource=None, link=None):
         if resource:
-            self.resources[resource].setViewState(action)
+            self.resources[resource].setViewState(action, views)
         return self.env.get_template("group.html").render(title="Lights", css="lights.css", 
                             resources=self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight", "xmasLights"]), 
+                            views=views,
                             buttons=buttons)
 
     # Pool    
     @cherrypy.expose
     def pool(self, action=None, resource=None):
         if resource:
-            self.resources[resource].setViewState(action)
+            self.resources[resource].setViewState(action, views)
         return self.env.get_template("group.html").render(title="Pool", css="pool.css", 
                             resources=self.resources.getResList(["poolTemp", "cleanMode", "poolPump", "poolCleaner", "poolLight", "spaLight"]), 
+                            views=views,
                             buttons=buttons)
 
     # Spa    
     @cherrypy.expose
     def spa(self, action=None, resource=None):
         if resource:
-            self.resources[resource].setViewState(action)
+            self.resources[resource].setViewState(action, views)
         return self.env.get_template("group.html").render(title="Spa", css="spa.css", 
                             resources=self.resources.getResList(["poolTemp", "spaTemp", "spaWarmup", "spaReady", "spaShutdown", "spaBlower", "poolLight", "spaLight"]), 
+                            views=views,
                             buttons=buttons)
 
     # Sprinklers    
     @cherrypy.expose
     def sprinklers(self, action=None, resource=None):
         if resource:
-            self.resources[resource].setViewState(action)
+            self.resources[resource].setViewState(action, views)
         return self.env.get_template("group.html").render(title="Sprinklers", css="sprinklers.css", 
                             resources=self.resources.getResList(["frontLawnSequence", "gardenSequence", "backLawnSequence", "sideBedSequence"]), 
+                            views=views,
                             buttons=buttons)
 
     # Doors    
     @cherrypy.expose
     def doors(self, action=None, resource=None):
         if resource:
-            self.resources[resource].setViewState(action)
+            self.resources[resource].setViewState(action, views)
         return self.env.get_template("group.html").render(title="Doors", css="doors.css", 
                             resources=self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"]), 
+                            views=views,
                             buttons=buttons)
 
     # Return the value of a resource attribute
@@ -281,7 +293,7 @@ class WebRoot(object):
         for resource in resources:
             if self.resources[resource].name != "states":
                 try:
-                    resState = self.resources[resource].getViewState()
+                    resState = self.resources[resource].getViewState(views)
                     resClass = self.resources[resource].type
                     if resClass in tempTypes:
                         updates[resource] = ("temp", resState, tempColor(resState))
@@ -295,40 +307,42 @@ class WebRoot(object):
         return json.dumps(updates)        
 
 # Rest client thread.
-class RestClient(threading.Thread):
+#class RestClient(threading.Thread):
 
-    def __init__(self, name, resources, restInterfaces, selfRest=""):
-        threading.Thread.__init__(self, target=self.doRest)
-        self.name = name
-        self.servers = {}
-        self.resources = resources
-        self.restInterfaces = restInterfaces
-        self.selfRest = selfRest
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.bind(("", 4242))
-                
-    def doRest(self):
-        debug('debugThread', self.name, "started")
-        while running:
-            # loop until the program state changes to not running
-            (data, addr) = self.socket.recvfrom(4096)
-            #log ("beacon data", data)
-            server = json.loads(data)
-            serverName = server[0]+":"+str(server[1])
-            serverAddr = addr[0]+":"+str(server[1])
-            serverResources = server[2]
-            if serverName != self.selfRest:   # ignore the beacon from this service
-                if serverAddr not in self.servers.values():
-                    # lock.acquire()
-                    restInterface = HARestInterface(serverName, server=serverAddr, event=stateChangeEvent, secure=False)
-                    self.restInterfaces.append(restInterface)
-                    resources.load(restInterface, "/"+serverResources["name"])
-                    resources.addViews(views)
-                    # fill the cache
-                    restInterface.readStates()
-                    # lock.release()
-                    self.servers[serverName] = serverAddr
-        debug('debugThread', self.name, "terminated")
+#    def __init__(self, name, resources, restInterfaces, selfRest=""):
+#        debug('debugRestClient', name, "Starting", selfRest)
+#        threading.Thread.__init__(self, target=self.doRest)
+#        self.name = name
+#        self.servers = {}
+#        self.resources = resources
+#        self.restInterfaces = restInterfaces
+#        self.selfRest = selfRest
+#        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#        self.socket.bind(("", 4242))
+#                
+#    def doRest(self):
+#        debug('debugThread', self.name, "started")
+#        while running:
+#            # loop until the program state changes to not running
+#            (data, addr) = self.socket.recvfrom(4096)
+#            #log ("beacon data", data)
+#            server = json.loads(data)
+#            serverName = server[0]+":"+str(server[1])
+#            serverAddr = addr[0]+":"+str(server[1])
+#            serverResources = server[2]
+#            if serverName != self.selfRest:   # ignore the beacon from this service
+#                if serverAddr not in self.servers.values():
+#                    debug('debugRestClient', self.name, "Adding", serverName, serverAddr)
+#                    # lock.acquire()
+#                    restInterface = HARestInterface(serverName, server=serverAddr, event=stateChangeEvent, secure=False)
+#                    self.restInterfaces.append(restInterface)
+#                    resources.load(restInterface, "/"+serverResources["name"])
+#                    resources.addViews(views)
+#                    # fill the cache
+#                    restInterface.readStates()
+#                    # lock.release()
+#                    self.servers[serverName] = serverAddr
+#        debug('debugThread', self.name, "terminated")
 
 
 if __name__ == "__main__":
@@ -347,8 +361,10 @@ if __name__ == "__main__":
 
     # start the process to listen for services
     restInterfaces = []
-    restClient = RestClient("restClient", resources, restInterfaces, socket.gethostname()+":"+str(webRestPort))
-    restClient.start()
+#    restClient = RestClient("restClient", resources, restInterfaces, socket.gethostname()+":"+str(webRestPort))
+#    restClient.start()
+    restCache = RestCache("restCache", resources, restInterfaces, socket.gethostname()+":"+str(webRestPort), stateChangeEvent, views, resourceLock)
+    restCache.start()
     
 #    # start the process to get sensor states
 #    stateClient = StateClient("stateClient", resources, restInterfaces)

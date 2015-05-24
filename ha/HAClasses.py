@@ -270,8 +270,18 @@ class HASensor(HAResource):
             debug('debugInterrupt', self.name, "event set")
         
     # Return the printable string value for the state of the sensor
-    def getViewState(self):
-        return self.view.getViewState(self)
+    def getViewState(self, views=None):
+        try:
+            return views[self.type].getViewState(self)
+        except:
+            return self.view.getViewState(self)
+
+    # Return the printable string values for the states that can be set on the sensor
+    def setValues(self, views=None):
+        try:
+            return views[self.type].setValues
+        except:
+            return self.view.setValues
 
     # Define this function for sensors even though it does nothing        
     def setState(self, state, wait=False):
@@ -353,8 +363,11 @@ class HAControl(HASensor):
         return True
 
     # Set the state of the control to the state value corresponding to the specified display value
-    def setViewState(self, theValue):
-        return self.view.setViewState(self, theValue)
+    def setViewState(self, theValue, views=None):
+        try:
+            return views[self.type].setViewState(self, theValue)
+        except:
+            return self.view.setViewState(self, theValue)
 
 # A Cycle describes the process of setting a Control to a specified state, waiting a specified length of time,
 # and setting the Control to another state.  This may be preceded by an optional delay.
