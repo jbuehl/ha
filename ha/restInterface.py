@@ -10,7 +10,7 @@ class HARestInterface(HAInterface):
         self.server = server
         self.hostname = socket.gethostname()
         self.secure = secure
-        debug('debugRest', self.name, self.hostname, self.secure)
+        debug('debugRest', self.name, "created", self.hostname, self.secure)
         if self.secure:
             self.keyDir = keyDir
             self.crtFile = self.keyDir+self.hostname+"-client.crt"
@@ -73,6 +73,8 @@ class HARestInterface(HAInterface):
             else:
                 return {}
         except:
+            debug('debugRest', self.name, "disabled")
+            self.enabled = False
             return {}
 
     def write(self, addr, value):
@@ -96,5 +98,7 @@ class HARestInterface(HAInterface):
             else:
                 return False
         except:
+            debug('debugRest', self.name, "disabled")
+            self.enabled = False
             return False
 
