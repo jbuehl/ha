@@ -131,12 +131,11 @@ class WebRoot(object):
     @cherrypy.expose
     def index(self, action=None, resource=None):
         debug('debugWeb', "/", "get", action, resource)
-        # lock.acquire()
-        reply = self.env.get_template("default.html").render(title="4319 Shadyglade", script="", 
-                            groups=[[group, self.resources.getGroup(group)] for group in ["Time", "Temperature", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Cameras", "Tasks"]],
-                            views=views,
-                            buttons=buttons)
-        # lock.release()
+        with resourceLock:
+            reply = self.env.get_template("default.html").render(title="4319 Shadyglade", script="", 
+                                groups=[[group, self.resources.getGroup(group)] for group in ["Time", "Temperature", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Cameras", "Tasks"]],
+                                views=views,
+                                buttons=buttons)
         return reply
 
     # Submit    
@@ -151,54 +150,51 @@ class WebRoot(object):
     @cherrypy.expose
     def ipad(self, action=None, resource=None):
         debug('debugWeb', "/ipad", "get", action, resource)
-        # lock.acquire()
-        groups = [["Pool", self.resources.getResList(["poolTemp", "spa1"])], 
-                  ["Lights", self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
-                  ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
-                  ["Sprinklers", self.resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
-                  ]
-        reply = self.env.get_template("ipad.html").render(script="", 
-                            time=self.resources["theTime"],
-                            ampm=self.resources["theAmPm"],
-                            day=self.resources["theDay"],
-                            temp=self.resources["deckTemp"],
-                            groups=groups,
-                            views=views,
-                            buttons=buttons)
-        # lock.release()
+        with resourceLock:
+            groups = [["Pool", self.resources.getResList(["poolTemp", "spa1"])], 
+                      ["Lights", self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
+                      ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
+                      ["Sprinklers", self.resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
+                      ]
+            reply = self.env.get_template("ipad.html").render(script="", 
+                                time=self.resources["theTime"],
+                                ampm=self.resources["theAmPm"],
+                                day=self.resources["theDay"],
+                                temp=self.resources["deckTemp"],
+                                groups=groups,
+                                views=views,
+                                buttons=buttons)
         return reply
 
     # iPhone 5 - 320x568    
     @cherrypy.expose
     def iphone5(self, action=None, resource=None):
         debug('debugWeb', "/iphone5", "get", action, resource)
-        # lock.acquire()
-        resources = self.resources.getResList(["spa1", "frontLights", "backLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"])
-        reply = self.env.get_template("iphone5.html").render(script="", 
-                            time=self.resources["theTime"],
-                            ampm=self.resources["theAmPm"],
-                            temp=self.resources["deckTemp"],
-                            resources=resources,
-                            views=views,
-                            buttons=buttons)
-        # lock.release()
+        with resourceLock:
+            resources = self.resources.getResList(["spa1", "frontLights", "backLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"])
+            reply = self.env.get_template("iphone5.html").render(script="", 
+                                time=self.resources["theTime"],
+                                ampm=self.resources["theAmPm"],
+                                temp=self.resources["deckTemp"],
+                                resources=resources,
+                                views=views,
+                                buttons=buttons)
         return reply
 
     # iPhone 3GS - 320x480    
     @cherrypy.expose
     def iphone3gs(self, action=None, resource=None):
         debug('debugWeb', "/iphone3gs", "get", action, resource)
-        # lock.acquire()
-        resources = self.resources.getResList(["frontLights", "backLights", "bedroomLight", "recircPump", "garageBackDoor"])
-        reply = self.env.get_template("iphone3gs.html").render(script="", 
-                            time=self.resources["theTime"],
-                            ampm=self.resources["theAmPm"],
-                            day=self.resources["theDay"],
-                            temp=self.resources["deckTemp"],
-                            resources=resources,
-                            views=views,
-                            buttons=buttons)
-        # lock.release()
+        with resourceLock:
+            resources = self.resources.getResList(["frontLights", "backLights", "bedroomLight", "recircPump", "garageBackDoor"])
+            reply = self.env.get_template("iphone3gs.html").render(script="", 
+                                time=self.resources["theTime"],
+                                ampm=self.resources["theAmPm"],
+                                day=self.resources["theDay"],
+                                temp=self.resources["deckTemp"],
+                                resources=resources,
+                                views=views,
+                                buttons=buttons)
         return reply
 
     # Solar    
@@ -290,59 +286,21 @@ class WebRoot(object):
         staticTypes = ["time", "ampm", "date"]          # types whose class does not depend on their value
         tempTypes = ["tempF", "tempC", "spaTemp"]       # temperatures
         updates = {}
-        for resource in resources:
-            if self.resources[resource].name != "states":
-                try:
-                    resState = self.resources[resource].getViewState(views)
-                    resClass = self.resources[resource].type
-                    if resClass in tempTypes:
-                        updates[resource] = ("temp", resState, tempColor(resState))
-                    else:
-                        if resClass not in staticTypes:
-                            resClass += "_"+resState
-                        updates[resource] = (resClass, resState, "")
-                except:
-                    pass
-        # lock.release()
+        with resourceLock:
+            for resource in resources:
+                if self.resources[resource].name != "states":
+                    try:
+                        resState = self.resources[resource].getViewState(views)
+                        resClass = self.resources[resource].type
+                        if resClass in tempTypes:
+                            updates[resource] = ("temp", resState, tempColor(resState))
+                        else:
+                            if resClass not in staticTypes:
+                                resClass += "_"+resState
+                            updates[resource] = (resClass, resState, "")
+                    except:
+                        pass
         return json.dumps(updates)        
-
-# Rest client thread.
-#class RestClient(threading.Thread):
-
-#    def __init__(self, name, resources, restInterfaces, selfRest=""):
-#        debug('debugRestClient', name, "Starting", selfRest)
-#        threading.Thread.__init__(self, target=self.doRest)
-#        self.name = name
-#        self.servers = {}
-#        self.resources = resources
-#        self.restInterfaces = restInterfaces
-#        self.selfRest = selfRest
-#        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#        self.socket.bind(("", 4242))
-#                
-#    def doRest(self):
-#        debug('debugThread', self.name, "started")
-#        while running:
-#            # loop until the program state changes to not running
-#            (data, addr) = self.socket.recvfrom(4096)
-#            #log ("beacon data", data)
-#            server = json.loads(data)
-#            serverName = server[0]+":"+str(server[1])
-#            serverAddr = addr[0]+":"+str(server[1])
-#            serverResources = server[2]
-#            if serverName != self.selfRest:   # ignore the beacon from this service
-#                if serverAddr not in self.servers.values():
-#                    debug('debugRestClient', self.name, "Adding", serverName, serverAddr)
-#                    # lock.acquire()
-#                    restInterface = HARestInterface(serverName, server=serverAddr, event=stateChangeEvent, secure=False)
-#                    self.restInterfaces.append(restInterface)
-#                    resources.load(restInterface, "/"+serverResources["name"])
-#                    resources.addViews(views)
-#                    # fill the cache
-#                    restInterface.readStates()
-#                    # lock.release()
-#                    self.servers[serverName] = serverAddr
-#        debug('debugThread', self.name, "terminated")
 
 
 if __name__ == "__main__":
@@ -360,15 +318,8 @@ if __name__ == "__main__":
     resources.addRes(HASensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
 
     # start the process to listen for services
-    restInterfaces = []
-#    restClient = RestClient("restClient", resources, restInterfaces, socket.gethostname()+":"+str(webRestPort))
-#    restClient.start()
-    restCache = RestCache("restCache", resources, restInterfaces, socket.gethostname()+":"+str(webRestPort), stateChangeEvent, views, resourceLock)
+    restCache = RestCache("restCache", resources, socket.gethostname()+":"+str(webRestPort), stateChangeEvent, resourceLock)
     restCache.start()
-    
-#    # start the process to get sensor states
-#    stateClient = StateClient("stateClient", resources, restInterfaces)
-#    stateClient.start()
     
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
