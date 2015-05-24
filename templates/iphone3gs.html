@@ -17,15 +17,15 @@
     <table border=0 width=320 style='table-layout:fixed'>
         <col width=300><col width=20>
         <tr>
-            <td><div id="{{ time.name }}" class="time">{{ time.getViewState() }}</div></td>
-            <td><div id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState() }}</div></td>
+            <td><div id="{{ time.name }}" class="time">{{ time.getViewState(views) }}</div></td>
+            <td><div id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState(views) }}</div></td>
         </tr>
     </table>
     <table border=0 width=320 style='table-layout:fixed'>
         <col width=240><col width=80>
         <tr>
-            <td><div id="{{ day.name }}" class="date">{{ day.getViewState() }}</div></td>
-            <td><div id="{{ temp.name }}" class="tempF">{{ temp.getViewState() }}</div></td>
+            <td><div id="{{ day.name }}" class="date">{{ day.getViewState(views) }}</div></td>
+            <td><div id="{{ temp.name }}" class="tempF">{{ temp.getViewState(views) }}</div></td>
         </tr>
     </table>
     <table border=0 width=320 style='table-layout:fixed'>
@@ -33,13 +33,13 @@
         {% for r in resources %}
         <tr>
             <td><div class=label>{{ r.label }}</div></td>
-            <td><div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState() }}">{{ r.getViewState() }}</div></td>
+            <td><div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}</div></td>
             <td>
                 {% if r.className != "HASensor" %}
                 <div class=control>
                 <form name='control' action='' method='get'>
                     <input type='hidden' name='resource' value='{{ r.name }}' />
-                    {% for v in r.view.setValues.values() %}
+                    {% for v in r.setValues(views).values() %}
                     <input type='submit' class='button' name='action' value='{{ v }}' />
                     {% endfor %}
                 </form>

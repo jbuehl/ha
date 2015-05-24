@@ -36,21 +36,21 @@
                 </td>
                 <td>
                     {% if r.className == "HASensor" %}
-                        <div class="{{ r.type+'_'+r.getViewState() }}" id="{{ r.name }}">{{ r.getViewState() }}</div>
-                    {% elif r.view.setValues.values()|length == 2 %}
+                        <div class="{{ r.type+'_'+r.getViewState(views) }}" id="{{ r.name }}">{{ r.getViewState(views) }}</div>
+                    {% elif r.setValues(views).values()|length == 2 %}
                     <form action="" method="GET">
                         <input type="hidden" name="resource" value="{{ r.name }}">
-                        <button type="submit" name="action" value="{{ r.view.setValues[1] if r.getState() == 0 else r.view.setValues[0] }}" class="btn btn-default btn-med {{ r.type+'_'+r.getViewState() }}">
-                            <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState() }}">{{ r.getViewState() }}</div>
+                        <button type="submit" name="action" value="{{ r.setValues(views)[1] if r.getState() == 0 else r.setValues(views)[0] }}" class="btn btn-default btn-med {{ r.type+'_'+r.getViewState(views) }}">
+                            <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}</div>
                         </button>
                     </form>
                     {% else %}
                     <div class="btn-group">
-                            <button type='button' class="btn btn-default btn-med dropdown-toggle {{ r.type+'_'+r.getViewState() }}" data-toggle="dropdown">
-                                <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState() }}">{{ r.getViewState() }}<span class="caret"></div>
+                            <button type='button' class="btn btn-default btn-med dropdown-toggle {{ r.type+'_'+r.getViewState(views) }}" data-toggle="dropdown">
+                                <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}<span class="caret"></div>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                                {% for v in r.view.setValues.values() %}
+                                {% for v in r.setValues(views).values() %}
                                 <li><a href="?resource={{ r.name }}&action={{ v }}">
                                     <div id="{{ r.name }}" class="{{ r.type+'_'+v }}">{{ v }}</div>
                                     </a>

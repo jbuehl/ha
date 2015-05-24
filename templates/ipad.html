@@ -13,10 +13,10 @@
     <table border=0 width=1024 style='table-layout:fixed'>
         <col width=62><col width=58><col width=814><col width=78>
         <tr>
-            <td><div id="{{ time.name }}" class="time">{{ time.getViewState() }}</div></td>
-            <td><div id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState() }}</div></td>
-            <td><div id="{{ day.name }}" class="date">{{ day.getViewState() }}</div></td>
-            <td><div id="{{ temp.name }}" class="tempF">{{ temp.getViewState() }}</div></td>
+            <td><div id="{{ time.name }}" class="time">{{ time.getViewState(views) }}</div></td>
+            <td><div id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState(views) }}</div></td>
+            <td><div id="{{ day.name }}" class="date">{{ day.getViewState(views) }}</div></td>
+            <td><div id="{{ temp.name }}" class="tempF">{{ temp.getViewState(views) }}</div></td>
         </tr>
     </table>
     {% for g in groups %}
@@ -26,18 +26,18 @@
         {% for r in g[1] %}
         <tr>
             <td><div class=label>{{ r.label }}</div></td>
-            <td><div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState() }}">{{ r.getViewState() }}</div></td>
+            <td><div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}</div></td>
             <td>
                 {% if r.className != "HASensor" %}
                 <div class=control>
                 <form name='control' action='' method='get'>
                     <input type='hidden' name='resource' value='{{ r.name }}' />
-                    {% for v in r.view.setValues.values() %}
+                    {% for v in r.setValues(views).values() %}
                     <input type='submit' class='button' name='action' value='{{ v }}' />
                     {% endfor %}
                 </form>
                     {% if r.className == "HATask" %}
-                        {{ r.control.name }}: {{ r.control.view.setValues[r.controlState] }}<br>
+                        {{ r.control.name }}: {{ r.control.setValues(views)[r.controlState] }}<br>
                         {{ r.schedTime.__str__().replace(",","<br>") }}
                     {% endif %}
                     {% if r.className == "HASequence" %}

@@ -36,18 +36,18 @@
                 </td>
                 <td>
                     {% if r.view.values.values()|length < 2 %}
-                        <div class=value id="{{ r.name }}">{{ r.getViewState() }}</div>
-                    {% elif r.view.setValues.values()|length == 2 %}
+                        <div class=value id="{{ r.name }}">{{ r.getViewState(views) }}</div>
+                    {% elif r.setValues(views).values()|length == 2 %}
                     <form action="" method="GET">
                         <input type="hidden" name="resource" value="{{ r.name }}">
-                        <button type="submit" name="action" value="{{ "On" if r.getViewState() == "Off" else "Off" }}" class="btn btn-default btn-lg {{ r.type+'_'+r.getViewState() }}">
-                            <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState() }}">{{ r.getViewState() }}</div>
+                        <button type="submit" name="action" value="{{ "On" if r.getViewState(views) == "Off" else "Off" }}" class="btn btn-default btn-lg {{ r.type+'_'+r.getViewState(views) }}">
+                            <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}</div>
                         </button>
                     </form>
                     {% else %}
                     <div class="btn-group">
-                            <button type='button' class="btn btn-default btn-lg dropdown-toggle {{ r.type+'_'+r.getViewState() }}" data-toggle="dropdown">
-                                <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState() }}">{{ r.getViewState() }}<span class="caret"></div>
+                            <button type='button' class="btn btn-default btn-lg dropdown-toggle {{ r.type+'_'+r.getViewState(views) }}" data-toggle="dropdown">
+                                <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}<span class="caret"></div>
                             </button>
                             <ul class="dropdown-menu" role="menu">
                                 {% for v in r.view.values.values() %}

@@ -36,7 +36,7 @@
             </div>
             <div class=values>
                 {% for r in resources %}
-                <div class=label id='{{ r.name }}' >{{ r.getViewState() }}</div>
+                <div class=label id='{{ r.name }}' >{{ r.getViewState(views) }}</div>
                 {% endfor %}
             </div>
         </div>
