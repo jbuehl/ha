@@ -20,6 +20,7 @@ pageResources = {"index": [],
                 }
 
 stateChangeEvent = threading.Event()
+reloadEvent = threading.Event()
 resourceLock = threading.Lock()
 
 class WebRoot(object):
@@ -43,17 +44,16 @@ class WebRoot(object):
     def ipad(self, action=None, resource=None):
         debug('debugWeb', "/ipad", "get", action, resource)
         with resourceLock:
-            groups = [["Pool", self.resources.getResList(["poolTemp", "spa1"])], 
-                      ["Lights", self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
-                      ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
-                      ["Sprinklers", self.resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
-                      ]
             reply = self.env.get_template("ipad.html").render(script="", 
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
                                 day=self.resources["theDay"],
                                 temp=self.resources["deckTemp"],
-                                groups=groups,
+                                groups=[["Pool", self.resources.getResList(["poolTemp", "spa1"])], 
+                                      ["Lights", self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
+                                      ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
+                                      ["Sprinklers", self.resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
+                                      ],
                                 views=views,
                                 buttons=buttons)
         return reply
@@ -63,12 +63,11 @@ class WebRoot(object):
     def iphone5(self, action=None, resource=None):
         debug('debugWeb', "/iphone5", "get", action, resource)
         with resourceLock:
-            resources = self.resources.getResList(["spa1", "frontLights", "backLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"])
             reply = self.env.get_template("iphone5.html").render(script="", 
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
                                 temp=self.resources["deckTemp"],
-                                resources=resources,
+                                resources=self.resources.getResList(["spa1", "frontLights", "backLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
                                 views=views,
                                 buttons=buttons)
         return reply
@@ -78,13 +77,12 @@ class WebRoot(object):
     def iphone3gs(self, action=None, resource=None):
         debug('debugWeb', "/iphone3gs", "get", action, resource)
         with resourceLock:
-            resources = self.resources.getResList(["frontLights", "backLights", "bedroomLight", "recircPump", "garageBackDoor"])
             reply = self.env.get_template("iphone3gs.html").render(script="", 
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
                                 day=self.resources["theDay"],
                                 temp=self.resources["deckTemp"],
-                                resources=resources,
+                                resources=self.resources.getResList(["frontLights", "backLights", "bedroomLight", "recircPump", "garageBackDoor"]),
                                 views=views,
                                 buttons=buttons)
         return reply
@@ -162,11 +160,13 @@ class WebRoot(object):
     # Update the states of all resources
     @cherrypy.expose
     def state(self, _=None):
-        return self.update( self.resources)
+        debug('debugWebUpdate', "state")
+        return self.update(self.resources)
         
     # Update the states of resources that have changed
     @cherrypy.expose
     def stateChange(self, _=None):
+        debug('debugWebUpdate', "stateChange")
         debug('debugInterrupt', "update", "event wait")
         stateChangeEvent.wait()
         debug('debugInterrupt', "update", "event clear")
@@ -177,21 +177,27 @@ class WebRoot(object):
     def update(self, resources):
         staticTypes = ["time", "ampm", "date"]          # types whose class does not depend on their value
         tempTypes = ["tempF", "tempC", "spaTemp"]       # temperatures
-        updates = {}
-        with resourceLock:
-            for resource in resources:
-                if self.resources[resource].name != "states":
-                    try:
-                        resState = self.resources[resource].getViewState(views)
-                        resClass = self.resources[resource].type
-                        if resClass in tempTypes:
-                            updates[resource] = ("temp", resState, tempColor(resState))
-                        else:
-                            if resClass not in staticTypes:
-                                resClass += "_"+resState
-                            updates[resource] = (resClass, resState, "")
-                    except:
-                        pass
+        if reloadEvent.isSet():                         # the page should be reloaded
+            debug('debugWebUpdate', "reload")
+            updates = {"reload": True}
+            reloadEvent.clear()
+        else:                                           # return the state values
+            debug('debugWebUpdate', "update")
+            updates = {}
+            with resourceLock:
+                for resource in resources:
+                    if self.resources[resource].name != "states":
+                        try:
+                            resState = self.resources[resource].getViewState(views)
+                            resClass = self.resources[resource].type
+                            if resClass in tempTypes:
+                                updates[resource] = ("temp", resState, tempColor(resState))
+                            else:
+                                if resClass not in staticTypes:
+                                    resClass += "_"+resState
+                                updates[resource] = (resClass, resState, "")
+                        except:
+                            pass
         return json.dumps(updates)        
 
     # Submit    
@@ -203,7 +209,6 @@ class WebRoot(object):
         return reply
 
 if __name__ == "__main__":
-
     # resources
     resources = HACollection("resources")
 
@@ -217,7 +222,7 @@ if __name__ == "__main__":
     resources.addRes(HASensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
 
     # start the process to listen for services
-    restCache = RestCache("restCache", resources, socket.gethostname()+":"+str(webRestPort), stateChangeEvent, resourceLock)
+    restCache = RestCache("restCache", resources, socket.gethostname()+":"+str(webRestPort), stateChangeEvent, resourceLock, reloadEvent)
     restCache.start()
     
     # set up the web server

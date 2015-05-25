@@ -10,6 +10,7 @@ class HARestInterface(HAInterface):
         self.server = server
         self.hostname = socket.gethostname()
         self.secure = secure
+        self.enabled = True
         debug('debugRest', self.name, "created", self.hostname, self.secure)
         if self.secure:
             self.keyDir = keyDir
@@ -20,7 +21,7 @@ class HARestInterface(HAInterface):
         # start the thread to update the cache when states change
         def readStates():
             debug('debugRestStates', self.name, "readStates started")
-            while running:
+            while self.enabled:
                 self.readStates("/resources/states/stateChange")
                 if self.event:
                     self.event.set()
@@ -40,9 +41,9 @@ class HARestInterface(HAInterface):
     # load state values of all sensor addresses into the cache
     def readStates(self, addr="/resources/states/state"):
         states = self.readState(addr)
-        while len(states) == 0:
-            time.sleep(10)
-            states = self.readState(addr)
+#        while len(states) == 0:
+#            time.sleep(10)
+#            states = self.readState(addr)
         debug('debugRestStates', self.name, "readStates", "states", states)
         for sensor in states.keys():
             try:

@@ -1,11 +1,14 @@
 $(document).ready(function() {
     var update = function(data) {
-        $.each(data, function(key, val) {      // set value and class of each item
-            $('#'+key).text(val[1]);
-            if (val[0] == 'temp') {
+        $.each(data, function(key, val) {       // set value and class of each item
+            if (key == "reload") {              // reload the page
+    	            location.reload(true);
+                };
+            $('#'+key).text(val[1]);            // set the value
+            if (val[0] == 'temp') {             // set the color of a temp item
                 $('#'+key).css('color', val[2])
                 }
-            else {
+            else {                              // change the class
                 $('#'+key).attr('class', val[0]);
                 }
             });

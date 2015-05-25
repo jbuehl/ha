@@ -141,7 +141,10 @@ class HACollection(HAResource, OrderedDict):
     def getResList(self, names):
         resList = []
         for name in names:
-            resList.append(self.__getitem__(name))
+            try:
+                resList.append(self.__getitem__(name))
+            except:
+                pass
         return resList
 
     # Return a list of resource references that are members of the specified group
