@@ -1,6 +1,4 @@
 $(document).ready(function() {
-    var pending = false;    // true while an update request is pending
-    var count = 0;
     var cacheTime = 0;      // timestamp of resource cache
     var update = function(data) {
         if (data["cacheTime"] > cacheTime) {        // has the resource cache been updated ?
@@ -18,6 +16,8 @@ $(document).ready(function() {
                 });
             };
         }
+    var pending = false;    // true while an stateChange request is pending
+    var count = 0;
     var refreshId = setInterval(function() {
         if (count == 60) {     // every minute
             $.getJSON('state', {}, function(data) {    // get state values
@@ -27,7 +27,7 @@ $(document).ready(function() {
             };
         if (!pending) {     // don't allow multiple pending requests
             pending = true;
-            $.getJSON('stateChange', {}, function(data) {    // get updated state values
+            $.getJSON('stateChange', {}, function(data) {    // get changed state values
                 update(data);
                 pending = false;
                 });
@@ -35,7 +35,7 @@ $(document).ready(function() {
         count = count + 1;
         }, 1000);
     $.ajaxSetup({cache: false});
-    $.getJSON('state', {}, function(data) {    // get state values
+    $.getJSON('state', {}, function(data) {    // get initial state values
         cacheTime = data["cacheTime"];
         update(data);
         });
