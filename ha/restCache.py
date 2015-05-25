@@ -31,14 +31,11 @@ class RestCache(threading.Thread):
         while running:
             (data, addr) = self.socket.recvfrom(4096)
             debug('debugRestBeacon', self.name, "beacon data", data)
-            server = json.loads(data)
-            serverName = server[0]+":"+str(server[1])   # hostname:port
-            serverAddr = addr[0]+":"+str(server[1])     # IPAddr:port
-            serverResources = server[2]
-            try:
-                serverTimeStamp = server[3]
-            except:
-                serverTimeStamp = 0
+            serverData = json.loads(data)
+            serverName = serverData[0]+":"+str(serverData[1])       # hostname:port
+            serverAddr = addr[0]+":"+str(serverData[1])             # IPAddr:port
+            serverResources = serverData[2]
+            serverTimeStamp = serverData[3]
             timeStamp = time.time()
             if serverName != self.selfRest:   # ignore the beacon from this service
                 if serverName not in self.servers.keys():   # new server

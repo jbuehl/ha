@@ -13,12 +13,6 @@ from haWebViews import *
 
 buttons = [] #"index", "solar", "lights", "pool", "spa", "sprinklers", "doors"]
 
-#pageResources = {"index": [],
-#                 "ipad": [],
-#                 "iphone3gs": [],
-#                 "": [],
-#                }
-
 stateChangeEvent = threading.Event()
 resourceLock = threading.Lock()
 
@@ -160,13 +154,13 @@ class WebRoot(object):
     # Update the states of all resources
     @cherrypy.expose
     def state(self, _=None):
-        debug('debugWebUpdate', "state")
+        debug('debugWebUpdate', "state", cherrypy.request.remote.ip)
         return self.update(self.resources)
         
     # Update the states of resources that have changed
     @cherrypy.expose
     def stateChange(self, _=None):
-        debug('debugWebUpdate', "stateChange")
+        debug('debugWebUpdate', "stateChange", cherrypy.request.remote.ip)
         debug('debugInterrupt', "update", "event wait")
         stateChangeEvent.wait()
         debug('debugInterrupt', "update", "event clear")
