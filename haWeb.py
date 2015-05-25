@@ -13,20 +13,20 @@ from haWebViews import *
 
 buttons = [] #"index", "solar", "lights", "pool", "spa", "sprinklers", "doors"]
 
-pageResources = {"index": [],
-                 "ipad": [],
-                 "iphone3gs": [],
-                 "": [],
-                }
+#pageResources = {"index": [],
+#                 "ipad": [],
+#                 "iphone3gs": [],
+#                 "": [],
+#                }
 
 stateChangeEvent = threading.Event()
-reloadEvent = threading.Event()
 resourceLock = threading.Lock()
 
 class WebRoot(object):
-    def __init__(self, resources, env):
+    def __init__(self, resources, env, cache=None):
         self.resources = resources
         self.env = env
+        self.cache = cache
     
     # Everything    
     @cherrypy.expose
@@ -177,13 +177,13 @@ class WebRoot(object):
     def update(self, resources):
         staticTypes = ["time", "ampm", "date"]          # types whose class does not depend on their value
         tempTypes = ["tempF", "tempC", "spaTemp"]       # temperatures
-        if reloadEvent.isSet():                         # the page should be reloaded
+        if False: #reloadEvent.isSet():                         # the page should be reloaded
             debug('debugWebUpdate', "reload")
             updates = {"reload": True}
             reloadEvent.clear()
         else:                                           # return the state values
-            debug('debugWebUpdate', "update")
-            updates = {}
+            debug('debugWebUpdate', "update", self.cache.cacheTime)
+            updates = {"cacheTime": self.cache.cacheTime}
             with resourceLock:
                 for resource in resources:
                     if self.resources[resource].name != "states":
@@ -222,7 +222,7 @@ if __name__ == "__main__":
     resources.addRes(HASensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
 
     # start the process to listen for services
-    restCache = RestCache("restCache", resources, socket.gethostname()+":"+str(webRestPort), stateChangeEvent, resourceLock, reloadEvent)
+    restCache = RestCache("restCache", resources, socket.gethostname()+":"+str(webRestPort), stateChangeEvent, resourceLock)
     restCache.start()
     
     # set up the web server
@@ -248,7 +248,7 @@ if __name__ == "__main__":
         },
     }    
     cherrypy.config.update(globalConfig)
-    root = WebRoot(resources, Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates'))))
+    root = WebRoot(resources, Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates'))), restCache)
     cherrypy.tree.mount(root, "/", appConfig)
     if not webLogging:
         access_log = cherrypy.log.access_log
