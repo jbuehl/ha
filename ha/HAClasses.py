@@ -531,6 +531,7 @@ Nov = 11
 Dec = 12
 
 weekdayTbl = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+monthTbl = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
 # return today's and tomorrow's dates
 def todaysDate():
@@ -732,11 +733,18 @@ class HASchedTime(object):
             wds += [weekdayTbl[wd]]
         return wds
     
+    # return string version of months
+    def months(self):
+        ms = []
+        for m in self.month:
+            ms += [monthTbl[m-1]]
+        return ms
+    
     # return the expanded list of all occurrences of the schedTime
     def enumTimes(self):
         events = [""]
         events = self.enumElem(self.year, events, "", 4, "d")
-        events = self.enumElem(self.month, events, "-", 2, "d")
+        events = self.enumElem(self.months(), events, "-", 3, "s")
         events = self.enumElem(self.day, events, "-", 2, "d")
         events = self.enumElem(self.hour, events, " ", 2, "d")
         events = self.enumElem(self.minute, events, ":", 2, "d")
