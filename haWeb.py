@@ -3,6 +3,7 @@ import cherrypy
 import json
 import threading
 import time
+import copy
 from jinja2 import Environment, FileSystemLoader
 from ha.HAClasses import *
 from ha.restInterface import *
@@ -17,10 +18,11 @@ stateChangeEvent = threading.Event()
 resourceLock = threading.Lock()
 
 class WebRoot(object):
-    def __init__(self, resources, env, cache=None):
+    def __init__(self, resources, env, cache):
         self.resources = resources
         self.env = env
         self.cache = cache
+        self.lastStates = {}
     
     # Everything    
     @cherrypy.expose
@@ -155,7 +157,7 @@ class WebRoot(object):
     @cherrypy.expose
     def state(self, _=None):
         debug('debugWebUpdate', "state", cherrypy.request.remote.ip)
-        return self.update(self.resources)
+        return self.updateStates(self.resources["states"].getState())
         
     # Update the states of resources that have changed
     @cherrypy.expose
@@ -165,35 +167,28 @@ class WebRoot(object):
         stateChangeEvent.wait()
         debug('debugInterrupt', "update", "event clear")
         stateChangeEvent.clear()
-        return self.update(self.resources)
+        return self.updateStates(self.resources["states"].getStateChange())
 
-    # Update the states of the specified resources
-    def update(self, resources):
+    # return the json to update the states of the specified collection of sensors
+    def updateStates(self, resourceStates):
         staticTypes = ["time", "ampm", "date"]          # types whose class does not depend on their value
         tempTypes = ["tempF", "tempC", "spaTemp"]       # temperatures
-        if False: #reloadEvent.isSet():                         # the page should be reloaded
-            debug('debugWebUpdate', "reload")
-            updates = {"reload": True}
-            reloadEvent.clear()
-        else:                                           # return the state values
-            debug('debugWebUpdate', "update", self.cache.cacheTime)
-            updates = {"cacheTime": self.cache.cacheTime}
-            with resourceLock:
-                for resource in resources:
-                    if self.resources[resource].name != "states":
-                        try:
-                            resState = self.resources[resource].getViewState(views)
-                            resClass = self.resources[resource].type
-                            if resClass in tempTypes:
-                                updates[resource] = ("temp", resState, tempColor(resState))
-                            else:
-                                if resClass not in staticTypes:
-                                    resClass += "_"+resState
-                                updates[resource] = (resClass, resState, "")
-                        except:
-                            pass
-        return json.dumps(updates)        
-
+        updates = {"cacheTime": self.cache.cacheTime}
+        for resource in resourceStates.keys():
+            try:
+                resState = self.resources[resource].getViewState(views)
+                resClass = self.resources[resource].type
+                if resClass in tempTypes:
+                    updates[resource] = ("temp", resState, tempColor(resState))
+                else:
+                    if resClass not in staticTypes:
+                        resClass += "_"+resState
+                    updates[resource] = (resClass, resState, "")
+            except:
+                pass
+        debug('debugWebUpdate', "states", updates)
+        return json.dumps(updates)
+        
     # Submit    
     @cherrypy.expose
     def submit(self, action=None, resource=None):
@@ -215,7 +210,7 @@ if __name__ == "__main__":
     resources.addRes(HASensor("theTime", timeInterface, "%I:%M", type="time", label="Time"))
     resources.addRes(HASensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
 
-    # start the process to listen for services
+    # start the cache to listen for services on other servers
     restCache = RestCache("restCache", resources, socket.gethostname()+":"+str(webRestPort), stateChangeEvent, resourceLock)
     restCache.start()
     
