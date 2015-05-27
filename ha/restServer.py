@@ -50,7 +50,7 @@ class ResourceStateSensor(HASensor):
         changeStates = {}
         for sensor in newStates.keys():
             try:
-                if newStates[sensor] != self.lastStates[sensor]:
+                if True: # newStates[sensor] != self.lastStates[sensor]:
                     changeStates[sensor] = newStates[sensor]
             except KeyError:
                 changeStates[sensor] = newStates[sensor]

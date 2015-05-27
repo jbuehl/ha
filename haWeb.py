@@ -186,7 +186,7 @@ class WebRoot(object):
                     updates[resource] = (resClass, resState, "")
             except:
                 pass
-        debug('debugWebUpdate', "states", updates)
+        debug('debugWebUpdate', "states", len(updates))
         return json.dumps(updates)
         
     # Submit    
