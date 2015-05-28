@@ -38,10 +38,12 @@
                 </div>
                 {% endif %}
             </td>
+            {% if details %}
             <td><div class=data>{{ r.type }}</div></td>
             <td><div class=data>{{ r.interface.name }}</div></td>
             <td><div class=data>{{ r.addr }}</div></td>
             <td><div class=data>{{ r.location }}</div></td>
+            {% endif %}
         </tr>
         {% endfor %}
     </table>

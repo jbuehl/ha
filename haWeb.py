@@ -12,8 +12,6 @@ from ha.restCache import *
 from ha.timeInterface import *
 from haWebViews import *
 
-buttons = [] #"index", "solar", "lights", "pool", "spa", "sprinklers", "doors"]
-
 stateChangeEvent = threading.Event()
 resourceLock = threading.Lock()
 
@@ -26,13 +24,19 @@ class WebRoot(object):
     
     # Everything    
     @cherrypy.expose
-    def index(self, action=None, resource=None):
-        debug('debugWeb', "/", "get", action, resource)
+    def index(self, group=None):
+        debug('debugWeb', "/", "get", group)
+        try:
+            groups = [group.capitalize()]
+            details = False
+        except:
+            groups = ["Time", "Temperature", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Cameras", "Tasks"]
+            details = True
         with resourceLock:
             reply = self.env.get_template("default.html").render(title="4319 Shadyglade", script="", 
-                                groups=[[group, self.resources.getGroup(group)] for group in ["Time", "Temperature", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Cameras", "Tasks"]],
+                                groups=[[group, self.resources.getGroup(group)] for group in groups],
                                 views=views,
-                                buttons=buttons)
+                                details=details)
         return reply
 
     # iPad - 1024x768   
@@ -50,8 +54,7 @@ class WebRoot(object):
                                       ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
                                       ["Sprinklers", self.resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
                                       ],
-                                views=views,
-                                buttons=buttons)
+                                views=views)
         return reply
 
     # iPhone 5 - 320x568    
@@ -64,8 +67,7 @@ class WebRoot(object):
                                 ampm=self.resources["theAmPm"],
                                 temp=self.resources["deckTemp"],
                                 resources=self.resources.getResList(["spa1", "frontLights", "backLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
-                                views=views,
-                                buttons=buttons)
+                                views=views)
         return reply
 
     # iPhone 3GS - 320x480    
@@ -79,67 +81,8 @@ class WebRoot(object):
                                 day=self.resources["theDay"],
                                 temp=self.resources["deckTemp"],
                                 resources=self.resources.getResList(["frontLights", "backLights", "bedroomLight", "recircPump", "garageBackDoor"]),
-                                views=views,
-                                buttons=buttons)
+                                views=views)
         return reply
-
-    # Solar    
-    @cherrypy.expose
-    def solar(self):
-        return self.env.get_template("group.html").render(title="Solar", css="solar.css", 
-                            resources=self.resources.getResList(["currentPower", "todaysEnergy", "lifetimeEnergy"]), 
-                            views=views,
-                            buttons=buttons)
-
-    # Lights    
-    @cherrypy.expose
-    def lights(self, action=None, resource=None, link=None):
-        if resource:
-            self.resources[resource].setViewState(action, views)
-        return self.env.get_template("group.html").render(title="Lights", css="lights.css", 
-                            resources=self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight", "xmasLights"]), 
-                            views=views,
-                            buttons=buttons)
-
-    # Pool    
-    @cherrypy.expose
-    def pool(self, action=None, resource=None):
-        if resource:
-            self.resources[resource].setViewState(action, views)
-        return self.env.get_template("group.html").render(title="Pool", css="pool.css", 
-                            resources=self.resources.getResList(["poolTemp", "cleanMode", "poolPump", "poolCleaner", "poolLight", "spaLight"]), 
-                            views=views,
-                            buttons=buttons)
-
-    # Spa    
-    @cherrypy.expose
-    def spa(self, action=None, resource=None):
-        if resource:
-            self.resources[resource].setViewState(action, views)
-        return self.env.get_template("group.html").render(title="Spa", css="spa.css", 
-                            resources=self.resources.getResList(["poolTemp", "spaTemp", "spaWarmup", "spaReady", "spaShutdown", "spaBlower", "poolLight", "spaLight"]), 
-                            views=views,
-                            buttons=buttons)
-
-    # Sprinklers    
-    @cherrypy.expose
-    def sprinklers(self, action=None, resource=None):
-        if resource:
-            self.resources[resource].setViewState(action, views)
-        return self.env.get_template("group.html").render(title="Sprinklers", css="sprinklers.css", 
-                            resources=self.resources.getResList(["frontLawnSequence", "gardenSequence", "backLawnSequence", "sideBedSequence"]), 
-                            views=views,
-                            buttons=buttons)
-
-    # Doors    
-    @cherrypy.expose
-    def doors(self, action=None, resource=None):
-        if resource:
-            self.resources[resource].setViewState(action, views)
-        return self.env.get_template("group.html").render(title="Doors", css="doors.css", 
-                            resources=self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"]), 
-                            views=views,
-                            buttons=buttons)
 
     # Return the value of a resource attribute
     @cherrypy.expose
