@@ -195,7 +195,7 @@ class HACollection(HAResource, OrderedDict):
             else:
                 debug('debug', self.name, "loadResource", node["name"], "class", node["class"], "not created")
         except:
-            debug('debug', self.name, "loadResource", node["name"], "class", node["class"], "not created")
+            debug('debug', self.name, "loadResource", str(node), "exception")
 
     # add Views to each resource
     def addViews(self, views):            
