@@ -54,43 +54,50 @@ class HARestInterface(HAInterface):
     # load the state value of the specified sensor address into the cache        
     def readState(self, addr):
         debug('debugRestStates', self.name, "readState", addr)
-        url = self.server+urllib.quote(addr)
-        try:
-            if self.secure:
-                debug('debugRestGet', self.name, "GET", "https://"+url)
-                r = requests.get("https://"+url,
-                                 cert=(self.crtFile, self.keyFile), 
-                                 verify=False)
-            else:
-                debug('debugRestGet', self.name, "GET", "http://"+url)
-                r = requests.get("http://"+url)
-            debug('debugRestGet', self.name, "status", r.status_code)
-            if r.status_code == 200:
-                attr = addr.split("/")[-1]
-                if (attr == "state") or (attr == "stateChange"):
-                    return r.json()[attr]
+        path = self.server+urllib.quote(addr)
+        while True:
+            try:
+                if self.secure:
+                    url = "https://"+path
+                    debug('debugRestGet', self.name, "GET", url)
+                    r = requests.get(url, timeout=restTimeout,
+                                     cert=(self.crtFile, self.keyFile), 
+                                     verify=False)
                 else:
-                    return r.json()
-            else:
+                    url = "http://"+path
+                    debug('debugRestGet', self.name, "GET", url)
+                    r = requests.get(url, timeout=restTimeout)
+                debug('debugRestGet', self.name, "status", r.status_code)
+                if r.status_code == 200:
+                    attr = addr.split("/")[-1]
+                    if (attr == "state") or (attr == "stateChange"):
+                        return r.json()[attr]
+                    else:
+                        return r.json()
+                else:
+                    return {}
+            except requests.exceptions.ReadTimeout: # timeout - try again
+                debug('debugRestGet', self.name, "timeout")
+            except:                                 # other exceptions are fatal
+                debug('debugRest', self.name, "disabled")
+                self.enabled = False
                 return {}
-        except:
-            debug('debugRest', self.name, "disabled")
-            self.enabled = False
-            return {}
 
     def write(self, addr, value):
-        url = self.server+urllib.quote(addr)
+        path = self.server+urllib.quote(addr)
         try:
             if self.secure:
-                debug('debugRestPut', self.name, "PUT", "https://"+url)
-                r = requests.put("https://"+url,
+                url = "https://"+path
+                debug('debugRestPut', self.name, "PUT", url)
+                r = requests.put(url,
                                  headers={"content-type":"application/json"}, 
                                  data=json.dumps({addr.split("/")[-1]:value}),
                                  cert=(self.crtFile, self.keyFile), 
                                  verify=False)
             else:
-                debug('debugRestPut', self.name, "PUT", "http://"+url)
-                r = requests.put("http://"+url, 
+                url = "http://"+path
+                debug('debugRestPut', self.name, "PUT", url)
+                r = requests.put(url, 
                                  headers={"content-type":"application/json"}, 
                                  data=json.dumps({addr.split("/")[-1]:value}))
             debug('debugRestPut', self.name, "status", r.status_code)
