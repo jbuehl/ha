@@ -55,7 +55,7 @@ class HARestInterface(HAInterface):
     def readState(self, addr):
         debug('debugRestStates', self.name, "readState", addr)
         path = self.server+urllib.quote(addr)
-        while True:
+        if True:
             try:
                 if self.secure:
                     url = "https://"+path
@@ -77,7 +77,9 @@ class HARestInterface(HAInterface):
                 else:
                     return {}
             except requests.exceptions.ReadTimeout: # timeout - try again
-                debug('debugRestGet', self.name, "timeout")
+                debug('debugRest', self.name, "timeout")
+                self.enabled = False
+                return {}
             except:                                 # other exceptions are fatal
                 debug('debugRest', self.name, "disabled")
                 self.enabled = False

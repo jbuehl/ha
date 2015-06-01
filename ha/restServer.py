@@ -1,4 +1,6 @@
 
+heartbeatInterval = 60
+
 from ha.HAClasses import *
 from SocketServer import ThreadingMixIn
 from BaseHTTPServer import HTTPServer
@@ -19,6 +21,15 @@ class ResourceStateSensor(HASensor):
         self.event = event
         self.states = {}    # current sensor states
         self.lastStates = {}
+        # thread to periodically send states as keepalive message
+        def heartbeat():
+            while True:
+                debug('debugStateChange', self.name, "heartbeat")
+                self.event.set()
+                time.sleep(heartbeatInterval)
+        if self.event:
+            heartbeatThread = threading.Thread(target=heartbeat)
+            heartbeatThread.start()
 
     # return the current state of all sensors in the collection
     def getState(self):
