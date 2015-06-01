@@ -84,6 +84,24 @@ class WebRoot(object):
                                 views=views)
         return reply
 
+    # get or set a resource state
+    @cherrypy.expose
+    def cmd(self, resource=None, state=None):
+        debug('debugWeb', "/cmd", "get", resource, state)
+        try:
+            if resource == "resources":
+                reply = ""
+                for resource in self.resources.keys():
+                    reply += resource+" "+self.resources[resource].getViewState(views)+"\n"
+                return reply
+            else:
+                if state:
+                    self.resources[resource].setViewState(state, views)
+                    time.sleep(1)   # hack
+                return self.resources[resource].getViewState(views)
+        except:
+            return "Error"        
+
     # Return the value of a resource attribute
     @cherrypy.expose
     def value(self, resource=None, attr=None):
