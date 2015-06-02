@@ -34,11 +34,11 @@ if __name__ == "__main__":
 
     # Schedules
     resources.addRes(schedule)
-    schedule.addTask(HATask("Bedroom light on sunset", HASchedTime(event="sunset"), resources["bedroomLight"], 1))
-    schedule.addTask(HATask("Bedroom light off sunrise", HASchedTime(event="sunrise"), resources["bedroomLight"], 0))
-    schedule.addTask(HATask("Outside lights on sunset", HASchedTime(event="sunset"), resources["outsideLights"], 1))
-    schedule.addTask(HATask("Outside lights off midnight", HASchedTime(hour=[23,0], minute=[00]), resources["outsideLights"], 0))
-    schedule.addTask(HATask("Outside lights off sunrise", HASchedTime(event="sunrise"), resources["outsideLights"], 0))
+    schedule.addTask(HATask("bedroomLightOnSunset", HASchedTime(event="sunset"), resources["bedroomLight"], 1))
+    schedule.addTask(HATask("bedroomLightOffSunrise", HASchedTime(event="sunrise"), resources["bedroomLight"], 0))
+    schedule.addTask(HATask("outsideLightsOnSunset", HASchedTime(event="sunset"), resources["outsideLights"], 1))
+    schedule.addTask(HATask("outsideLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), resources["outsideLights"], 0))
+    schedule.addTask(HATask("outsideLightsOffSunrise", HASchedTime(event="sunrise"), resources["outsideLights"], 0))
     
 
     # Start interfaces

@@ -641,7 +641,7 @@ class HATask(HAControl):
         schedTime.eventTime(latLong)
         schedTime.event = ""
         schedTime.lastTime()
-        return HATask(self.name+" event", schedTime, self.control, self.controlState, self)
+        return HATask(self.name+"Event", schedTime, self.control, self.controlState, self)
         
     # dictionary of pertinent attributes
     def dict(self):

@@ -27,7 +27,7 @@ if __name__ == "__main__":
     resources.addRes(HAControl("frontLights", gpio0, 0, type="light", group="Lights", label="Front lights"))
     resources.addRes(HAControl("garageBackDoorLight", gpio0, 1, type="light", group="Lights", label="Garage back door light"))
     resources.addRes(HASensor("frontLightSwitch", gpio1, 0, type="light", group="Lights", label="Front light switch", interrupt=frontLightSwitch))
-#    resources.addRes(HAControl("testLight", gpio0, 7, type="light", group="Lights", label="Test output"))
+#    resources.addRes(HAControl("testLight", gpio0, 7, type="light", group="Lights", label="TestOutput"))
 #    resources.addRes(HASensor("testSwitch", gpio1, 7, type="light", group="Lights", label="Test input"))
     resources.addRes(HAScene("garageLights", [resources["frontLights"],
                                              resources["garageBackDoorLight"]], group="Lights", label="Garage"))
@@ -43,11 +43,11 @@ if __name__ == "__main__":
     
     # Schedules
     resources.addRes(schedule)
-    schedule.addTask(HATask("Garage lights on sunset", HASchedTime(event="sunset"), resources["garageLights"], 1))
-    schedule.addTask(HATask("Garage lights off midnight", HASchedTime(hour=[23,0], minute=[00]), resources["garageLights"], 0))
-    schedule.addTask(HATask("Garage lights off sunrise", HASchedTime(event="sunrise"), resources["garageLights"], 0))
-    schedule.addTask(HATask("Hot water recirc on", HASchedTime(hour=[05], minute=[0]), resources["recircPump"], 1))
-    schedule.addTask(HATask("Hot water recirc off", HASchedTime(hour=[23], minute=[0]), resources["recircPump"], 0))
+    schedule.addTask(HATask("garageLightsOnSunset", HASchedTime(event="sunset"), resources["garageLights"], 1))
+    schedule.addTask(HATask("garageLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), resources["garageLights"], 0))
+    schedule.addTask(HATask("garageLightsOffSunrise", HASchedTime(event="sunrise"), resources["garageLights"], 0))
+    schedule.addTask(HATask("hotWaterRecircOn", HASchedTime(hour=[05], minute=[0]), resources["recircPump"], 1))
+    schedule.addTask(HATask("hotWaterRecircOff", HASchedTime(hour=[23], minute=[0]), resources["recircPump"], 0))
 
     # Start interfaces
     gpio0.start()

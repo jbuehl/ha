@@ -92,7 +92,8 @@ class WebRoot(object):
             if resource == "resources":
                 reply = ""
                 for resource in self.resources.keys():
-                    reply += resource+" "+self.resources[resource].getViewState(views)+"\n"
+                    if resource != "states":
+                        reply += resource+" "+self.resources[resource].getViewState(views)+"\n"
                 return reply
             else:
                 if state:
