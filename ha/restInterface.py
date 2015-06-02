@@ -1,3 +1,6 @@
+
+restTimeout = 60
+
 import json
 import requests
 import urllib
@@ -55,35 +58,34 @@ class HARestInterface(HAInterface):
     def readState(self, addr):
         debug('debugRestStates', self.name, "readState", addr)
         path = self.server+urllib.quote(addr)
-        if True:
-            try:
-                if self.secure:
-                    url = "https://"+path
-                    debug('debugRestGet', self.name, "GET", url)
-                    r = requests.get(url, timeout=restTimeout,
-                                     cert=(self.crtFile, self.keyFile), 
-                                     verify=False)
+        try:
+            if self.secure:
+                url = "https://"+path
+                debug('debugRestGet', self.name, "GET", url)
+                r = requests.get(url, timeout=restTimeout,
+                                 cert=(self.crtFile, self.keyFile), 
+                                 verify=False)
+            else:
+                url = "http://"+path
+                debug('debugRestGet', self.name, "GET", url)
+                r = requests.get(url, timeout=restTimeout)
+            debug('debugRestGet', self.name, "status", r.status_code)
+            if r.status_code == 200:
+                attr = addr.split("/")[-1]
+                if (attr == "state") or (attr == "stateChange"):
+                    return r.json()[attr]
                 else:
-                    url = "http://"+path
-                    debug('debugRestGet', self.name, "GET", url)
-                    r = requests.get(url, timeout=restTimeout)
-                debug('debugRestGet', self.name, "status", r.status_code)
-                if r.status_code == 200:
-                    attr = addr.split("/")[-1]
-                    if (attr == "state") or (attr == "stateChange"):
-                        return r.json()[attr]
-                    else:
-                        return r.json()
-                else:
-                    return {}
-            except requests.exceptions.ReadTimeout: # timeout - try again
-                debug('debugRest', self.name, "timeout")
-                self.enabled = False
+                    return r.json()
+            else:
                 return {}
-            except:                                 # other exceptions are fatal
-                debug('debugRest', self.name, "disabled")
-                self.enabled = False
-                return {}
+        except requests.exceptions.ReadTimeout: # timeout
+            debug('debugRest', self.name, "timeout")
+            self.enabled = False
+            return {}
+        except:                                 # other exceptions are fatal
+            debug('debugRest', self.name, "disabled")
+            self.enabled = False
+            return {}
 
     def write(self, addr, value):
         path = self.server+urllib.quote(addr)

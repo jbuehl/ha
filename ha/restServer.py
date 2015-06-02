@@ -1,5 +1,5 @@
 
-heartbeatInterval = 60
+restHeartbeatInterval = 30
 
 from ha.HAClasses import *
 from SocketServer import ThreadingMixIn
@@ -26,7 +26,7 @@ class ResourceStateSensor(HASensor):
             while True:
                 debug('debugStateChange', self.name, "heartbeat")
                 self.event.set()
-                time.sleep(heartbeatInterval)
+                time.sleep(restHeartbeatInterval)
         if self.event:
             heartbeatThread = threading.Thread(target=heartbeat)
             heartbeatThread.start()
