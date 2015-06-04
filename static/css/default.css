@@ -97,27 +97,6 @@ td {
     font-size: 3vw;
     }
 
-/*.names {*/
-/*    float: left;*/
-/*    padding: 0 10 0 0;*/
-/*/*    background-color: Green;*/*/
-/*    width: 20%;*/
-/*    }*/
-
-/*.values {*/
-/*    float: left;*/
-/*    padding: 0 10 0 10;*/
-/*/*    background-color: Yellow;*/*/
-/*    width: 20%;*/
-/*    }*/
-/*    */
-/*.controls {*/
-/*    float: left;*/
-/*    padding: 0 0 0 10;*/
-/*/*    background-color: Blue;*/*/
-/*    width: 20%;*/
-/*    }*/
-
 .invisible {
 	color: #424242;
     padding: 2 2 2 2;
@@ -185,6 +164,14 @@ td {
     }
 
 .door_Open {
+	color: OrangeRed;
+    }
+
+.server_Up {
+	color: Lime;
+    }
+
+.server_Down {
 	color: OrangeRed;
     }
 
