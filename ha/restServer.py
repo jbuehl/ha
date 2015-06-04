@@ -1,4 +1,5 @@
 
+restBeaconInterval = 10
 restHeartbeatInterval = 30
 
 from ha.HAClasses import *
@@ -41,10 +42,12 @@ class ResourceStateSensor(HASensor):
     def getStates(self, resources):
         for sensor in resources.values():
             if sensor != self:
-                if sensor.type == "schedule":
+                if sensor.type == "schedule":           # recurse into a schedule resource
                     self.getStates(sensor)
-                elif sensor.getStateType() != dict:
+                elif sensor.getStateType() != dict:     # sensor has a scalar state
                     self.states[sensor.name] = sensor.getState()
+                else:                                   # sensor has a complex state
+                    self.states[sensor.name] = sensor.getState()["contentType"]
     
     # return the state of any sensors that have changed since the last getState() call
     def getStateChange(self):
@@ -87,7 +90,8 @@ class RestServer(object):
             beacon = BeaconThread("beaconServer", self.port, self.resources, self.label)
             beacon.start()
         self.server.serve_forever()
-        
+
+# Beacon that advertises this service        
 class BeaconThread(threading.Thread):
     def __init__(self, name, port, resources, label):
         threading.Thread.__init__(self, target=self.doBeacon)
@@ -103,12 +107,11 @@ class BeaconThread(threading.Thread):
     def doBeacon(self):
         debug('debugThread', self.name, "started")
         loopCount = 0
-        beaconInterval = 10
         # wake up every second
         while running:
             # loop until the program state changes to not running
             if not running: break
-            if loopCount == beaconInterval:
+            if loopCount == restBeaconInterval:
                 self.socket.sendto(json.dumps((self.hostname, self.port, self.resources.dict(), self.timeStamp, self.label)), ("<broadcast>", 4242))
                 loopCount = 0
             loopCount += 1
