@@ -25,6 +25,6 @@ if __name__ == "__main__":
     # Start interfaces
     fileInterface.start()
     loadInterface.start()
-    restServer = RestServer(resources, event=stateChangeEvent)
+    restServer = RestServer(resources, event=stateChangeEvent, label="Loads")
     restServer.start()
     

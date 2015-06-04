@@ -36,6 +36,6 @@ if __name__ == "__main__":
     gpioInterface.start()
     shadeInterface.start()
     schedule.start()
-    restServer = RestServer(resources, event=stateChangeEvent)
+    restServer = RestServer(resources, event=stateChangeEvent, label="Shades")
     restServer.start()
 

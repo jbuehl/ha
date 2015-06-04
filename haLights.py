@@ -44,6 +44,6 @@ if __name__ == "__main__":
     # Start interfaces
     x10Interface.start()
     schedule.start()
-    restServer = RestServer(resources, event=stateChangeEvent)
+    restServer = RestServer(resources, event=stateChangeEvent, label="Back House")
     restServer.start()
     

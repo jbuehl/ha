@@ -60,6 +60,6 @@ if __name__ == "__main__":
     tc74Temp.start()
     mcp9803Temp.start()
     schedule.start()
-    restServer = RestServer(resources, event=stateChangeEvent)
+    restServer = RestServer(resources, event=stateChangeEvent, label="Sprinklers")
     restServer.start()
 

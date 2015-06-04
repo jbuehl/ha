@@ -21,6 +21,6 @@ if __name__ == "__main__":
 
     # Start interfaces
     temp.start()
-    restServer = RestServer(resources, event=stateChangeEvent)
+    restServer = RestServer(resources, event=stateChangeEvent, label="Edison")
     restServer.start()
 

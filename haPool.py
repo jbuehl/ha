@@ -122,6 +122,6 @@ if __name__ == "__main__":
     aqualinkInterface.start()
     pentairInterface.start()
     schedule.start()
-    restServer = RestServer(resources, port=7379, event=stateChangeEvent)
+    restServer = RestServer(resources, port=7379, event=stateChangeEvent, label="Pool")
     restServer.start()
 

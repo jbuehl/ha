@@ -26,6 +26,6 @@ if __name__ == "__main__":
     # Start interfaces
     fileInterface.start()
     solarInterface.start()
-    restServer = RestServer(resources, event=stateChangeEvent)
+    restServer = RestServer(resources, event=stateChangeEvent, label="Solar")
     restServer.start()
     

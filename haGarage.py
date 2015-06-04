@@ -54,6 +54,6 @@ if __name__ == "__main__":
     gpio1.start()
     temp.start()
     schedule.start()
-    restServer = RestServer(resources, event=stateChangeEvent)
+    restServer = RestServer(resources, event=stateChangeEvent, label="Garage")
     restServer.start()
 

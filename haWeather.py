@@ -27,6 +27,6 @@ if __name__ == "__main__":
     # Start interfaces
     barometerCache.start()
     humidityCache.start()
-    restServer = RestServer(resources, port=7379, event=stateChangeEvent)
+    restServer = RestServer(resources, port=7379, event=stateChangeEvent, label="Weather")
     restServer.start()
 

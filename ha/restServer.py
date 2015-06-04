@@ -71,7 +71,8 @@ class ResourceStateSensor(HASensor):
 
 # RESTful web services server interface
 class RestServer(object):
-    def __init__(self, resources, port=7378, beacon=True, event=None):
+    def __init__(self, resources, port=7378, beacon=True, event=None, label=""):
+        self.label = label
         self.resources = resources
         self.event = event
         self.resources.addRes(ResourceStateSensor("states", HAInterface("None"), self.resources, self.event))
@@ -83,17 +84,18 @@ class RestServer(object):
 
     def start(self):
         if self.beacon:
-            beacon = BeaconThread("beaconServer", self.port, self.resources)
+            beacon = BeaconThread("beaconServer", self.port, self.resources, self.label)
             beacon.start()
         self.server.serve_forever()
         
 class BeaconThread(threading.Thread):
-    def __init__(self, name, port, resources):
+    def __init__(self, name, port, resources, label):
         threading.Thread.__init__(self, target=self.doBeacon)
         self.name = name
         self.port = port
         self.hostname = socket.gethostname()
         self.resources = resources
+        self.label = label
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         self.timeStamp = time.time()
@@ -107,7 +109,7 @@ class BeaconThread(threading.Thread):
             # loop until the program state changes to not running
             if not running: break
             if loopCount == beaconInterval:
-                self.socket.sendto(json.dumps((self.hostname, self.port, self.resources.dict(), self.timeStamp)), ("<broadcast>", 4242))
+                self.socket.sendto(json.dumps((self.hostname, self.port, self.resources.dict(), self.timeStamp, self.label)), ("<broadcast>", 4242))
                 loopCount = 0
             loopCount += 1
             time.sleep(1)
