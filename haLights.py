@@ -2,6 +2,7 @@ from ha.HAClasses import *
 from ha.X10Interface import *
 from ha.serialInterface import *
 from ha.restServer import *
+from ha.thingInterface import *
 
 # Force usb serial devices to associate with specific devices based on which port they are plugged into
 
@@ -22,11 +23,12 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
     serial2 = HASerialInterface("serial2", device=x10Device, config=serial2Config, event=stateChangeEvent)
     x10Interface = X10Interface("x10", serial2)
+    thingInterface = ThingInterface("thing", event=stateChangeEvent)
     
     # Lights
     resources.addRes(HAControl("xmasLights", x10Interface, "A1", type="light", group="Lights", label="Xmas lights"))
     resources.addRes(HAControl("backLights", x10Interface, "A3", type="light", group="Lights", label="Back lights"))
-    resources.addRes(HAControl("bedroomLight", x10Interface, "A4", type="light", group="Lights", label="Bedroom light"))
+    resources.addRes(HAControl("bedroomLight", thingInterface, "192.168.1.130", type="light", group="Lights", label="Bedroom light"))
     resources.addRes(HAControl("bbqLights", x10Interface, "A6", type="light", group="Lights", label="Barbeque lights"))
     resources.addRes(HAControl("backYardLights", x10Interface, "A7", type="light", group="Lights", label="Back yard lights"))
     resources.addRes(HAScene("outsideLights", [resources["backLights"],
