@@ -67,6 +67,8 @@ class RestCache(threading.Thread):
                     if not server.interface.enabled:    # delete disabled server resources
                         debug('debugRestCache', self.name, timeStamp, "disabling", serverName, server.addr, server.timeStamp, server.label)
                         self.delResources(server)
+                        del(self.servers[server.name])
+                        del(server)
                         self.cacheTime = timeStamp
                         self.stateChangeEvent.set()
                         debug('debugInterrupt', self.name, "event set")
@@ -93,6 +95,7 @@ class RestCache(threading.Thread):
         with self.resourceLock:
             for resourceName in server.resourceNames:
                 self.resources.delRes(resourceName)
+            self.resources.delRes(server.name)
 
 # REST server that is being cached
 class RestCacheServer(HASensor):
