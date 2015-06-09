@@ -99,7 +99,7 @@ class WebRoot(object):
                 if state:
                     self.resources[resource].setViewState(state, views)
                     time.sleep(1)   # hack
-                return self.resources[resource].getViewState(views)
+                return json.dumps({"state": self.resources[resource].getViewState(views)})
         except:
             return "Error"        
 
