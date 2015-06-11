@@ -4,6 +4,7 @@ from ha.I2CInterface import *
 from ha.TC74Interface import *
 from ha.tempInterface import *
 from ha.restServer import *
+from ha.thingInterface import *
 
 def frontLightSwitch(sensor, state):
     log(sensor.name, "state:", state)
@@ -22,11 +23,13 @@ if __name__ == "__main__":
     gpio1 = GPIOInterface("GPIO1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(GPIOInterface.IPOL+1, 0x7d)])
     tc74 = TC74Interface("TC74", i2c1)
     temp = TempInterface("Temp", tc74, sample=10)
+    thing = ThingInterface("Thing", event=stateChangeEvent)
     
     # Lights
     resources.addRes(HAControl("frontLights", gpio0, 0, type="light", group="Lights", label="Front lights"))
     resources.addRes(HAControl("garageBackDoorLight", gpio0, 1, type="light", group="Lights", label="Garage back door light"))
     resources.addRes(HASensor("frontLightSwitch", gpio1, 0, type="light", group="Lights", label="Front light switch", interrupt=frontLightSwitch))
+    resources.addRes(HAControl("bedroomLight", thing, type="light", group="Lights", label="Bedroom light"))
 #    resources.addRes(HAControl("testLight", gpio0, 7, type="light", group="Lights", label="TestOutput"))
 #    resources.addRes(HASensor("testSwitch", gpio1, 7, type="light", group="Lights", label="Test input"))
     resources.addRes(HAScene("garageLights", [resources["frontLights"],
@@ -43,6 +46,8 @@ if __name__ == "__main__":
     
     # Schedules
     resources.addRes(schedule)
+    schedule.addTask(HATask("bedroomLightOnSunset", HASchedTime(event="sunset"), resources["bedroomLight"], 1))
+    schedule.addTask(HATask("bedroomLightOffSunrise", HASchedTime(event="sunrise"), resources["bedroomLight"], 0))
     schedule.addTask(HATask("garageLightsOnSunset", HASchedTime(event="sunset"), resources["garageLights"], 1))
     schedule.addTask(HATask("garageLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), resources["garageLights"], 0))
     schedule.addTask(HATask("garageLightsOffSunrise", HASchedTime(event="sunrise"), resources["garageLights"], 0))
