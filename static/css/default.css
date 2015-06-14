@@ -159,6 +159,26 @@ td {
 	color: #FFFF66;
     }
 
+.dimmer_Off {
+	color: SlateGray;
+    }
+
+.dimmer_25 {
+	color: #66661F;
+    }
+
+.dimmer_50 {
+	color: #99993F;
+    }
+
+.dimmer_75 {
+	color: #CCCC5F;
+    }
+
+.dimmer_100 {
+	color: #FFFF7F;
+    }
+
 .door_Closed {
 	color: SlateGray;
     }
