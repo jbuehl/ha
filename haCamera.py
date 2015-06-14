@@ -26,6 +26,6 @@ if __name__ == "__main__":
 
     # Start interfaces
     camera.start()
-    restServer = RestServer(resources, event=stateChangeEvent, label="Camera 1")
+    restServer = RestServer(resources, event=stateChangeEvent, label=cameraDisplay)
     restServer.start()
 
