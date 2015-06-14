@@ -80,7 +80,7 @@ class WebRoot(object):
                                 ampm=self.resources["theAmPm"],
                                 day=self.resources["theDay"],
                                 temp=self.resources["deckTemp"],
-                                resources=self.resources.getResList(["frontLights", "backLights", "bedroomLight", "recircPump", "garageBackDoor"]),
+                                resources=self.resources.getResList(["frontLights", "backLights", "bedroomLights", "recircPump", "garageBackDoor"]),
                                 views=views)
         return reply
 
