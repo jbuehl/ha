@@ -93,16 +93,16 @@ class SpaInterface(HAInterface):
         elif value == spaOn:
             if self.state == spaOff:
                 self.setState(spaStarting, spaOn)
-            elif (self.state == spaStandby) or (self.state == spaWarming):
+            elif (self.state == spaStandby):
                 self.setState(spaOn)
-            elif (self.state == spaStarting) or (self.state == spaStopping) or (self.state == spaOn):
+            elif (self.state == spaStarting) or (self.state == spaStopping) or (self.state == spaOn) or (self.state == spaWarming):
                 pass
         elif value == spaStandby:
             if self.state == spaOff:
                 self.setState(spaStarting, spaOn)
-            elif (self.state == spaOn) or (self.state == spaWarming):
+            elif (self.state == spaOn):
                 self.setState(spaStandby)
-            elif (self.state == spaStarting) or (self.state == spaStopping) or (self.state == spaStandby):
+            elif (self.state == spaStarting) or (self.state == spaStopping) or (self.state == spaStandby) or (self.state == spaWarming):
                 pass
         else:
             log(self.name, "unknown state", value)
