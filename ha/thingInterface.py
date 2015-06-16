@@ -45,7 +45,7 @@ class ThingInterface(HAInterface):
     def write(self, addr, value):
         debug('debugThing', self.name, "write", addr, value)
         try:
-            url = "http://"+self.ipAddrs[addr]+"/state="+str(value)
+            url = "http://"+self.ipAddrs[addr]+"?state="+str(value)
             debug('debugThing', self.name, "url", url)
             reply = requests.put(url, timeout=thingTimeout)
             debug('debugThing', self.name, "reply", reply.text)
