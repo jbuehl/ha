@@ -179,6 +179,18 @@ td {
 	color: #FFFF7F;
     }
 
+.nightLight_Off {
+	color: SlateGray;
+    }
+
+.nightLight_Sleep {
+	color: #66661F;
+    }
+
+.nightLight_On {
+	color: #FFFF7F;
+    }
+
 .door_Closed {
 	color: SlateGray;
     }
