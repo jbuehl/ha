@@ -497,11 +497,13 @@ class HAScene(HAControl):
             return HAControl.setState(self, state)
 
     def getState(self):
-#        if self.interface.name == "None":
-#            return self.sceneState
-#        else:
-#            return HAControl.getState(self)
-        return None
+        if self.type == "scene":
+            return None
+        else:
+            if self.interface.name == "None":
+                return self.sceneState
+            else:
+                return HAControl.getState(self)
 
     def doScene(self):
         debug('debugThread', self.name, "started")
