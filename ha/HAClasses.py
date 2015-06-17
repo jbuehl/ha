@@ -323,12 +323,12 @@ class HASensor(HAResource):
 # state values to display values, an optional format string, and an optional transform function.
 # Reverse mappings of display values to state values may also be specified.
 class HAView(object):
-    def __init__(self, values={None:"", 0:"Off", 1:"On"}, format="%s", transform=None, setValues={0:"Off", 1:"On"}):
+    def __init__(self, values={None:"", 0:"Off", 1:"On"}, format="%s", transform=None, setValues=None):
         self.values = values
         self.format = format
         self.transform = transform
         if setValues == None:
-            self.setValues = self.values
+            self.setValues = {0:"Off", 1:"On"}
         else:
             self.setValues = OrderedDict(setValues) # preserve the order of set values for display purposes
  
