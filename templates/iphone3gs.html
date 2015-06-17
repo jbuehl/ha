@@ -29,11 +29,11 @@
         </tr>
     </table>
     <table border=0 width=320 style='table-layout:fixed'>
-        <col width=156><col width=36><col width=128>
+        <col width=152><col width=168>
         {% for r in resources %}
         <tr>
-            <td><div class=label>{{ r.label }}</div></td>
-            <td><div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}</div></td>
+            <td><div class=label>{{ r.label }}</div>
+                <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}</div></td>
             <td>
                 {% if r.className != "HASensor" %}
                 <div class=control>

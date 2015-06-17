@@ -36,7 +36,7 @@ if __name__ == "__main__":
     resources.addRes(HAScene("garageLights", [resources["frontLights"],
                                              resources["garageBackDoorLight"]], group="Lights", label="Garage"))
     resources.addRes(HAScene("bedroomLights", [resources["bedroomLight"],
-                                             resources["bathroomLight"]], stateList=[[0, 100, 0], [0, 100, 25]], type="nightLight", group="Lights", label="Bedroom"))
+                                             resources["bathroomLight"]], stateList=[[0, 100, 0], [0, 100, 25]], type="nightLight", group="Lights", label="Night lights"))
 
     # Doors
     resources.addRes(HASensor("garageBackDoor", gpio1, 1, type="door", group="Doors", label="Garage Door"))
