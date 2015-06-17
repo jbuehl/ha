@@ -330,7 +330,7 @@ class HAView(object):
         if setValues == None:
             self.setValues = self.values
         else:
-            self.setValues = setValues
+            self.setValues = OrderedDict(setValues) # preserve the order of set values for display purposes
  
     # Return the printable string value for the state of the sensor
     def getViewState(self, theSensor):
