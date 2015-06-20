@@ -163,19 +163,19 @@ td {
 	color: SlateGray;
     }
 
-.dimmer_25 {
+.dimmer_Lo {
 	color: #88881F;
     }
 
-.dimmer_50 {
+.dimmer_Med {
 	color: #AAAA3F;
     }
 
-.dimmer_75 {
+.dimmer_Hi {
 	color: #CCCC5F;
     }
 
-.dimmer_100 {
+.dimmer_On {
 	color: #FFFF7F;
     }
 
