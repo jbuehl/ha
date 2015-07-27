@@ -23,6 +23,8 @@ HA uses an object model that is defined by the following classes:
         name
         
     HAInterface defines the abstract class for interface implementations.
+        interface
+        sensors
         start()
         stop()
         read(addr)
@@ -94,10 +96,10 @@ Resource paths:
     attribute "stateChange" waits and returns the state of a sensor when the state
     changes.
 
-    Each resource collection includes a resource named "states" whose "state" attribute
+    Each REST server includes a resource named "states" whose "state" attribute
     consists of a dictionary of all the states of the HASensors in the collection.  It
-    also has an attribute called "stateChange" that waits and returns the states of any
-    sensors whose state has changed since the last get of the states.
+    also has an attribute called "stateChange" that waits for at least one of the resource
+    states to change and returns the states of all the resources.
 
 Verbs:
     The following verbs are defined:
@@ -112,8 +114,8 @@ Data:
 
 Advertising:
     The HA REST server sends a periodic message to port 4242 on the broadcast address of 
-    the  local network to advertise itself.  The message contains the hostname, port, 
-    and  resource collection that is served.
+    the local network to advertise itself.  The message contains the hostname, port, 
+    and resource collection that is served.
     
 Examples:
     1. Return the list of resources on the specified server.
