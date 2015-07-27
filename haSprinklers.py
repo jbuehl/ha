@@ -38,7 +38,7 @@ if __name__ == "__main__":
     # Sequences
     resources.addRes(HASequence("frontLawnSequence", [HACycle(resources["frontLawn"], 900)], group="Water", label="Front lawn 15 min"))
     resources.addRes(HASequence("gardenSequence", [HACycle(resources["garden"], 300)], group="Water", label="Garden 5 min"))
-    resources.addRes(HASequence("backLawnSequence", [HACycle(resources["backLawn"], 600)], group="Water", label="Back lawn 10 min"))
+    resources.addRes(HASequence("backLawnSequence", [HACycle(resources["backLawn"], 900)], group="Water", label="Back lawn 15 min"))
     resources.addRes(HASequence("sideBedSequence", [HACycle(resources["sideBeds"], 600)], group="Water", label="Side beds 10 min"))
     resources.addRes(HASequence("backBedSequence", [HACycle(resources["backBeds"], 600)], group="Water", label="Back beds 10 min"))
 
@@ -47,8 +47,8 @@ if __name__ == "__main__":
     schedule.addTask(HATask("frontLawnTask", HASchedTime(hour=[21], minute=[00], weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["frontLawnSequence"], 1, enabled=True))
     schedule.addTask(HATask("gardenTask", HASchedTime(hour=[21], minute=[15], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["gardenSequence"], 1, enabled=True))
     schedule.addTask(HATask("backLawnTask", HASchedTime(hour=[21], minute=[20], weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["backLawnSequence"], 1, enabled=True))
-    schedule.addTask(HATask("sideBedTask", HASchedTime(hour=[21], minute=[30], weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["sideBedSequence"], 1, enabled=True))
-    schedule.addTask(HATask("backBedTask", HASchedTime(hour=[21], minute=[40], weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["backBedSequence"], 1, enabled=True))
+    schedule.addTask(HATask("sideBedTask", HASchedTime(hour=[21], minute=[35], weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["sideBedSequence"], 1, enabled=True))
+    schedule.addTask(HATask("backBedTask", HASchedTime(hour=[21], minute=[45], weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["backBedSequence"], 1, enabled=True))
 
     # Temperature
     resources.addRes(HASensor("bedroomTemp", mcp9803Temp, 0x48, group="Temperature", label="Bedroom temp", type="tempF"))
