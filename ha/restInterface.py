@@ -8,12 +8,13 @@ import socket
 from ha.HAClasses import *
 
 class HARestInterface(HAInterface):
-    def __init__(self, name, interface=None, event=None, service="", secure=False):
+    def __init__(self, name, interface=None, event=None, service="", secure=False, cache=True):
         HAInterface.__init__(self, name, interface=interface, event=event)
-        self.service = service
-        self.hostname = socket.gethostname()
-        self.secure = secure
+        self.service = service  # the REST service to target
+        self.secure = secure    # use SSL
+        self.cache = cache      # cache the states
         self.enabled = True
+        self.hostname = socket.gethostname()
         debug('debugRest', self.name, "created", self.hostname, self.secure)
         if self.secure:
             self.keyDir = keyDir
@@ -21,32 +22,33 @@ class HARestInterface(HAInterface):
             self.keyFile = self.keyDir+self.hostname+"-client.key"
             self.caFile = self.keyDir+"ca.crt"
             debug('debugRest', self.name, self.crtFile, self.keyFile, self.caFile)
-        # start the thread to update the cache when states change
-        def readStates():
-            debug('debugRestStates', self.name, "readStates started")
-            while self.enabled:
-                self.readStates("/resources/states/stateChange")
-                if self.event:
-                    self.event.set()
-                    debug('debugInterrupt', self.name, "event set")
-        readStatesThread = threading.Thread(target=readStates)
-        readStatesThread.start()
+        if self.cache:
+            # start the thread to update the cache when states change
+            def readStates():
+                debug('debugRestStates', self.name, "readStates started")
+                while self.enabled:
+                    self.readStates("/resources/states/stateChange")
+                    if self.event:
+                        self.event.set()
+                        debug('debugInterrupt', self.name, "event set")
+            readStatesThread = threading.Thread(target=readStates)
+            readStatesThread.start()
 
-    # return the state value for the specified sensor address from the cache
+    # return the state value for the specified sensor address
     def read(self, addr):
-        try:
-            if self.states[addr] == None:
-                self.states[addr] = self.readState(addr)
-            return self.states[addr]
-        except:
+        if self.cache:
+            try:
+                if self.states[addr] == None:
+                    self.states[addr] = self.readState(addr)
+                return self.states[addr]
+            except:
+                return self.readState(addr)
+        else:
             return self.readState(addr)
 
     # load state values of all sensor addresses into the cache
     def readStates(self, addr="/resources/states/state"):
         states = self.readState(addr)
-#        while len(states) == 0:
-#            time.sleep(10)
-#            states = self.readState(addr)
         debug('debugRestStates', self.name, "readStates", "states", states)
         for sensor in states.keys():
             try:
@@ -54,7 +56,7 @@ class HARestInterface(HAInterface):
             except:
                 debug('debugRestStates', self.name, "sensor not found", sensor)
 
-    # load the state value of the specified sensor address into the cache        
+    # return the state value of the specified sensor address       
     def readState(self, addr):
         debug('debugRestStates', self.name, "readState", addr)
         path = self.service+urllib.quote(addr)
