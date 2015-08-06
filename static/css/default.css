@@ -199,11 +199,11 @@ td {
 	color: OrangeRed;
     }
 
-.server_Up {
+.service_Up {
 	color: Lime;
     }
 
-.server_Down {
+.service_Down {
 	color: OrangeRed;
     }
 

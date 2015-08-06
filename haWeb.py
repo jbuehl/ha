@@ -8,7 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 from ha.HAClasses import *
 from ha.restInterface import *
 from ha.restServer import *
-from ha.restCache import *
+from ha.restProxy import *
 from ha.timeInterface import *
 from haWebViews import *
 
@@ -30,7 +30,7 @@ class WebRoot(object):
             groups = [group.capitalize()]
             details = False
         except:
-            groups = ["Time", "Temperature", "Servers", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Cameras", "Tasks"]
+            groups = ["Time", "Temperature", "Services", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Cameras", "Tasks"]
             details = True
         with resourceLock:
             reply = self.env.get_template("default.html").render(title="4319 Shadyglade", script="", 
@@ -175,7 +175,7 @@ if __name__ == "__main__":
     resources.addRes(HASensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
 
     # start the cache to listen for services on other servers
-    restCache = RestCache("restCache", resources, socket.gethostname()+":"+str(webRestPort), stateChangeEvent, resourceLock)
+    restCache = RestProxy("restProxy", resources, socket.gethostname()+":"+str(webRestPort), stateChangeEvent, resourceLock)
     restCache.start()
     
     # set up the web server

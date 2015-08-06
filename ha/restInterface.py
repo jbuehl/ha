@@ -8,9 +8,9 @@ import socket
 from ha.HAClasses import *
 
 class HARestInterface(HAInterface):
-    def __init__(self, name, interface=None, event=None, server="", secure=False):
+    def __init__(self, name, interface=None, event=None, service="", secure=False):
         HAInterface.__init__(self, name, interface=interface, event=event)
-        self.server = server
+        self.service = service
         self.hostname = socket.gethostname()
         self.secure = secure
         self.enabled = True
@@ -57,7 +57,7 @@ class HARestInterface(HAInterface):
     # load the state value of the specified sensor address into the cache        
     def readState(self, addr):
         debug('debugRestStates', self.name, "readState", addr)
-        path = self.server+urllib.quote(addr)
+        path = self.service+urllib.quote(addr)
         try:
             if self.secure:
                 url = "https://"+path
@@ -88,7 +88,7 @@ class HARestInterface(HAInterface):
             return {}
 
     def write(self, addr, value):
-        path = self.server+urllib.quote(addr)
+        path = self.service+urllib.quote(addr)
         try:
             if self.secure:
                 url = "https://"+path
