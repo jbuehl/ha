@@ -101,7 +101,7 @@ class HAInterface(HAResource):
         debug('debugObject', self.name, "sensor", sensor.name)
         self.sensors[sensor.name] = sensor
         self.sensorAddrs[sensor.addr] = sensor
-        self.states[sensor.addr] = 0
+        self.states[sensor.addr] = 0 # None - FIXME
         sensor.event = self.event
         
     # return the data type of the state of the specified sensor
@@ -498,12 +498,26 @@ class HAScene(HAControl):
 
     def getState(self):
         if self.type == "scene":
-            return None
+            return -1
         else:
             if self.interface.name == "None":
                 return self.sceneState
             else:
                 return HAControl.getState(self)
+
+    # Return the printable string value for the state of the sensor
+    def getViewState(self, views=None):
+        if self.type == "scene":
+            return ""
+        else:
+            return HAControl.getViewState(self, views)
+    
+#    # return the data type of the state
+#    def getStateType(self):
+#        if self.type == "scene":
+#            return None
+#        else:
+#            return self.interface.getStateType(self)
 
     def doScene(self):
         debug('debugThread', self.name, "started")
