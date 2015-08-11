@@ -1,4 +1,6 @@
 
+restBeaconPort = 4242
+restStatePort = 4243
 restBeaconInterval = 10
 restHeartbeatInterval = 30
 
@@ -23,9 +25,15 @@ class ResourceStateSensor(HASensor):
         self.states = {}    # current sensor states
         self.lastStates = {}
         # thread to periodically send states as keepalive message
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         def heartbeat():
             while True:
                 debug('debugStateChange', self.name, "heartbeat")
+                # send the broadcast message
+                self.socket.sendto(json.dumps({"state": self.states}), ("<broadcast>", restStatePort))
+                # set the state event so the stateChange request returns
                 self.event.set()
                 time.sleep(restHeartbeatInterval)
         if self.event:
@@ -102,6 +110,7 @@ class BeaconThread(threading.Thread):
         self.label = label
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.timeStamp = time.time()
         
     def doBeacon(self):
@@ -112,7 +121,7 @@ class BeaconThread(threading.Thread):
             # loop until the program state changes to not running
             if not running: break
             if loopCount == restBeaconInterval:
-                self.socket.sendto(json.dumps((self.hostname, self.port, self.resources.dict(), self.timeStamp, self.label)), ("<broadcast>", 4242))
+                self.socket.sendto(json.dumps((self.hostname, self.port, self.resources.dict(), self.timeStamp, self.label)), ("<broadcast>", restBeaconPort))
                 loopCount = 0
             loopCount += 1
             time.sleep(1)

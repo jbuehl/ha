@@ -1,4 +1,5 @@
 
+restStatePort = 4243
 restTimeout = 60
 
 import json
@@ -41,13 +42,13 @@ class HARestInterface(HAInterface):
                 debug('debugRestStates', self.name, "readStateNotify started")
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                self.socket.settimeout(60)
-                self.socket.bind(("", 4243))
+                self.socket.settimeout(restTimeout)
+                self.socket.bind(("", restStatePort))
                 while self.enabled:
                     try:
                         (data, addr) = self.socket.recvfrom(4096)
-                        debug('debugRestStates', self.name, "state data", data)
                         if addr[0] == self.service.split(":")[0]:   # is this from the correct service
+                            debug('debugRestStates', self.name, "state data", data)
                             states = json.loads(data)
                             self.setStates(states["state"])
                             if self.event:
