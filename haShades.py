@@ -23,7 +23,7 @@ if __name__ == "__main__":
     resources.addRes(HAScene("allShades", [resources["shade1"], 
                                       resources["shade2"],
                                       resources["shade3"],
-                                      resources["shade4"]], type="shade", group="Doors", label="All shades"))
+                                      resources["shade4"]], group="Doors", label="All shades"))
 
     # Schedules
     resources.addRes(schedule)
