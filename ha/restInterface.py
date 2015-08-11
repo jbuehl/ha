@@ -24,32 +24,69 @@ class HARestInterface(HAInterface):
             debug('debugRest', self.name, self.crtFile, self.keyFile, self.caFile)
         if self.cache:
             # start the thread to update the cache when states change
-            def readStates():
-                debug('debugRestStates', self.name, "readStates started")
+            def readStateChange():
+                debug('debugRestStates', self.name, "readStateChange started")
                 while self.enabled:
-                    self.readStates("/resources/states/stateChange")
+                    states = self.readStates("/resources/states/stateChange")
+                    if states == {}:    # give up if there is an error
+                        break
                     if self.event:
                         self.event.set()
                         debug('debugInterrupt', self.name, "event set")
-            readStatesThread = threading.Thread(target=readStates)
-            readStatesThread.start()
+                debug('debugRestStates', self.name, "readStateChange terminated")
+            readStateChangeThread = threading.Thread(target=readStateChange)
+            readStateChangeThread.start()
+            # start the thread to update the cache when a state change notification is received
+            def readStateNotify():
+                debug('debugRestStates', self.name, "readStateNotify started")
+                self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                self.socket.settimeout(60)
+                self.socket.bind(("", 4243))
+                while self.enabled:
+                    try:
+                        (data, addr) = self.socket.recvfrom(4096)
+                        debug('debugRestStates', self.name, "state data", data)
+                        if addr[0] == self.service.split(":")[0]:   # is this from the correct service
+                            states = json.loads(data)
+                            self.setStates(states["state"])
+                            if self.event:
+                                self.event.set()
+                                debug('debugInterrupt', self.name, "event set")
+                    except socket.timeout:
+                        debug('debugRestStates', self.name, "timeout")
+                        self.enabled = False
+                        break
+                    except:
+                        debug('debugRestStates', self.name, "disabled")
+                        self.enabled = False
+                        break
+                debug('debugRestStates', self.name, "readStateNotify terminated")
+            readStateNotifyThread = threading.Thread(target=readStateNotify)
+            readStateNotifyThread.start()
 
     # return the state value for the specified sensor address
     def read(self, addr):
         if self.cache:
             try:
                 if self.states[addr] == None:
-                    self.states[addr] = self.readState(addr)
+                    if self.sensorAddrs[addr].getStateType() != None:
+                        self.states[addr] = self.readState(addr)
                 return self.states[addr]
             except:
                 return self.readState(addr)
         else:
             return self.readState(addr)
 
-    # load state values of all sensor addresses into the cache
+    # load state values of all sensor addresses
     def readStates(self, addr="/resources/states/state"):
         states = self.readState(addr)
         debug('debugRestStates', self.name, "readStates", "states", states)
+        self.setStates(states)
+        return states
+
+    # set state values of all sensor addresses into the cache
+    def setStates(self, states):
         for sensor in states.keys():
             try:
                 self.states[self.sensors[sensor].addr] = states[sensor]
@@ -59,25 +96,27 @@ class HARestInterface(HAInterface):
     # return the state value of the specified sensor address       
     def readState(self, addr):
         debug('debugRestStates', self.name, "readState", addr)
+        if addr == "/resources/allShades/state":
+            pass #x = 1/0
         path = self.service+urllib.quote(addr)
         try:
             if self.secure:
                 url = "https://"+path
                 debug('debugRestGet', self.name, "GET", url)
-                r = requests.get(url, timeout=restTimeout,
+                response = requests.get(url, timeout=restTimeout,
                                  cert=(self.crtFile, self.keyFile), 
                                  verify=False)
             else:
                 url = "http://"+path
                 debug('debugRestGet', self.name, "GET", url)
-                r = requests.get(url, timeout=restTimeout)
-            debug('debugRestGet', self.name, "status", r.status_code)
-            if r.status_code == 200:
+                response = requests.get(url, timeout=restTimeout)
+            debug('debugRestGet', self.name, "status", response.status_code)
+            if response.status_code == 200:
                 attr = addr.split("/")[-1]
                 if (attr == "state") or (attr == "stateChange"):
-                    return r.json()[attr]
+                    return response.json()[attr]
                 else:
-                    return r.json()
+                    return response.json()
             else:
                 return {}
         except requests.exceptions.ReadTimeout: # timeout
@@ -95,7 +134,7 @@ class HARestInterface(HAInterface):
             if self.secure:
                 url = "https://"+path
                 debug('debugRestPut', self.name, "PUT", url)
-                r = requests.put(url,
+                response = requests.put(url,
                                  headers={"content-type":"application/json"}, 
                                  data=json.dumps({addr.split("/")[-1]:value}),
                                  cert=(self.crtFile, self.keyFile), 
@@ -103,11 +142,11 @@ class HARestInterface(HAInterface):
             else:
                 url = "http://"+path
                 debug('debugRestPut', self.name, "PUT", url)
-                r = requests.put(url, 
+                response = requests.put(url, 
                                  headers={"content-type":"application/json"}, 
                                  data=json.dumps({addr.split("/")[-1]:value}))
-            debug('debugRestPut', self.name, "status", r.status_code)
-            if r.status_code == 200:
+            debug('debugRestPut', self.name, "status", response.status_code)
+            if response.status_code == 200:
                 return True
             else:
                 return False
