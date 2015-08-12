@@ -18,10 +18,12 @@ import copy
 
 # Sensor that returns the states of all sensors in a list of resources
 class ResourceStateSensor(HASensor):
-    def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, view=None, label="", interrupt=None):
+    def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, view=None, label="", interrupt=None, hostname="", port=0):
         HASensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.resources = resources
         self.event = event
+        self.hostname = hostname
+        self.port = port
         self.states = {}    # current sensor states
         self.lastStates = {}
         # thread to periodically send states as keepalive message
@@ -32,7 +34,7 @@ class ResourceStateSensor(HASensor):
             while True:
                 debug('debugStateChange', self.name, "heartbeat")
                 # send the broadcast message
-                self.socket.sendto(json.dumps({"state": self.states}), ("<broadcast>", restStatePort))
+                self.socket.sendto(json.dumps({"state": self.states, "hostname": self.hostname, "port": self.port}), ("<broadcast>", restStatePort))
                 # set the state event so the stateChange request returns
                 self.event.set()
                 time.sleep(restHeartbeatInterval)
@@ -86,11 +88,11 @@ class RestServer(object):
         self.label = label
         self.resources = resources
         self.event = event
-        self.resources.addRes(ResourceStateSensor("states", HAInterface("None"), self.resources, self.event))
         self.hostname = socket.gethostname()
         self.port = port
         self.beacon = beacon
         self.event = event
+        self.resources.addRes(ResourceStateSensor("states", HAInterface("None"), self.resources, self.event, hostname=self.hostname, port=self.port))
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
 
     def start(self):

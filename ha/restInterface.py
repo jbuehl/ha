@@ -6,6 +6,7 @@ import json
 import requests
 import urllib
 import socket
+import threading
 from ha.HAClasses import *
 
 class HARestInterface(HAInterface):
@@ -37,28 +38,39 @@ class HARestInterface(HAInterface):
                 debug('debugRestStates', self.name, "readStateChange terminated")
             readStateChangeThread = threading.Thread(target=readStateChange)
             readStateChangeThread.start()
+            # define a timer to disable the interface if the heartbeat times out
+            # can't use a socket timeout because multiple threads are using the same port
+            def readStateTimeout():
+                debug('debugRestStates', self.name, "timeout")
+                self.enabled = False
             # start the thread to update the cache when a state change notification is received
             def readStateNotify():
                 debug('debugRestStates', self.name, "readStateNotify started")
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                self.socket.settimeout(restTimeout)
                 self.socket.bind(("", restStatePort))
+                readStateTimer = None
                 while self.enabled:
-                    try:
+                    if True: #try:
                         (data, addr) = self.socket.recvfrom(4096)
-                        if addr[0] == self.service.split(":")[0]:   # is this from the correct service
-                            debug('debugRestStates', self.name, "state data", data)
-                            states = json.loads(data)
-                            self.setStates(states["state"])
-                            if self.event:
-                                self.event.set()
-                                debug('debugInterrupt', self.name, "event set")
-                    except socket.timeout:
-                        debug('debugRestStates', self.name, "timeout")
-                        self.enabled = False
-                        break
-                    except:
+                        msg = json.loads(data)
+#                        debug('debugRestStates', self.name, "msg", addr[0]+":"+str(msg["port"]))
+#                        debug('debugRestStates', self.name, "service", self.service)
+                        if addr[0]+":"+str(msg["port"]) == self.service:   # is this from the correct service
+                            if readStateTimer:
+                                readStateTimer.cancel()
+                                debug('debugRestStates', self.name, "cancel timer")
+                            states = msg["state"]
+                            debug('debugRestStates', self.name, "readStateNotify", "states", states)
+                            if self.enabled:
+                                self.setStates(states)
+                                if self.event:
+                                    self.event.set()
+                                    debug('debugInterrupt', self.name, "event set")
+                                readStateTimer = threading.Timer(restTimeout, readStateTimeout)
+                                readStateTimer.start()
+                                debug('debugRestStates', self.name, "start timer")
+                    else: #except:
                         debug('debugRestStates', self.name, "disabled")
                         self.enabled = False
                         break
