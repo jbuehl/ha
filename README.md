@@ -1,9 +1,41 @@
 Buehltech Home Automation
 =========================
 
+Terminology
+-----------
+Here is a definition of the terminology used in this project.
+
+* PHYSICAL
+sensor - a device that has a state that can be read
+control - a device whose state can be read and also changed
+server - a device that may be connected to one or more sensors and communicates with one or more servers
+client - a device that presents a user interface and communicates with one or more servers
+interface - the connection over which two devices communicate
+
+* MODEL
+resource - the fundamental object
+sensor - a representation of a physical sensor
+control - a representation of a physical control
+interface - a representation of a physical interface
+collection - an ordered list of resources
+task - a specification of a control, a state, and a time 
+schedule - a collection of tasks
+
+* DEPLOYMENT
+application - the implementation of a collection of resources and interfaces that runs on a server
+service - an application that implements the server side of an interface to a client device or server device
+client - an application that implements the client side of an interface to a server device
+
+Naming
+------
+Every resource has a system-wide unique identifier.
+
+States
+------
+Every resource has an associated state.
+
 Object model
 ------------
-
 HA uses an object model that is defined by the following classes:
 
 	+ class HAResource(object):
@@ -19,41 +51,48 @@ HA uses an object model that is defined by the following classes:
 	            + class HATask(HAControl):
 	                + class HASchedTime(object):
 
-    HAResource is the base class for most HA objects.
-        name
+### HAResource
+The base class for most HA objects.
+- name
         
-    HAInterface defines the abstract class for interface implementations.
-        interface
-        sensors
-        start()
-        stop()
-        read(addr)
-        write(addr, value)
-        notify()
-        getStateType(HASensor)
+### HAInterface
+Defines the abstract class for interface implementations.
+- interface
+- sensors
+- start()
+- stop()
+- read(addr)
+- write(addr, value)
+- notify()
+- getStateType(HASensor)
         
-    HASensor defines the model for the basic HA sensor.
-        interface
-        addr
-        type
-        label
-        group
-        view
-        location
-        notify()
-        getState()
-        getStateChange()
-        getStateType()
+### HASensor
+Defines the model for the basic HA sensor.
+- interface
+- addr
+- type
+- label
+- group
+- view
+- location
+- notify()
+- getState()
+- getStateChange()
+- getStateType()
         
-    HAControl defines the model for a sensor whose state can be changed.
-        setState(value)
+### HAControl
+Defines the model for a sensor whose state can be changed.
+- setState(value)
 
-    HACycle, HASequence, and HAScene are used to define aggregations of HAControls that 
+### HACycle, HASequence, and HAScene
+Used to define aggregations of HAControls that 
     can be set collectively.
 
-    HACollection defines an ordered list of HAResources.
+### HACollection
+Defines an ordered list of HAResources.
 
-    HASchedule, HATask, and HASchedTime are used to manage a list of tasks to be run at 
+### HASchedule, HATask, and HASchedTime
+Used to manage a list of tasks to be run at 
     specified times.
         
 Implementation
@@ -68,17 +107,17 @@ Runtime parameters are defined in ha/HAConf.py.
 Programs that run on servers are defined in ha*.py.
 The systemd service definitions are defined in ha*.service.
   
-    haLights.py	
-    haShades.py	
-    haSprinklers.py
-    haPool.py	
-    haSolar.py
-    haLoads.py
+- haLights.py	
+- haShades.py	
+- haSprinklers.py
+- haPool.py	
+- haSolar.py
+- haLoads.py
     	
 A service that aggregates all the servers and provides a web interface is implemented in 
 haWeb.py.
 
-Services publish their HA objects in a REST interface that is implemented in 
+Services expose their HA objects in a REST interface that is implemented in 
 ha/restServer.py.
 
 Access
@@ -86,7 +125,7 @@ Access
 
 The HA REST interface allows access to HA objects.
 
-Resource paths: 
+### Resource paths 
     Paths are defined by the organization of collections that the implementing program 
     has  passed to the REST server.  A path consists of one of more HACollection names, 
     optionally  followed by a HASensor name, optionally followed by an HASensor 
@@ -101,23 +140,23 @@ Resource paths:
     also has an attribute called "stateChange" that waits for at least one of the resource
     states to change and returns the states of all the resources.
 
-Verbs:
+### Verbs
     The following verbs are defined:
     GET - return the value of the specified resource
     PUT - set the specified resource attribute to the specified value
     POST - not implemented
     DELETE - not implemented
 
-Data:
+### Data
     Data that is returned from a GET or specified in the body of a PUT is the JSON 
     representation of the specified resource.
 
-Advertising:
+### Advertising
     The HA REST server sends a periodic message to port 4242 on the broadcast address of 
     the local network to advertise itself.  The message contains the hostname, port, 
     and resource collection that is served.
     
-Examples:
+### Examples
     1. Return the list of resources on the specified server.
 
         GET hostname:7378/resources
