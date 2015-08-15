@@ -54,8 +54,6 @@ class HARestInterface(HAInterface):
                     if True: #try:
                         (data, addr) = self.socket.recvfrom(4096)
                         msg = json.loads(data)
-#                        debug('debugRestStates', self.name, "msg", addr[0]+":"+str(msg["port"]))
-#                        debug('debugRestStates', self.name, "service", self.service)
                         if addr[0]+":"+str(msg["port"]) == self.service:   # is this from the correct service
                             if readStateTimer:
                                 readStateTimer.cancel()
@@ -109,8 +107,6 @@ class HARestInterface(HAInterface):
     # return the state value of the specified sensor address       
     def readState(self, addr):
         debug('debugRestStates', self.name, "readState", addr)
-        if addr == "/resources/allShades/state":
-            pass #x = 1/0
         path = self.service+urllib.quote(addr)
         try:
             if self.secure:
@@ -143,21 +139,22 @@ class HARestInterface(HAInterface):
 
     def write(self, addr, value):
         path = self.service+urllib.quote(addr)
+        data=json.dumps({addr.split("/")[-1]:value})
         try:
             if self.secure:
                 url = "https://"+path
-                debug('debugRestPut', self.name, "PUT", url)
+                debug('debugRestPut', self.name, "PUT", url, "data:", data)
                 response = requests.put(url,
                                  headers={"content-type":"application/json"}, 
-                                 data=json.dumps({addr.split("/")[-1]:value}),
+                                 data=data,
                                  cert=(self.crtFile, self.keyFile), 
                                  verify=False)
             else:
                 url = "http://"+path
-                debug('debugRestPut', self.name, "PUT", url)
+                debug('debugRestPut', self.name, "PUT", url, "data:", data)
                 response = requests.put(url, 
                                  headers={"content-type":"application/json"}, 
-                                 data=json.dumps({addr.split("/")[-1]:value}))
+                                 data=data)
             debug('debugRestPut', self.name, "status", response.status_code)
             if response.status_code == 200:
                 return True
