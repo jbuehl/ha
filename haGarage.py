@@ -4,6 +4,7 @@ from ha.I2CInterface import *
 from ha.TC74Interface import *
 from ha.tempInterface import *
 from ha.restServer import *
+from ha.restInterface import *
 from ha.thingInterface import *
 
 def frontLightSwitch(sensor, state):
@@ -29,14 +30,15 @@ if __name__ == "__main__":
     resources.addRes(HAControl("frontLights", gpio0, 0, type="light", group="Lights", label="Front lights"))
     resources.addRes(HAControl("garageBackDoorLight", gpio0, 1, type="light", group="Lights", label="Garage back door light"))
     resources.addRes(HASensor("frontLightSwitch", gpio1, 0, type="light", group="Lights", label="Front light switch", interrupt=frontLightSwitch))
-    resources.addRes(HAControl("bedroomLight", thing, type="dimmer", group="Lights", label="Bedroom light"))
-    resources.addRes(HAControl("bathroomLight", thing, type="dimmer", group="Lights", label="Bathroom light"))
+#    resources.addRes(HAControl("bedroomLight", thing, type="dimmer", group="Lights", label="Bedroom light"))
+#    resources.addRes(HAControl("bathroomLight", thing, type="dimmer", group="Lights", label="Bathroom light"))
+    bedroomLight = HAControl("bedroomLight", HARestInterface("bedroomLight", service ="192.168.1.179:7378", cache=False, event=stateChangeEvent), "/resources/bedroomLight/state", type="dimmer", group="Lights", label="Bathroom light")
+    bathroomLight = HAControl("bathroomLight", HARestInterface("bathroomLight", service ="192.168.1.125:7378", cache=False, event=stateChangeEvent), "/resources/bathroomLight/state", type="dimmer", group="Lights", label="Bathroom light")
 #    resources.addRes(HAControl("testLight", gpio0, 7, type="light", group="Lights", label="TestOutput"))
 #    resources.addRes(HASensor("testSwitch", gpio1, 7, type="light", group="Lights", label="Test input"))
     resources.addRes(HAScene("garageLights", [resources["frontLights"],
                                              resources["garageBackDoorLight"]], group="Lights", label="Garage"))
-    resources.addRes(HAScene("bedroomLights", [resources["bedroomLight"],
-                                             resources["bathroomLight"]], stateList=[[0, 100, 0], [0, 100, 25]], type="nightLight", group="Lights", label="Night lights"))
+    resources.addRes(HAScene("bedroomLights", [bedroomLight, bathroomLight], stateList=[[0, 100, 0], [0, 100, 10]], type="nightLight", group="Lights", label="Night lights"))
 
     # Doors
     resources.addRes(HASensor("garageBackDoor", gpio1, 1, type="door", group="Doors", label="Garage Door"))
