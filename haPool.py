@@ -1,24 +1,15 @@
 from ha.HAClasses import *
 from ha.serialInterface import *
-from ha.aqualinkInterface import *
+from ha.GPIOInterface import *
+from ha.I2CInterface import *
 from ha.pentairInterface import *
 from ha.powerInterface import *
 from ha.spaInterface import *
 from ha.restServer import *
-from ha.timeInterface import *
+from ha.ADS1015Interface import *
+from ha.analogTempInterface import *
+#from ha.timeInterface import *
 
-# Force usb serial devices to associate with specific devices based on which port they are plugged into
-
-# cat >> /etc/udev/rules.d/91-local.rules << ^D
-# KERNEL=="ttyUSB*", KERNELS=="1-1.2.1", NAME="ttyUSB0", SYMLINK+="aqualink"
-# KERNEL=="ttyUSB*", KERNELS=="1-1.2.2", NAME="ttyUSB1", SYMLINK+="pentair"
-# KERNEL=="ttyUSB*", KERNELS=="1-1.2.3", NAME="ttyUSB2", SYMLINK+="x10"
-# ^D
-
-serial0Config = {"baudrate": 9600, 
-                 "bytesize": serial.EIGHTBITS, 
-                 "parity": serial.PARITY_NONE, 
-                 "stopbits": serial.STOPBITS_ONE}
 serial1Config = {"baudrate": 9600, 
                  "bytesize": serial.EIGHTBITS, 
                  "parity": serial.PARITY_NONE, 
@@ -47,58 +38,55 @@ if __name__ == "__main__":
     # Interfaces
     stateChangeEvent = threading.Event()
     nullInterface = HAInterface("Null", HAInterface("None"))
-    serial0 = HASerialInterface("Serial0", device=aqualinkDevice, config=serial0Config, event=stateChangeEvent)
-    serial1 = HASerialInterface("Serial1", device=pentairDevice, config=serial1Config, event=stateChangeEvent)
-    aqualinkInterface = AqualinkInterface("Aqualink", serial0)
+    serial1 = HASerialInterface("Serial1", device="/dev/ttyAMA0", config=serial1Config, event=stateChangeEvent)
+    i2c1 = I2CInterface("I2C1", bus=1, event=stateChangeEvent)
+    gpio0 = GPIOInterface("GPIO0", i2c1, addr=0x20, bank=0, inOut=0x00)
+    gpio1 = GPIOInterface("GPIO1", i2c1, addr=0x20, bank=1, inOut=0x00)
     pentairInterface = PentairInterface("Pentair", serial1)
     powerInterface = HAPowerInterface("Power", HAInterface("None"), event=stateChangeEvent)
+    ads1015Interface = ADS1015Interface("ADS1015", addr=0x48)
+    analogTempInterface = AnalogTempInterface("AnalogTemp", ads1015Interface)
 #    timeInterface = TimeInterface("Time")
     
     # Lights
-    poolLight = HAControl("poolLight", aqualinkInterface, "aux4", type="light", group="Lights", label="Pool light")
-    spaLight = HAControl("spaLight", aqualinkInterface, "aux5", type="light", group="Lights", label="Spa light")
+    poolLight = HAControl("poolLight", gpio0, 5, type="light", group="Lights", label="Pool light")
+    spaLight = HAControl("spaLight", gpio0, 4, type="light", group="Lights", label="Spa light")
     resources.addRes(poolLight)
     resources.addRes(spaLight)
-    resources.addRes(HAScene("poolLights", [resources["poolLight"], 
-                                          resources["spaLight"]], type="light", group="Lights", label="Pool and spa"))
+    resources.addRes(HAScene("poolLights", [poolLight, spaLight], type="light", group="Lights", label="Pool and spa"))
 
     # Temperature
-    airTemp = HASensor("poolEquipTemp", aqualinkInterface, "airTemp", "Temperature",label="Pool equip temp", type="tempF")
-    poolTemp = HASensor("poolTemp", aqualinkInterface, "poolTemp", "Temperature", label="Pool temp", type="tempF")
-    spaTemp = HASensor("spaTemp", aqualinkInterface, "spaTemp", "Temperature", label="Spa temp", type="spaTemp")
-    resources.addRes(airTemp)
-    resources.addRes(poolTemp)
-    resources.addRes(spaTemp)
+    waterTemp = HASensor("waterTemp", analogTempInterface, 0, "Temperature",label="Water temp", type="tempF")
+    resources.addRes(waterTemp)
 
     # Pool
     poolPump = HAControl("poolPump", pentairInterface, 0, group="Pool", label="Pump", type="pump")
-    poolCleaner = HAControl("poolCleaner", aqualinkInterface, "aux1", group="Pool", label="Polaris", type="cleaner")
-    poolValves = HAControl("poolValves", aqualinkInterface, "spa", group="Pool", label="Valves", type="poolValves")
-    spaHeater = HAControl("spaHeater", aqualinkInterface, "spaHtr", group="Pool", label="Heater", type="heater")
-    spaBlower = HAControl("spaBlower", aqualinkInterface, "aux2", group="Pool", label="Blower")
+    poolCleaner = HAControl("poolCleaner", gpio0, 7, group="Pool", label="Polaris", type="cleaner")
+    intakeValve = HAControl("intakeValve", gpio1, 0, group="Pool", label="Intake valve", type="poolValves")
+    returnValve = HAControl("returnValve", gpio1, 1, group="Pool", label="Return valve", type="poolValves")
+    spaHeater = HAControl("spaHeater", gpio1, 2, group="Pool", label="Heater", type="heater")
+    spaBlower = HAControl("spaBlower", gpio0, 6, group="Pool", label="Blower")
     
 #    resources.addRes(HAControl("Pool pump", aqualinkInterface, "pump", group="Pool"))
     resources.addRes(poolPump)
     resources.addRes(HASensor("poolPumpSpeed", pentairInterface, 1, group="Pool", label="Pump speed", type="pumpSpeed"))
     resources.addRes(HASensor("poolPumpFlow", pentairInterface, 3, group="Pool", label="Pump flow", type="pumpFlow"))
     resources.addRes(poolCleaner)
-    resources.addRes(poolValves)
+    resources.addRes(intakeValve)
+    resources.addRes(returnValve)
+    resources.addRes(HAScene("valveMode", [intakeValve, returnValve], stateList=[[0, 1, 1, 0], [0, 1, 0, 1]], type="valveMode", group="Pool", label="Valve mode"))
     resources.addRes(spaHeater)
     resources.addRes(spaBlower)
-#    resources.addRes(HAHeaterControl("Pool heater", aqualinkInterface, "poolHtr", group="Pool"))
-#    resources.addRes(HASensor("model", aqualinkInterface, "poolModel", group="Pool", label="Controller model"))
-    resources.addRes(HASensor("poolDate", aqualinkInterface, "poolDate", group="Pool", label="Controller date"))
-    resources.addRes(HASensor("poolTime", aqualinkInterface, "poolTime", group="Pool", label="Controller time"))
 
     # Spa
 #    dayLight = HASensor("daylight", timeInterface, "daylight")
-    spaInterface = SpaInterface("SpaInterface", poolValves, poolPump, spaHeater, spaLight, spaTemp)
-    spa = HAControl("spa", spaInterface, 0, group="Pool", label="Spa", type="spa")
-    spa1 = HAControl("spa1", spaInterface, 1, group="Pool", label="Spa", type="spaTemp")
-    spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(spa, 1)])
-    resources.addRes(spa)
-    resources.addRes(spa1)
-    resources.addRes(spaLightNight)
+#    spaInterface = SpaInterface("SpaInterface", poolValves, poolPump, spaHeater, spaLight, waterTemp)
+#    spa = HAControl("spa", spaInterface, 0, group="Pool", label="Spa", type="spa")
+#    spa1 = HAControl("spa1", spaInterface, 1, group="Pool", label="Spa", type="spaTemp")
+#    spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(spa, 1)])
+#    resources.addRes(spa)
+#    resources.addRes(spa1)
+#    resources.addRes(spaLightNight)
     
     resources.addRes(HASequence("cleanMode", [HACycle(resources["poolPump"], duration=3600, startState=3), 
                                               HACycle(resources["poolPump"], duration=0, startState=0)
@@ -116,12 +104,13 @@ if __name__ == "__main__":
     # Schedules
     resources.addRes(schedule)
     schedule.addTask(HATask("Pool cleaning", HASchedTime(hour=[8], minute=[0]), resources["cleanMode"], 1))
-    schedule.addTask(HATask("Spa light on sunset", HASchedTime(event="sunset"), resources["spaLightNight"], 1))
+#    schedule.addTask(HATask("Spa light on sunset", HASchedTime(event="sunset"), resources["spaLightNight"], 1))
 
     # Start interfaces
-    aqualinkInterface.start()
+    gpio0.start()
+    gpio1.start()
     pentairInterface.start()
     schedule.start()
-    restServer = RestServer(resources, port=7379, event=stateChangeEvent, label="Pool")
+    restServer = RestServer(resources, event=stateChangeEvent, label="Pool")
     restServer.start()
 
