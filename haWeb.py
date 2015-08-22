@@ -1,3 +1,8 @@
+webPort = 80
+webRestPort = 7478
+webUpdateInterval = 1
+webPageTitle = "Home Automation"
+
 import os
 import cherrypy
 import json
@@ -33,7 +38,7 @@ class WebRoot(object):
             groups = ["Time", "Temperature", "Services", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Cameras", "Tasks"]
             details = True
         with resourceLock:
-            reply = self.env.get_template("default.html").render(title="4319 Shadyglade", script="", 
+            reply = self.env.get_template("default.html").render(title=webPageTitle, script="", 
                                 groups=[[group, self.resources.getGroup(group)] for group in groups],
                                 views=views,
                                 details=details)
