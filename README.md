@@ -1,8 +1,7 @@
-Buehltech Home Automation
-=========================
+# Buehltech Home Automation
 
-Terminology
------------
+### Terminology
+
 Here is a definition of the terminology used in this project.
 
 ##### PHYSICAL
@@ -26,16 +25,16 @@ Here is a definition of the terminology used in this project.
 - service - an application that implements the server side of an interface to a client device or server device
 - client - an application that implements the client side of an interface to a server device
 
-Naming
-------
+### Naming
+
 Every resource has a system-wide unique identifier.
 
-States
-------
+### States
+
 Every resource has an associated state.
 
-Object model
-------------
+### Object model
+
 HA uses an object model that is defined by the following classes:
 
 	+ class HAResource(object):
@@ -99,8 +98,7 @@ Defines an ordered list of HAResources.
 Used to manage a list of tasks to be run at 
 specified times.
         
-Implementation
---------------
+### Implementation
 
 The HA object model is defined in ha/HAClasses.py.
 
@@ -124,8 +122,8 @@ haWeb.py.
 Services expose their HA objects in a REST interface that is implemented in 
 ha/restServer.py.
 
-Access
-------
+### Access
+
 The HA REST interface allows access to HA objects.
 
 ##### Resource paths 
@@ -138,8 +136,8 @@ The HASensor attribute "state" returns the current state of the sensor.  The
 attribute "stateChange" waits and returns the state of a sensor when the state
 changes.
 
-Each REST server includes a resource named "states" whose "state" attribute
-consists of a dictionary of all the states of the HASensors in the collection.  It
+Each REST service resource collection includes an extra resource named "states" whose "state" attribute
+consists of a dictionary of all the current states of the HASensors in the collection.  It
 also has an attribute called "stateChange" that waits for at least one of the resource
 states to change and returns the states of all the resources.
 
