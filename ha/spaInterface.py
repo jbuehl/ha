@@ -63,11 +63,10 @@ class SpaInterface(HAInterface):
                               ])
         self.onSequence = HASequence("spaOn", 
                              [HACycle(self.pumpControl, duration=0, startState=pumpMax),
-#                              HACycle(self.lightControl, duration=0, startState=on)
+                              HACycle(self.heaterControl, duration=0, startState=off)
                               ])
         self.standbySequence = HASequence("spaStandby", 
                              [HACycle(self.pumpControl, duration=0, startState=pumpMed),
-#                              HACycle(self.lightControl, duration=0, startState=on)
                               ])
         self.shutdownSequence = HASequence("spaShutdown", 
                              [HACycle(self.pumpControl, duration=0, startState=pumpMed),
