@@ -67,6 +67,8 @@ if __name__ == "__main__":
     intakeValve = HAControl("intakeValve", gpio1, 0, group="Pool", label="Intake valve", type="poolValves")
     returnValve = HAControl("returnValve", gpio1, 1, group="Pool", label="Return valve", type="poolValves")
     valveMode = HAScene("valveMode", [intakeValve, returnValve], stateList=[[0, 1, 1, 0], [0, 1, 0, 1]], type="valveMode", group="Pool", label="Valve mode")
+    spaFill = HAScene("spaFill", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 4]], group="Pool", label="Spa fill")
+    spaDrain = HAScene("spaDrain", [intakeValve, returnValve, poolPump], stateList=[[0, 1], [0, 0], [0, 4]], group="Pool", label="Spa drain")
     spaHeater = HAControl("spaHeater", gpio1, 2, group="Pool", label="Heater", type="heater")
     spaBlower = HAControl("spaBlower", gpio0, 1, group="Pool", label="Blower")
     
@@ -77,6 +79,8 @@ if __name__ == "__main__":
     resources.addRes(intakeValve)
     resources.addRes(returnValve)
     resources.addRes(valveMode)
+    resources.addRes(spaFill)
+    resources.addRes(spaDrain)
     resources.addRes(spaHeater)
     resources.addRes(spaBlower)
 
