@@ -34,10 +34,12 @@ if __name__ == "__main__":
 #    resources.addRes(HAControl("bathroomLight", thing, type="dimmer", group="Lights", label="Bathroom light"))
     bedroomLight = HAControl("bedroomLight", HARestInterface("bedroomLight", service ="192.168.1.179:7378", cache=False, event=stateChangeEvent), "/resources/bedroomLight/state", type="dimmer", group="Lights", label="Bathroom light")
     bathroomLight = HAControl("bathroomLight", HARestInterface("bathroomLight", service ="192.168.1.125:7378", cache=False, event=stateChangeEvent), "/resources/bathroomLight/state", type="dimmer", group="Lights", label="Bathroom light")
+    backLights = HAControl("backLights", HARestInterface("backLights", service ="192.168.1.193:7378", cache=False, event=stateChangeEvent), "/resources/backLights/state", type="light", group="Lights", label="Bathroom light")
 #    resources.addRes(HAControl("testLight", gpio0, 7, type="light", group="Lights", label="TestOutput"))
 #    resources.addRes(HASensor("testSwitch", gpio1, 7, type="light", group="Lights", label="Test input"))
-    resources.addRes(HAScene("garageLights", [resources["frontLights"],
-                                             resources["garageBackDoorLight"]], group="Lights", label="Garage"))
+    resources.addRes(HAScene("outsideLights", [resources["frontLights"],
+                                               backLights,
+                                               resources["garageBackDoorLight"]], group="Lights", label="Outside lights"))
     resources.addRes(HAScene("bedroomLights", [bedroomLight, bathroomLight], stateList=[[0, 100, 0], [0, 100, 10]], type="nightLight", group="Lights", label="Night lights"))
 
     # Doors
@@ -53,9 +55,9 @@ if __name__ == "__main__":
     resources.addRes(schedule)
     schedule.addTask(HATask("bedroomLightsOnSunset", HASchedTime(event="sunset"), resources["bedroomLights"], 1))
     schedule.addTask(HATask("bedroomLightsOffSunrise", HASchedTime(event="sunrise"), resources["bedroomLights"], 0))
-    schedule.addTask(HATask("garageLightsOnSunset", HASchedTime(event="sunset"), resources["garageLights"], 1))
-    schedule.addTask(HATask("garageLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), resources["garageLights"], 0))
-    schedule.addTask(HATask("garageLightsOffSunrise", HASchedTime(event="sunrise"), resources["garageLights"], 0))
+    schedule.addTask(HATask("outsideLightsOnSunset", HASchedTime(event="sunset"), resources["outsideLights"], 1))
+    schedule.addTask(HATask("outsideLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), resources["outsideLights"], 0))
+    schedule.addTask(HATask("outsideLightsOffSunrise", HASchedTime(event="sunrise"), resources["outsideLights"], 0))
     schedule.addTask(HATask("hotWaterRecircOn", HASchedTime(hour=[05], minute=[0]), resources["recircPump"], 1))
     schedule.addTask(HATask("hotWaterRecircOff", HASchedTime(hour=[23], minute=[0]), resources["recircPump"], 0))
 
