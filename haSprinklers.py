@@ -51,9 +51,9 @@ if __name__ == "__main__":
     schedule.addTask(HATask("backBedTask", HASchedTime(hour=[21], minute=[45], weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["backBedSequence"], 1, enabled=True))
 
     # Temperature
-    resources.addRes(HASensor("bedroomTemp", mcp9803Temp, 0x48, group="Temperature", label="Bedroom temp", type="tempF"))
-    resources.addRes(HASensor("kitchenTemp", tc74Temp, 0x4e, group="Temperature", label="Kitchen temp", type="tempF"))
-    resources.addRes(HASensor("atticTemp", tc74Temp, 0x4f, group="Temperature", label="Attic temp", type="tempF"))
+#    resources.addRes(HASensor("bedroomTemp", mcp9803Temp, 0x48, group="Temperature", label="Bedroom temp", type="tempF"))
+#    resources.addRes(HASensor("kitchenTemp", tc74Temp, 0x4e, group="Temperature", label="Kitchen temp", type="tempF"))
+#    resources.addRes(HASensor("atticTemp", tc74Temp, 0x4f, group="Temperature", label="Attic temp", type="tempF"))
     
     # Start interfaces
     gpioInterface.start()
