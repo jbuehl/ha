@@ -1,3 +1,9 @@
+spaTempTarget = 100
+spaNotifyMsg = "Spa is ready"
+notifyFromNumber = ""
+spaReadyNotifyNumbers = []
+spaReadyNotifyApp = ""
+
 import json
 import time
 import threading
@@ -37,13 +43,14 @@ def getValue(fileName):
 # send an sms notification
 def smsNotify(numbers, message):
     smsClient = TwilioRestClient(getValue(smsSid), getValue(smsToken))
-    smsFrom = getValue(notifyFromNumber)
-    for smsTo in getValue(numbers):
+    smsFrom = notifyFromNumber
+    for smsTo in numbers:
         smsClient.sms.messages.create(to=smsTo, from_=smsFrom, body=message)
 
 # send an iOS app notification
 def iosNotify(app, message):
-    requests.get("http://"+app+".appspot.com/notify?message="+urllib.quote(message))
+    if app != "":
+        requests.get("http://"+app+".appspot.com/notify?message="+urllib.quote(message))
     
 class SpaInterface(HAInterface):
     def __init__(self, name, valveControl, pumpControl, heaterControl, lightControl, tempSensor):
@@ -71,7 +78,7 @@ class SpaInterface(HAInterface):
         self.shutdownSequence = HASequence("spaShutdown", 
                              [HACycle(self.pumpControl, duration=0, startState=pumpMed),
                               HACycle(self.heaterControl, duration=0, startState=off),
-                              HACycle(self.pumpControl, duration=0, startState=off, delay=300),
+                              HACycle(self.pumpControl, duration=0, startState=off, delay=60),
                               HACycle(self.valveControl, duration=0, startState=valvesPool),
                               HACycle(self.lightControl, duration=0, startState=off, delay=30)
                               ])
@@ -132,8 +139,8 @@ class SpaInterface(HAInterface):
     # called when target temperature is reached        
     def spaReady(self, state):
         self.setState(state)
-        smsNotify(spaReadyNotifyNumbers, "Spa is ready")
-        iosNotify("shadyglade-app", "Spa is ready")
+        smsNotify(spaReadyNotifyNumbers, spaNotifyMsg)
+        iosNotify(spaReadyNotifyApp, spaNotifyMsg)
         
 # start a thread to wait for the state of the specified sensor to reach the specified value
 # then call the specified action function with the specified action value
