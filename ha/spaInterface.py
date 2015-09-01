@@ -84,7 +84,7 @@ class SpaInterface(HAInterface):
                               ])
 
     def read(self, addr):
-        if addr == 0:
+        if (addr == 0) or (self.state == spaOff):
             return self.state
         else:
             return "%d %d"%(self.tempSensor.getState(), self.state)
