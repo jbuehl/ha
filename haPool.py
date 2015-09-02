@@ -132,8 +132,8 @@ if __name__ == "__main__":
     intakeValve = HAControl("intakeValve", valveInterface, 0, group="Pool", label="Intake valve", type="poolValve")
     returnValve = HAControl("returnValve", valveInterface, 1, group="Pool", label="Return valve", type="poolValve")
     valveMode = HAScene("valveMode", [intakeValve, returnValve], stateList=[[0, 1, 1, 0], [0, 1, 0, 1]], type="valveMode", group="Pool", label="Valve mode")
-    spaFill = HAScene("spaFill", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 3]], group="Pool", label="Spa fill")
-    spaFlush = HAScene("spaFlush", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 4]], group="Pool", label="Spa flush")
+    spaFill = HAScene("spaFill", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 4]], group="Pool", label="Spa fill")
+    spaFlush = HAScene("spaFlush", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 3]], group="Pool", label="Spa flush")
     spaDrain = HAScene("spaDrain", [intakeValve, returnValve, poolPump], stateList=[[0, 1], [0, 0], [0, 4]], group="Pool", label="Spa drain")
     heater = HAControl("heater", gpio1, 2, group="Pool", label="Heater", type="heater")
     spaHeater = HeaterControl("spaHeater", nullInterface, heater, waterTemp, group="Pool", label="Heater", type="heater")
@@ -162,13 +162,12 @@ if __name__ == "__main__":
     resources.addRes(spa)
     resources.addRes(spa1)
     
-    resources.addRes(HASequence("filter", [
-                                           HACycle(poolPump, duration=39600, startState=1),  # filter 11 hr
-                                           HACycle(spaFlush, duration=900, startState=1, delay=10),    # flush spa 15 min
-                                           HACycle(poolPump, duration=2700, startState=1, delay=10), # filter 45 min 
+    resources.addRes(HASequence("filter", [HACycle(poolPump, duration=39600, startState=1),  # filter 11 hr
                                               ], group="Pool", label="Filter daily"))
     resources.addRes(HASequence("clean", [HACycle(poolCleaner, duration=3600, startState=1), 
                                               ], group="Pool", label="Clean 1 hr"))
+    resources.addRes(HASequence("flush", [HACycle(spaFlush, duration=900, startState=1), 
+                                              ], group="Pool", label="Flush spa 15 min"))
 
     # Power
     resources.addRes(HASensor("poolPumpPower", pentairInterface, 2, type="power", group="Power", label="Pool pump"))
@@ -181,6 +180,7 @@ if __name__ == "__main__":
     resources.addRes(schedule)
     schedule.addTask(HATask("Pool filter", HASchedTime(hour=[21], minute=[0]), resources["filter"], 1))
     schedule.addTask(HATask("Pool cleaner", HASchedTime(hour=[8], minute=[0]), resources["clean"], 1))
+    schedule.addTask(HATask("Flush spa", HASchedTime(hour=[8], minute=[0]), resources["flush"], 1))
     schedule.addTask(HATask("Spa light on sunset", HASchedTime(event="sunset"), spaLightNight, 1))
 
     # Start interfaces
