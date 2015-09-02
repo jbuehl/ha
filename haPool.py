@@ -11,6 +11,7 @@ from ha.spaInterface import *
 from ha.restServer import *
 from ha.ADS1015Interface import *
 from ha.analogTempInterface import *
+from ha.valveInterface import *
 #from ha.timeInterface import *
 
 serial1Config = {"baudrate": 9600, 
@@ -109,6 +110,7 @@ if __name__ == "__main__":
     powerInterface = HAPowerInterface("Power", HAInterface("None"), event=stateChangeEvent)
     ads1015Interface = ADS1015Interface("ADS1015", addr=0x48)
     analogTempInterface = AnalogTempInterface("AnalogTemp", ads1015Interface)
+    valveInterface = ValveInterface("Valves", gpio1)
 #    timeInterface = TimeInterface("Time")
     
     # Lights
@@ -127,8 +129,8 @@ if __name__ == "__main__":
     # Pool
     poolPump = HAControl("poolPump", pentairInterface, 0, group="Pool", label="Pump", type="pump")
     poolCleaner = HAControl("poolCleaner", gpio0, 0, group="Pool", label="Polaris", type="cleaner")
-    intakeValve = HAControl("intakeValve", gpio1, 0, group="Pool", label="Intake valve", type="poolValves")
-    returnValve = HAControl("returnValve", gpio1, 1, group="Pool", label="Return valve", type="poolValves")
+    intakeValve = HAControl("intakeValve", valveInterface, 0, group="Pool", label="Intake valve", type="poolValve")
+    returnValve = HAControl("returnValve", valveInterface, 1, group="Pool", label="Return valve", type="poolValve")
     valveMode = HAScene("valveMode", [intakeValve, returnValve], stateList=[[0, 1, 1, 0], [0, 1, 0, 1]], type="valveMode", group="Pool", label="Valve mode")
     spaFill = HAScene("spaFill", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 3]], group="Pool", label="Spa fill")
     spaFlush = HAScene("spaFlush", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 4]], group="Pool", label="Spa flush")
