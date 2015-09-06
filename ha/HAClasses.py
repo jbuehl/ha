@@ -313,7 +313,7 @@ class HASensor(HAResource):
 
     # dictionary of pertinent attributes
     def dict(self):
-        return {"class":self.__class__.__name__, 
+        return {"class":self.className, # FIXME __class__.__name__, 
                 "name":self.name, 
                 "type":self.type, 
                 "label":self.label, 
