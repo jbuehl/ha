@@ -105,7 +105,7 @@ if __name__ == "__main__":
     # Interfaces
     stateChangeEvent = threading.Event()
     nullInterface = HAInterface("Null", HAInterface("None"))
-    serial1 = HASerialInterface("Serial1", device="/dev/ttyAMA0", config=serial1Config, event=stateChangeEvent)
+    serial1 = HASerialInterface("Serial1", device=pentairDevice, config=serial1Config, event=stateChangeEvent)
     i2c1 = I2CInterface("I2C1", bus=1, event=stateChangeEvent)
     gpio0 = GPIOInterface("GPIO0", i2c1, addr=0x20, bank=0, inOut=0x00)
     gpio1 = GPIOInterface("GPIO1", i2c1, addr=0x20, bank=1, inOut=0x00)
