@@ -25,10 +25,11 @@ heaterEnabled = 4
 
 # a temperature controlled heater
 class HeaterControl(HAControl):
-    def __init__(self, name, interface, heaterControl, tempControl, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
+    def __init__(self, name, interface, heaterControl, tempSensor, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
         HAControl.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
-        self.heaterControl = heaterControl      # the heater control
-        self.tempControl = tempControl          # the temp sensor
+        self.className = "HAControl"
+        self.heaterControl = heaterControl      # the heater
+        self.tempSensor = tempSensor          # the temp sensor
         self.tempTarget = 0
         self.currentState = heaterOff
 
@@ -41,22 +42,24 @@ class HeaterControl(HAControl):
         # thread to monitor the temperature
         def tempWatch():
             debug('debugHeater', self.name, "tempWatch started")
-            while self.currentState != heaterOff:  # stop when state is set to 0
+            while self.currentState != heaterOff:  # stop when state is set to off
                 time.sleep(1)
                 if self.currentState == heaterOff:
                     debug('debugHeater', self.name, "heater off")
                     self.heaterControl.setState(heaterOff)
                 elif self.currentState == heaterOn:
-                    if self.tempControl.getState() >= self.tempTarget + self.hyseresis:
-                        self.heaterControl.setState(heaterOff)
-                        self.currentState = heaterEnabled
-                        debug('debugHeater', self.name, "heater enabled")
+                    if self.tempSensor.getState() >= self.tempTarget + self.hysteresis:
+                        if self.heaterControl.getState() != heaterOff:
+                            self.heaterControl.setState(heaterOff)
+                            self.currentState = heaterEnabled
+                            debug('debugHeater', self.name, "heater enabled")
                     else:
-                        self.heaterControl.setState(heaterOn)
-                        self.currentState = heaterOn
-                        debug('debugHeater', self.name, "heater on")
+                        if self.heaterControl.getState() != heaterOn:
+                            self.heaterControl.setState(heaterOn)
+                            self.currentState = heaterOn
+                            debug('debugHeater', self.name, "heater on")
                 elif self.currentState == heaterEnabled:
-                    if self.tempControl.getState() <= self.tempTarget - self.hysteresis:
+                    if self.tempSensor.getState() <= self.tempTarget - self.hysteresis:
                         self.heaterControl.setState(heaterOn)
                         self.currentState = heaterOn
                         debug('debugHeater', self.name, "heater on")
@@ -75,7 +78,7 @@ class HeaterControl(HAControl):
         self.notify()
 
     def setTarget(self, tempTarget, hysteresis=1, wait=False):
-        debug('debugState', self.name, "setTarget ", tempTarget)
+        debug('debugHeater', self.name, "setTarget ", tempTarget, hysteresis)
         self.tempTarget = tempTarget
         self.hysteresis = hysteresis
 
@@ -180,7 +183,7 @@ if __name__ == "__main__":
     resources.addRes(schedule)
     schedule.addTask(HATask("Pool filter", HASchedTime(hour=[21], minute=[0]), resources["filter"], 1))
     schedule.addTask(HATask("Pool cleaner", HASchedTime(hour=[8], minute=[0]), resources["clean"], 1))
-    schedule.addTask(HATask("Flush spa", HASchedTime(hour=[8], minute=[0]), resources["flush"], 1))
+    schedule.addTask(HATask("Flush spa", HASchedTime(hour=[8], minute=[1]), resources["flush"], 1))
     schedule.addTask(HATask("Spa light on sunset", HASchedTime(event="sunset"), spaLightNight, 1))
 
     # Start interfaces
