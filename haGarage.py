@@ -32,7 +32,7 @@ if __name__ == "__main__":
     resources.addRes(HASensor("frontLightSwitch", gpio1, 0, type="light", group="Lights", label="Front light switch", interrupt=frontLightSwitch))
 #    resources.addRes(HAControl("bedroomLight", thing, type="dimmer", group="Lights", label="Bedroom light"))
 #    resources.addRes(HAControl("bathroomLight", thing, type="dimmer", group="Lights", label="Bathroom light"))
-    bedroomLight = HAControl("bedroomLight", HARestInterface("bedroomLight", service ="192.168.1.179:7378", cache=False, event=stateChangeEvent), "/resources/bedroomLight/state", type="dimmer", group="Lights", label="Bathroom light")
+    bedroomLight = HAControl("bedroomLight", HARestInterface("bedroomLight", service ="192.168.1.126:7378", cache=False, event=stateChangeEvent), "/resources/bedroomLight/state", type="dimmer", group="Lights", label="Bathroom light")
     bathroomLight = HAControl("bathroomLight", HARestInterface("bathroomLight", service ="192.168.1.125:7378", cache=False, event=stateChangeEvent), "/resources/bathroomLight/state", type="dimmer", group="Lights", label="Bathroom light")
     backLights = HAControl("backLights", HARestInterface("backLights", service ="192.168.1.193:7378", cache=False, event=stateChangeEvent), "/resources/backLights/state", type="light", group="Lights", label="Bathroom light")
 #    resources.addRes(HAControl("testLight", gpio0, 7, type="light", group="Lights", label="TestOutput"))
