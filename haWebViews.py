@@ -27,7 +27,7 @@ def spaTempFormat(value):
         state = int(str(value).split(" ")[1])
     except:
         state = 0
-    if temp == 0:
+    if state == 0:
         return "Off"
     else:
         return "%d F %s" % (temp, {0:"Off", 1:"Ready", 2:"Starting", 3:"Warming", 4:"Standby", 5:"Stopping"}[state])
