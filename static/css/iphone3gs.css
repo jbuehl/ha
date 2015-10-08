@@ -56,12 +56,16 @@ table {
     }
     
 input {
-    height: 50px;
+    height: 48px;
     width: 80px;
 	font-size: 24px;
     margin-top: 4px;
     margin-bottom: 4px;
 	margin-left: 0px;
+    }
+
+.door_Open {
+	color: Orange;
     }
 
 

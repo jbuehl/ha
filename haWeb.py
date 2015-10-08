@@ -53,9 +53,9 @@ class WebRoot(object):
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
                                 day=self.resources["theDay"],
-                                temp=self.resources["deckTemp"],
+                                temp=self.resources["poolEquipTemp"],
                                 groups=[["Pool", self.resources.getResList(["waterTemp", "spaTemp"])], 
-                                      ["Lights", self.resources.getResList(["frontLights", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
+                                      ["Lights", self.resources.getResList(["frontLight", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
                                       ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
                                       ["Sprinklers", self.resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
                                       ],
@@ -70,8 +70,8 @@ class WebRoot(object):
             reply = self.env.get_template("iphone5.html").render(script="", 
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
-                                temp=self.resources["deckTemp"],
-                                resources=self.resources.getResList(["spaTemp", "frontLights", "backLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
+                                temp=self.resources["poolEquipTemp"],
+                                resources=self.resources.getResList(["spaTemp", "frontLight", "backLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
                                 views=views)
         return reply
 
@@ -84,8 +84,8 @@ class WebRoot(object):
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
                                 day=self.resources["theDay"],
-                                temp=self.resources["deckTemp"],
-                                resources=self.resources.getResList(["frontLights", "backLights", "bedroomLights", "recircPump", "garageBackDoor"]),
+                                temp=self.resources["poolEquipTemp"],
+                                resources=self.resources.getResList(["frontLight", "backLights", "bedroomLights", "recircPump", "garageDoor", "garageBackDoor"]),
                                 views=views)
         return reply
 
