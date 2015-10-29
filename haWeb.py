@@ -3,6 +3,8 @@ webRestPort = 7478
 webUpdateInterval = 1
 webPageTitle = "Home Automation"
 
+outsideTemp = "deckTemp"
+
 import os
 import cherrypy
 import json
@@ -53,7 +55,7 @@ class WebRoot(object):
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
                                 day=self.resources["theDay"],
-                                temp=self.resources["poolEquipTemp"],
+                                temp=self.resources[outsideTemp],
                                 groups=[["Pool", self.resources.getResList(["waterTemp", "spaTemp"])], 
                                       ["Lights", self.resources.getResList(["frontLight", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
                                       ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
@@ -70,7 +72,7 @@ class WebRoot(object):
             reply = self.env.get_template("iphone5.html").render(script="", 
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
-                                temp=self.resources["poolEquipTemp"],
+                                temp=self.resources[outsideTemp],
                                 resources=self.resources.getResList(["spaTemp", "frontLight", "backLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
                                 views=views)
         return reply
@@ -84,7 +86,7 @@ class WebRoot(object):
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
                                 day=self.resources["theDay"],
-                                temp=self.resources["poolEquipTemp"],
+                                temp=self.resources[outsideTemp],
                                 resources=self.resources.getResList(["frontLight", "backLights", "bedroomLights", "recircPump", "garageDoor", "garageBackDoor"]),
                                 views=views)
         return reply
