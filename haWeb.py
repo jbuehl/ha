@@ -11,15 +11,13 @@ from jinja2 import Environment, FileSystemLoader
 from ha.HAClasses import *
 from haWebViews import *
 
-stateChangeEvent = threading.Event()
-resourceLock = threading.Lock()
-
 class WebRoot(object):
-    def __init__(self, resources, env, cache):
+    def __init__(self, resources, env, cache, stateChangeEvent, resourceLock):
         self.resources = resources
         self.env = env
         self.cache = cache
-#        self.lastStates = {}
+        self.stateChangeEvent = stateChangeEvent
+        self.resourceLock = resourceLock
     
     # Everything    
     @cherrypy.expose
@@ -31,7 +29,7 @@ class WebRoot(object):
         except:
             groups = ["Time", "Temperature", "Services", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Cameras", "Tasks"]
             details = True
-        with resourceLock:
+        with self.resourceLock:
             reply = self.env.get_template("default.html").render(title=webPageTitle, script="", 
                                 groups=[[group, self.resources.getGroup(group)] for group in groups],
                                 views=views,
@@ -42,7 +40,7 @@ class WebRoot(object):
     @cherrypy.expose
     def ipad(self, action=None, resource=None):
         debug('debugWeb', "/ipad", "get", action, resource)
-        with resourceLock:
+        with self.resourceLock:
             reply = self.env.get_template("ipad.html").render(script="", 
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
@@ -60,7 +58,7 @@ class WebRoot(object):
     @cherrypy.expose
     def iphone5(self, action=None, resource=None):
         debug('debugWeb', "/iphone5", "get", action, resource)
-        with resourceLock:
+        with self.resourceLock:
             reply = self.env.get_template("iphone5.html").render(script="", 
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
@@ -73,7 +71,7 @@ class WebRoot(object):
     @cherrypy.expose
     def iphone3gs(self, action=None, resource=None):
         debug('debugWeb', "/iphone3gs", "get", action, resource)
-        with resourceLock:
+        with self.resourceLock:
             reply = self.env.get_template("iphone3gs.html").render(script="", 
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
@@ -125,9 +123,9 @@ class WebRoot(object):
     def stateChange(self, _=None):
         debug('debugWebUpdate', "stateChange", cherrypy.request.remote.ip)
         debug('debugInterrupt', "update", "event wait")
-        stateChangeEvent.wait()
+        self.stateChangeEvent.wait()
         debug('debugInterrupt', "update", "event clear")
-        stateChangeEvent.clear()
+        self.stateChangeEvent.clear()
         return self.updateStates(self.resources["states"].getStateChange())
 
     # return the json to update the states of the specified collection of sensors
@@ -158,7 +156,7 @@ class WebRoot(object):
         reply = ""
         return reply
 
-def webInit(resources, restCache):
+def webInit(resources, restCache, stateChangeEvent, resourceLock):
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
     globalConfig = {
@@ -182,7 +180,7 @@ def webInit(resources, restCache):
         },
     }    
     cherrypy.config.update(globalConfig)
-    root = WebRoot(resources, Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates'))), restCache)
+    root = WebRoot(resources, Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates'))), restCache, stateChangeEvent, resourceLock)
     cherrypy.tree.mount(root, "/", appConfig)
     if not webLogging:
         access_log = cherrypy.log.access_log
