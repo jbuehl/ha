@@ -43,7 +43,7 @@ if __name__ == "__main__":
     resources.addRes(HASensor("garageDoor", gpio1, 3, type="door", group="Doors", label="Garage Door"))
 
     # Water
-    resources.addRes(HAControl("recircPump", gpio0, 3, type="hotwater", group="Water", label="Hot water"))
+#    resources.addRes(HAControl("recircPump", gpio0, 3, type="hotwater", group="Water", label="Hot water"))
 
     # Temperature
     resources.addRes(HASensor("garageTemp", temp, 0x4d, group="Temperature", label="Garage temp", type="tempF"))

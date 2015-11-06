@@ -10,7 +10,6 @@ from haWeb import *
 stateChangeEvent = threading.Event()
 resourceLock = threading.Lock()
 
-
 if __name__ == "__main__":
     # resources
     resources = HACollection("resources")
@@ -29,7 +28,7 @@ if __name__ == "__main__":
     # start the cache to listen for services on other servers
     restCache = RestProxy("restProxy", resources, socket.gethostname()+":"+str(webRestPort), stateChangeEvent, resourceLock)
     restCache.start()
-    time.sleep(20)  # wait for resources to load
+    time.sleep(30)  # wait for resources to load
     
     # scenes
     resources.addRes(HAScene("outsideLights", [resources["frontLight"],
