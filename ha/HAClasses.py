@@ -480,14 +480,15 @@ class HASequence(HAControl):
             
 # A Scene is a set of Controls whose state can be changed together
 class HAScene(HAControl):
-    def __init__(self, name, theControlList, stateList=[], interface=HAInterface("None"), addr=None, group="", type="scene", view=None, label=""):
+    def __init__(self, name, controlList, stateList=[], resources=None, interface=HAInterface("None"), addr=None, group="", type="scene", view=None, label=""):
         HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
-        self.controlList = theControlList
+        self.controlList = controlList
         self.sceneState = 0
         if stateList == []:
             self.stateList = [[0,1]]*(len(self.controlList))
         else:
             self.stateList = stateList
+        self.resources = resources  # if specified, controlList contains resource names, otherwise references
 
     def setState(self, state, wait=False):
         if self.interface.name == "None":
@@ -527,7 +528,15 @@ class HAScene(HAControl):
         debug('debugThread', self.name, "started")
         self.running = True
         for controlIdx in range(len(self.controlList)):
-            self.controlList[controlIdx].setState(self.stateList[controlIdx][self.sceneState])
+            if self.resources:      # controls are resource names
+                try:
+                    control = self.resources[self.controlList[controlIdx]]
+                except KeyError:    # can't resolve so ignore it
+                    control = None
+            else:                   # controls are resource references
+                control = self.controlList[controlIdx]
+            if control:
+                control.setState(self.stateList[controlIdx][self.sceneState])
         self.running = False
         debug('debugThread', self.name, "finished")
 
@@ -623,7 +632,17 @@ class HASchedule(HACollection):
                                             if task.enabled:
                                                 # run the task
                                                 debug('debugEvent', self.name, "running", taskName)
-                                                task.control.setState(task.controlState)
+                                                if task.resources:      # control is resource name
+                                                    try:
+                                                        debug('debugEvent', self.name, "resolving", task.control)
+                                                        control = task.resources[task.control]
+                                                    except KeyError:    # can't resolve so ignore it
+                                                        control = None
+                                                else:                   # control is resource reference
+                                                    control = task.control
+                                                if control:
+                                                    debug('debugEvent', self.name, "setting", control.name, "state", task.controlState)
+                                                    control.setState(task.controlState)
                 if task.schedTime.last:
                     if task.schedTime.last <= now:
                         # delete the task from the schedule if it will never run again
@@ -636,11 +655,12 @@ class HASchedule(HACollection):
 
 # a Task specifies a control to be set to a specified state at a specified time
 class HATask(HAControl):
-    def __init__(self, name, schedTime, control, state, theParent=None, enabled=True, interface=HAInterface("None"), addr=None, type="task", group="Tasks", view=None, label=""):
+    def __init__(self, name, schedTime, control, state, resources=None, theParent=None, enabled=True, interface=HAInterface("None"), addr=None, type="task", group="Tasks", view=None, label=""):
         HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.schedTime = schedTime
         self.control = control
         self.controlState = state
+        self.resources = resources
         self.parent = theParent
         self.enabled = normalState(enabled)
 
@@ -674,8 +694,15 @@ class HATask(HAControl):
                 "controlState":self.controlState, 
                 "schedTime": self.schedTime.dict()}
                     
-    def __str__(self):
-        return self.name+" "+self.schedTime.__str__()#+" Control:"+self.control.name+" State:"+self.state.__str__()
+    def __str__(self, views=None):
+        if self.resources:      # control is resource name
+            try:
+                control = self.resources[self.control]
+            except KeyError:    # can't resolve so ignore it
+                return ""
+        else:                   # control is resource reference
+            control = self.control
+        return control.name+": "+control.setValues(views)[self.controlState]+","+self.schedTime.__str__()
 
     def __del__(self):
         del(self.schedTime)

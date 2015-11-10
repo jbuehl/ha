@@ -28,25 +28,27 @@ if __name__ == "__main__":
     # start the cache to listen for services on other servers
     restCache = RestProxy("restProxy", resources, socket.gethostname()+":"+str(webRestPort), stateChangeEvent, resourceLock)
     restCache.start()
-    time.sleep(30)  # wait for resources to load
     
     # scenes
-    resources.addRes(HAScene("outsideLights", [resources["frontLight"],
-                                               resources["backLights"],
-                                               resources["garageBackDoorLight"]], 
+    resources.addRes(HAScene("outsideLights", ["frontLight",
+                                               "backLights",
+                                               "garageBackDoorLight"],
+                                               resources=resources, 
                                                group="Lights", label="Outside lights"))
-    resources.addRes(HAScene("bedroomLights", [resources["bedroomLight"], 
-                                               resources["bathroomLight"]], 
-                                               stateList=[[0, 100, 0], [0, 100, 10]], type="nightLight", group="Lights", label="Night lights"))
+    resources.addRes(HAScene("bedroomLights", ["bedroomLight", 
+                                               "bathroomLight"],
+                                               resources=resources, 
+                                               stateList=[[0, 100, 0], [0, 100, 10]], 
+                                               type="nightLight", group="Lights", label="Night lights"))
 
     # Tasks
-    resources.addRes(HATask("bedroomLightsOnSunset", HASchedTime(event="sunset"), resources["bedroomLights"], 1))
-    resources.addRes(HATask("bedroomLightsOffSunrise", HASchedTime(event="sunrise"), resources["bedroomLights"], 0))
-    resources.addRes(HATask("outsideLightsOnSunset", HASchedTime(event="sunset"), resources["outsideLights"], 1))
-    resources.addRes(HATask("outsideLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), resources["outsideLights"], 0))
-    resources.addRes(HATask("outsideLightsOffSunrise", HASchedTime(event="sunrise"), resources["outsideLights"], 0))
-    resources.addRes(HATask("hotWaterRecircOn", HASchedTime(hour=[05], minute=[0]), resources["recircPump"], 1))
-    resources.addRes(HATask("hotWaterRecircOff", HASchedTime(hour=[23], minute=[0]), resources["recircPump"], 0))
+    resources.addRes(HATask("bedroomLightsOnSunset", HASchedTime(event="sunset"), "bedroomLights", 1, resources=resources))
+    resources.addRes(HATask("bedroomLightsOffSunrise", HASchedTime(event="sunrise"), "bedroomLights", 0, resources=resources))
+    resources.addRes(HATask("outsideLightsOnSunset", HASchedTime(event="sunset"), "outsideLights", 1, resources=resources))
+    resources.addRes(HATask("outsideLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), "outsideLights", 0, resources=resources))
+    resources.addRes(HATask("outsideLightsOffSunrise", HASchedTime(event="sunrise"), "outsideLights", 0, resources=resources))
+    resources.addRes(HATask("hotWaterRecircOn", HASchedTime(hour=[05], minute=[0]), "recircPump", 1, resources=resources))
+    resources.addRes(HATask("hotWaterRecircOff", HASchedTime(hour=[23], minute=[0]), "recircPump", 0, resources=resources))
     
     # Schedule
     schedule = HASchedule("schedule")

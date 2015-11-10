@@ -29,8 +29,7 @@
                     {% endfor %}
                 </form>
                     {% if r.className == "HATask" %}
-                        {{ r.control.name }}: {{ r.control.setValues(views)[r.controlState] }}<br>
-                        {{ r.schedTime.__str__().replace(",","<br>") }}
+                        {{ r.__str__().replace(",","<br>") }}
                     {% endif %}
                     {% if r.className == "HASequence" %}
                         {{ r.__str__().replace(",","<br>") }}
