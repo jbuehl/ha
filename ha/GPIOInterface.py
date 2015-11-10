@@ -26,30 +26,30 @@ class GPIOInterface(HAInterface):
     GPIO = 0x12
     OLAT = 0x14
 
-    interruptPins = [23, 24]
-    
     # direct GPIO
     gpioPins = [12, 16, 18, 22, 15, 13, 11, 7]   # A/B
 #            32, 36, 38, 40, 37, 35, 33, 31]     # B+
     
     def __init__(self, name, interface=None, event=None,
-                                             addr=0x20, # I2C address of MCP23017
-                                             bank=0,    # bank within MCP23017 A=0, B=1
-                                             inOut=0x00,# I/O direction out=0, in=1
-                                             config=[]):# additional configuration
+                                             addr=0x20,         # I2C address of MCP23017
+                                             bank=0,            # bank within MCP23017 A=0, B=1
+                                             inOut=0x00,        # I/O direction out=0, in=1
+                                             interruptPin=17,   # RPIO pin used for interrupt (BCM number)
+                                             config=[]):        # additional configuration
         HAInterface.__init__(self, name, interface=interface, event=event)
         global gpioInterfaces
-        gpioInterfaces[GPIOInterface.interruptPins[bank]] = self
         self.name = name
         if interface:
             self.addr = addr
             self.bank = bank
             self.inOut = inOut
+            self.interruptPin = interruptPin
             self.config = config
             self.state = 0x00
         else:
             self.interface = None
             self.bank = 0
+        gpioInterfaces[self.interruptPin] = self
     
     def start(self):
         gpio.setwarnings(False)
@@ -66,7 +66,7 @@ class GPIOInterface(HAInterface):
             # get the current state
             self.readState()
             # set up the interrupt handling
-            gpio.add_interrupt_callback(GPIOInterface.interruptPins[self.bank], interruptCallback, edge="falling", pull_up_down=gpio.PUD_UP)
+            gpio.add_interrupt_callback(self.interruptPin, interruptCallback, edge="falling", pull_up_down=gpio.PUD_UP)
             gpio.wait_for_interrupts(threaded=True)
         else:   # direct only supports output - FIXME
             gpio.setmode(gpio.BOARD)
