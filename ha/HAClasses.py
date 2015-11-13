@@ -655,13 +655,13 @@ class HASchedule(HACollection):
 
 # a Task specifies a control to be set to a specified state at a specified time
 class HATask(HAControl):
-    def __init__(self, name, schedTime, control, state, resources=None, theParent=None, enabled=True, interface=HAInterface("None"), addr=None, type="task", group="Tasks", view=None, label=""):
+    def __init__(self, name, schedTime, control, state, resources=None, parent=None, enabled=True, interface=HAInterface("None"), addr=None, type="task", group="Tasks", view=None, label=""):
         HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.schedTime = schedTime
         self.control = control
         self.controlState = state
         self.resources = resources
-        self.parent = theParent
+        self.parent = parent
         self.enabled = normalState(enabled)
 
     def getState(self):
@@ -683,7 +683,7 @@ class HATask(HAControl):
         schedTime.eventTime(latLong)
         schedTime.event = ""
         schedTime.lastTime()
-        return HATask(self.name+"Event", schedTime, self.control, self.controlState, self)
+        return HATask(self.name+"Event", schedTime, self.control, self.controlState, resources=self.resources, parent=self)
         
     # dictionary of pertinent attributes
     def dict(self):
