@@ -14,17 +14,17 @@ def interruptCallback(pin, value):
 # Interface to GPIO either directly or via MCP23017 I2C I/O expander
 class GPIOInterface(HAInterface):
     # MCP23017 I2C I/O expander
-    IODIR = 0x00
-    IPOL = 0x02
-    GPINTEN = 0x04
-    DEFVAL = 0x06
-    INTCON = 0x08
-    IOCON = 0x0a
-    GPPU = 0x0c
-    INTF = 0x0e
-    INTCAP = 0x10
-    GPIO = 0x12
-    OLAT = 0x14
+    IODIR = 0x00        # I/O direction
+    IPOL = 0x02         # input polarity
+    GPINTEN = 0x04      # interrupt on change
+    DEFVAL = 0x06       # default value
+    INTCON = 0x08       # interrupt control
+    IOCON = 0x0a        # configuration
+    GPPU = 0x0c         # pull up resistor
+    INTF = 0x0e         # interrupt flag
+    INTCAP = 0x10       # interrupt capture
+    GPIO = 0x12         # I/O data
+    OLAT = 0x14         # output latch
 
     # direct GPIO
     gpioPins = [12, 16, 18, 22, 15, 13, 11, 7]   # A/B
@@ -43,7 +43,7 @@ class GPIOInterface(HAInterface):
             self.addr = addr
             self.bank = bank
             self.inOut = inOut
-            self.interruptPin = interruptPin
+            self.interruptPin = interruptPin+self.bank  # offset pin with bank
             self.config = config
             self.state = 0x00
         else:
@@ -55,14 +55,15 @@ class GPIOInterface(HAInterface):
         gpio.setwarnings(False)
         if self.interface:
             # configure the MCP23017
-            self.interface.write((self.addr, GPIOInterface.IODIR+self.bank), self.inOut)
-            self.interface.write((self.addr, GPIOInterface.GPINTEN+self.bank), self.inOut)
-            self.interface.write((self.addr, GPIOInterface.GPPU+self.bank), self.inOut)
-            self.interface.write((self.addr, GPIOInterface.IOCON), 0x04)
+            self.interface.write((self.addr, GPIOInterface.IODIR+self.bank), self.inOut)    # I/O direction
+            self.interface.write((self.addr, GPIOInterface.GPINTEN+self.bank), self.inOut)  # enable interrupts for inputs
+            self.interface.write((self.addr, GPIOInterface.GPPU+self.bank), self.inOut)     # pull up resistors on inputs
+            self.interface.write((self.addr, GPIOInterface.IOCON), 0x04)                    # interrupt pins are open drain
             # additional configuration
             for config in self.config:
-                debug('debugGPIO', self.name, "start", "addr: 0x%02x"%self.addr, "reg: 0x%02x"%config[0], "value: 0x%02x"%config[1])
-                self.interface.write((self.addr, config[0]), config[1])
+                reg = config[0]+self.bank   # offset register with bank
+                debug('debugGPIO', self.name, "start", "addr: 0x%02x"%self.addr, "reg: 0x%02x"%reg, "value: 0x%02x"%config[1])
+                self.interface.write((self.addr, reg), config[1])
             # get the current state
             self.readState()
             # set up the interrupt handling
@@ -83,16 +84,13 @@ class GPIOInterface(HAInterface):
         self.readState()
         for i in range(8):
             if (intFlags >> i) & 0x01:
-#                try:
-                    sensor = self.sensorAddrs[i]
-                    state = (self.state >> i) & 0x01
-                    debug('debugGPIO', self.name, "notifying", sensor.name)
-                    sensor.notify()
-                    if sensor.interrupt:
-                        debug('debugGPIO', self.name, "calling", sensor.name, state)
-                        sensor.interrupt(sensor, state)
-#                except:
-#                    pass
+                sensor = self.sensorAddrs[i]
+                state = (self.state >> i) & 0x01
+                debug('debugGPIO', self.name, "notifying", sensor.name)
+                sensor.notify()
+                if sensor.interrupt:
+                    debug('debugGPIO', self.name, "calling", sensor.name, state)
+                    sensor.interrupt(sensor, state)
 
     def read(self, addr):
         if self.interface:
