@@ -10,6 +10,27 @@ from haWeb import *
 stateChangeEvent = threading.Event()
 resourceLock = threading.Lock()
 
+# A collection of sensors whose state is on if any one of them is on
+class SensorGroup(HASensor):
+    def __init__(self, name, sensorList, resources=None, interface=HAInterface("None"), addr=None, group="", type="sensor", view=None, label=""):
+        HASensor.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
+        self.sensorList = sensorList
+        self.resources = resources  # if specified, controlList contains resource names, otherwise references
+        self.className = "HASensor"
+
+    def getState(self):
+        groupState = 0
+        for sensorIdx in range(len(self.sensorList)):
+            if self.resources:      # sensors are resource names
+                try:
+                    sensor = self.resources[self.sensorList[sensorIdx]]
+                except KeyError:    # can't resolve so ignore it
+                    sensor = None
+            else:                   # sensors are resource references
+                sensor = self.sensorList[sensorIdx]
+            groupState = groupState or sensor.getState()
+        return groupState
+
 if __name__ == "__main__":
     # resources
     resources = HACollection("resources")
@@ -29,12 +50,19 @@ if __name__ == "__main__":
     restCache = RestProxy("restProxy", resources, socket.gethostname()+":"+str(webRestPort), stateChangeEvent, resourceLock)
     restCache.start()
     
-    # scenes
+    # scenes and groups
+    resources.addRes(SensorGroup("houseDoors", ["frontDoor", "familyRoomDoor", "masterBedroomDoor"], resources=resources, type="door", group="Doors", label="House doors"))
+    resources.addRes(SensorGroup("garageDoors", ["garageDoor", "garageBackDoor", "garageHouseDoor"], resources=resources, type="door", group="Doors", label="Garage doors"))
     resources.addRes(HAScene("outsideLights", ["frontLight",
                                                "backLights",
                                                "garageBackDoorLight"],
                                                resources=resources, 
                                                group="Lights", label="Outside lights"))
+    resources.addRes(HAScene("xmasLights", ["xmasCowTree",
+                                            "xmasFrontLights",
+                                            "xmasBackLights"],
+                                               resources=resources, 
+                                               group="Lights", label="Xmas lights"))
     resources.addRes(HAScene("bedroomLights", ["bedroomLight", 
                                                "bathroomLight"],
                                                resources=resources, 
@@ -47,6 +75,9 @@ if __name__ == "__main__":
     resources.addRes(HATask("outsideLightsOnSunset", HASchedTime(event="sunset"), "outsideLights", 1, resources=resources))
     resources.addRes(HATask("outsideLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), "outsideLights", 0, resources=resources))
     resources.addRes(HATask("outsideLightsOffSunrise", HASchedTime(event="sunrise"), "outsideLights", 0, resources=resources))
+    resources.addRes(HATask("xmasLightsOnSunset", HASchedTime(event="sunset"), "xmasLights", 1, resources=resources))
+    resources.addRes(HATask("xmasLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, resources=resources))
+    resources.addRes(HATask("xmasLightsOffSunrise", HASchedTime(event="sunrise"), "xmasLights", 0, resources=resources))
     resources.addRes(HATask("hotWaterRecircOn", HASchedTime(hour=[05], minute=[0]), "recircPump", 1, resources=resources))
     resources.addRes(HATask("hotWaterRecircOff", HASchedTime(hour=[23], minute=[0]), "recircPump", 0, resources=resources))
     

@@ -24,7 +24,7 @@ if __name__ == "__main__":
     x10Interface = X10Interface("x10", serial2)
     
     # Lights
-    resources.addRes(HAControl("xmasLights", x10Interface, "A1", type="light", group="Lights", label="Xmas lights"))
+    resources.addRes(HAControl("xmasCowTree", x10Interface, "A1", type="light", group="Lights", label="Cow tree"))
     resources.addRes(HAControl("bbqLights", x10Interface, "A6", type="light", group="Lights", label="Barbeque lights"))
     resources.addRes(HAControl("backYardLights", x10Interface, "A7", type="light", group="Lights", label="Back yard lights"))
 

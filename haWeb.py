@@ -47,7 +47,7 @@ class WebRoot(object):
                                 day=self.resources["theDay"],
                                 temp=self.resources[outsideTemp],
                                 groups=[["Pool", self.resources.getResList(["waterTemp", "spaTemp"])], 
-                                      ["Lights", self.resources.getResList(["frontLight", "backLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
+                                      ["Lights", self.resources.getResList(["outsideLights", "xmasLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
                                       ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
                                       ["Sprinklers", self.resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
                                       ],
@@ -77,7 +77,7 @@ class WebRoot(object):
                                 ampm=self.resources["theAmPm"],
                                 day=self.resources["theDay"],
                                 temp=self.resources[outsideTemp],
-                                resources=self.resources.getResList(["frontLight", "backLights", "bedroomLights", "recircPump", "garageDoor", "garageBackDoor"]),
+                                resources=self.resources.getResList(["outsideLights", "xmasLights", "bedroomLights", "recircPump", "garageDoors", "houseDoors"]),
                                 views=views)
         return reply
 
