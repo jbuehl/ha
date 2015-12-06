@@ -47,7 +47,7 @@ class WebRoot(object):
                                 day=self.resources["theDay"],
                                 temp=self.resources[outsideTemp],
                                 groups=[["Pool", self.resources.getResList(["waterTemp", "spaTemp"])], 
-                                      ["Lights", self.resources.getResList(["outsideLights", "xmasLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
+                                      ["Lights", self.resources.getResList(["porchLights", "xmasLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
                                       ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
                                       ["Sprinklers", self.resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
                                       ],
@@ -63,7 +63,7 @@ class WebRoot(object):
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
                                 temp=self.resources[outsideTemp],
-                                resources=self.resources.getResList(["spaTemp", "frontLight", "backLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
+                                resources=self.resources.getResList(["spaTemp", "frontLights", "backLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
                                 views=views)
         return reply
 
@@ -77,7 +77,7 @@ class WebRoot(object):
                                 ampm=self.resources["theAmPm"],
                                 day=self.resources["theDay"],
                                 temp=self.resources[outsideTemp],
-                                resources=self.resources.getResList(["outsideLights", "xmasLights", "bedroomLights", "recircPump", "garageDoors", "houseDoors"]),
+                                resources=self.resources.getResList(["porchLights", "xmasLights", "bedroomLights", "recircPump", "garageDoors", "houseDoors"]),
                                 views=views)
         return reply
 

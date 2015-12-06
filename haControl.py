@@ -53,16 +53,26 @@ if __name__ == "__main__":
     # scenes and groups
     resources.addRes(SensorGroup("houseDoors", ["frontDoor", "familyRoomDoor", "masterBedroomDoor"], resources=resources, type="door", group="Doors", label="House doors"))
     resources.addRes(SensorGroup("garageDoors", ["garageDoor", "garageBackDoor", "garageHouseDoor"], resources=resources, type="door", group="Doors", label="Garage doors"))
-    resources.addRes(HAScene("outsideLights", ["frontLight",
+    resources.addRes(HAScene("porchLights", ["frontLights",
                                                "backLights",
                                                "garageBackDoorLight"],
                                                resources=resources, 
-                                               group="Lights", label="Outside lights"))
-    resources.addRes(HAScene("xmasLights", ["xmasCowTree",
+                                               group="Lights", label="Porch lights"))
+    resources.addRes(HAScene("xmasLights", ["xmasTree",
+                                            "xmasCowTree",
                                             "xmasFrontLights",
                                             "xmasBackLights"],
                                                resources=resources, 
                                                group="Lights", label="Xmas lights"))
+    resources.addRes(HAScene("outsideLights", ["porchLights",
+                                               "bbqLights",
+                                               "backYardLights",
+                                               "deckLights",
+                                               "trashLights",
+                                               "xmasFrontLights",
+                                               "xmasBackLights"],
+                                               resources=resources, 
+                                               group="Lights", label="Outside lights"))
     resources.addRes(HAScene("bedroomLights", ["bedroomLight", 
                                                "bathroomLight"],
                                                resources=resources, 
@@ -72,7 +82,7 @@ if __name__ == "__main__":
     # Tasks
     resources.addRes(HATask("bedroomLightsOnSunset", HASchedTime(event="sunset"), "bedroomLights", 1, resources=resources))
     resources.addRes(HATask("bedroomLightsOffSunrise", HASchedTime(event="sunrise"), "bedroomLights", 0, resources=resources))
-    resources.addRes(HATask("outsideLightsOnSunset", HASchedTime(event="sunset"), "outsideLights", 1, resources=resources))
+    resources.addRes(HATask("porchLightsOnSunset", HASchedTime(event="sunset"), "porchLights", 1, resources=resources))
     resources.addRes(HATask("outsideLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), "outsideLights", 0, resources=resources))
     resources.addRes(HATask("outsideLightsOffSunrise", HASchedTime(event="sunrise"), "outsideLights", 0, resources=resources))
     resources.addRes(HATask("xmasLightsOnSunset", HASchedTime(event="sunset"), "xmasLights", 1, resources=resources))
@@ -85,7 +95,7 @@ if __name__ == "__main__":
     schedule = HASchedule("schedule")
     schedule.addTask(resources["bedroomLightsOnSunset"])
     schedule.addTask(resources["bedroomLightsOffSunrise"])
-    schedule.addTask(resources["outsideLightsOnSunset"])
+    schedule.addTask(resources["porchLightsOnSunset"])
     schedule.addTask(resources["outsideLightsOffMidnight"])
     schedule.addTask(resources["outsideLightsOffSunrise"])
     schedule.addTask(resources["xmasLightsOnSunset"])
