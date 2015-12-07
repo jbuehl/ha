@@ -77,7 +77,7 @@ class RestProxy(threading.Thread):
     # get all the resources on the specified service and add them to the cache
     def getResources(self, service, serviceResources, timeStamp):
         debug('debugRestProxy', self.name, "getting", service.name)
-        resources = HACollection(service.name+"Resources")
+        resources = HACollection(service.name+"Resources", aliases=self.resources.aliases)
         service.interface.enabled = True
         resources.load(service.interface, "/"+serviceResources["name"])
         service.resourceNames = resources.keys()

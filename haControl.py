@@ -33,7 +33,9 @@ class SensorGroup(HASensor):
 
 if __name__ == "__main__":
     # resources
-    resources = HACollection("resources")
+    aliases = {"testResource": {"label": "Test label", "type": "test", "group": "Test"},
+                }
+    resources = HACollection("resources", aliases=aliases)
 
     # time resources
     timeInterface = TimeInterface("time")

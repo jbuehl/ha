@@ -126,11 +126,13 @@ class HAInterface(HAResource):
 # - lock
        
 class HACollection(HAResource, OrderedDict):
-    def __init__(self, name):
+    def __init__(self, name, aliases={}):
         HAResource.__init__(self, name)
         OrderedDict.__init__(self)
         self.type = "collection"
         self.lock = threading.Lock()
+        self.aliases = aliases
+        debug('debugCollection', self.name, "aliases:", self.aliases)
 
     # Add a resource to the table
     def addRes(self, resource):
@@ -179,24 +181,43 @@ class HACollection(HAResource, OrderedDict):
     # instantiate the resource from the specified node            
     def loadResource(self, interface, node, path):
         try:
+            # override attributes with alias attributes if specified for the resource
+            try:
+                aliasAttrs = self.aliases[node["name"]]
+                debug('debugCollection', self.name, "loadResource", node["name"], "found alias")
+                for attr in aliasAttrs.keys():
+                    node[attr] = aliasAttrs[attr]
+                    debug('debugCollection', self.name, "loadResource", node["name"], "attr:", attr, "value:", aliasAttrs[attr])
+            except KeyError:
+                debug('debugCollection', self.name, "loadResource", node["name"], "no alias")
+                pass
+            # create the specified resource type
             if node["class"] == "HASensor":
-                self.addRes(HASensor(node["name"], interface, path+"/state", group=node["group"], type=node["type"], 
-                    location=node["location"], label=node["label"]))
+                resource = HASensor(node["name"], interface=interface, addr=path+"/state")
             elif node["class"] == "HAControl":
-                self.addRes(HAControl(node["name"], interface, path+"/state", group=node["group"], type=node["type"], 
-                    location=node["location"], label=node["label"]))
+                resource = HAControl(node["name"], interface=interface, addr=path+"/state")
             elif node["class"] == "HASequence":
-                self.addRes(HASequence(node["name"], [], group=node["group"], type=node["type"], label=node["label"], 
-                    interface=interface, addr=path+"/state"))
+                resource = HASequence(node["name"], [], interface=interface, addr=path+"/state")
             elif node["class"] == "HAScene":
-                self.addRes(HAScene(node["name"], [], group=node["group"], type=node["type"], label=node["label"], 
-                    interface=interface, addr=path+"/state"))
+                resource = HAScene(node["name"], [], interface=interface, addr=path+"/state")
             elif node["class"] == "HATask":
-                self.addRes(HATask(node["name"], control=self[node["control"]], state=node["controlState"], 
+                resource = HATask(node["name"], control=self[node["control"]], state=node["controlState"], 
                     schedTime=HASchedTime(**node["schedTime"]), 
-                    interface=interface, addr=path+"/state",))
+                    interface=interface, addr=path+"/state",)
             else:
-                debug('debug', self.name, "loadResource", node["name"], "class", node["class"], "not created")
+                debug('debug', self.name, "loadResource", node["name"], "class:", node["class"], "not created")
+                resource = None
+            if resource:
+                debug('debugCollection', self.name, "loadResource", node["name"], "created")
+                # add other attributes to the resource if specified
+                for attr in ["type", "group", "label", "location"]:
+                    try:
+                        setattr(resource, attr, node[attr])
+                        debug('debugCollection', self.name, "loadResource", node["name"], "attr:", attr, "value:", node[attr])
+                    except KeyError:
+                        pass
+                # add it to the collection
+                self.addRes(resource)
         except:
             debug('debug', self.name, "loadResource", str(node), "exception")
             if debugExceptions:
