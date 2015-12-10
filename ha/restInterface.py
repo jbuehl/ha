@@ -100,7 +100,8 @@ class HARestInterface(HAInterface):
     def setStates(self, states):
         for sensor in states.keys():
             try:
-                self.states[self.sensors[sensor].addr] = states[sensor]
+                # set state using address because name may have been aliased
+                self.states["/resources/"+sensor+"/state"] = states[sensor]
             except:
                 debug('debugRestStates', self.name, "sensor not found", sensor)
 
