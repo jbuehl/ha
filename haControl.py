@@ -15,7 +15,7 @@ class SensorGroup(HASensor):
     def __init__(self, name, sensorList, resources=None, interface=HAInterface("None"), addr=None, group="", type="sensor", view=None, label=""):
         HASensor.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.sensorList = sensorList
-        self.resources = resources  # if specified, controlList contains resource names, otherwise references
+        self.resources = resources  # if specified, sensorList contains resource names, otherwise references
         self.className = "HASensor"
 
     def getState(self):
@@ -33,8 +33,11 @@ class SensorGroup(HASensor):
 
 if __name__ == "__main__":
     # resources
-    aliases = {"testResource": {"label": "Test label", "type": "test", "group": "Test"},
-                }
+    try:
+        with open(rootDir+"aliases") as aliasFile:
+            aliases = json.load(aliasFile)
+    except:
+        aliases = {}
     resources = HACollection("resources", aliases=aliases)
 
     # time resources
