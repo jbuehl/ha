@@ -1,3 +1,5 @@
+filePollInterval = 1
+
 from ha.HAClasses import *
 import json
 import os
@@ -53,8 +55,8 @@ class FileInterface(HAInterface):
 
     def modified(self):
         mtime = os.stat(self.fileName).st_mtime
-        debug('debugFile', self.name, "modified", mtime, "last", self.mtime)
         if mtime > self.mtime:
+            debug('debugFile', self.name, "modified", mtime, "last", self.mtime)
             self.mtime = mtime
             return True
         else:
@@ -62,7 +64,8 @@ class FileInterface(HAInterface):
     
     def readData(self):
         try:
-            self.data = json.load(open(self.fileName))
+            with open(self.fileName) as dataFile:
+                self.data = json.load(dataFile)
         except:
             log(self.name, "readData file read error")
         debug('debugFile', self.name, "readData", self.data)
@@ -70,8 +73,9 @@ class FileInterface(HAInterface):
             self.event.set()
 
     def writeData(self):
-        debug('debugFile', self.name, "writeData". self.data)
-        json.dump(self.data, open(self.fileName, "w"))
+        debug('debugFile', self.name, "writeData", self.data)
+        with open(self.fileName, "w") as dataFile:
+            json.dump(self.data, dataFile)
         self.mtime = time.time()
         if self.event:
             self.event.set()
