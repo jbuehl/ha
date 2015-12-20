@@ -27,7 +27,7 @@ class WebRoot(object):
             groups = [group.capitalize()]
             details = False
         except:
-            groups = ["Time", "Temperature", "Services", "Hvac", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Cameras", "Tasks"]
+            groups = ["Time", "Temperature", "Hvac", "Services", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Cameras", "Tasks"]
             details = True
         with self.resourceLock:
             reply = self.env.get_template("default.html").render(title=webPageTitle, script="", 
@@ -47,7 +47,7 @@ class WebRoot(object):
                                 day=self.resources["theDay"],
                                 temp=self.resources[outsideTemp],
                                 groups=[["Pool", self.resources.getResList(["waterTemp", "spaTemp"])], 
-                                      ["Lights", self.resources.getResList(["porchLights", "xmasLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
+                                      ["Lights", self.resources.getResList(["xmasTree", "xmasCowTree", "porchLights", "xmasLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
                                       ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
                                       ["Sprinklers", self.resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
                                       ],
@@ -63,7 +63,7 @@ class WebRoot(object):
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
                                 temp=self.resources[outsideTemp],
-                                resources=self.resources.getResList(["spaTemp", "frontLights", "backLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
+                                resources=self.resources.getResList(["spaTemp", "xmasTree", "xmasCowTree", "porchLights", "xmasLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
                                 views=views)
         return reply
 
@@ -131,7 +131,7 @@ class WebRoot(object):
     # return the json to update the states of the specified collection of sensors
     def updateStates(self, resourceStates):
         staticTypes = ["time", "ampm", "date"]          # types whose class does not depend on their value
-        tempTypes = ["tempF", "tempC", "spaTemp"]       # temperatures
+        tempTypes = ["tempF", "tempFControl", "tempC", "spaTemp"]       # temperatures
         updates = {"cacheTime": self.cache.cacheTime}
         for resource in resourceStates.keys():
             try:

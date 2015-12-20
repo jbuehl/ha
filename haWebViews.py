@@ -4,7 +4,7 @@ from ha.HAClasses import *
 
 # transform functions for views
 def ctofFormat(value):
-    return value*9/5+32
+    return tempFormat(value*9/5+32)
 
 def kiloFormat(value):
     return value/1000.0
@@ -78,6 +78,7 @@ views = {"power": HAView({}, "%d W"),
 #         "tempF": HAView({}, "%d °", tempFormat),
          "tempC": HAView({}, "%d F", ctofFormat),
          "tempF": HAView({}, "%d F", tempFormat),
+         "tempFControl": HAView({}, "%d F", tempFormat, OrderedDict([(-1,"v"), (+1,"^")])),
          "barometer": HAView({}, "%5.2f in"),
          "humidity": HAView({}, "%d %%"),
          "service": HAView({0:"Down", 1:"Up"}, "%s"),
@@ -96,6 +97,7 @@ views = {"power": HAView({}, "%d W"),
          "pumpFlow": HAView({}, "%d GPM"),
          "cleaner": HAView({0:"Off", 1:"On", 2:"Ena"}, "%s", None, {0:"Off", 1:"On"}),
          "heater": HAView({0:"Off", 1:"On", 4:"Ena"}, "%s", None, {0:"Off", 1:"On"}),
+         "thermostat": HAView({0:"Off", 1:"Heat", 2:"Cool", 3:"Fan", 4:"Auto"}, "%s", None, {0:"Off", 1:"Heat", 2:"Cool", 3:"Fan", 4:"Auto"}),
          "cameraMode": HAView({0:"Still", 1:"Video", 2:"Motion"}, "%s", None, {0:"Still", 1:"Video", 2:"Motion"}),
          "cameraEnable": HAView({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"}),
          "cameraRecord": HAView({0:"Stopped", 1:"Recording"}, "%s", None, {0:"Stop", 1:"Rec"}),
