@@ -373,11 +373,15 @@ class HAView(object):
                 return str(state)
 
     # Set the state of the control to the state value corresponding to the specified display value
-    def setViewState(self, theControl, theValue):
+    def setViewState(self, control, dispValue):
         try:
-            theControl.setState(self.setValues.keys()[self.setValues.values().index(theValue)])
+            value = self.setValues.keys()[self.setValues.values().index(dispValue)]
+            if dispValue in ["-", "v", "+", "^"]:   # increment or decrement current state by the value
+                control.setState(control.getState() + value)
+            else:                                   # set it to the value
+                control.setState(value)
         except:
-            theControl.setState(0)
+            control.setState(0)
 
 # A Control is a Sensor whose state can be set        
 class HAControl(HASensor):
