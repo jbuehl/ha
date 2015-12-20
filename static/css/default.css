@@ -231,6 +231,26 @@ td {
 	color: Orange;
     }
 
+.thermostat_Off {
+	color: SlateGray;
+    }
+
+.thermostat_Heat {
+	color: OrangeRed;
+    }
+
+.thermostat_Cool {
+	color: Aqua;
+    }
+
+.thermostat_Fan {
+	color: Lime;
+    }
+
+.thermostat_Auto {
+	color: Blue;
+    }
+
 .spa_Off {
 	color: SlateGray;
     }
