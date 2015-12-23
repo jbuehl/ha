@@ -727,7 +727,11 @@ class HATask(HAControl):
                 return ""
         else:                   # control is resource reference
             control = self.control
-        return control.name+": "+control.setValues(views)[self.controlState]+","+self.schedTime.__str__()
+        try:                    # try to translate state value
+            value = control.setValues(views)[self.controlState]
+        except:                 # use the value
+            value = str(self.controlState)
+        return control.name+": "+value+","+self.schedTime.__str__()
 
     def __del__(self):
         del(self.schedTime)
