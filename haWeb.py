@@ -3,7 +3,9 @@ webRestPort = 7478
 webUpdateInterval = 1
 webPageTitle = "Home Automation"
 
+insideTemp = "kitchenTemp"
 outsideTemp = "deckTemp"
+poolTemp = "waterTemp"
 
 import cherrypy
 import json
@@ -45,10 +47,13 @@ class WebRoot(object):
                                 time=self.resources["theTime"],
                                 ampm=self.resources["theAmPm"],
                                 day=self.resources["theDay"],
-                                temp=self.resources[outsideTemp],
-                                groups=[["Pool", self.resources.getResList(["waterTemp", "spaTemp"])], 
+                                pooltemp=self.resources[poolTemp],
+                                intemp=self.resources[insideTemp],
+                                outtemp=self.resources[outsideTemp],
+                                groups=[["Pool", self.resources.getResList(["spaTemp"])], 
                                       ["Lights", self.resources.getResList(["xmasTree", "xmasCowTree", "porchLights", "xmasLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
                                       ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
+                                      ["Hvac", self.resources.getResList(["southHeatTempTarget", "northHeatTempTarget1"])], 
                                       ["Sprinklers", self.resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
                                       ],
                                 views=views)

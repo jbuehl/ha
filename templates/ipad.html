@@ -11,12 +11,14 @@
 </head>
 <body>
     <table border=0 width=1024 style='table-layout:fixed'>
-        <col width=62><col width=58><col width=814><col width=78>
+        <col width=62><col width=58><col width=292><col width=200><col width=200><col width=200>
         <tr>
             <td><div id="{{ time.name }}" class="time">{{ time.getViewState(views) }}</div></td>
             <td><div id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState(views) }}</div></td>
             <td><div id="{{ day.name }}" class="date">{{ day.getViewState(views) }}</div></td>
-            <td><div id="{{ temp.name }}" class="tempF">{{ temp.getViewState(views) }}</div></td>
+            <td>pool<div id="{{ pooltemp.name }}" class="tempF">{{ pooltemp.getViewState(views) }}</div></td>
+            <td>inside<div id="{{ intemp.name }}" class="tempF">{{ intemp.getViewState(views) }}</div></td>
+            <td>outside<div id="{{ outtemp.name }}" class="tempF">{{ outtemp.getViewState(views) }}</div></td>
         </tr>
     </table>
     {% for g in groups %}
