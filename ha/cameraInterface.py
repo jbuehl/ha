@@ -20,8 +20,9 @@
 
 # Modes:
 modeStill = 0
-modeVideo = 1
-modeMotion = 2
+modeYime = 1
+modeVideo = 2
+modeMotion = 3
 
 import subprocess
 import threading
@@ -105,6 +106,11 @@ class CameraInterface(HAInterface):
             else:
                 self.recording = False            
                 self.notify()
+        elif self.mode == "time":
+            if state == 1:  # start the sampling
+                self.recording = True
+            else:           # stop the sampling
+                self.recording = False
 #        elif self.mode == "video":
 #            if state == 1:  # start the video
 #            else:           # stop the video
