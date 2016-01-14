@@ -29,15 +29,15 @@ if __name__ == "__main__":
    
     # Temperature sensors
     masterBedroomTemp = HASensor("masterBedroomTemp", owfs, "28.175CDC060000", group="Temperature", label="Master bedroom temp", type="tempF")
-    kitchenTemp = HASensor("kitchenTemp", owfs, "28.7202DC060000", group="Temperature", label="Kitchen temp", type="tempF")
+    kitchenTemp = HASensor("kitchenTemp", owfs, "28.E4F6DB060000", group="Temperature", label="Kitchen temp", type="tempF")
     hallTemp = HASensor("hallTemp", owfs, "28.FA78DB060000", group="Temperature", label="Hall temp", type="tempF")
     atticTemp = HASensor("atticTemp", owfs, "28.CC02DC060000", group="Temperature", label="Attic temp", type="tempF")
-    officeTemp = HASensor("officeTemp", owfs, "28.E4F6DB060000", group="Temperature", label="Office temp", type="tempF")
+#    officeTemp = HASensor("officeTemp", owfs, "", group="Temperature", label="Office temp", type="tempF")
     livingRoomTemp = HASensor("livingRoomTemp", owfs, "28.B9CA5F070000", group="Temperature", label="Living room temp", type="tempF")
-    familyRoomTemp = HASensor("familyRoomTemp", owfs, "", group="Temperature", label="Family room temp", type="tempF")
+    familyRoomTemp = HASensor("familyRoomTemp", owfs, "28.7202DC060000", group="Temperature", label="Family room temp", type="tempF")
     resources.addRes(atticTemp)
     resources.addRes(hallTemp)
-    resources.addRes(officeTemp)
+#    resources.addRes(officeTemp)
     resources.addRes(masterBedroomTemp)
     resources.addRes(livingRoomTemp)
     resources.addRes(familyRoomTemp)
@@ -50,10 +50,10 @@ if __name__ == "__main__":
     southCool = HAControl("southCool", gpioInterface, 1, group="Hvac", label="South cool")
     northFan  = HAControl("northFan",  gpioInterface, 6, group="Hvac", label="North fan")
     southFan  = HAControl("southFan",  gpioInterface, 2, group="Hvac", label="South fan")
+
+    # Thermostats
     northThermostat = HeaterControl("northThermostat", nullInterface, northHeat, masterBedroomTemp, northHeatTempTarget, group="Hvac", label="North thermostat", type="heater")
     southThermostat = HeaterControl("southThermostat", nullInterface, southHeat, kitchenTemp, southHeatTempTarget, group="Hvac", label="South thermostat", type="heater")
-#    northThermostat.setTarget(northHeatTempTarget)
-#    southThermostat.setTarget(southHeatTempTarget)
     resources.addRes(northHeat)
     resources.addRes(northCool)
     resources.addRes(northFan)
@@ -65,12 +65,30 @@ if __name__ == "__main__":
     resources.addRes(southHeatTempTarget)
     resources.addRes(southThermostat)
 
+    # Tasks
+    resources.addRes(HATask("northHeatNight", HASchedTime(hour=[21], minute=[00]), northHeatTempTarget, 65))
+    resources.addRes(HATask("southHeatNight", HASchedTime(hour=[21], minute=[00]), southHeatTempTarget, 65))
+    resources.addRes(HATask("southHeatMorning", HASchedTime(hour=[6], minute=[00]), southHeatTempTarget, 70))
+    
+    # Schedule
+    schedule = HASchedule("schedule")
+    schedule.addTask(resources["northHeatNight"])
+    schedule.addTask(resources["southHeatNight"])
+    schedule.addTask(resources["southHeatMorning"])
+    schedule.start()
+
     # Start interfaces
     configData.start()
     if not northHeatTempTarget.getState():
         northHeatTempTarget.setState(northHeatTempTargetDefault)
     if not southHeatTempTarget.getState():
         southHeatTempTarget.setState(southHeatTempTargetDefault)
+    # temporary
+    northThermostat.setState(1)
+    southThermostat.setState(1)
+    northHeat.setState(1)
+    southHeat.setState(1)
+
     gpioInterface.start()
     restServer = RestServer(resources, port=7380, event=stateChangeEvent, label="Hvac")
     restServer.start()

@@ -53,7 +53,7 @@ class WebRoot(object):
                                 groups=[["Pool", self.resources.getResList(["spaTemp"])], 
                                       ["Lights", self.resources.getResList(["xmasTree", "xmasCowTree", "porchLights", "xmasLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
                                       ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
-                                      ["Hvac", self.resources.getResList(["southHeatTempTarget", "northHeatTempTarget1"])], 
+                                      ["Hvac", self.resources.getResList(["southHeatTempTarget", "northHeatTempTarget"])], 
                                       ["Sprinklers", self.resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
                                       ],
                                 views=views)
