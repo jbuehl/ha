@@ -27,29 +27,31 @@ class HeaterControl(HAControl):
             debug('debugHeater', self.name, "tempWatch started")
             while self.currentState != heaterOff:  # stop when state is set to off
                 time.sleep(1)
-                if self.tempTargetControl:
-                    self.tempTarget = self.tempTargetControl.getState()
-                if self.currentState == heaterOff:
-                    debug('debugHeater', self.name, "heater off")
-                    self.heaterControl.setState(heaterOff)
-                elif self.currentState == heaterOn:
-                    if self.tempSensor.getState() >= self.tempTarget + self.hysteresis:
-                        if self.heaterControl.getState() != heaterOff:
-                            self.heaterControl.setState(heaterOff)
-                            self.currentState = heaterEnabled
-                            debug('debugHeater', self.name, "heater enabled")
-                    else:
-                        if self.heaterControl.getState() != heaterOn:
+                currentTemp = self.tempSensor.getState()
+                if currentTemp > 0:                 # don't do anything if no temp reading
+                    if self.tempTargetControl:
+                        self.tempTarget = self.tempTargetControl.getState()
+                    if self.currentState == heaterOff:
+                        debug('debugHeater', self.name, "heater off")
+                        self.heaterControl.setState(heaterOff)
+                    elif self.currentState == heaterOn:
+                        if currentTemp >= self.tempTarget + self.hysteresis:
+                            if self.heaterControl.getState() != heaterOff:
+                                self.heaterControl.setState(heaterOff)
+                                self.currentState = heaterEnabled
+                                debug('debugHeater', self.name, "heater enabled")
+                        else:
+                            if self.heaterControl.getState() != heaterOn:
+                                self.heaterControl.setState(heaterOn)
+                                self.currentState = heaterOn
+                                debug('debugHeater', self.name, "heater on")
+                    elif self.currentState == heaterEnabled:
+                        if currentTemp <= self.tempTarget - self.hysteresis:
                             self.heaterControl.setState(heaterOn)
                             self.currentState = heaterOn
                             debug('debugHeater', self.name, "heater on")
-                elif self.currentState == heaterEnabled:
-                    if self.tempSensor.getState() <= self.tempTarget - self.hysteresis:
-                        self.heaterControl.setState(heaterOn)
-                        self.currentState = heaterOn
-                        debug('debugHeater', self.name, "heater on")
-                else:
-                    debug('debugHeater', self.name, "unknown state", self.currentState)                    
+                    else:
+                        debug('debugHeater', self.name, "unknown state", self.currentState)                    
             debug('debugHeater', self.name, "tempWatch terminated")
         if state != heaterOn:           # only allow explicit set on or off
             state = heaterOff
