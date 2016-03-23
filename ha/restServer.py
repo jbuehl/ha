@@ -52,7 +52,7 @@ class ResourceStateSensor(HASensor):
     def getStates(self, resources):
         for sensor in resources.values():
             if sensor != self:
-                if sensor.type == "schedule":           # recurse into a schedule resource
+                if (sensor.type == "schedule") or (sensor.type == "collection"):   # recurse into schedules and collections
                     self.getStates(sensor)
                 elif sensor.getStateType() != dict:     # sensor has a scalar state
                     self.states[sensor.name] = sensor.getState()
