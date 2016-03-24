@@ -10,9 +10,9 @@ class TimeInterface(HAInterface):
             if addr == "daylight":
                 return normalState(sunIsUp(todaysDate()[0], latLong))
             elif addr == "sunrise":
-                return sunrise(todaysDate()[0], latLong).strftime("%I:%M %p")
+                return sunrise(todaysDate()[0], latLong).strftime("%I:%M %p").lstrip("0")
             elif addr == "sunset":
-                return sunset(todaysDate()[0], latLong).strftime("%I:%M %p")
+                return sunset(todaysDate()[0], latLong).strftime("%I:%M %p").lstrip("0")
             else:
                 return time.strftime(addr).lstrip("0")
         else:
