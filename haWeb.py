@@ -90,8 +90,8 @@ class WebRoot(object):
             optimizers = self.resources.getGroup("Optimizers")
 #            for optimizer in optimizers:
 #                optimizer.location = solarDevices["optimizers"][optimizer.name]
-            latitude = str(abs(latLong[0]))+(" N" if latLong[0]>0 else " S")
-            longitude = str(abs(latLong[1]))+(" E" if latLong[1]>0 else " W")
+            latitude = "%7.3f "%(abs(latLong[0])+.0005)+("N" if latLong[0]>0 else "S")
+            longitude = "%7.3f "%(abs(latLong[1])+.0005)+("E" if latLong[1]>0 else "W")
             reply = self.env.get_template("solar.html").render(script="",
                                 dayOfWeek=self.resources["theDayOfWeek"],
                                 date=self.resources["theDate"],
@@ -103,6 +103,7 @@ class WebRoot(object):
                                 airTemp=self.resources[outsideTemp],
                                 inverterTemp=self.resources["inverterTemp"], 
                                 roofTemp=self.resources["roofTemp"], 
+                                currentLoad=self.resources["currentLoad"], 
                                 currentPower=self.resources["currentPower"], 
                                 todaysEnergy=self.resources["todaysEnergy"], 
                                 lifetimeEnergy=self.resources["lifetimeEnergy"], 

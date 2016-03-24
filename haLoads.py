@@ -3,6 +3,19 @@ from ha.fileInterface import *
 from ha.loadInterface import *
 from ha.restServer import *
 
+# sum of a list of sensor states
+class SumSensor(HASensor):
+    def __init__(self, name, sensors, interface=HAInterface("None"), addr=None, group="", type="sensor", view=None, label="", location=None):
+        HASensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
+        self.sensors = sensors
+        self.className = "HASensor"
+
+    def getState(self):
+        value = 0
+        for sensor in self.sensors:
+            value += sensor.getState()
+        return value
+        
 if __name__ == "__main__":
     # Resources
     resources = HACollection("resources")
@@ -13,14 +26,24 @@ if __name__ == "__main__":
     loadInterface = LoadInterface("Loads", fileInterface)
 
     # Loads
+    lightsLoad = HASensor("lightsLoad", loadInterface, "Lights", group="Power", label="Lights", type="KVA")
+    plugsLoad = HASensor("plugsLoad", loadInterface, "Plugs", group="Power", label="Plugs", type="KVA")
+    appl1Load = HASensor("appl1Load", loadInterface, "Appl1", group="Power", label="Appliances 1", type="KVA")
+    appl2Load = HASensor("appl2Load", loadInterface, "Appl2", group="Power", label="Appliances 2", type="KVA")
+    cookingLoad = HASensor("cookingLoad", loadInterface, "Cooking", group="Power", label="Stove & oven", type="KVA")
+    acLoad = HASensor("acLoad", loadInterface, "Ac", group="Power", label="Air conditioners", type="KVA")
+    poolLoad = HASensor("poolLoad", loadInterface, "Pool", group="Power", label="Pool equipment", type="KVA")
+    backLoad = HASensor("backLoad", loadInterface, "Back", group="Power", label="Back house", type="KVA")
     resources.addRes(HASensor("lightsLoad", loadInterface, "Lights", group="Power", label="Lights", type="KVA"))
-    resources.addRes(HASensor("plugsLoad", loadInterface, "Plugs", group="Power", label="Plugs", type="KVA"))
-    resources.addRes(HASensor("appl1Load", loadInterface, "Appl1", group="Power", label="Appliances 1", type="KVA"))
-    resources.addRes(HASensor("appl2Load", loadInterface, "Appl2", group="Power", label="Appliances 2", type="KVA"))
-    resources.addRes(HASensor("cookingLoad", loadInterface, "Cooking", group="Power", label="Stove & oven", type="KVA"))
-    resources.addRes(HASensor("acLoad", loadInterface, "Ac", group="Power", label="Air conditioners", type="KVA"))
-    resources.addRes(HASensor("poolLoad", loadInterface, "Pool", group="Power", label="Pool equipment", type="KVA"))
-    resources.addRes(HASensor("backLoad", loadInterface, "Back", group="Power", label="Back house", type="KVA"))
+    resources.addRes(plugsLoad)
+    resources.addRes(appl1Load)
+    resources.addRes(appl2Load)
+    resources.addRes(cookingLoad)
+    resources.addRes(acLoad)
+    resources.addRes(poolLoad)
+    resources.addRes(backLoad)
+    currentLoad = SumSensor("currentLoad", [lightsLoad, plugsLoad, appl1Load, appl2Load, cookingLoad, acLoad, poolLoad, backLoad], group="Power", label="Current load", type="KVA")
+    resources.addRes(currentLoad)
 
     # Start interfaces
     fileInterface.start()
