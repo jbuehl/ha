@@ -1,0 +1,52 @@
+@import "/css/default.css";
+
+body {
+    background-color: Black;
+    }
+
+* {
+	color: Yellow;
+	font-size: 12px;
+    }
+
+.label {
+	color: LightGray;
+    }
+
+.stats {
+    position: absolute; 
+    top: 740px; 
+    left: 76px;
+    }
+    
+.inverter {
+    }
+
+.inverterName {
+	color: Turquoise;
+    }
+
+.optimizer {
+	margin: 2px;
+    }
+
+.optimizerName {
+	color: Yellow;
+    }
+
+.W {
+	color: OrangeRed;
+    }
+
+.KW {
+	color: OrangeRed;
+    }
+
+.KWh {
+	color: OrangeRed;
+    }
+
+.MWh {
+	color: OrangeRed;
+    }
+

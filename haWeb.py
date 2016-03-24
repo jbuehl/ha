@@ -13,6 +13,47 @@ from jinja2 import Environment, FileSystemLoader
 from ha.HAClasses import *
 from haWebViews import *
 
+solarDevices = {"inverters": {
+"7F104A16": (868, 310),
+"7F104920": (868, 380),
+},
+"optimizers": {
+"1016AB88": (824, 514),
+"100F7333": (343, 186),
+"100F7195": (211, 444),
+"100E3520": (420, 443),
+"100F7255": (662, 520),
+"100F7118": (474, 366),
+"100F714E": (127, 444),
+"100F74D9": (516, 366),
+"1016B2BB": (824, 437),
+"100E3313": (390, 366),
+"100E3325": (558, 290),
+"100F7220": (301, 109),
+"100F71F9": (600, 366),
+"100F7237": (642, 366),
+"100F7408": (744, 443),
+"100F72C1": (301, 186),
+"100F7401": (301, 263),
+"100F74DB": (385, 109),
+"100F74C6": (474, 290),
+"100F746B": (343, 109),
+"100F74A0": (127, 367),
+"100F755D": (620, 443),
+"100E34EC": (662, 443),
+"100F719B": (558, 366),
+"100F721E": (336, 443),
+"100F707C": (432, 366),
+"100F71E5": (578, 520),
+"100E3326": (378, 443),
+"100F743D": (516, 290),
+"100F7335": (385, 186),
+"100E32F9": (169, 444),
+"100F6FC5": (294, 443),
+"100F747C": (704, 443),
+"100F74B7": (578, 443),
+}}
+
 class WebRoot(object):
     def __init__(self, resources, env, cache, stateChangeEvent, resourceLock):
         self.resources = resources
@@ -36,6 +77,38 @@ class WebRoot(object):
                                 groups=[[group, self.resources.getGroup(group)] for group in groups],
                                 views=views,
                                 details=details)
+        return reply
+
+    # Solar   
+    @cherrypy.expose
+    def solar(self, action=None, resource=None):
+        debug('debugWeb', "/solar", "get", action, resource)
+        with self.resourceLock:
+            inverters = self.resources.getGroup("Inverters")
+#            for inverter in inverters:
+#                inverter.location = solarDevices["inverters"][inverter.name]
+            optimizers = self.resources.getGroup("Optimizers")
+#            for optimizer in optimizers:
+#                optimizer.location = solarDevices["optimizers"][optimizer.name]
+            latitude = str(abs(latLong[0]))+(" N" if latLong[0]>0 else " S")
+            longitude = str(abs(latLong[1]))+(" E" if latLong[1]>0 else " W")
+            reply = self.env.get_template("solar.html").render(script="",
+                                dayOfWeek=self.resources["theDayOfWeek"],
+                                date=self.resources["theDate"],
+                                time=self.resources["theTime"],
+                                ampm=self.resources["theAmPm"],
+                                sunrise=self.resources["sunrise"],
+                                sunset=self.resources["sunset"],
+                                latitude=latitude, longitude=longitude,
+                                airTemp=self.resources[outsideTemp],
+                                inverterTemp=self.resources["inverterTemp"], 
+                                roofTemp=self.resources["roofTemp"], 
+                                currentPower=self.resources["currentPower"], 
+                                todaysEnergy=self.resources["todaysEnergy"], 
+                                lifetimeEnergy=self.resources["lifetimeEnergy"], 
+                                inverters=inverters, 
+                                optimizers=optimizers, 
+                                views=views)
         return reply
 
     # iPad - 1024x768   
@@ -135,7 +208,7 @@ class WebRoot(object):
 
     # return the json to update the states of the specified collection of sensors
     def updateStates(self, resourceStates):
-        staticTypes = ["time", "ampm", "date"]          # types whose class does not depend on their value
+        staticTypes = ["time", "ampm", "date", "W", "KW"]          # types whose class does not depend on their value
         tempTypes = ["tempF", "tempFControl", "tempC", "spaTemp"]       # temperatures
         updates = {"cacheTime": self.cache.cacheTime}
         for resource in resourceStates.keys():
@@ -178,6 +251,11 @@ def webInit(resources, restCache, stateChangeEvent, resourceLock):
             'tools.staticdir.on': True,
             'tools.staticdir.root': os.path.join(baseDir, "static"),
             'tools.staticdir.dir': "js",
+        },
+        '/images': {
+            'tools.staticdir.on': True,
+            'tools.staticdir.root': os.path.join(baseDir, "static"),
+            'tools.staticdir.dir': "images",
         },
         '/favicon.ico': {
             'tools.staticfile.on': True,

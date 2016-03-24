@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+<head>
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' type='text/css' href='css/solar.css'> 
+    <script src='js/jquery.js'></script>
+    <script src='js/update.js'></script>
+    <script src='js/submit.js'></script>
+    {{ script }}
+</head>
+<body>
+    <div class="image">
+       <img src="images/solar.png" />
+            <div class="stats" >
+                <div>{{ date.getViewState(views) }} {{ time.getViewState(views) }} {{ ampm.getViewState(views) }}</div>
+                <div><span class="label">Sunrise</span> <span>{{ sunrise.getViewState(views) }}</span></div>
+                <div><span class="label">Sunset</span> <span>{{ sunset.getViewState(views) }}</span></div>
+                <div><span class="label">Lat</span> <span>{{ latitude }}</span> <span class="label">Long</span> <span>{{ longitude }}</span></div>
+                <div><span class="label">Air temperature</span> <span id="{{ airTemp.name }}" class="tempF">{{ airTemp.getViewState(views) }}</span></div>
+                <div><span class="label">Inverter temperature</span> <span id="{{ inverterTemp.name }}" class="tempF">{{ inverterTemp.getViewState(views) }}</span></div>
+                <div><span class="label">Roof temperature</span> <span id="{{ roofTemp.name }}" class="tempF">{{ roofTemp.getViewState(views) }}</span></div>
+                <div><span class="label">{{ currentPower.label }}</span> <span id="{{ currentPower.name }}" class="KW">{{ currentPower.getViewState(views) }}</span></div>
+                <div><span class="label">{{ todaysEnergy.label }}</span> <span id="{{ todaysEnergy.name }}" class="KWh">{{ todaysEnergy.getViewState(views) }}</span></div>
+                <div><span class="label">{{ lifetimeEnergy.label }}</span> <span id="{{ lifetimeEnergy.name }}" class="MWh">{{ lifetimeEnergy.getViewState(views) }}</span></div>
+            </div>
+        {% for inv in inverters %}
+            <div class="inverter" style="position:absolute; top:{{ inv.location[0] }}px; left:{{ inv.location[1] }}px" >
+                <div class="inverterName">{{ inv.name }}</div>
+                <div id="{{ inv.name }}" class="KW">{{ inv.getViewState(views) }}</div>
+            </div>
+        {% endfor %}
+        {% for opt in optimizers %}
+            <div class="optimizer" style="position:absolute; top:{{ opt.location[0] }}px; left:{{ opt.location[1] }}px" >
+                <div class="optimizerName">{{ opt.name }}</div>
+                <div id="{{ opt.name }}" class="W">{{ opt.getViewState(views) }}</div>
+            </div>
+        {% endfor %}
+     </div>
+</body>
+</html>
+
