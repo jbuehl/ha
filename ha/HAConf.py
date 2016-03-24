@@ -12,7 +12,7 @@ stateDir = rootDir+"state/"
 sysLogging = True
 
 # Localization
-latLong = (34.149044, 118.401994)
+latLong = (34.149044, -118.401994)
 elevation = 620 # elevation in feet
 tempScale = "F"
 
