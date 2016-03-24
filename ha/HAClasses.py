@@ -565,6 +565,23 @@ class HAScene(HAControl):
         self.running = False
         debug('debugThread', self.name, "finished")
 
+# Calculate a function of a list of sensor states
+class CalcSensor(HASensor):
+    def __init__(self, name, sensors, function, interface=HAInterface("None"), addr=None, group="", type="sensor", view=None, label="", location=None):
+        HASensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
+        self.sensors = sensors
+        self.function = function.lower()
+        self.className = "HASensor"
+
+    def getState(self):
+        value = 0
+        if (self.function == "sum") or (self.function == "avg"):
+            for sensor in self.sensors:
+                value += sensor.getState()
+            if self.function == "avg":
+                value /+ len(self.sensors)
+        return value
+        
 Mon = 0
 Tue = 1
 Wed = 2

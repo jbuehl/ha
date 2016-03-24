@@ -3,19 +3,6 @@ from ha.fileInterface import *
 from ha.loadInterface import *
 from ha.restServer import *
 
-# sum of a list of sensor states
-class SumSensor(HASensor):
-    def __init__(self, name, sensors, interface=HAInterface("None"), addr=None, group="", type="sensor", view=None, label="", location=None):
-        HASensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
-        self.sensors = sensors
-        self.className = "HASensor"
-
-    def getState(self):
-        value = 0
-        for sensor in self.sensors:
-            value += sensor.getState()
-        return value
-        
 if __name__ == "__main__":
     # Resources
     resources = HACollection("resources")
@@ -42,7 +29,7 @@ if __name__ == "__main__":
     resources.addRes(acLoad)
     resources.addRes(poolLoad)
     resources.addRes(backLoad)
-    currentLoad = SumSensor("currentLoad", [lightsLoad, plugsLoad, appl1Load, appl2Load, cookingLoad, acLoad, poolLoad, backLoad], group="Power", label="Current load", type="KVA")
+    currentLoad = CalcSensor("currentLoad", [lightsLoad, plugsLoad, appl1Load, appl2Load, cookingLoad, acLoad, poolLoad, backLoad], "sum", group="Power", label="Current load", type="KVA")
     resources.addRes(currentLoad)
 
     # Start interfaces
