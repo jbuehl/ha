@@ -13,47 +13,6 @@ from jinja2 import Environment, FileSystemLoader
 from ha.HAClasses import *
 from haWebViews import *
 
-solarDevices = {"inverters": {
-"7F104A16": (868, 310),
-"7F104920": (868, 380),
-},
-"optimizers": {
-"1016AB88": (824, 514),
-"100F7333": (343, 186),
-"100F7195": (211, 444),
-"100E3520": (420, 443),
-"100F7255": (662, 520),
-"100F7118": (474, 366),
-"100F714E": (127, 444),
-"100F74D9": (516, 366),
-"1016B2BB": (824, 437),
-"100E3313": (390, 366),
-"100E3325": (558, 290),
-"100F7220": (301, 109),
-"100F71F9": (600, 366),
-"100F7237": (642, 366),
-"100F7408": (744, 443),
-"100F72C1": (301, 186),
-"100F7401": (301, 263),
-"100F74DB": (385, 109),
-"100F74C6": (474, 290),
-"100F746B": (343, 109),
-"100F74A0": (127, 367),
-"100F755D": (620, 443),
-"100E34EC": (662, 443),
-"100F719B": (558, 366),
-"100F721E": (336, 443),
-"100F707C": (432, 366),
-"100F71E5": (578, 520),
-"100E3326": (378, 443),
-"100F743D": (516, 290),
-"100F7335": (385, 186),
-"100E32F9": (169, 444),
-"100F6FC5": (294, 443),
-"100F747C": (704, 443),
-"100F74B7": (578, 443),
-}}
-
 class WebRoot(object):
     def __init__(self, resources, env, cache, stateChangeEvent, resourceLock):
         self.resources = resources
@@ -85,11 +44,7 @@ class WebRoot(object):
         debug('debugWeb', "/solar", "get", action, resource)
         with self.resourceLock:
             inverters = self.resources.getGroup("Inverters")
-#            for inverter in inverters:
-#                inverter.location = solarDevices["inverters"][inverter.name]
             optimizers = self.resources.getGroup("Optimizers")
-#            for optimizer in optimizers:
-#                optimizer.location = solarDevices["optimizers"][optimizer.name]
             latitude = "%7.3f "%(abs(latLong[0])+.0005)+("N" if latLong[0]>0 else "S")
             longitude = "%7.3f "%(abs(latLong[1])+.0005)+("E" if latLong[1]>0 else "W")
             reply = self.env.get_template("solar.html").render(script="",
@@ -211,7 +166,11 @@ class WebRoot(object):
     def updateStates(self, resourceStates):
         staticTypes = ["time", "ampm", "date", "W", "KW"]          # types whose class does not depend on their value
         tempTypes = ["tempF", "tempFControl", "tempC", "spaTemp"]       # temperatures
-        updates = {"cacheTime": self.cache.cacheTime}
+        if self.cache:
+            cacheTime = self.cache.cacheTime
+        else:
+            cacheTime = 0
+        updates = {"cacheTime": cacheTime}
         for resource in resourceStates.keys():
             try:
                 resState = self.resources[resource].getViewState(views)
