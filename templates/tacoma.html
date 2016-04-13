@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+<head>
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' type='text/css' href='css/tacoma.css'> 
+    <script src='js/jquery.js'></script>
+    <script src='js/update.js'></script>
+    <script src='js/submit.js'></script>
+    {{ script }}
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <table border=0 width=800 style='table-layout:fixed'>
+        <col width=360><col width=440>
+        {% for r in group %}
+        <tr>
+            <td><div class=label>{{ r.label }}</div></td>
+            <td><div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}</div></td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
+

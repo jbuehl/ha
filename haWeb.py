@@ -38,6 +38,16 @@ class WebRoot(object):
                                 details=details)
         return reply
 
+    # Tacoma    
+    @cherrypy.expose
+    def tacoma(self):
+        debug('debugWeb', "/", "get")
+        with self.resourceLock:
+            reply = self.env.get_template("tacoma.html").render(title=webPageTitle, script="", 
+                                group=self.resources.getGroup("Tacoma"),
+                                views=views)
+        return reply
+
     # Solar   
     @cherrypy.expose
     def solar(self, action=None, resource=None):
@@ -48,20 +58,20 @@ class WebRoot(object):
             latitude = "%7.3f "%(abs(latLong[0])+.0005)+("N" if latLong[0]>0 else "S")
             longitude = "%7.3f "%(abs(latLong[1])+.0005)+("E" if latLong[1]>0 else "W")
             reply = self.env.get_template("solar.html").render(script="",
-                                dayOfWeek=self.resources["theDayOfWeek"],
-                                date=self.resources["theDate"],
-                                time=self.resources["theTime"],
-                                ampm=self.resources["theAmPm"],
-                                sunrise=self.resources["sunrise"],
-                                sunset=self.resources["sunset"],
+                                dayOfWeek=self.resources.getRes("theDayOfWeek"),
+                                date=self.resources.getRes("theDate"),
+                                time=self.resources.getRes("theTime"),
+                                ampm=self.resources.getRes("theAmPm"),
+                                sunrise=self.resources.getRes("sunrise"),
+                                sunset=self.resources.getRes("sunset"),
                                 latitude=latitude, longitude=longitude,
-                                airTemp=self.resources[outsideTemp],
-                                inverterTemp=self.resources["inverterTemp"], 
-                                roofTemp=self.resources["roofTemp"], 
-                                currentLoad=self.resources["currentLoad"], 
-                                currentPower=self.resources["currentPower"], 
-                                todaysEnergy=self.resources["todaysEnergy"], 
-                                lifetimeEnergy=self.resources["lifetimeEnergy"], 
+                                airTemp=self.resources.getRes(outsideTemp),
+                                inverterTemp=self.resources.getRes("inverterTemp"), 
+                                roofTemp=self.resources.getRes("roofTemp"), 
+                                currentLoad=self.resources.getRes("currentLoad"), 
+                                currentPower=self.resources.getRes("currentPower"), 
+                                todaysEnergy=self.resources.getRes("todaysEnergy"), 
+                                lifetimeEnergy=self.resources.getRes("lifetimeEnergy"), 
                                 inverters=inverters, 
                                 optimizers=optimizers, 
                                 views=views)
@@ -73,12 +83,12 @@ class WebRoot(object):
         debug('debugWeb', "/ipad", "get", action, resource)
         with self.resourceLock:
             reply = self.env.get_template("ipad.html").render(script="", 
-                                time=self.resources["theTime"],
-                                ampm=self.resources["theAmPm"],
-                                day=self.resources["theDay"],
-                                pooltemp=self.resources[poolTemp],
-                                intemp=self.resources[insideTemp],
-                                outtemp=self.resources[outsideTemp],
+                                time=self.resources.getRes("theTime"),
+                                ampm=self.resources.getRes("theAmPm"),
+                                day=self.resources.getRes("theDay"),
+                                pooltemp=self.resources.getRes(poolTemp),
+                                intemp=self.resources.getRes(insideTemp),
+                                outtemp=self.resources.getRes(outsideTemp),
                                 groups=[["Pool", self.resources.getResList(["spaTemp"])], 
                                       ["Lights", self.resources.getResList(["xmasTree", "xmasCowTree", "porchLights", "xmasLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
                                       ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
@@ -94,9 +104,9 @@ class WebRoot(object):
         debug('debugWeb', "/iphone5", "get", action, resource)
         with self.resourceLock:
             reply = self.env.get_template("iphone5.html").render(script="", 
-                                time=self.resources["theTime"],
-                                ampm=self.resources["theAmPm"],
-                                temp=self.resources[outsideTemp],
+                                time=self.resources.getRes("theTime"),
+                                ampm=self.resources.getRes("theAmPm"),
+                                temp=self.resources.getRes(outsideTemp),
                                 resources=self.resources.getResList(["spaTemp", "xmasTree", "xmasCowTree", "porchLights", "xmasLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
                                 views=views)
         return reply
@@ -107,10 +117,10 @@ class WebRoot(object):
         debug('debugWeb', "/iphone3gs", "get", action, resource)
         with self.resourceLock:
             reply = self.env.get_template("iphone3gs.html").render(script="", 
-                                time=self.resources["theTime"],
-                                ampm=self.resources["theAmPm"],
-                                day=self.resources["theDay"],
-                                temp=self.resources[outsideTemp],
+                                time=self.resources.getRes("theTime"),
+                                ampm=self.resources.getRes("theAmPm"),
+                                day=self.resources.getRes("theDay"),
+                                temp=self.resources.getRes(outsideTemp),
                                 resources=self.resources.getResList(["porchLights", "xmasLights", "bedroomLights", "recircPump", "garageDoors", "houseDoors"]),
                                 views=views)
         return reply
@@ -128,9 +138,9 @@ class WebRoot(object):
                 return reply
             else:
                 if state:
-                    self.resources[resource].setViewState(state, views)
+                    self.resources.getRes(resource).setViewState(state, views)
                     time.sleep(1)   # hack
-                return json.dumps({"state": self.resources[resource].getViewState(views)})
+                return json.dumps({"state": self.resources.getRes(resource).getViewState(views)})
         except:
             return "Error"        
 
@@ -140,9 +150,9 @@ class WebRoot(object):
         try:
             if resource:
                 if attr:
-                    return self.resources[resource].__getattribute__(attr).__str__()
+                    return self.resources.getRes(resource).__getattribute__(attr).__str__()
                 else:
-                    return self.resources[resource].dict().__str__()
+                    return self.resources.getRes(resource).dict().__str__()
         except:
             return "Error"        
 
@@ -150,7 +160,7 @@ class WebRoot(object):
     @cherrypy.expose
     def state(self, _=None):
         debug('debugWebUpdate', "state", cherrypy.request.remote.ip)
-        return self.updateStates(self.resources["states"].getState())
+        return self.updateStates(self.resources.getRes("states").getState())
         
     # Update the states of resources that have changed
     @cherrypy.expose
@@ -160,7 +170,7 @@ class WebRoot(object):
         self.stateChangeEvent.wait()
         debug('debugInterrupt', "update", "event clear")
         self.stateChangeEvent.clear()
-        return self.updateStates(self.resources["states"].getStateChange())
+        return self.updateStates(self.resources.getRes("states").getStateChange())
 
     # return the json to update the states of the specified collection of sensors
     def updateStates(self, resourceStates):
@@ -173,8 +183,8 @@ class WebRoot(object):
         updates = {"cacheTime": cacheTime}
         for resource in resourceStates.keys():
             try:
-                resState = self.resources[resource].getViewState(views)
-                resClass = self.resources[resource].type
+                resState = self.resources.getRes(resource).getViewState(views)
+                resClass = self.resources.getRes(resource).type
                 if resClass in tempTypes:
                     updates[resource] = ("temp", resState, tempColor(resState))
                 else:
@@ -190,7 +200,7 @@ class WebRoot(object):
     @cherrypy.expose
     def submit(self, action=None, resource=None):
         debug('debugWeb', "/submit", "post", action, resource)
-        self.resources[resource].setViewState(action, views)
+        self.resources.getRes(resource).setViewState(action, views)
         reply = ""
         return reply
 
