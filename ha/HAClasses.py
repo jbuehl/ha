@@ -142,6 +142,14 @@ class HACollection(HAResource, OrderedDict):
     def delRes(self, name):
         self.__delitem__(name)
 
+    # Get a resource from the table
+    # Return dummy sensor if not found
+    def getRes(self, name):
+        try:
+            return self.__getitem__(name)
+        except KeyError:
+            return HASensor(name, HAInterface("None"))
+
     # Return the list of resources that have the names specified in the list
     def getResList(self, names):
         resList = []
