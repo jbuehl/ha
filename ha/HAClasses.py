@@ -155,7 +155,7 @@ class HACollection(HAResource, OrderedDict):
         resList = []
         for name in names:
             try:
-                resList.append(self.__getitem__(name))
+                resList.append(self.getRes(name))
             except:
                 pass
         return resList
