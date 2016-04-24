@@ -23,7 +23,7 @@ class SensorGroup(HASensor):
         for sensorIdx in range(len(self.sensorList)):
             if self.resources:      # sensors are resource names
                 try:
-                    sensor = self.resources[self.sensorList[sensorIdx]]
+                    sensor = self.resources.getRes(self.sensorList[sensorIdx])
                 except KeyError:    # can't resolve so ignore it
                     sensor = None
             else:                   # sensors are resource references
