@@ -95,7 +95,7 @@ class HAInterface(HAResource):
         return True
         
     def read(self, addr):
-        return True
+        return False
         
     def write(self, addr, theValue):
         return True
