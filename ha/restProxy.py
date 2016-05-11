@@ -42,7 +42,7 @@ class RestProxy(threading.Thread):
                 serviceTimeStamp = 0
                 serviceLabel = serviceName
             timeStamp = time.time()
-            if serviceName != self.selfRest:   # ignore the beacon from this service
+            if serviceName not in self.selfRest:   # ignore the beacon from this service
                 if serviceName not in self.services.keys():   # new service
                     debug('debugRestProxy', self.name, timeStamp, "adding", serviceName, serviceAddr, serviceTimeStamp, serviceLabel)
                     self.services[serviceName] = RestServiceProxy(serviceName, serviceAddr, serviceTimeStamp, 

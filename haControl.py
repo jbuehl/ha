@@ -1,3 +1,4 @@
+restIgnore = []
 
 import time
 from ha.HAClasses import *
@@ -9,27 +10,6 @@ from haWeb import *
 
 stateChangeEvent = threading.Event()
 resourceLock = threading.Lock()
-
-# A collection of sensors whose state is on if any one of them is on
-class SensorGroup(HASensor):
-    def __init__(self, name, sensorList, resources=None, interface=HAInterface("None"), addr=None, group="", type="sensor", view=None, label=""):
-        HASensor.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
-        self.sensorList = sensorList
-        self.resources = resources  # if specified, sensorList contains resource names, otherwise references
-        self.className = "HASensor"
-
-    def getState(self):
-        groupState = 0
-        for sensorIdx in range(len(self.sensorList)):
-            if self.resources:      # sensors are resource names
-                try:
-                    sensor = self.resources.getRes(self.sensorList[sensorIdx])
-                except KeyError:    # can't resolve so ignore it
-                    sensor = None
-            else:                   # sensors are resource references
-                sensor = self.sensorList[sensorIdx]
-            groupState = groupState or sensor.getState()
-        return groupState
 
 if __name__ == "__main__":
     # resources
@@ -52,7 +32,8 @@ if __name__ == "__main__":
     resources.addRes(HASensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
 
     # start the cache to listen for services on other servers
-    restCache = RestProxy("restProxy", resources, socket.gethostname()+":"+str(webRestPort), stateChangeEvent, resourceLock)
+    restIgnore.append(socket.gethostname()+":"+str(webRestPort))
+    restCache = RestProxy("restProxy", resources, restIgnore, stateChangeEvent, resourceLock)
     restCache.start()
     
     # scenes and groups

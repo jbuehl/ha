@@ -573,6 +573,27 @@ class HAScene(HAControl):
         self.running = False
         debug('debugThread', self.name, "finished")
 
+# A collection of sensors whose state is on if any one of them is on
+class SensorGroup(HASensor):
+    def __init__(self, name, sensorList, resources=None, interface=HAInterface("None"), addr=None, group="", type="sensor", view=None, label=""):
+        HASensor.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
+        self.sensorList = sensorList
+        self.resources = resources  # if specified, sensorList contains resource names, otherwise references
+        self.className = "HASensor"
+
+    def getState(self):
+        groupState = 0
+        for sensorIdx in range(len(self.sensorList)):
+            if self.resources:      # sensors are resource names
+                try:
+                    sensor = self.resources.getRes(self.sensorList[sensorIdx])
+                except KeyError:    # can't resolve so ignore it
+                    sensor = None
+            else:                   # sensors are resource references
+                sensor = self.sensorList[sensorIdx]
+            groupState = groupState or sensor.getState()
+        return groupState
+
 # Calculate a function of a list of sensor states
 class CalcSensor(HASensor):
     def __init__(self, name, sensors, function, interface=HAInterface("None"), addr=None, group="", type="sensor", view=None, label="", location=None):
