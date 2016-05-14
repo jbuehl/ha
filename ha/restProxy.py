@@ -24,6 +24,7 @@ class RestProxy(threading.Thread):
         self.cacheTime = 0
         self.selfRest = selfRest
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(("", 4242))
                 
     def doRest(self):
