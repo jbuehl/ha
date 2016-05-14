@@ -20,7 +20,7 @@ from ha.restServer import *
 from ha.ADS1015Interface import *
 from ha.analogTempInterface import *
 from ha.valveInterface import *
-from ha.heaterControl import *
+from ha.tempControl import *
 #from ha.timeInterface import *
 
 serial1Config = {"baudrate": 9600, 
@@ -258,7 +258,7 @@ if __name__ == "__main__":
     spaDrain = HAScene("spaDrain", [intakeValve, returnValve, poolPump], stateList=[[0, 1], [0, 0], [0, 4]], group="Pool", label="Spa drain")
     poolClean = HAScene("poolClean", [poolCleaner, poolPump], stateList=[[0, 1], [0, 3]], group="Pool", label="Pool clean")
     heater = HAControl("heater", gpio1, 2, group="Pool", label="Heater", type="heater")
-    spaHeater = HeaterControl("spaHeater", nullInterface, heater, waterTemp, group="Pool", label="Heater", type="heater")
+    spaHeater = TempControl("spaHeater", nullInterface, heater, waterTemp, group="Pool", label="Heater", type="heater")
     spaHeater.setTarget(spaTempTarget)
     spaBlower = HAControl("spaBlower", gpio0, 1, group="Pool", label="Blower")
     
