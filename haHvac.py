@@ -1,5 +1,7 @@
 northHeatTempTargetDefault = 65
-southHeatTempTargetDefault = 66
+northCoolTempTargetDefault = 75
+southHeatTempTargetDefault = 65
+southCoolTempTargetDefault = 75
 
 import threading
 from ha.HAClasses import *
@@ -90,8 +92,12 @@ if __name__ == "__main__":
     configData.start()
     if not northHeatTempTarget.getState():
         northHeatTempTarget.setState(northHeatTempTargetDefault)
+    if not northCoolTempTarget.getState():
+        northCoolTempTarget.setState(northCoolTempTargetDefault)
     if not southHeatTempTarget.getState():
         southHeatTempTarget.setState(southHeatTempTargetDefault)
+    if not southCoolTempTarget.getState():
+        southCoolTempTarget.setState(southCoolTempTargetDefault)
     # temporary
     northCoolControl.setState(1)
     southCoolControl.setState(1)
