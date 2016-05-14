@@ -81,5 +81,7 @@ if __name__ == "__main__":
 
     # start the REST server for this service
     restServer = RestServer(resources, event=stateChangeEvent, label="Tacoma")
-    restServer.start()
+    # restServer.start()
+    while True:
+        time.sleep(1)
     
