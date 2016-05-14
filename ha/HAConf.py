@@ -2,10 +2,12 @@
 # configuration
 ##################################################################
 
+import os
+
 running = True
 
 # Environment
-rootDir = "/root/"
+rootDir = os.path.dirname(os.path.realpath(__file__))+"/../../"
 configDir = rootDir+"conf/"
 keyDir = rootDir+"keys/"
 stateDir = rootDir+"state/"
