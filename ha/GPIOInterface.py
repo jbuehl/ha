@@ -46,10 +46,10 @@ class GPIOInterface(HAInterface):
             self.interruptPin = interruptPin+self.bank  # offset pin with bank
             self.config = config
             self.state = 0x00
+            gpioInterfaces[self.interruptPin] = self
         else:
             self.interface = None
             self.bank = 0
-        gpioInterfaces[self.interruptPin] = self
     
     def start(self):
         gpio.setwarnings(False)
