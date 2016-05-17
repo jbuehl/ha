@@ -29,7 +29,7 @@ class WebRoot(object):
             groups = [group.capitalize()]
             details = False
         except:
-            groups = ["Time", "Temperature", "Hvac", "Services", "Pool", "Lights", "Doors", "Water", "Solar", "Power", "Cameras", "Tasks"]
+            groups = ["Time", "Temperature", "Hvac", "Pool", "Lights", "Shades", "Doors", "Water", "Solar", "Power", "Cameras", "Services", "Tasks"]
             details = True
         with self.resourceLock:
             reply = self.env.get_template("default.html").render(title=webPageTitle, script="", 
