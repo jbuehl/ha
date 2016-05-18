@@ -3,7 +3,7 @@ restStatePort = 4243
 restTimeout = 60
 
 import json
-import requests
+import test
 import urllib
 import socket
 import threading
