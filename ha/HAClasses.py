@@ -535,7 +535,7 @@ class HAScene(HAControl):
             return HAControl.setState(self, state)
 
     def getState(self):
-        if self.type == "scene":
+        if True: # self.type == "scene": - FIXME
             return -1
         else:
             if self.interface.name == "None":
@@ -545,7 +545,7 @@ class HAScene(HAControl):
 
     # Return the printable string value for the state of the sensor
     def getViewState(self, views=None):
-        if self.type == "scene":
+        if True: # self.type == "scene": - FIXME
             return ""
         else:
             return HAControl.getViewState(self, views)

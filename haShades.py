@@ -16,14 +16,14 @@ if __name__ == "__main__":
     shadeInterface = ShadeInterface("Shades", gpioInterface)
     
     # Doors
-    resources.addRes(HAControl("shade1", shadeInterface, 0, type="shade", group="Doors", label="Shade 1"))
-    resources.addRes(HAControl("shade2", shadeInterface, 1, type="shade", group="Doors", label="Shade 2"))
-    resources.addRes(HAControl("shade3", shadeInterface, 2, type="shade", group="Doors", label="Shade 3"))
-    resources.addRes(HAControl("shade4", shadeInterface, 3, type="shade", group="Doors", label="Shade 4"))
+    resources.addRes(HAControl("shade1", shadeInterface, 0, type="shade", group="Shades", label="Shade 1"))
+    resources.addRes(HAControl("shade2", shadeInterface, 1, type="shade", group="Shades", label="Shade 2"))
+    resources.addRes(HAControl("shade3", shadeInterface, 2, type="shade", group="Shades", label="Shade 3"))
+    resources.addRes(HAControl("shade4", shadeInterface, 3, type="shade", group="Shades", label="Shade 4"))
     resources.addRes(HAScene("allShades", [resources["shade1"], 
-                                      resources["shade2"],
-                                      resources["shade3"],
-                                      resources["shade4"]], group="Doors", label="All shades"))
+                                           resources["shade2"],
+                                           resources["shade3"],
+                                           resources["shade4"]], type="shade", group="Shades", label="All shades"))
 
     # Schedules
     resources.addRes(schedule)
