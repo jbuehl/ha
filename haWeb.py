@@ -90,10 +90,11 @@ class WebRoot(object):
                                 intemp=self.resources.getRes(insideTemp),
                                 outtemp=self.resources.getRes(outsideTemp),
                                 groups=[["Pool", self.resources.getResList(["spaTemp"])], 
-                                      ["Lights", self.resources.getResList(["porchLights", "bbqLights", "backYardLights", "poolLight", "spaLight"])], 
+                                      ["Lights", self.resources.getResList(["porchLights", "poolLight", "spaLight"])], 
+#                                      ["Lights", self.resources.getResList(["bbqLights", "backYardLights"])], 
 #                                      ["Lights", self.resources.getResList(["xmasTree", "xmasCowTree", "xmasLights"])], 
                                       ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
-                                      ["Hvac", self.resources.getResList(["southHeatTempTarget", "northHeatTempTarget"])], 
+                                      ["Hvac", self.resources.getResList(["southHeatTempTarget", "southCoolTempTarget", "northHeatTempTarget", "northCoolTempTarget"])], 
                                       ["Sprinklers", self.resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
                                       ],
                                 views=views)
@@ -108,7 +109,7 @@ class WebRoot(object):
                                 time=self.resources.getRes("theTime"),
                                 ampm=self.resources.getRes("theAmPm"),
                                 temp=self.resources.getRes(outsideTemp),
-                                resources=self.resources.getResList(["spaTemp", "xmasTree", "xmasCowTree", "porchLights", "xmasLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
+                                resources=self.resources.getResList(["spaTemp", "porchLights", "xmasLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
                                 views=views)
         return reply
 
