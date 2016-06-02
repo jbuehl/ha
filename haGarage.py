@@ -27,6 +27,7 @@ if __name__ == "__main__":
     resources.addRes(HASensor("garageBackDoor", gpio1, 1, type="door", group="Doors", label="Garage Back"))
     resources.addRes(HASensor("garageDoor", gpio1, 2, type="door", group="Doors", label="Garage Door"))
     resources.addRes(HASensor("garageHouseDoor", gpio1, 3, type="door", group="Doors", label="Garage House"))
+    resources.addRes(SensorGroup("garageDoors", ["garageDoor", "garageBackDoor", "garageHouseDoor"], resources=resources, type="door", group="Doors", label="Garage doors"))
 
     # Temperature
     resources.addRes(HASensor("garageTemp", temp, 0x4d, group="Temperature", label="Garage temp", type="tempF"))

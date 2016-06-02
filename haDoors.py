@@ -33,6 +33,7 @@ if __name__ == "__main__":
     resources.addRes(HASensor("frontDoor", gpio1, 5, type="door", group="Doors", label="Front"))
     resources.addRes(HASensor("familyRoomDoor", gpio1, 6, type="door", group="Doors", label="Family room"))
     resources.addRes(HASensor("masterBedroomDoor", gpio1, 7, type="door", group="Doors", label="Master bedroom"))
+    resources.addRes(SensorGroup("houseDoors", ["frontDoor", "familyRoomDoor", "masterBedroomDoor"], resources=resources, type="door", group="Doors", label="House doors"))
 
     # Start interfaces
     gpio0.start()

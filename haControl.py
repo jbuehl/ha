@@ -37,8 +37,6 @@ if __name__ == "__main__":
     restCache.start()
     
     # scenes and groups
-    resources.addRes(SensorGroup("houseDoors", ["frontDoor", "familyRoomDoor", "masterBedroomDoor"], resources=resources, type="door", group="Doors", label="House doors"))
-    resources.addRes(SensorGroup("garageDoors", ["garageDoor", "garageBackDoor", "garageHouseDoor"], resources=resources, type="door", group="Doors", label="Garage doors"))
     resources.addRes(HAScene("porchLights", ["frontLights",
                                                "backLights",
                                                "garageBackDoorLight"],
