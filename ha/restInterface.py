@@ -52,7 +52,8 @@ class HARestInterface(HAInterface):
                 readStateTimer = None
                 while self.enabled:
                     if True: #try:
-                        (data, addr) = self.socket.recvfrom(4096)
+                        (data, addr) = self.socket.recvfrom(8192)
+                        debug('debugRestStates', self.name, "readStateNotify", "addr:", addr[0], "data:", data)
                         msg = json.loads(data)
                         if addr[0]+":"+str(msg["port"]) == self.service:   # is this from the correct service
                             if readStateTimer:
@@ -129,7 +130,7 @@ class HARestInterface(HAInterface):
                     return response.json()
             else:
                 return {}
-        except requests.exceptions.ReadTimeout: # timeout
+        except requests.exceptions.Timeout: # timeout
             debug('debugRest', self.name, "timeout")
             self.enabled = False
             return {}
