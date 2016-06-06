@@ -41,10 +41,14 @@ if __name__ == "__main__":
 #    resources.addRes(HASensor("door12", gpio11, 2, type="door", group="Doors", label="door12"))
 #    resources.addRes(HASensor("door13", gpio11, 3, type="door", group="Doors", label="door13"))
 #    resources.addRes(HASensor("door14", gpio11, 4, type="door", group="Doors", label="door14"))
-    resources.addRes(HASensor("frontDoor", gpio11, 5, type="door", group="Doors", label="Front"))
-    resources.addRes(HASensor("familyRoomDoor", gpio11, 6, type="door", group="Doors", label="Family room"))
-    resources.addRes(HASensor("masterBedroomDoor", gpio11, 7, type="door", group="Doors", label="Master bedroom"))
-    resources.addRes(SensorGroup("houseDoors", ["frontDoor", "familyRoomDoor", "masterBedroomDoor"], resources=resources, type="door", group="Doors", label="House doors"))
+    frontDoor = HASensor("frontDoor", gpio11, 5, type="door", group="Doors", label="Front")
+    familyRoomDoor = HASensor("familyRoomDoor", gpio11, 6, type="door", group="Doors", label="Family room")
+    masterBedroomDoor = HASensor("masterBedroomDoor", gpio11, 7, type="door", group="Doors", label="Master bedroom")
+    houseDoors = SensorGroup("houseDoors", ["frontDoor", "familyRoomDoor", "masterBedroomDoor"], resources=resources, type="door", group="Doors", label="House doors")
+    resources.addRes(frontDoor)
+    resources.addRes(familyRoomDoor)
+    resources.addRes(masterBedroomDoor)
+    resources.addRes(houseDoors)
 
     # persistent config data
     northHeatTempTarget = HAControl("northHeatTempTarget", configData, "northHeatTempTarget", group="Hvac", label="North heat set", type="tempFControl")
@@ -77,10 +81,10 @@ if __name__ == "__main__":
     southFan  = HAControl("southFan",  gpio00, 2, group="Hvac", label="South fan")
 
     # Temp controls
-    northHeatControl = TempControl("northHeatControl", nullInterface, northHeat, masterBedroomTemp, northHeatTempTarget, unitType=0, group="Hvac", label="North heat control", type="heater")
-    northCoolControl = TempControl("northCoolControl", nullInterface, northCool, masterBedroomTemp, northCoolTempTarget, unitType=1, group="Hvac", label="North cool control", type="heater")
-    southHeatControl = TempControl("southHeatControl", nullInterface, southHeat, kitchenTemp, southHeatTempTarget, unitType=0, group="Hvac", label="South heat control", type="heater")
-    southCoolControl = TempControl("southCoolControl", nullInterface, southCool, kitchenTemp, southCoolTempTarget, unitType=1, group="Hvac", label="South cool control", type="heater")
+    northHeatControl = TempControl("northHeatControl", nullInterface, northHeat, masterBedroomTemp, northHeatTempTarget, masterBedroomDoor, unitType=0, group="Hvac", label="North heat control", type="heater")
+    northCoolControl = TempControl("northCoolControl", nullInterface, northCool, masterBedroomTemp, northCoolTempTarget, masterBedroomDoor, unitType=1, group="Hvac", label="North cool control", type="heater")
+    southHeatControl = TempControl("southHeatControl", nullInterface, southHeat, kitchenTemp, southHeatTempTarget, familyRoomDoor, unitType=0, group="Hvac", label="South heat control", type="heater")
+    southCoolControl = TempControl("southCoolControl", nullInterface, southCool, kitchenTemp, southCoolTempTarget, familyRoomDoor, unitType=1, group="Hvac", label="South cool control", type="heater")
     
     resources.addRes(northHeat)
     resources.addRes(northCool)
