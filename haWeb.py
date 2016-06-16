@@ -206,13 +206,19 @@ class WebRoot(object):
         reply = ""
         return reply
 
-def webInit(resources, restCache, stateChangeEvent, resourceLock):
+def webInit(resources, restCache, stateChangeEvent, resourceLock, port=80, ssl=False, domain=""):
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
     globalConfig = {
-        'server.socket_port': webPort,
+        'server.socket_port': port,
         'server.socket_host': "0.0.0.0",
         }
+    if ssl:
+        globalConfig.update({
+            'server.ssl_module': 'pyopenssl',
+            'server.ssl_certificate': keyDir+domain+".crt",
+            'server.ssl_private_key': keyDir+domain+".key",
+            })
     appConfig = {
         '/css': {
             'tools.staticdir.on': True,
