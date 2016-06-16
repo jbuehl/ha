@@ -37,10 +37,10 @@ if __name__ == "__main__":
     restCache.start()
     
     # set up the web server
-    webInit(resources, restCache, stateChangeEvent, resourceLock)
+    webInit(resources, restCache, stateChangeEvent, resourceLock, port=7380, ssl=True, domain="cloud.buehltech.com")
     
     # start the REST server for this service
-    restServer = RestServer(resources, port=webRestPort, event=stateChangeEvent)
+    restServer = RestServer(resources, port=7378, event=stateChangeEvent)
     # restServer.start()
     while True:
         time.sleep(1)
