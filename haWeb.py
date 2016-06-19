@@ -2,6 +2,7 @@ webPort = 80
 webRestPort = 7478
 webUpdateInterval = 1
 webPageTitle = "Home Automation"
+authCode = "01234567"
 
 insideTemp = "kitchenTemp"
 outsideTemp = "deckTemp"
@@ -13,6 +14,12 @@ from jinja2 import Environment, FileSystemLoader
 from ha.HAClasses import *
 from haWebViews import *
 
+def isAuthenticated(auth):
+    if auth == authCode:
+        return True
+    else:
+        return False
+        
 class WebRoot(object):
     def __init__(self, resources, env, cache, stateChangeEvent, resourceLock):
         self.resources = resources
@@ -23,8 +30,12 @@ class WebRoot(object):
     
     # Everything    
     @cherrypy.expose
-    def index(self, group=None):
+    def index(self, auth="", group=None):
         debug('debugWeb', "/", "get", group)
+        if not isAuthenticated(auth):
+            httpError = cherrypy.HTTPError("401 Unauthorized")
+            httpError.set_response()
+            return "You are not allowed to access this resource."
         try:
             groups = [group.capitalize()]
             details = False
@@ -109,7 +120,7 @@ class WebRoot(object):
                                 time=self.resources.getRes("theTime"),
                                 ampm=self.resources.getRes("theAmPm"),
                                 temp=self.resources.getRes(outsideTemp),
-                                resources=self.resources.getResList(["spaTemp", "porchLights", "xmasLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
+                                resources=self.resources.getResList(["spaTemp", "porchLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
                                 views=views)
         return reply
 
@@ -206,19 +217,9 @@ class WebRoot(object):
         reply = ""
         return reply
 
-def webInit(resources, restCache, stateChangeEvent, resourceLock, port=80, ssl=False, domain=""):
+def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, ssl=False, httpsPort=443, domain=""):
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
-    globalConfig = {
-        'server.socket_port': port,
-        'server.socket_host': "0.0.0.0",
-        }
-    if ssl:
-        globalConfig.update({
-            'server.ssl_module': 'pyopenssl',
-            'server.ssl_certificate': keyDir+domain+".crt",
-            'server.ssl_private_key': keyDir+domain+".key",
-            })
     appConfig = {
         '/css': {
             'tools.staticdir.on': True,
@@ -240,9 +241,27 @@ def webInit(resources, restCache, stateChangeEvent, resourceLock, port=80, ssl=F
             'tools.staticfile.filename': os.path.join(baseDir, "static/favicon.ico"),
         },
     }    
-    cherrypy.config.update(globalConfig)
     root = WebRoot(resources, Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates'))), restCache, stateChangeEvent, resourceLock)
     cherrypy.tree.mount(root, "/", appConfig)
+    
+    cherrypy.server.unsubscribe()   
+    httpServer = cherrypy._cpserver.Server()
+    httpServer.socket_port = httpPort
+    httpServer._socket_host = "0.0.0.0"
+    httpServer.max_request_body_size = 120 * 1024 # ~100kb
+    httpServer.thread_pool = 30
+    httpServer.subscribe()
+    if ssl:
+        httpsServer = cherrypy._cpserver.Server()
+        httpsServer.socket_port = httpsPort
+        httpsServer._socket_host = '0.0.0.0'
+        httpsServer.max_request_body_size = 120 * 1024 # ~100kb
+        httpsServer.thread_pool = 30
+        httpsServer.ssl_module = 'pyopenssl'
+        httpsServer.ssl_certificate = keyDir+domain+".crt"
+        httpsServer.ssl_private_key = keyDir+domain+".key"
+        httpsServer.subscribe()
+
     if not webLogging:
         access_log = cherrypy.log.access_log
         for handler in tuple(access_log.handlers):
@@ -250,4 +269,4 @@ def webInit(resources, restCache, stateChangeEvent, resourceLock, port=80, ssl=F
     cherrypy.engine.timeout_monitor.unsubscribe()
     cherrypy.engine.autoreload.unsubscribe()
     cherrypy.engine.start()
-
+        
