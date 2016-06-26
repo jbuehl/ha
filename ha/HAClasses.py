@@ -213,7 +213,7 @@ class HACollection(HAResource, OrderedDict):
                     schedTime=HASchedTime(**node["schedTime"]), 
                     interface=interface, addr=path+"/state",)
             else:
-                debug('debug', self.name, "loadResource", node["name"], "class:", node["class"], "not created")
+                debug('debugCollection', self.name, "loadResource", node["name"], "class:", node["class"], "not created")
                 resource = None
             if resource:
                 debug('debugCollection', self.name, "loadResource", node["name"], "created")
