@@ -8,17 +8,20 @@ insideTemp = "kitchenTemp"
 outsideTemp = "deckTemp"
 poolTemp = "waterTemp"
 
-import cherrypy
 import json
+import cherrypy
+from cherrypy.lib import auth_basic
 from jinja2 import Environment, FileSystemLoader
 from ha.HAClasses import *
 from haWebViews import *
 
-def isAuthenticated(auth):
-    if auth == authCode:
-        return True
-    else:
-        return False
+# user authentication
+userFileName = keyDir+"users.json"
+users = json.load(open(userFileName))
+def validatePassword(realm, username, password):
+    if username in users and users[username] == password:
+       return True
+    return False
         
 class WebRoot(object):
     def __init__(self, resources, env, cache, stateChangeEvent, resourceLock):
@@ -30,12 +33,8 @@ class WebRoot(object):
     
     # Everything    
     @cherrypy.expose
-    def index(self, auth="", group=None):
+    def index(self, group=None):
         debug('debugWeb', "/", "get", group)
-        if not isAuthenticated(auth):
-            httpError = cherrypy.HTTPError("401 Unauthorized")
-            httpError.set_response()
-            return "You are not allowed to access this resource."
         try:
             groups = [group.capitalize()]
             details = False
@@ -221,6 +220,11 @@ def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, s
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
     appConfig = {
+        '/': {
+           'tools.auth_basic.on': True,
+           'tools.auth_basic.realm': 'localhost',
+           'tools.auth_basic.checkpassword': validatePassword
+        },
         '/css': {
             'tools.staticdir.on': True,
             'tools.staticdir.root': os.path.join(baseDir, "static"),
@@ -244,7 +248,8 @@ def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, s
     root = WebRoot(resources, Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates'))), restCache, stateChangeEvent, resourceLock)
     cherrypy.tree.mount(root, "/", appConfig)
     
-    cherrypy.server.unsubscribe()   
+    cherrypy.server.unsubscribe()
+    # http server for LAN access
     httpServer = cherrypy._cpserver.Server()
     httpServer.socket_port = httpPort
     httpServer._socket_host = "0.0.0.0"
@@ -252,6 +257,7 @@ def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, s
     httpServer.thread_pool = 30
     httpServer.subscribe()
     if ssl:
+        # https server for external access
         httpsServer = cherrypy._cpserver.Server()
         httpsServer.socket_port = httpsPort
         httpsServer._socket_host = '0.0.0.0'
