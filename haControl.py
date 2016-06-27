@@ -90,7 +90,8 @@ if __name__ == "__main__":
     schedule.start()
 
     # set up the web server
-    webInit(resources, restCache, stateChangeEvent, resourceLock, ssl=True, httpsPort=7380, domain="cloud.buehltech.com")
+#    webInit(resources, restCache, stateChangeEvent, resourceLock)
+    webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, ssl=True, httpsPort=7380, domain="cloud.buehltech.com")
     
     # start the REST server for this service
     restServer = RestServer(resources, port=webRestPort, event=stateChangeEvent)

@@ -18,7 +18,11 @@ from haWebViews import *
 # user authentication
 userFileName = keyDir+"users.json"
 users = json.load(open(userFileName))
+lanAddr = "192.168.1"
 def validatePassword(realm, username, password):
+    debug('debugWeb', "ip:", cherrypy.request.remote.ip, "username:", username, "password:", password)
+    if ".".join(cherrypy.request.remote.ip.split(".")[0:3]) == lanAddr:
+        return True
     if username in users and users[username] == password:
        return True
     return False
@@ -34,7 +38,7 @@ class WebRoot(object):
     # Everything    
     @cherrypy.expose
     def index(self, group=None):
-        debug('debugWeb', "/", "get", group)
+        debug('debugWeb', "/", cherrypy.request.method, group)
         try:
             groups = [group.capitalize()]
             details = False
@@ -51,7 +55,7 @@ class WebRoot(object):
     # Tacoma    
     @cherrypy.expose
     def tacoma(self):
-        debug('debugWeb', "/", "get")
+        debug('debugWeb', "/tacoma", cherrypy.request.method)
         with self.resourceLock:
             reply = self.env.get_template("tacoma.html").render(title=webPageTitle, script="", 
                                 group=self.resources.getGroup("Tacoma"),
@@ -61,7 +65,7 @@ class WebRoot(object):
     # Solar   
     @cherrypy.expose
     def solar(self, action=None, resource=None):
-        debug('debugWeb', "/solar", "get", action, resource)
+        debug('debugWeb', "/solar", cherrypy.request.method, action, resource)
         with self.resourceLock:
             inverters = self.resources.getGroup("Inverters")
             optimizers = self.resources.getGroup("Optimizers")
@@ -90,7 +94,7 @@ class WebRoot(object):
     # iPad - 1024x768   
     @cherrypy.expose
     def ipad(self, action=None, resource=None):
-        debug('debugWeb', "/ipad", "get", action, resource)
+        debug('debugWeb', "/ipad", cherrypy.request.method, action, resource)
         with self.resourceLock:
             reply = self.env.get_template("ipad.html").render(script="", 
                                 time=self.resources.getRes("theTime"),
@@ -113,7 +117,7 @@ class WebRoot(object):
     # iPhone 5 - 320x568    
     @cherrypy.expose
     def iphone5(self, action=None, resource=None):
-        debug('debugWeb', "/iphone5", "get", action, resource)
+        debug('debugWeb', "/iphone5", cherrypy.request.method, action, resource)
         with self.resourceLock:
             reply = self.env.get_template("iphone5.html").render(script="", 
                                 time=self.resources.getRes("theTime"),
@@ -126,7 +130,7 @@ class WebRoot(object):
     # iPhone 3GS - 320x480    
     @cherrypy.expose
     def iphone3gs(self, action=None, resource=None):
-        debug('debugWeb', "/iphone3gs", "get", action, resource)
+        debug('debugWeb', "/iphone3gs", cherrypy.request.method, action, resource)
         with self.resourceLock:
             reply = self.env.get_template("iphone3gs.html").render(script="", 
                                 time=self.resources.getRes("theTime"),
@@ -140,7 +144,7 @@ class WebRoot(object):
     # get or set a resource state
     @cherrypy.expose
     def cmd(self, resource=None, state=None):
-        debug('debugWeb', "/cmd", "get", resource, state)
+        debug('debugWeb', "/cmd", cherrypy.request.method, resource, state)
         try:
             if resource == "resources":
                 reply = ""
@@ -159,6 +163,7 @@ class WebRoot(object):
     # Return the value of a resource attribute
     @cherrypy.expose
     def value(self, resource=None, attr=None):
+        debug('debugWeb', "/value", cherrypy.request.method, resource, attr)
         try:
             if resource:
                 if attr:
@@ -171,13 +176,13 @@ class WebRoot(object):
     # Update the states of all resources
     @cherrypy.expose
     def state(self, _=None):
-        debug('debugWebUpdate', "state", cherrypy.request.remote.ip)
+        debug('debugWebUpdate', "/state", cherrypy.request.method)
         return self.updateStates(self.resources.getRes("states").getState())
         
     # Update the states of resources that have changed
     @cherrypy.expose
     def stateChange(self, _=None):
-        debug('debugWebUpdate', "stateChange", cherrypy.request.remote.ip)
+        debug('debugWebUpdate', "/stateChange", cherrypy.request.method)
         debug('debugInterrupt', "update", "event wait")
         self.stateChangeEvent.wait()
         debug('debugInterrupt', "update", "event clear")
@@ -205,13 +210,12 @@ class WebRoot(object):
                     updates[resource] = (resClass, resState, "")
             except:
                 pass
-        debug('debugWebUpdate', "states", len(updates))
         return json.dumps(updates)
         
     # Submit    
     @cherrypy.expose
     def submit(self, action=None, resource=None):
-        debug('debugWeb', "/submit", "post", action, resource)
+        debug('debugWeb', "/submit", cherrypy.request.method, action, resource)
         self.resources.getRes(resource).setViewState(action, views)
         reply = ""
         return reply
@@ -220,11 +224,6 @@ def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, s
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
     appConfig = {
-        '/': {
-           'tools.auth_basic.on': True,
-           'tools.auth_basic.realm': 'localhost',
-           'tools.auth_basic.checkpassword': validatePassword
-        },
         '/css': {
             'tools.staticdir.on': True,
             'tools.staticdir.root': os.path.join(baseDir, "static"),
@@ -244,7 +243,15 @@ def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, s
             'tools.staticfile.on': True,
             'tools.staticfile.filename': os.path.join(baseDir, "static/favicon.ico"),
         },
-    }    
+    }
+    if ssl:
+        appConfig.update({
+            '/': {
+               'tools.auth_basic.on': True,
+               'tools.auth_basic.realm': 'localhost',
+               'tools.auth_basic.checkpassword': validatePassword
+            }})
+    
     root = WebRoot(resources, Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates'))), restCache, stateChangeEvent, resourceLock)
     cherrypy.tree.mount(root, "/", appConfig)
     
