@@ -154,7 +154,11 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                     data = json.dumps({attr:data})
             else:
                 contentType = "application/json"
-                data = json.dumps(resource.dict())
+                try:
+                    data = json.dumps(resource.dict())
+                except:
+                    data = ""
+                    self.send_error(500)
             self.send_header("Content-type", contentType)
             self.end_headers()
             self.wfile.write(data)
