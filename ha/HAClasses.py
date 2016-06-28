@@ -449,6 +449,18 @@ class HASequence(HAControl):
         else:
             return HAControl.setState(self, state)
             
+    # dictionary of pertinent attributes
+    def dict(self):
+        classDict = {"class":self.className, # FIXME __class__.__name__, 
+                "name":self.name, 
+                "type":self.type, 
+                "label":self.label, 
+                "interface":None,
+                "addr":None, 
+                "group":self.group, 
+                "location":self.location}
+        return classDict
+                    
     # Run the Cycles in the list
     def runCycles(self, wait=False):
         debug('debugState', self.name, "runCycles", wait)
@@ -557,6 +569,17 @@ class HAScene(HAControl):
 #        else:
 #            return self.interface.getStateType(self)
 
+    # dictionary of pertinent attributes
+    def dict(self):
+        return {"class":self.className, # FIXME __class__.__name__, 
+                "name":self.name, 
+                "type":self.type, 
+                "label":self.label, 
+                "interface":None,
+                "addr":None, 
+                "group":self.group, 
+                "location":self.location}
+                    
     def doScene(self):
         debug('debugThread', self.name, "started")
         self.running = True
@@ -758,10 +781,17 @@ class HATask(HAControl):
         
     # dictionary of pertinent attributes
     def dict(self):
+        if self.resources:      # control is resource name
+            try:
+                control = self.resources[self.control]
+            except KeyError:    # can't resolve so ignore it
+                control = "None"
+        else:                   # control is resource reference
+            control = self.control    
         return {"class":self.__class__.__name__, 
                 "name":self.name, 
                 "type": self.type, 
-                "control":self.control.name, 
+                "control":control.name, 
                 "controlState":self.controlState, 
                 "schedTime": self.schedTime.dict()}
                     
