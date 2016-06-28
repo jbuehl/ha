@@ -14,18 +14,18 @@ if __name__ == "__main__":
     gpioInterface = GPIOInterface("GPIO", i2c1, addr=0x20, bank=1)
 
     # Sprinklers
-    resources.addRes(HAControl("frontLawn", gpioInterface, 4, group="Water", label="Front lawn")) # yellow
-    resources.addRes(HAControl("garden", gpioInterface, 5, group="Water", label="Garden")) # red
-    resources.addRes(HAControl("backLawn", gpioInterface, 6, group="Water", label="Back lawn")) # green
-    resources.addRes(HAControl("backBeds", gpioInterface, 7, group="Water", label="Back beds")) # blue
-    resources.addRes(HAControl("sideBeds", gpioInterface, 3, group="Water", label="Side beds")) # red
+    resources.addRes(HAControl("frontLawn", gpioInterface, 4, group="Water", label="Front lawn valve")) # yellow
+    resources.addRes(HAControl("garden", gpioInterface, 5, group="Water", label="Garden valve")) # red
+    resources.addRes(HAControl("backLawn", gpioInterface, 6, group="Water", label="Back lawn valve")) # green
+    resources.addRes(HAControl("backBeds", gpioInterface, 7, group="Water", label="Back beds valve")) # blue
+    resources.addRes(HAControl("sideBeds", gpioInterface, 3, group="Water", label="Side beds valve")) # red
 
     # Sequences
-    resources.addRes(HASequence("frontLawnSequence", [HACycle(resources["frontLawn"], 1200)], group="Water", label="Front lawn s"))
-    resources.addRes(HASequence("gardenSequence", [HACycle(resources["garden"], 600)], group="Water", label="Garden s"))
-    resources.addRes(HASequence("backLawnSequence", [HACycle(resources["backLawn"], 1200)], group="Water", label="Back lawn s"))
-    resources.addRes(HASequence("sideBedSequence", [HACycle(resources["sideBeds"], 600)], group="Water", label="Side beds s"))
-    resources.addRes(HASequence("backBedSequence", [HACycle(resources["backBeds"], 600)], group="Water", label="Back beds s"))
+    resources.addRes(HASequence("frontLawnSequence", [HACycle(resources["frontLawn"], 1200)], group="Water", label="Front lawn"))
+    resources.addRes(HASequence("gardenSequence", [HACycle(resources["garden"], 600)], group="Water", label="Garden"))
+    resources.addRes(HASequence("backLawnSequence", [HACycle(resources["backLawn"], 1200)], group="Water", label="Back lawn"))
+    resources.addRes(HASequence("sideBedSequence", [HACycle(resources["sideBeds"], 600)], group="Water", label="Side beds"))
+    resources.addRes(HASequence("backBedSequence", [HACycle(resources["backBeds"], 600)], group="Water", label="Back beds"))
 
     # Schedules
     resources.addRes(schedule)
