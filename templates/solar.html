@@ -45,6 +45,10 @@
                     <span id="{{ roofTemp.name }}" class="{{ roofTemp.type }}">{{ roofTemp.getViewState(views) }}</span>
                 </div>
                 <div>
+                    <span class="label">{{ currentVoltage.label }}</span> 
+                    <span id="{{ currentVoltage.name }}" class="{{ currentVoltage.type }}">{{ currentVoltage.getViewState(views) }}</span>
+                </div>
+                <div>
                     <span class="label">{{ currentLoad.label }}</span> 
                     <span id="{{ currentLoad.name }}" class="{{ currentLoad.type }}">{{ currentLoad.getViewState(views) }}</span>
                 </div>

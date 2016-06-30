@@ -2,7 +2,6 @@ webPort = 80
 webRestPort = 7478
 webUpdateInterval = 1
 webPageTitle = "Home Automation"
-authCode = "01234567"
 
 insideTemp = "kitchenTemp"
 outsideTemp = "deckTemp"
@@ -14,6 +13,9 @@ from cherrypy.lib import auth_basic
 from jinja2 import Environment, FileSystemLoader
 from ha.HAClasses import *
 from haWebViews import *
+
+# https://cherrypy.readthedocs.io/en/3.2.6/progguide/extending/customtools.html
+# https://bitbucket.org/cherrypy/cherrypy/src/ea210e8ef58a3a6ca289a8564c389e38de13d3d5/cherrypy/lib/auth_basic.py?at=default&fileviewer=file-view-default
 
 # user authentication
 userFileName = keyDir+"users.json"
@@ -82,6 +84,7 @@ class WebRoot(object):
                                 airTemp=self.resources.getRes(outsideTemp),
                                 inverterTemp=self.resources.getRes("inverterTemp"), 
                                 roofTemp=self.resources.getRes("roofTemp"), 
+                                currentVoltage=self.resources.getRes("currentVoltage"), 
                                 currentLoad=self.resources.getRes("currentLoad"), 
                                 currentPower=self.resources.getRes("currentPower"), 
                                 todaysEnergy=self.resources.getRes("todaysEnergy"), 
@@ -123,7 +126,7 @@ class WebRoot(object):
                                 time=self.resources.getRes("theTime"),
                                 ampm=self.resources.getRes("theAmPm"),
                                 temp=self.resources.getRes(outsideTemp),
-                                resources=self.resources.getResList(["spaTemp", "porchLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawn", "backBeds", "garden", "sideBeds", "frontLawn"]),
+                                resources=self.resources.getResList(["spaTemp", "porchLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"]),
                                 views=views)
         return reply
 
