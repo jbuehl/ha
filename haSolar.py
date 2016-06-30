@@ -119,8 +119,8 @@ if __name__ == "__main__":
     resources.addRes(HASensor("roofTemp", solarInterface, ("optimizers", "avg", "Temp"), group="Temperature", label="Roof temp", type="tempC"))
 
     # Solar
-    resources.addRes(HASensor("currentPower", solarInterface, ("inverters", "sum", "Pac"), group="Solar", label="Current power", type="KW"))
     resources.addRes(HASensor("currentVoltage", solarInterface, ("inverters", "avg", "Vac"), group="Solar", label="Current voltage", type="V"))
+    resources.addRes(HASensor("currentPower", solarInterface, ("inverters", "sum", "Pac"), group="Solar", label="Current power", type="KW"))
     resources.addRes(HASensor("todaysEnergy", solarInterface, ("inverters", "sum", "Eday"), group="Solar", label="Energy today", type="KWh"))
 #    resources.addRes(HASensor("monthlyEnergy", solarInterface, ("stats", "", "Emonth"), group="Solar", label="Energy this month", type="KWh"))
 #    resources.addRes(HASensor("yearlyEnergy", solarInterface, ("stats", "", "Eyear"), group="Solar", label="Energy this year", type="MWh"))
