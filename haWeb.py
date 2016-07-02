@@ -69,10 +69,6 @@ class WebRoot(object):
     def solar(self, action=None, resource=None):
         debug('debugWeb', "/solar", cherrypy.request.method, action, resource)
         with self.resourceLock:
-            inverters = self.resources.getGroup("Inverters")
-            optimizers = self.resources.getGroup("Optimizers")
-            latitude = "%7.3f "%(abs(latLong[0])+.0005)+("N" if latLong[0]>0 else "S")
-            longitude = "%7.3f "%(abs(latLong[1])+.0005)+("E" if latLong[1]>0 else "W")
             reply = self.env.get_template("solar.html").render(script="",
                                 dayOfWeek=self.resources.getRes("theDayOfWeek"),
                                 date=self.resources.getRes("theDate"),
@@ -80,7 +76,9 @@ class WebRoot(object):
                                 ampm=self.resources.getRes("theAmPm"),
                                 sunrise=self.resources.getRes("sunrise"),
                                 sunset=self.resources.getRes("sunset"),
-                                latitude=latitude, longitude=longitude,
+                                latitude="%7.3f "%(abs(latLong[0])+.0005)+("N" if latLong[0]>0 else "S"), 
+                                longitude="%7.3f "%(abs(latLong[1])+.0005)+("E" if latLong[1]>0 else "W"), 
+                                elevation="%d ft"%(elevation),
                                 airTemp=self.resources.getRes(outsideTemp),
                                 inverterTemp=self.resources.getRes("inverterTemp"), 
                                 roofTemp=self.resources.getRes("roofTemp"), 
@@ -89,8 +87,8 @@ class WebRoot(object):
                                 currentPower=self.resources.getRes("currentPower"), 
                                 todaysEnergy=self.resources.getRes("todaysEnergy"), 
                                 lifetimeEnergy=self.resources.getRes("lifetimeEnergy"), 
-                                inverters=inverters, 
-                                optimizers=optimizers, 
+                                inverters=self.resources.getGroup("Inverters"), 
+                                optimizers=self.resources.getGroup("Optimizers"), 
                                 views=views)
         return reply
 

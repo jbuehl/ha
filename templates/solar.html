@@ -13,56 +13,66 @@
     <div class="image">
        <img src="images/solar.png" />
             <div class="stats" >
-                <div>
-                    <span id="{{ date.name }}" class="date">{{ date.getViewState(views) }}</span> 
-                    <span id="{{ time.name }}" class="time">{{ time.getViewState(views) }}</span> 
-                    <span id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState(views) }}</span>
+                <div class="statsGroup">
+                    <div>
+                        <span id="{{ date.name }}" class="date">{{ date.getViewState(views) }}</span> 
+                        <span id="{{ time.name }}" class="time">{{ time.getViewState(views) }}</span> 
+                        <span id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState(views) }}</span>
+                    </div>
+                    <div>
+                        <span class="label">Sunrise</span> 
+                        <span>{{ sunrise.getViewState(views) }}</span>
+                    </div>
+                    <div>
+                        <span class="label">Sunset</span> 
+                        <span>{{ sunset.getViewState(views) }}</span>
+                    </div>
+                    <div>
+                        <span class="label">Lat</span> 
+                        <span>{{ latitude }}</span> 
+                        <span class="label">Long</span> 
+                        <span>{{ longitude }}</span>
+                    </div>
+                    <div>
+                        <span class="label">Elevation</span> 
+                        <span>{{ elevation }}</span> 
+                    </div>
                 </div>
-                <div>
-                    <span class="label">Sunrise</span> 
-                    <span>{{ sunrise.getViewState(views) }}</span>
+                <div class="statsGroup">
+                    <div>
+                        <span class="label">Air temperature</span> 
+                        <span id="{{ airTemp.name }}" class="{{ airTemp.type }}">{{ airTemp.getViewState(views) }}</span>
+                    </div>
+                    <div>
+                        <span class="label">Inverter temperature</span> 
+                        <span id="{{ inverterTemp.name }}" class="{{ inverterTemp.type }}">{{ inverterTemp.getViewState(views) }}</span>
+                    </div>
+                    <div>
+                        <span class="label">Roof temperature</span> 
+                        <span id="{{ roofTemp.name }}" class="{{ roofTemp.type }}">{{ roofTemp.getViewState(views) }}</span>
+                    </div>
                 </div>
-                <div>
-                    <span class="label">Sunset</span> 
-                    <span>{{ sunset.getViewState(views) }}</span>
-                </div>
-                <div>
-                    <span class="label">Lat</span> 
-                    <span>{{ latitude }}</span> 
-                    <span class="label">Long</span> 
-                    <span>{{ longitude }}</span>
-                </div>
-                <div>
-                    <span class="label">Air temperature</span> 
-                    <span id="{{ airTemp.name }}" class="{{ airTemp.type }}">{{ airTemp.getViewState(views) }}</span>
-                </div>
-                <div>
-                    <span class="label">Inverter temperature</span> 
-                    <span id="{{ inverterTemp.name }}" class="{{ inverterTemp.type }}">{{ inverterTemp.getViewState(views) }}</span>
-                </div>
-                <div>
-                    <span class="label">Roof temperature</span> 
-                    <span id="{{ roofTemp.name }}" class="{{ roofTemp.type }}">{{ roofTemp.getViewState(views) }}</span>
-                </div>
-                <div>
-                    <span class="label">{{ currentVoltage.label }}</span> 
-                    <span id="{{ currentVoltage.name }}" class="{{ currentVoltage.type }}">{{ currentVoltage.getViewState(views) }}</span>
-                </div>
-                <div>
-                    <span class="label">{{ currentLoad.label }}</span> 
-                    <span id="{{ currentLoad.name }}" class="{{ currentLoad.type }}">{{ currentLoad.getViewState(views) }}</span>
-                </div>
-                <div>
-                    <span class="label">{{ currentPower.label }}</span> 
-                    <span id="{{ currentPower.name }}" class="{{ currentPower.type }}">{{ currentPower.getViewState(views) }}</span>
-                </div>
-                <div>
-                    <span class="label">{{ todaysEnergy.label }}</span> 
-                    <span id="{{ todaysEnergy.name }}" class="{{ todaysEnergy.type }}">{{ todaysEnergy.getViewState(views) }}</span>
-                </div>
-                <div>
-                    <span class="label">{{ lifetimeEnergy.label }}</span> 
-                    <span id="{{ lifetimeEnergy.name }}" class="{{ lifetimeEnergy.type }}">{{ lifetimeEnergy.getViewState(views) }}</span>
+                <div class="statsGroup">
+                    <div>
+                        <span class="label">{{ currentVoltage.label }}</span> 
+                        <span id="{{ currentVoltage.name }}" class="{{ currentVoltage.type }}">{{ currentVoltage.getViewState(views) }}</span>
+                    </div>
+                    <div>
+                        <span class="label">{{ currentLoad.label }}</span> 
+                        <span id="{{ currentLoad.name }}" class="{{ currentLoad.type }}">{{ currentLoad.getViewState(views) }}</span>
+                    </div>
+                    <div>
+                        <span class="label">{{ currentPower.label }}</span> 
+                        <span id="{{ currentPower.name }}" class="{{ currentPower.type }}">{{ currentPower.getViewState(views) }}</span>
+                    </div>
+                    <div>
+                        <span class="label">{{ todaysEnergy.label }}</span> 
+                        <span id="{{ todaysEnergy.name }}" class="{{ todaysEnergy.type }}">{{ todaysEnergy.getViewState(views) }}</span>
+                    </div>
+                    <div>
+                        <span class="label">{{ lifetimeEnergy.label }}</span> 
+                        <span id="{{ lifetimeEnergy.name }}" class="{{ lifetimeEnergy.type }}">{{ lifetimeEnergy.getViewState(views) }}</span>
+                    </div>
                 </div>
             </div>
         {% for inv in inverters %}
