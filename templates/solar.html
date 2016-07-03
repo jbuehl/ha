@@ -81,10 +81,20 @@
                 <div id="{{ inv.name }}" class="KW">{{ inv.getViewState(views) }}</div>
             </div>
         {% endfor %}
+        {% for inv in invertersEnergy %}
+            <div class="inverter" style="position:absolute; top:{{ inv.location[0]+28 }}px; left:{{ inv.location[1] }}px" >
+                <div id="{{ inv.name }}" class="KWh">{{ inv.getViewState(views) }}</div>
+            </div>
+        {% endfor %}
         {% for opt in optimizers %}
             <div class="optimizer" style="position:absolute; top:{{ opt.location[0] }}px; left:{{ opt.location[1] }}px" >
                 <div class="optimizerName">{{ opt.name }}</div>
                 <div id="{{ opt.name }}" class="W">{{ opt.getViewState(views) }}</div>
+            </div>
+        {% endfor %}
+        {% for opt in optimizersEnergy %}
+            <div class="optimizer" style="position:absolute; top:{{ opt.location[0]+28 }}px; left:{{ opt.location[1] }}px" >
+                <div id="{{ opt.name }}" class="KWh">{{ opt.getViewState(views) }}</div>
             </div>
         {% endfor %}
      </div>

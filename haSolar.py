@@ -73,11 +73,27 @@ class InverterSensor(SolarSensor):
         SolarSensor.__init__(self, name, attrs=attrs, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
         self.deviceType = "inverters"
 
+class InverterPowerSensor(InverterSensor):
+    def __init__(self, name, interface, addr=None, group="", type="sensor", view=None, label="", location=None):
+        InverterSensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
+
     def getState(self):
         # return current power production
         try:
             deviceValues = self.interface.read(self.deviceType)
             return float(deviceValues[self.name]["Pac"])
+        except:
+            return 0.0
+
+class InverterEnergySensor(InverterSensor):
+    def __init__(self, name, interface, addr=None, group="", type="sensor", view=None, label="", location=None):
+        InverterSensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
+
+    def getState(self):
+        # return current energy production
+        try:
+            deviceValues = self.interface.read(self.deviceType)
+            return float(deviceValues[self.name[:-2]]["Eday"])
         except:
             return 0.0
 
@@ -87,11 +103,27 @@ class OptimizerSensor(SolarSensor):
         SolarSensor.__init__(self, name, attrs=attrs, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
         self.deviceType = "optimizers"
 
+class OptimizerPowerSensor(OptimizerSensor):
+    def __init__(self, name, interface, addr=None, group="", type="sensor", view=None, label="", location=None):
+        OptimizerSensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
+
     def getState(self):
         # return current power production = V * I
         try:
             deviceValues = self.interface.read(self.deviceType)
             return float(deviceValues[self.name]["Vmod"]) * float(deviceValues[self.name]["Imod"])
+        except:
+            return 0.0
+
+class OptimizerEnergySensor(OptimizerSensor):
+    def __init__(self, name, interface, addr=None, group="", type="sensor", view=None, label="", location=None):
+        OptimizerSensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
+
+    def getState(self):
+        # return current energy production
+        try:
+            deviceValues = self.interface.read(self.deviceType)
+            return float(deviceValues[self.name[:-2]]["Eday"])
         except:
             return 0.0
 
@@ -105,14 +137,12 @@ if __name__ == "__main__":
     solarInterface = HASolarInterface("Solar", fileInterface)
 
     # Devices
-#    inverters = HACollection("inverters")
-#    resources.addRes(inverters)
     for inverter in inverters.keys():
-        resources.addRes(InverterSensor(inverter, fileInterface, group="Inverters", type="KW", label="Inverter "+inverter, location=inverters[inverter]))
-#    optimizers = HACollection("optimizers")
-#    resources.addRes(optimizers)
+        resources.addRes(InverterPowerSensor(inverter, fileInterface, group="Inverters", type="KW", label="Inverter "+inverter, location=inverters[inverter]))
+        resources.addRes(InverterEnergySensor(inverter+"-E", fileInterface, group="InvertersEnergy", type="KWh", label="Inverter "+inverter+" energy", location=inverters[inverter]))
     for optimizer in optimizers.keys():
-        resources.addRes(OptimizerSensor(optimizer, fileInterface, group="Optimizers", type="W", label="Optimizer "+optimizer, location=optimizers[optimizer]))
+        resources.addRes(OptimizerPowerSensor(optimizer, fileInterface, group="Optimizers", type="W", label="Optimizer "+optimizer, location=optimizers[optimizer]))
+        resources.addRes(OptimizerEnergySensor(optimizer+"-E", fileInterface, group="OptimizersEnergy", type="KWh", label="Optimizer "+optimizer+" energy", location=optimizers[optimizer]))
         
     # Temperature
     resources.addRes(HASensor("inverterTemp", solarInterface, ("inverters", "avg", "Temp"), group="Temperature", label="Inverter temp", type="tempC"))

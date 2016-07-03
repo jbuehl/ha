@@ -88,7 +88,9 @@ class WebRoot(object):
                                 todaysEnergy=self.resources.getRes("todaysEnergy"), 
                                 lifetimeEnergy=self.resources.getRes("lifetimeEnergy"), 
                                 inverters=self.resources.getGroup("Inverters"), 
+                                invertersEnergy=self.resources.getGroup("InvertersEnergy"), 
                                 optimizers=self.resources.getGroup("Optimizers"), 
+                                optimizersEnergy=self.resources.getGroup("OptimizersEnergy"), 
                                 views=views)
         return reply
 
