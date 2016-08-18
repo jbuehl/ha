@@ -38,41 +38,48 @@ class HARestInterface(HAInterface):
                 debug('debugRestStates', self.name, "readStateChange terminated")
             readStateChangeThread = threading.Thread(target=readStateChange)
             readStateChangeThread.start()
-            # define a timer to disable the interface if the heartbeat times out
-            # can't use a socket timeout because multiple threads are using the same port
-            def readStateTimeout():
-                debug('debugRestStates', self.name, "timeout")
-                self.enabled = False
             # start the thread to update the cache when a state change notification is received
             def readStateNotify():
                 debug('debugRestStates', self.name, "readStateNotify started")
+                # open the socket to listen for state change notifications
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 self.socket.bind(("", restStatePort))
-                readStateTimer = None
+                # define a timer to disable the interface if the heartbeat times out
+                # can't use a socket timeout because multiple threads are using the same port
+                def readStateTimeout():
+                    debug('debugRestStates', self.name, "read state timeout")
+                    self.enabled = False
                 while self.enabled:
                     if True: #try:
+                        # start the timer
+                        readStateTimer = threading.Timer(restTimeout, readStateTimeout)
+                        readStateTimer.start()
+                        debug('debugRestStates', self.name, "start timer")
+                        # wait to receive a state change notification message
                         (data, addr) = self.socket.recvfrom(8192)
                         debug('debugRestStates', self.name, "readStateNotify", "addr:", addr[0], "data:", data)
                         msg = json.loads(data)
                         if addr[0]+":"+str(msg["port"]) == self.service:   # is this from the correct service
+                            # this one is for us
                             if readStateTimer:
+                                # cancel the timeout
                                 readStateTimer.cancel()
                                 debug('debugRestStates', self.name, "cancel timer")
                             states = msg["state"]
                             debug('debugRestStates', self.name, "readStateNotify", "states", states)
+                            # if still enabled, do it again
                             if self.enabled:
+                                # update the states
                                 self.setStates(states)
                                 if self.event:
                                     self.event.set()
                                     debug('debugInterrupt', self.name, "event set")
-                                readStateTimer = threading.Timer(restTimeout, readStateTimeout)
-                                readStateTimer.start()
-                                debug('debugRestStates', self.name, "start timer")
                     else: #except:
                         debug('debugRestStates', self.name, "disabled")
                         self.enabled = False
                         break
+                self.socket.close()
                 debug('debugRestStates', self.name, "readStateNotify terminated")
             readStateNotifyThread = threading.Thread(target=readStateNotify)
             readStateNotifyThread.start()
