@@ -50,11 +50,9 @@ class HARestInterface(HAInterface):
                 def readStateTimeout():
                     debug('debugRestStates', self.name, "read state timeout")
                     self.enabled = False
+                readStateTimer = None
                 while self.enabled:
                     if True: #try:
-                        # start the timer
-                        readStateTimer = threading.Timer(restTimeout, readStateTimeout)
-                        readStateTimer.start()
                         debug('debugRestStates', self.name, "start timer")
                         # wait to receive a state change notification message
                         (data, addr) = self.socket.recvfrom(8192)
@@ -75,10 +73,16 @@ class HARestInterface(HAInterface):
                                 if self.event:
                                     self.event.set()
                                     debug('debugInterrupt', self.name, "event set")
+                                # start the timer
+                                readStateTimer = threading.Timer(restTimeout, readStateTimeout)
+                                readStateTimer.start()
                     else: #except:
                         debug('debugRestStates', self.name, "disabled")
                         self.enabled = False
                         break
+                # interface is no longer enabled, clean up
+                if readStateTimer:
+                    readStateTimer.cancel()
                 self.socket.close()
                 debug('debugRestStates', self.name, "readStateNotify terminated")
             readStateNotifyThread = threading.Thread(target=readStateNotify)
