@@ -18,6 +18,9 @@ class AudioInterface(HAInterface):
             elif addr == "mute":
                 value = subprocess.check_output("ssh pi@localhost pacmd list-sinks|grep muted", shell=True)
                 return 1 if value.split(":")[1].strip(" ").strip("\n") == "yes" else 0
+            elif addr == "wifi":
+                value = subprocess.check_output("ifconfig wlan0|grep inet\ addr", shell=True)
+                return 0 if value == "" else 1
         except:
             return 0
 
@@ -27,5 +30,10 @@ class AudioInterface(HAInterface):
             os.system("ssh pi@localhost pactl set-sink-volume %s %d%%" % (audioSink, value))
         elif addr == "mute":
             os.system("ssh pi@localhost pactl set-sink-mute %s %d" % (audioSink, value))
+        elif addr == "wifi":
+            if value == 0:
+                os.system("ifdown wlan0")
+            else:
+                os.system("ifup wlan0")
 
 
