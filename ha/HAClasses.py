@@ -356,7 +356,7 @@ class HASensor(HAResource):
 # state values to display values, an optional format string, and an optional transform function.
 # Reverse mappings of display values to state values may also be specified.
 class HAView(object):
-    def __init__(self, values={None:"", 0:"Off", 1:"On"}, format="%s", transform=None, setValues=None):
+    def __init__(self, values={None:"", 0:"Off", 1:"On"}, format="%s", transform=None, setValues=None, toggle=False):
         self.values = values
         self.format = format
         self.transform = transform
@@ -364,6 +364,7 @@ class HAView(object):
             self.setValues = {0:"Off", 1:"On"}
         else:
             self.setValues = OrderedDict(setValues) # preserve the order of set values for display purposes
+        self.toggle = toggle
  
     # Return the printable string value for the state of the sensor
     def getViewState(self, theSensor):
