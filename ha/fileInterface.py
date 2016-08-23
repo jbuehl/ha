@@ -16,10 +16,12 @@ class FileInterface(HAInterface):
     def start(self):
         try:
             # if the file exists, cache the data
+            debug('debugFile', self.name, "reading", self.fileName)
             self.readData()
             self.mtime = os.stat(self.fileName).st_mtime
         except:
             # create a new file
+            debug('debugFile', self.name, "creating", self.fileName)
             self.data = {}
             self.writeData()
         if self.changeMonitor:
