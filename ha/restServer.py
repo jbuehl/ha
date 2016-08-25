@@ -43,7 +43,7 @@ class RestServer(object):
             try:
                 stateResource = self.resources.getRes("states", dummy=False)
             except:
-                debug('debugRestHeartbeat', "created states resource")
+                debug('debugRestHeartbeat', "created resource state sensor")
                 stateResource = ResourceStateSensor("states", HAInterface("None"), resources=self.resources, event=self.event)
                 self.resources.addRes(stateResource)
             def heartbeat():
