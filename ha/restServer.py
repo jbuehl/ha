@@ -31,15 +31,26 @@ class RestServer(object):
     def start(self):
         # start the beacon
         if self.beacon:
-            beacon = BeaconThread("beaconServer", self.port, self.resources, self.label)
-            beacon.start()
+            self.beaconSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            self.beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.timeStamp = time.time()
+            def beacon():
+                debug('debugRestBeacon', "REST beacon started")
+                while True:
+                    debug('debugRestBeacon', "REST beacon")
+                    self.beaconSocket.sendto(json.dumps((self.hostname, self.port, self.resources.dict(), self.timeStamp, self.label)), ("<broadcast>", restBeaconPort))
+                    time.sleep(restBeaconInterval)
+            beaconThread = threading.Thread(target=beacon)
+            beaconThread.start()
+            
         # start the heartbeat
         if self.heartbeat:
-            debug('debugRestHeartbeat', "heartbeat started")
+            debug('debugRestHeartbeat', "REST heartbeat started")
             # thread to periodically send states as keepalive message
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.heartbeatSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.heartbeatSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            self.heartbeatSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             try:
                 stateResource = self.resources.getRes("states", dummy=False)
             except:
@@ -48,15 +59,16 @@ class RestServer(object):
                 self.resources.addRes(stateResource)
             def heartbeat():
                 while True:
-                    debug('debugStateChange', "heartbeat")
+                    debug('debugRestHeartbeat', "REST heartbeat")
                     states = stateResource.states
                     # send the broadcast message
-                    self.socket.sendto(json.dumps({"state": states, "hostname": self.hostname, "port": self.port}), ("<broadcast>", restStatePort))
+                    self.heartbeatSocket.sendto(json.dumps({"state": states, "hostname": self.hostname, "port": self.port}), ("<broadcast>", restStatePort))
                     # set the state event so the stateChange request returns
                     self.event.set()
                     time.sleep(restHeartbeatInterval)
             heartbeatThread = threading.Thread(target=heartbeat)
             heartbeatThread.start()
+            
         # start the HTTP server
         self.server.serve_forever()
 
@@ -69,9 +81,9 @@ class BeaconThread(threading.Thread):
         self.hostname = socket.gethostname()
         self.resources = resources
         self.label = label
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.beaconSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        self.beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.timeStamp = time.time()
         
     def doBeacon(self):
@@ -82,7 +94,7 @@ class BeaconThread(threading.Thread):
             # loop until the program state changes to not running
             if not running: break
             if loopCount == restBeaconInterval:
-                self.socket.sendto(json.dumps((self.hostname, self.port, self.resources.dict(), self.timeStamp, self.label)), ("<broadcast>", restBeaconPort))
+                self.beaconSocket.sendto(json.dumps((self.hostname, self.port, self.resources.dict(), self.timeStamp, self.label)), ("<broadcast>", restBeaconPort))
                 loopCount = 0
             loopCount += 1
             time.sleep(1)
