@@ -1,16 +1,9 @@
-webPort = 80
-webRestPort = 7478
-webUpdateInterval = 1
-webPageTitle = "Home Automation"
-
-insideTemp = "kitchenTemp"
-outsideTemp = "deckTemp"
-poolTemp = "waterTemp"
+webLogging = False
+webReload = False
 
 import json
 import cherrypy
 from cherrypy.lib import auth_basic
-from jinja2 import Environment, FileSystemLoader
 from ha.HAClasses import *
 from haWebViews import *
 
@@ -22,127 +15,47 @@ userFileName = keyDir+"users.json"
 users = json.load(open(userFileName))
 lanAddr = "192.168.1"
 def validatePassword(realm, username, password):
-    debug('debugWeb', "ip:", cherrypy.request.remote.ip, "username:", username, "password:", password)
+    debug('debugWebAuth', "validatePassword", "ip:", cherrypy.request.remote.ip, "username:", username, "password:", password)
+    # accept anything connecting from the LAN
     if ".".join(cherrypy.request.remote.ip.split(".")[0:3]) == lanAddr:
+        debug('debugWebAuth', "validatePassword", "accepted")
         return True
+    # validate the credentials
     if username in users and users[username] == password:
-       return True
+        debug('debugWebAuth', "validatePassword", "accepted")
+        return True
+    debug('debugWebAuth', "validatePassword", "rejected")
     return False
         
 class WebRoot(object):
-    def __init__(self, resources, env, cache, stateChangeEvent, resourceLock):
+    def __init__(self, resources, cache, stateChangeEvent, resourceLock, pathDict):
         self.resources = resources
-        self.env = env
         self.cache = cache
         self.stateChangeEvent = stateChangeEvent
         self.resourceLock = resourceLock
-    
-    # Everything    
+        self.pathDict = pathDict
+
+    # convert the path into a request parameter
+    # this function gets called if cherrypy doesn't find a class method that matches the path    
+    def _cp_dispatch(self, vpath):
+        debug('debugWeb', "_cp_dispatch", "method:", cherrypy.request.method, "path:", vpath.__str__(), "params:", cherrypy.request.params.__str__())
+        if len(vpath) == 1:
+            # the path has one element, pop it off and return this root object
+            # cherrypy will then call the index() 
+            cherrypy.request.params['path'] = vpath.pop(0)
+            return self
+        # the request was for a file in the static/ directory, return the path
+        return vpath
+
+    # dispatch to the UI requested    
     @cherrypy.expose
-    def index(self, group=None):
-        debug('debugWeb', "/", cherrypy.request.method, group)
+    def index(self, path="", **params):
+        debug('debugWeb', "index", cherrypy.request.method, "path:", path, "params:", params.__str__())
         try:
-            groups = [group.capitalize()]
-            details = False
-        except:
-            groups = ["Time", "Temperature", "Hvac", "Pool", "Lights", "Shades", "Doors", "Water", "Solar", "Power", "Cameras", "Services", "Tasks"]
-            details = True
-        with self.resourceLock:
-            reply = self.env.get_template("default.html").render(title=webPageTitle, script="", 
-                                groups=[[group, self.resources.getGroup(group)] for group in groups],
-                                views=views,
-                                details=details)
-        return reply
-
-    # Tacoma    
-    @cherrypy.expose
-    def tacoma(self):
-        debug('debugWeb', "/tacoma", cherrypy.request.method)
-        with self.resourceLock:
-            reply = self.env.get_template("tacoma.html").render(title=webPageTitle, script="", 
-                                group=self.resources.getGroup("Tacoma"),
-                                views=views)
-        return reply
-
-    # Solar   
-    @cherrypy.expose
-    def solar(self, action=None, resource=None):
-        debug('debugWeb', "/solar", cherrypy.request.method, action, resource)
-        with self.resourceLock:
-            reply = self.env.get_template("solar.html").render(script="",
-                                dayOfWeek=self.resources.getRes("theDayOfWeek"),
-                                date=self.resources.getRes("theDate"),
-                                time=self.resources.getRes("theTime"),
-                                ampm=self.resources.getRes("theAmPm"),
-                                sunrise=self.resources.getRes("sunrise"),
-                                sunset=self.resources.getRes("sunset"),
-                                latitude="%7.3f "%(abs(latLong[0])+.0005)+("N" if latLong[0]>0 else "S"), 
-                                longitude="%7.3f "%(abs(latLong[1])+.0005)+("E" if latLong[1]>0 else "W"), 
-                                elevation="%d ft"%(elevation),
-                                airTemp=self.resources.getRes(outsideTemp),
-                                inverterTemp=self.resources.getRes("inverterTemp"), 
-                                roofTemp=self.resources.getRes("roofTemp"), 
-                                currentVoltage=self.resources.getRes("currentVoltage"), 
-                                currentLoad=self.resources.getRes("currentLoad"), 
-                                currentPower=self.resources.getRes("currentPower"), 
-                                todaysEnergy=self.resources.getRes("todaysEnergy"), 
-                                lifetimeEnergy=self.resources.getRes("lifetimeEnergy"), 
-                                inverters=self.resources.getGroup("Inverters"), 
-                                invertersEnergy=self.resources.getGroup("InvertersEnergy"), 
-                                optimizers=self.resources.getGroup("Optimizers"), 
-                                optimizersEnergy=self.resources.getGroup("OptimizersEnergy"), 
-                                views=views)
-        return reply
-
-    # iPad - 1024x768   
-    @cherrypy.expose
-    def ipad(self, action=None, resource=None):
-        debug('debugWeb', "/ipad", cherrypy.request.method, action, resource)
-        with self.resourceLock:
-            reply = self.env.get_template("ipad.html").render(script="", 
-                                time=self.resources.getRes("theTime"),
-                                ampm=self.resources.getRes("theAmPm"),
-                                day=self.resources.getRes("theDay"),
-                                pooltemp=self.resources.getRes(poolTemp),
-                                intemp=self.resources.getRes(insideTemp),
-                                outtemp=self.resources.getRes(outsideTemp),
-                                groups=[["Pool", self.resources.getResList(["spaTemp"])], 
-                                      ["Lights", self.resources.getResList(["porchLights", "poolLight", "spaLight"])], 
-#                                      ["Lights", self.resources.getResList(["bbqLights", "backYardLights"])], 
-#                                      ["Lights", self.resources.getResList(["xmasTree", "xmasCowTree", "xmasLights"])], 
-                                      ["Shades", self.resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
-                                      ["Hvac", self.resources.getResList(["southHeatTempTarget", "southCoolTempTarget", "northHeatTempTarget", "northCoolTempTarget"])], 
-                                      ["Sprinklers", self.resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
-                                      ],
-                                views=views)
-        return reply
-
-    # iPhone 5 - 320x568    
-    @cherrypy.expose
-    def iphone5(self, action=None, resource=None):
-        debug('debugWeb', "/iphone5", cherrypy.request.method, action, resource)
-        with self.resourceLock:
-            reply = self.env.get_template("iphone5.html").render(script="", 
-                                time=self.resources.getRes("theTime"),
-                                ampm=self.resources.getRes("theAmPm"),
-                                temp=self.resources.getRes(outsideTemp),
-                                resources=self.resources.getResList(["spaTemp", "porchLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"]),
-                                views=views)
-        return reply
-
-    # iPhone 3GS - 320x480    
-    @cherrypy.expose
-    def iphone3gs(self, action=None, resource=None):
-        debug('debugWeb', "/iphone3gs", cherrypy.request.method, action, resource)
-        with self.resourceLock:
-            reply = self.env.get_template("iphone3gs.html").render(script="", 
-                                time=self.resources.getRes("theTime"),
-                                ampm=self.resources.getRes("theAmPm"),
-                                day=self.resources.getRes("theDay"),
-                                temp=self.resources.getRes(outsideTemp),
-                                resources=self.resources.getResList(["porchLights", "xmasLights", "bedroomLights", "recircPump", "garageDoors", "houseDoors"]),
-                                views=views)
-        return reply
+            return self.pathDict[path](**params)
+        except KeyError:
+            cherrypy.response.status = 404
+            return path+" not found"
 
     # get or set a resource state
     @cherrypy.expose
@@ -215,7 +128,7 @@ class WebRoot(object):
                 pass
         return json.dumps(updates)
         
-    # Submit    
+    # change the state of a control    
     @cherrypy.expose
     def submit(self, action=None, resource=None):
         debug('debugWeb', "/submit", cherrypy.request.method, action, resource)
@@ -223,9 +136,8 @@ class WebRoot(object):
         reply = ""
         return reply
 
-def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, ssl=False, httpsPort=443, domain=""):
+def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, ssl=False, httpsPort=443, domain="", pathDict=None, baseDir="/"):
     # set up the web server
-    baseDir = os.path.abspath(os.path.dirname(__file__))
     appConfig = {
         '/css': {
             'tools.staticdir.on': True,
@@ -255,7 +167,7 @@ def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, s
                'tools.auth_basic.checkpassword': validatePassword
             }})
     
-    root = WebRoot(resources, Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates'))), restCache, stateChangeEvent, resourceLock)
+    root = WebRoot(resources, restCache, stateChangeEvent, resourceLock, pathDict)
     cherrypy.tree.mount(root, "/", appConfig)
     
     cherrypy.server.unsubscribe()
@@ -282,7 +194,8 @@ def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, s
         access_log = cherrypy.log.access_log
         for handler in tuple(access_log.handlers):
             access_log.removeHandler(handler)
-    cherrypy.engine.timeout_monitor.unsubscribe()
-    cherrypy.engine.autoreload.unsubscribe()
+    if not webReload:
+        cherrypy.engine.timeout_monitor.unsubscribe()
+        cherrypy.engine.autoreload.unsubscribe()
     cherrypy.engine.start()
         

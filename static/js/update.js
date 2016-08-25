@@ -7,6 +7,7 @@ $(document).ready(function() {
         else {
             $.each(data, function(key, val) {       // set value and class of each item
                 $('#'+key).text(val[1]);            // set the value
+                $('#'+key).attr('value', val[1]);   // set the button value
                 if (val[0] == 'temp') {             // set the color of a temp item
                     $('#'+key).css('color', val[2])
                     }
@@ -20,14 +21,14 @@ $(document).ready(function() {
     var count = 0;
     var refreshId = setInterval(function() {
         if (count == 60) {     // every minute
-            $.getJSON('state', {}, function(data) {    // get state values
+            $.getJSON('/state', {}, function(data) {    // get state values
                 update(data);
                 count = 0;
                 });
             };
         if (!pending) {     // don't allow multiple pending requests
             pending = true;
-            $.getJSON('stateChange', {}, function(data) {    // get changed state values
+            $.getJSON('/stateChange', {}, function(data) {    // get changed state values
                 update(data);
                 pending = false;
                 });
@@ -35,7 +36,7 @@ $(document).ready(function() {
         count = count + 1;
         }, 1000);
     $.ajaxSetup({cache: false});
-    $.getJSON('state', {}, function(data) {    // get initial state values
+    $.getJSON('/state', {}, function(data) {    // get initial state values
         cacheTime = data["cacheTime"];
         update(data);
         });
