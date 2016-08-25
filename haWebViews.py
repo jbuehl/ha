@@ -31,6 +31,11 @@ def spaTempFormat(value):
         return "Off"
     else:
         return "%d F %s" % (temp, {0:"Off", 1:"Ready", 2:"Starting", 3:"Warming", 4:"Standby", 5:"Stopping"}[state])
+
+def hdgFormat(value):
+    dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+    direction = dirs[int((value+11.25)%360/22.5)]
+    return "%d %s" % (int(value), direction)
         
 # set temp color based on temp value
 def tempColor(tempString):
@@ -79,6 +84,9 @@ views = {"power": HAView({}, "%d W"),
          "tempC": HAView({}, "%d F", ctofFormat),
          "tempF": HAView({}, "%d F", tempFormat),
          "tempFControl": HAView({}, "%d F", tempFormat, OrderedDict([(-1,"v"), (+1,"^")])),
+         "audioVolume": HAView({}, "%d%%", None, OrderedDict([(-5,"v"), (+5,"^")])),
+         "audioMute": HAView({0:"X", 1:"*"}, "%s", None, {0:"*", 1:"X"}, True),
+         "wifi": HAView({0:"Off", 1:"On"}, "%s", None, {0:"On", 1:"Off"}, True),
          "barometer": HAView({}, "%5.2f in"),
          "humidity": HAView({}, "%d %%"),
          "service": HAView({0:"Down", 1:"Up"}, "%s"),
@@ -104,7 +112,7 @@ views = {"power": HAView({}, "%d W"),
          "Ft": HAView({}, "%d Ft"),
          "MPH": HAView({}, "%d MPH"),
          "RPM": HAView({}, "%d RPM"),
-         "Deg": HAView({}, "%d Deg"),
+         "Deg": HAView({}, "%s", hdgFormat),
          "KVA": HAView({}, "%7.3f KVA", kiloFormat),
          "W": HAView({}, "%7.1f W"),
          "V": HAView({}, "%7.1f V"),
