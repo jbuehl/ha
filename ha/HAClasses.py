@@ -638,12 +638,10 @@ class CalcSensor(HASensor):
         
 # Sensor that returns the states of all sensors in a list of resources
 class ResourceStateSensor(HASensor):
-    def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, view=None, label="", interrupt=None, hostname="", port=0):
+    def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, view=None, label="", interrupt=None):
         HASensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.resources = resources
         self.event = event
-        self.hostname = hostname
-        self.port = port
         self.states = {}    # current sensor states
         self.lastStates = {}
 

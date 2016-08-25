@@ -26,7 +26,7 @@ class RestServer(object):
         self.beacon = beacon
         self.heartbeat = heartbeat
         self.event = event
-        self.resources.addRes(ResourceStateSensor("states", HAInterface("None"), self.resources, self.event, hostname=self.hostname, port=self.port))
+        self.resources.addRes(ResourceStateSensor("states", HAInterface("None"), resources=self.resources, event=self.event))
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
 
     def start(self):
@@ -36,7 +36,7 @@ class RestServer(object):
             beacon.start()
         # start the heartbeat
         if self.heartbeat:
-            debug('debugRestHeartbeat', "starting heartbeat")
+            debug('debugRestHeartbeat', "heartbeat started")
             # thread to periodically send states as keepalive message
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
