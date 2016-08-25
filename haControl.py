@@ -1,5 +1,4 @@
 webPort = 80
-webRestPort = 7478
 webSSLPort = 7380
 webSSLDomain = "cloud.buehltech.com"
 webUpdateInterval = 1
@@ -205,11 +204,5 @@ if __name__ == "__main__":
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
     templates = Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates')))
-    webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=webPort, ssl=True, httpsPort=webSSLPort, domain=webSSLDomain, pathDict=pathDict, baseDir=baseDir)
+    webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=webPort, ssl=True, httpsPort=webSSLPort, domain=webSSLDomain, pathDict=pathDict, baseDir=baseDir, block=True)
     
-    # start the REST server for this service
-    restServer = RestServer(resources, port=webRestPort, event=stateChangeEvent)
-    # restServer.start()
-    while True:
-        time.sleep(1)
-

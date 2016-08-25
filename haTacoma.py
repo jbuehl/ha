@@ -1,3 +1,11 @@
+rootDir = "/root/"
+dataDir = rootDir+"data/"
+audioDir = "audio/"
+gpsFileName = dataDir+"gps.json"
+diagFileName = dataDir+"diags.json"
+imuFileName = dataDir+"9dof.json"
+audioFileName = audioDir+"audio.json"
+
 import threading
 import time
 import cherrypy
@@ -12,160 +20,41 @@ from ha.tempInterface import *
 from ha.imuInterface import *
 from ha.audioInterface import *
 from ha.restServer import *
-from ha.haWebViews import *
+from ha.haWeb import *
 
-rootDir = "/root/"
-dataDir = rootDir+"data/"
-audioDir = "audio/"
-gpsFileName = dataDir+"gps.json"
-diagFileName = dataDir+"diags.json"
-imuFileName = dataDir+"9dof.json"
-audioFileName = audioDir+"audio.json"
+# global variables
+templates = None
+resources = None
+stateChangeEvent = threading.Event()
+resourceLock = threading.Lock()
 
-class WebRoot(object):
-    def __init__(self, resources, env, cache, stateChangeEvent, resourceLock):
-        self.resources = resources
-        self.env = env
-        self.cache = cache
-        self.stateChangeEvent = stateChangeEvent
-        self.resourceLock = resourceLock
-    
-    # Tacoma - 800x480
-    @cherrypy.expose
-    def tacoma(self):
-        debug('debugWeb', "/tacoma", cherrypy.request.method)
-        with self.resourceLock:
-            reply = self.env.get_template("tacoma.html").render(title=webPageTitle, script="", 
-                                time=self.resources.getRes("theTime"),
-                                ampm=self.resources.getRes("theAmPm"),
-                                day=self.resources.getRes("theDay"),
-                                temp=self.resources.getRes("outsideTemp"),
-                                controls=[self.resources.getRes("volume"),
-                                          self.resources.getRes("mute"),
-                                          self.resources.getRes("wifi"),
-                                         ],
-                                group=self.resources.getGroup("Tacoma"),
-                                views=views)
-        return reply
+# Tacoma - 800x480
+def tacoma():
+    debug('debugWeb', "/tacoma", cherrypy.request.method)
+    with self.resourceLock:
+        reply = self.env.get_template("tacoma.html").render(title=webPageTitle, script="", 
+                            time=self.resources.getRes("theTime"),
+                            ampm=self.resources.getRes("theAmPm"),
+                            day=self.resources.getRes("theDay"),
+                            temp=self.resources.getRes("outsideTemp"),
+                            controls=[self.resources.getRes("volume"),
+                                      self.resources.getRes("mute"),
+                                      self.resources.getRes("wifi"),
+                                     ],
+                            group=self.resources.getGroup("Tacoma"),
+                            views=views)
+    return reply
 
-    # Update the states of all resources
-    @cherrypy.expose
-    def state(self, _=None):
-        debug('debugWebUpdate', "/state", cherrypy.request.method)
-        return self.updateStates(self.resources.getRes("states").getState())
-        
-    # Update the states of resources that have changed
-    @cherrypy.expose
-    def stateChange(self, _=None):
-        debug('debugWebUpdate', "/stateChange", cherrypy.request.method)
-        debug('debugInterrupt', "update", "event wait")
-        self.stateChangeEvent.wait()
-        debug('debugInterrupt', "update", "event clear")
-        self.stateChangeEvent.clear()
-        return self.updateStates(self.resources.getRes("states").getStateChange())
-
-    # return the json to update the states of the specified collection of sensors
-    def updateStates(self, resourceStates):
-        staticTypes = ["time", "ampm", "date", "W", "KW"]          # types whose class does not depend on their value
-        tempTypes = ["tempF", "tempFControl", "tempC", "spaTemp"]       # temperatures
-        if self.cache:
-            cacheTime = self.cache.cacheTime
-        else:
-            cacheTime = 0
-        updates = {"cacheTime": cacheTime}
-        for resource in resourceStates.keys():
-            try:
-                resState = self.resources.getRes(resource).getViewState(views)
-                resClass = self.resources.getRes(resource).type
-                if resClass in tempTypes:
-                    updates[resource] = ("temp", resState, tempColor(resState))
-                else:
-                    if resClass not in staticTypes:
-                        resClass += "_"+resState
-                    updates[resource] = (resClass, resState, "")
-            except:
-                pass
-        return json.dumps(updates)
-        
-    # Submit    
-    @cherrypy.expose
-    def submit(self, action=None, resource=None):
-        debug('debugWeb', "/submit", cherrypy.request.method, action, resource)
-        self.resources.getRes(resource).setViewState(action, views)
-        reply = ""
-        return reply
-
-def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, ssl=False, httpsPort=443, domain=""):
-    # set up the web server
-    baseDir = os.path.abspath(os.path.dirname(__file__))
-    appConfig = {
-        '/css': {
-            'tools.staticdir.on': True,
-            'tools.staticdir.root': os.path.join(baseDir, "static"),
-            'tools.staticdir.dir': "css",
-        },
-        '/js': {
-            'tools.staticdir.on': True,
-            'tools.staticdir.root': os.path.join(baseDir, "static"),
-            'tools.staticdir.dir': "js",
-        },
-        '/images': {
-            'tools.staticdir.on': True,
-            'tools.staticdir.root': os.path.join(baseDir, "static"),
-            'tools.staticdir.dir': "images",
-        },
-        '/favicon.ico': {
-            'tools.staticfile.on': True,
-            'tools.staticfile.filename': os.path.join(baseDir, "static/favicon.ico"),
-        },
-    }
-    if ssl:
-        appConfig.update({
-            '/': {
-               'tools.auth_basic.on': True,
-               'tools.auth_basic.realm': 'localhost',
-               'tools.auth_basic.checkpassword': validatePassword
-            }})
-    
-    root = WebRoot(resources, Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates'))), restCache, stateChangeEvent, resourceLock)
-    cherrypy.tree.mount(root, "/", appConfig)
-    
-    cherrypy.server.unsubscribe()
-    # http server for LAN access
-    httpServer = cherrypy._cpserver.Server()
-    httpServer.socket_port = httpPort
-    httpServer._socket_host = "0.0.0.0"
-    httpServer.max_request_body_size = 120 * 1024 # ~100kb
-    httpServer.thread_pool = 30
-    httpServer.subscribe()
-    if ssl:
-        # https server for external access
-        httpsServer = cherrypy._cpserver.Server()
-        httpsServer.socket_port = httpsPort
-        httpsServer._socket_host = '0.0.0.0'
-        httpsServer.max_request_body_size = 120 * 1024 # ~100kb
-        httpsServer.thread_pool = 30
-        httpsServer.ssl_module = 'pyopenssl'
-        httpsServer.ssl_certificate = keyDir+domain+".crt"
-        httpsServer.ssl_private_key = keyDir+domain+".key"
-        httpsServer.subscribe()
-
-    if not webLogging:
-        access_log = cherrypy.log.access_log
-        for handler in tuple(access_log.handlers):
-            access_log.removeHandler(handler)
-    if not webReload:
-        cherrypy.engine.timeout_monitor.unsubscribe()
-        cherrypy.engine.autoreload.unsubscribe()
-    cherrypy.engine.start()
-
+# dispatch table
+pathDict = {"": tacoma,
+            "tacoma": tacoma,
+            }
+            
 if __name__ == "__main__":
     # Resources
     resources = HACollection("resources")
-    resourceLock = threading.Lock()
 
     # Interfaces
-    stateChangeEvent = threading.Event()
     timeInterface = TimeInterface("Time")
     gpsInterface = FileInterface("GPS", fileName=gpsFileName, readOnly=True, event=stateChangeEvent)
     diagInterface = FileInterface("Diag", fileName=diagFileName, readOnly=True, event=stateChangeEvent)
@@ -212,11 +101,7 @@ if __name__ == "__main__":
     tempInterface.start()
 
     # set up the web server
-    webInit(resources, None, stateChangeEvent, resourceLock, httpPort=8080)
+    baseDir = os.path.abspath(os.path.dirname(__file__))
+    templates = Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates')))
+    webInit(resources, None, stateChangeEvent, resourceLock, httpPort=8080, pathDict=pathDict, baseDir=baseDir, block=True)
 
-    # start the REST server for this service
-    restServer = RestServer(resources, event=stateChangeEvent, label="Tacoma")
-    # restServer.start()
-    while True:
-        time.sleep(1)
-    
