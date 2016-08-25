@@ -145,11 +145,14 @@ class HACollection(HAResource, OrderedDict):
 
     # Get a resource from the table
     # Return dummy sensor if not found
-    def getRes(self, name):
+    def getRes(self, name, dummy=True):
         try:
             return self.__getitem__(name)
         except KeyError:
-            return HASensor(name, HAInterface("None"))
+            if dummy:
+                return HASensor(name, HAInterface("None"))
+            else:
+                raise
 
     # Return the list of resources that have the names specified in the list
     def getResList(self, names):
