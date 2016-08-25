@@ -12,7 +12,7 @@ from ha.tempInterface import *
 from ha.imuInterface import *
 from ha.audioInterface import *
 from ha.restServer import *
-from haWebViews import *
+from ha.haWebViews import *
 
 rootDir = "/root/"
 dataDir = rootDir+"data/"

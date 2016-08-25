@@ -16,7 +16,7 @@ from ha.restInterface import *
 from ha.restServer import *
 from ha.restProxy import *
 from ha.timeInterface import *
-from haWeb import *
+from ha.haWeb import *
 
 # global variables
 templates = None
