@@ -134,7 +134,7 @@ class WebRoot(object):
         reply = ""
         return reply
 
-def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, ssl=False, httpsPort=443, domain="", pathDict=None, baseDir="/"):
+def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, ssl=False, httpsPort=443, domain="", pathDict=None, baseDir="/", block=False):
     # set up the web server
     appConfig = {
         '/css': {
@@ -196,4 +196,6 @@ def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, s
         cherrypy.engine.timeout_monitor.unsubscribe()
         cherrypy.engine.autoreload.unsubscribe()
     cherrypy.engine.start()
+    if block:
+        cherrypy.engine.block()
         
