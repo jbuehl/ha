@@ -1,12 +1,57 @@
 @import "/css/default.css";
 
 body {
-    background-color: #C0C0C0;
+    background-color: Black;
+    overflow: hidden;
     }
 
 * {
+	font-size: 30px;
+	padding: 0 0 0 0;
+    }
+
+.label {
+	font-size: 24px;
+    }
+
+.lcd {
+    width: 800px;
+    height: 480px;
+    }
+
+.time {
+	color: LightYellow;
+	font-size: 72px;
+	line-height: 90%;
+	text-align: center;
+    }
+
+.ampm {
+	color: LightYellow;
+	font-size: 24px;
+    }
+
+.date {
+	color: LightGray;
+	font-size: 24px;
+	text-align: left;
+    }
+
+.tempF {
+    font-size:60px;
+	text-align: right;
+    }
+
+input {
+    height: 72px;
+    width: 72px;
+	background-color: LightGray;
 	color: Black;
-	font-size: 32px;
+	font-size: 40px;
+	text-align: center;
+	margin: 2 2 2 2;
+	padding: 0 0 0 0;
+	text-indent: 0px;
     }
 
 
