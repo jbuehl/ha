@@ -14,91 +14,46 @@ import threading
 import socket
 import ssl
 import time
-import copy
-
-# Sensor that returns the states of all sensors in a list of resources
-class ResourceStateSensor(HASensor):
-    def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, view=None, label="", interrupt=None, hostname="", port=0):
-        HASensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
-        self.resources = resources
-        self.event = event
-        self.hostname = hostname
-        self.port = port
-        self.states = {}    # current sensor states
-        self.lastStates = {}
-        # thread to periodically send states as keepalive message
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        def heartbeat():
-            while True:
-                debug('debugStateChange', self.name, "heartbeat")
-                # send the broadcast message
-                self.socket.sendto(json.dumps({"state": self.states, "hostname": self.hostname, "port": self.port}), ("<broadcast>", restStatePort))
-                # set the state event so the stateChange request returns
-                self.event.set()
-                time.sleep(restHeartbeatInterval)
-        if self.event:
-            heartbeatThread = threading.Thread(target=heartbeat)
-            heartbeatThread.start()
-
-    # return the current state of all sensors in the collection
-    def getState(self):
-        self.getStates(self.resources)
-        debug('debugStateChange', self.name, "getState", self.states)
-        return self.states
-
-    # return the current state of all sensors in the specified collection
-    def getStates(self, resources):
-        for sensor in resources.values():
-            if sensor != self:
-                if (sensor.type == "schedule") or (sensor.type == "collection"):   # recurse into schedules and collections
-                    self.getStates(sensor)
-                elif sensor.getStateType() != dict:     # sensor has a scalar state
-                    self.states[sensor.name] = sensor.getState()
-                else:                                   # sensor has a complex state
-                    self.states[sensor.name] = sensor.getState()["contentType"]
-    
-    # return the state of any sensors that have changed since the last getState() call
-    def getStateChange(self):
-        debug('debugInterrupt', self.name, "getStateChange")
-        if self.event:      # wait for state change event
-            debug('debugInterrupt', self.name, "event wait")
-            self.event.wait()
-            debug('debugInterrupt', self.name, "event clear")
-            self.event.clear()
-        else:               # no event specified, return periodically
-            time.sleep(10)
-        debug('debugStateChange', self.name, "lastState", self.lastStates)
-        newStates = self.getState()
-        changeStates = {}
-        for sensor in newStates.keys():
-            try:
-                if True: # newStates[sensor] != self.lastStates[sensor]:
-                    changeStates[sensor] = newStates[sensor]
-            except KeyError:
-                changeStates[sensor] = newStates[sensor]
-        self.lastStates = copy.copy(self.states)
-        debug('debugStateChange', self.name, "changeStates", changeStates)
-        return changeStates
 
 # RESTful web services server interface
 class RestServer(object):
-    def __init__(self, resources, port=7378, beacon=True, event=None, label=""):
+    def __init__(self, resources, port=7378, beacon=True, heartbeat=True, event=None, label=""):
         self.label = label
         self.resources = resources
         self.event = event
         self.hostname = socket.gethostname()
         self.port = port
         self.beacon = beacon
+        self.heartbeat = heartbeat
         self.event = event
         self.resources.addRes(ResourceStateSensor("states", HAInterface("None"), self.resources, self.event, hostname=self.hostname, port=self.port))
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
 
     def start(self):
+        # start the beacon
         if self.beacon:
             beacon = BeaconThread("beaconServer", self.port, self.resources, self.label)
             beacon.start()
+        # start the heartbeat
+        if self.heartbeat:
+            debug('debugRestHeartbeat', "starting heartbeat")
+            # thread to periodically send states as keepalive message
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            stateResource = self.resources.getRes("states")
+            def heartbeat():
+                while True:
+                    debug('debugStateChange', "heartbeat")
+                    states = stateResource.states
+                    # send the broadcast message
+                    self.socket.sendto(json.dumps({"state": states, "hostname": self.hostname, "port": self.port}), ("<broadcast>", restStatePort))
+                    # set the state event so the stateChange request returns
+                    self.event.set()
+                    time.sleep(restHeartbeatInterval)
+            heartbeatThread = threading.Thread(target=heartbeat)
+            heartbeatThread.start()
+        # start the HTTP server
         self.server.serve_forever()
 
 # Beacon that advertises this service        

@@ -5,6 +5,7 @@ import copy
 import syslog
 import sys
 import os
+import copy
 from collections import OrderedDict
 from dateutil import tz
 from ha.sunriseset import *
@@ -635,6 +636,57 @@ class CalcSensor(HASensor):
                 value /+ len(self.sensors)
         return value
         
+# Sensor that returns the states of all sensors in a list of resources
+class ResourceStateSensor(HASensor):
+    def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, view=None, label="", interrupt=None, hostname="", port=0):
+        HASensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+        self.resources = resources
+        self.event = event
+        self.hostname = hostname
+        self.port = port
+        self.states = {}    # current sensor states
+        self.lastStates = {}
+
+    # return the current state of all sensors in the collection
+    def getState(self):
+        self.getStates(self.resources)
+        debug('debugStateChange', self.name, "getState", self.states)
+        return self.states
+
+    # return the current state of all sensors in the specified collection
+    def getStates(self, resources):
+        for sensor in resources.values():
+            if sensor != self:
+                if (sensor.type == "schedule") or (sensor.type == "collection"):   # recurse into schedules and collections
+                    self.getStates(sensor)
+                elif sensor.getStateType() != dict:     # sensor has a scalar state
+                    self.states[sensor.name] = sensor.getState()
+                else:                                   # sensor has a complex state
+                    self.states[sensor.name] = sensor.getState()["contentType"]
+    
+    # return the state of any sensors that have changed since the last getState() call
+    def getStateChange(self):
+        debug('debugInterrupt', self.name, "getStateChange")
+        if self.event:      # wait for state change event
+            debug('debugInterrupt', self.name, "event wait")
+            self.event.wait()
+            debug('debugInterrupt', self.name, "event clear")
+            self.event.clear()
+        else:               # no event specified, return periodically
+            time.sleep(10)
+        debug('debugStateChange', self.name, "lastState", self.lastStates)
+        newStates = self.getState()
+        changeStates = {}
+        for sensor in newStates.keys():
+            try:
+                if True: # newStates[sensor] != self.lastStates[sensor]:
+                    changeStates[sensor] = newStates[sensor]
+            except KeyError:
+                changeStates[sensor] = newStates[sensor]
+        self.lastStates = copy.copy(self.states)
+        debug('debugStateChange', self.name, "changeStates", changeStates)
+        return changeStates
+
 Mon = 0
 Tue = 1
 Wed = 2
