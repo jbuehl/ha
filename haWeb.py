@@ -107,8 +107,6 @@ class WebRoot(object):
 
     # return the json to update the states of the specified collection of sensors
     def updateStates(self, resourceStates):
-        staticTypes = ["time", "ampm", "date", "W", "KW"]          # types whose class does not depend on their value
-        tempTypes = ["tempF", "tempFControl", "tempC", "spaTemp"]       # temperatures
         if self.cache:
             cacheTime = self.cache.cacheTime
         else:

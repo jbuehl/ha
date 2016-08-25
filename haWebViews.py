@@ -122,4 +122,9 @@ views = {"power": HAView({}, "%d W"),
          "sequence": HAView({0:"Stopped", 1:"Running"}, "%s", None, {0:"Stop", 1:"Run"}),
          "task": HAView({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"})
          }
+
+# by default the UI will create a css class based on the state value
+# these types are the exceptions
+staticTypes = ["time", "ampm", "date", "W", "KW"]          # types whose class does not depend on their value
+tempTypes = ["tempF", "tempFControl", "tempC", "spaTemp"]       # temperatures
                             
