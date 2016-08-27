@@ -98,7 +98,11 @@ def iphone5(action=None, resource=None):
                             time=resources.getRes("theTime"),
                             ampm=resources.getRes("theAmPm"),
                             temp=resources.getRes(outsideTemp),
-                            resources=resources.getResList(["spaTemp", "porchLights", "allShades", "shade1", "shade2", "shade3", "shade4", "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"]),
+                            resources=resources.getResList(["spaTemp",
+                                                            "porchLights", 
+                                                            "shade1", "shade2", "shade3", "shade4", 
+                                                            "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence",
+                                                            "poolPump"]),
                             views=views)
     return reply
 
