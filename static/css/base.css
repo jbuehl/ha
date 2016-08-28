@@ -1,0 +1,311 @@
+body {
+    background-color: #424242;
+    }
+
+* {
+	color: LightGray;
+	font-size: 14px;
+	font-weight: bold;
+	font-family: "Helvetica", Helvetica, sans-serif;
+	text-align: left;
+	text-indent: 0px;
+	padding: 2 2 2 2;
+	margin: 0;
+    }
+
+h1 {
+	color: OrangeRed;
+	font-size: 32px;
+    text-align: left;
+    font-weight: bold;
+    }
+
+h2 {
+	color: LightYellow;
+	font-size: 20px;
+    text-align: left;
+    font-weight: bold;
+    margin-top: 20px;
+    }
+
+input {
+    height: 16px;
+    width: 40px;
+	background-color: LightGray;
+	color: Black;
+	font-size: 12px;
+	text-align: center;
+	margin: 2 2 2 2;
+	padding: 0 0 0 0;
+	text-indent: 0px;
+    }
+
+form {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    }
+
+td {
+    vertical-align: top;
+    text-align: left;
+    }
+
+.navtext {
+	color: Black;
+	font-weight: bold;
+	font-family: "Helvetica", Helvetica, sans-serif;
+	font-size: 4vw;
+    }
+
+.label {
+    text-align: left;
+    }
+
+.control {
+    font-weight: normal;
+    text-align: left;
+    }
+
+.data {
+    font-size: 12px;
+    font-weight: normal;
+    text-align: left;
+    }
+
+.container {
+/*    background-color: Red;*/
+    padding: 2 2 2 2;
+    overflow: auto;
+    width: 100%;
+    }
+    
+.section {
+/*    background-color: Blue;*/
+    padding: 2 2 2 2;
+    overflow: auto;
+    }
+    
+.name {
+    text-align: left;
+    }
+
+.value {
+    text-align: left;
+    }
+
+.btn-lg {
+    font-size: 3vw;
+    }
+
+.invisible {
+	color: #424242;
+    padding: 2 2 2 2;
+    text-align: left;
+    }
+
+.task_Disabled {
+	color: SlateGray;
+    }
+
+.task_Enabled {
+	color: Lime;
+    }
+
+.control_Off {
+	color: SlateGray;
+    }
+
+.control_On {
+	color: Lime;
+    }
+
+.sequence_Stopped {
+	color: SlateGray;
+    }
+
+.sequence_Running {
+	color: Lime;
+    }
+
+.scene_Off {
+	color: SlateGray;
+    }
+
+.scene_On {
+	color: Lime;
+    }
+
+.shade_Down {
+	color: SlateGray;
+    }
+
+.shade_Up {
+	color: #FFFF66;
+    }
+
+.shade_Lowering {
+	color: #CCCC66;
+    }
+
+.shade_Raising {
+	color: #CCCC66;
+    }
+
+.light_Off {
+	color: SlateGray;
+    }
+
+.light_On {
+	color: #FFFF66;
+    }
+
+.dimmer_Off {
+	color: SlateGray;
+    }
+
+.dimmer_Lo {
+	color: #88881F;
+    }
+
+.dimmer_Med {
+	color: #AAAA3F;
+    }
+
+.dimmer_Hi {
+	color: #CCCC5F;
+    }
+
+.dimmer_On {
+	color: #FFFF7F;
+    }
+
+.nightLight_Off {
+	color: SlateGray;
+    }
+
+.nightLight_Sleep {
+	color: #88881F;
+    }
+
+.nightLight_On {
+	color: #FFFF7F;
+    }
+
+.door_Closed {
+	color: SlateGray;
+    }
+
+.door_Open {
+	color: OrangeRed;
+    }
+
+.service_Up {
+	color: Lime;
+    }
+
+.service_Down {
+	color: OrangeRed;
+    }
+
+.cameraRecord_Recording {
+	color: Red;
+    }
+
+.hotwater_Off {
+	color: BlueViolet;
+    }
+
+.hotwater_On {
+	color: OrangeRed;
+    }
+
+.heater_Off {
+	color: SlateGray;
+    }
+
+.heater_On {
+	color: Lime;
+    }
+
+.heater_Ena {
+	color: Orange;
+    }
+
+.thermostat_Off {
+	color: SlateGray;
+    }
+
+.thermostat_Heat {
+	color: OrangeRed;
+    }
+
+.thermostat_Cool {
+	color: Aqua;
+    }
+
+.thermostat_Fan {
+	color: Lime;
+    }
+
+.thermostat_Auto {
+	color: Blue;
+    }
+
+.spa_Off {
+	color: SlateGray;
+    }
+
+.spa_On {
+	color: Yellow;
+    }
+
+.spa_Standby {
+	color: Lime;
+    }
+
+.spa_Starting {
+	color: Orange;
+    }
+
+.spa_Warming {
+	color: Orange;
+    }
+
+.spa_Stopping {
+	color: Orange;
+    }
+
+.cleaner_Off {
+	color: SlateGray;
+    }
+
+.cleaner_On {
+	color: Lime;
+    }
+
+.cleaner_Ena {
+	color: Yellow;
+    }
+
+.pump_Off {
+	color: SlateGray;
+    }
+
+.pump_Lo {
+	color: Lime;
+    }
+
+.pump_Med {
+	color: Lime;
+    }
+
+.pump_Hi {
+	color: Lime;
+    }
+
+.pump_Max {
+	color: Lime;
+    }
+
+
