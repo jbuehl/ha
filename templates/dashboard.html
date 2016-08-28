@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+<head>
+    <title>{{ title }}</title>
+    <link rel='stylesheet' type='text/css' href='/css/dashboard.css'> 
+    <script src='/js/jquery.js'></script>
+    <script src='/js/update.js'></script>
+    <script src='/js/submit.js'></script>
+    {{ script }}
+</head>
+<body>
+    <table border=0 width=1280 style='table-layout:fixed'>
+        <col width=640><col width=640>
+        <tr>
+            <td>
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=timeGroup, details=False, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=weatherGroup, details=False, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=lightsGroup, details=False, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=poolGroup, details=False, views=views) }}
+            </td>
+            <td>
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=shadesGroup, details=False, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=hvacGroup, details=False, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=sprinklersGroup, details=False, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=powerGroup, details=False, views=views) }}
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+

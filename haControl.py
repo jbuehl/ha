@@ -23,9 +23,36 @@ resources = None
 stateChangeEvent = threading.Event()
 resourceLock = threading.Lock()
 
-# default - show all resources or specified group                
-def index(group=None):
-    debug('debugWeb', "/", group)
+# default - dashboard                
+def index():
+    debug('debugWeb', "/")
+    with resourceLock:
+        timeGroup = ["Time", resources.getResList(["theDateDayOfWeek", "theTimeAmPm", "sunrise", "sunset"])]
+        weatherGroup = ["Weather", resources.getResList(["deckTemp", "humidity", "barometer"])]
+        poolGroup = ["Pool", resources.getResList(["spaTemp", "poolPump", "poolPumpFlow", "spaFill", "spaFlush", "spaDrain", "filter", "clean", "flush"])]
+        lightsGroup = ["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLight", "bathroomLight", "poolLight", "spaLight"])]
+        shadesGroup = ["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])]
+        hvacGroup = ["Hvac", resources.getResList(["kitchenTemp", "southHeatTempTarget", "southCoolTempTarget", "familyRoomDoor", 
+                                                   "masterBedroomTemp", "northHeatTempTarget", "northCoolTempTarget", "masterBedroomDoor"])]
+        sprinklersGroup = ["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "backBedSequence", "frontLawnSequence"])]
+        powerGroup = ["Power", resources.getResList(["currentVoltage", "currentLoad", "currentPower", "todaysEnergy"])]
+        reply = templates.get_template("dashboard.html").render(script="",
+                            groupTemplate=templates.get_template("group.html"),
+                            resourceTemplate=templates.get_template("resource.html"),
+                            timeGroup=timeGroup,
+                            weatherGroup=weatherGroup,
+                            poolGroup=poolGroup,
+                            lightsGroup=lightsGroup,
+                            shadesGroup=shadesGroup,
+                            hvacGroup=hvacGroup,
+                            sprinklersGroup=sprinklersGroup,
+                            powerGroup=powerGroup,
+                            views=views)
+    return reply
+    
+# show all resource details or specified group                
+def details(group=None):
+    debug('debugWeb', "/detail", group)
     try:
         groups = [group.capitalize()]
         details = False
@@ -34,14 +61,16 @@ def index(group=None):
         details = True
     with resourceLock:
         reply = templates.get_template("default.html").render(title=webPageTitle, script="", 
+                            groupTemplate=templates.get_template("group.html"),
+                            resourceTemplate=templates.get_template("resource.html"),
                             groups=[[group, resources.getGroup(group)] for group in groups],
                             views=views,
                             details=details)
     return reply
     
 # Solar   
-def solar(action=None, resource=None):
-    debug('debugWeb', "/solar", cherrypy.request.method, action, resource)
+def solar():
+    debug('debugWeb', "/solar", cherrypy.request.method)
     with resourceLock:
         reply = templates.get_template("solar.html").render(script="",
                             dayOfWeek=resources.getRes("theDayOfWeek"),
@@ -69,8 +98,8 @@ def solar(action=None, resource=None):
     return reply
 
 # iPad - 1024x768   
-def ipad(action=None, resource=None):
-    debug('debugWeb', "/ipad", cherrypy.request.method, action, resource)
+def ipad():
+    debug('debugWeb', "/ipad", cherrypy.request.method)
     with resourceLock:
         reply = templates.get_template("ipad.html").render(script="", 
                             time=resources.getRes("theTime"),
@@ -91,8 +120,8 @@ def ipad(action=None, resource=None):
     return reply
 
 # iPhone 5 - 320x568    
-def iphone5(action=None, resource=None):
-    debug('debugWeb', "/iphone5", cherrypy.request.method, action, resource)
+def iphone5():
+    debug('debugWeb', "/iphone5", cherrypy.request.method)
     with resourceLock:
         reply = templates.get_template("iphone5.html").render(script="", 
                             time=resources.getRes("theTime"),
@@ -107,8 +136,8 @@ def iphone5(action=None, resource=None):
     return reply
 
 # iPhone 3GS - 320x480    
-def iphone3gs(action=None, resource=None):
-    debug('debugWeb', "/iphone3gs", cherrypy.request.method, action, resource)
+def iphone3gs():
+    debug('debugWeb', "/iphone3gs", cherrypy.request.method)
     with resourceLock:
         reply = templates.get_template("iphone3gs.html").render(script="", 
                             time=resources.getRes("theTime"),
@@ -121,6 +150,7 @@ def iphone3gs(action=None, resource=None):
 
 # dispatch table
 pathDict = {"": index,
+            "details": details,
             "solar": solar,
             "ipad": ipad,
             "iphone5": iphone5,
@@ -139,6 +169,7 @@ if __name__ == "__main__":
     # add local resources
     timeInterface = TimeInterface("time")
     resources.addRes(HASensor("theDayOfWeek", timeInterface, "%A", type="date", group="Time", label="Day of week"))
+    resources.addRes(HASensor("theDateDayOfWeek", timeInterface, "%A %B %d %Y", type="date", group="Time", label="Date"))
     resources.addRes(HASensor("theDate", timeInterface, "%B %d %Y", type="date", group="Time", label="Date"))
     resources.addRes(HASensor("theTimeAmPm", timeInterface, "%I:%M %p", type="time", group="Time", label="Time"))
     resources.addRes(HASensor("sunrise", timeInterface, "sunrise", type="time", group="Time", label="Sunrise"))
