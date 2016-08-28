@@ -2,50 +2,16 @@
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
 <head>
     <title>{{ title }}</title>
-    <link rel='stylesheet' type='text/css' href='css/default.css'> 
-    <script src='js/jquery.js'></script>
-    <script src='js/update.js'></script>
-    <script src='js/submit.js'></script>
+    <link rel='stylesheet' type='text/css' href='/css/default.css'> 
+    <script src='/js/jquery.js'></script>
+    <script src='/js/update.js'></script>
+    <script src='/js/submit.js'></script>
     {{ script }}
 </head>
 <body>
     <h1>{{ title }}</h1>
-    {% for g in groups %}
-    <br>
-    <h2>{{ g[0] }}</h2>
-    <table border=0 width=1320 style='table-layout:fixed'>
-        <col width=220><col width=140><col width=280><col width=80><col width=160><col width=360><col width=80>
-        {% for r in g[1] %}
-        <tr>
-            <td><div class=label>{{ r.label }}</div></td>
-            <td><div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}</div></td>
-            <td>
-                {% if r.className != "HASensor" %}
-                <div class=control>
-                <form name='control' action='' method='get'>
-                    <input type='hidden' name='resource' value='{{ r.name }}' />
-                    {% for v in r.setValues(views).values() %}
-                    <input type='submit' class='button' name='action' value='{{ v }}' />
-                    {% endfor %}
-                </form>
-                    {% if r.className == "HATask" %}
-                        {{ r.__str__().replace(",","<br>") }}
-                    {% endif %}
-                    {% if r.className == "HASequence" %}
-                        {{ r.__str__().replace(",","<br>") }}
-                    {% endif %}
-                </div>
-                {% endif %}
-            </td>
-            {% if details %}
-            <td><div class=data>{{ r.type }}</div></td>
-            <td><div class=data>{{ r.interface.name }}</div></td>
-            <td><div class=data>{{ r.addr }}</div></td>
-            <td><div class=data>{{ r.location }}</div></td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
+    {% for group in groups %}
+        {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=group, details=details, views=views) }}
     {% endfor %}
 </body>
 </html>
