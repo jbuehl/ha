@@ -60,7 +60,7 @@ def details(group=None):
         groups = ["Time", "Temperature", "Hvac", "Pool", "Lights", "Shades", "Doors", "Water", "Solar", "Power", "Cameras", "Services", "Tasks"]
         details = True
     with resourceLock:
-        reply = templates.get_template("default.html").render(title=webPageTitle, script="", 
+        reply = templates.get_template("details.html").render(title=webPageTitle, script="", 
                             groupTemplate=templates.get_template("group.html"),
                             resourceTemplate=templates.get_template("resource.html"),
                             groups=[[group, resources.getGroup(group)] for group in groups],
