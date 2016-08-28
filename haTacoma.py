@@ -5,6 +5,7 @@ gpsFileName = dataDir+"gps.json"
 diagFileName = dataDir+"diags.json"
 imuFileName = dataDir+"9dof.json"
 audioFileName = audioDir+"audio.json"
+httpPort = 8080
 
 import threading
 import time
@@ -31,17 +32,17 @@ resourceLock = threading.Lock()
 # Tacoma - 800x480
 def tacoma():
     debug('debugWeb', "/tacoma", cherrypy.request.method)
-    with self.resourceLock:
-        reply = self.env.get_template("tacoma.html").render(title=webPageTitle, script="", 
-                            time=self.resources.getRes("theTime"),
-                            ampm=self.resources.getRes("theAmPm"),
-                            day=self.resources.getRes("theDay"),
-                            temp=self.resources.getRes("outsideTemp"),
-                            controls=[self.resources.getRes("volume"),
-                                      self.resources.getRes("mute"),
-                                      self.resources.getRes("wifi"),
+    with resourceLock:
+        reply = templates.get_template("tacoma.html").render(title=webPageTitle, script="", 
+                            time=resources.getRes("theTime"),
+                            ampm=resources.getRes("theAmPm"),
+                            day=resources.getRes("theDay"),
+                            temp=resources.getRes("outsideTemp"),
+                            controls=[resources.getRes("volume"),
+                                      resources.getRes("mute"),
+                                      resources.getRes("wifi"),
                                      ],
-                            group=self.resources.getGroup("Tacoma"),
+                            group=resources.getGroup("Tacoma"),
                             views=views)
     return reply
 
@@ -65,7 +66,7 @@ if __name__ == "__main__":
     tempInterface = TempInterface("Temp", tc74Interface, sample=1)
     audioInterface = AudioInterface("Audio", event=stateChangeEvent)
 
-    # Sensors
+    # time sensors
     resources.addRes(HASensor("theDayOfWeek", timeInterface, "%A", type="date", group="Time", label="Day of week"))
     resources.addRes(HASensor("theDate", timeInterface, "%B %d %Y", type="date", group="Time", label="Date"))
     resources.addRes(HASensor("theTimeAmPm", timeInterface, "%I:%M %p", type="time", group="Time", label="Time"))
@@ -74,13 +75,15 @@ if __name__ == "__main__":
     resources.addRes(HASensor("theDay", timeInterface, "%a %b %d %Y", type="date", label="Day"))
     resources.addRes(HASensor("theTime", timeInterface, "%I:%M", type="time", label="Time"))
     resources.addRes(HASensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
-#    resources.addRes(HASensor("tacomaDate", timeInterface, "%B %d %Y", group="Tacoma", label="Date", type="date"))
-#    resources.addRes(HASensor("tacomaTimeAmPm", timeInterface, "%I:%M %p", group="Tacoma", label="Time", type="time"))
+
+    # GPS sensors
 #    resources.addRes(HASensor("gpsTime", gpsInterface, "Time", group="Tacoma", label="GPS time"))
     resources.addRes(HASensor("position", gpsInterface, "Pos", group="Tacoma", label="Position"))
     resources.addRes(HASensor("altitude", gpsInterface, "Alt", group="Tacoma", label="Elevation", type="Ft"))
     resources.addRes(HASensor("heading", gpsInterface, "Hdg", group="Tacoma", label="Heading", type="Deg"))
 #    resources.addRes(HASensor("gpsSpeed", gpsInterface, "Speed", group="Tacoma", label="GPS speed", type="MPH"))
+
+    # diag sensors
 #    resources.addRes(HASensor("speed", diagInterface, "Speed", group="Tacoma", label="Speed", type="MPH"))
     resources.addRes(HASensor("rpm", diagInterface, "Rpm", group="Tacoma", label="RPM", type="RPM"))
     resources.addRes(HASensor("battery", diagInterface, "Battery", group="Tacoma", label="Battery", type="V"))
@@ -103,5 +106,5 @@ if __name__ == "__main__":
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
     templates = Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates')))
-    webInit(resources, None, stateChangeEvent, resourceLock, httpPort=8080, pathDict=pathDict, baseDir=baseDir, block=True)
+    webInit(resources, None, stateChangeEvent, resourceLock, httpPort=httpPort, pathDict=pathDict, baseDir=baseDir, block=True)
 

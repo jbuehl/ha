@@ -10,9 +10,9 @@ class AudioInterface(HAInterface):
         HAInterface.__init__(self, name, interface=interface, event=event)
 
     def read(self, addr):
+        debug('debugAudio', self.name, "read", addr)
         try:
             if addr == "volume":
-                debug('debugAudio', self.name, "read", addr)
                 value = subprocess.check_output("ssh pi@localhost pacmd list-sinks|grep volume", shell=True)
                 return int(value.split("/")[1].strip(" ").strip("%"))
             elif addr == "mute":
@@ -32,8 +32,8 @@ class AudioInterface(HAInterface):
             os.system("ssh pi@localhost pactl set-sink-mute %s %d" % (audioSink, value))
         elif addr == "wifi":
             if value == 0:
-                os.system("ifdown wlan0")
+                os.system("/root/carputer/wifi.sh off &")
             else:
-                os.system("ifup wlan0")
+                os.system("/root/carputer/wifi.sh on &")
 
 
