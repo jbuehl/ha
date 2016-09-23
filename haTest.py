@@ -1,239 +1,217 @@
-import os
+webPort = 80
+webSSLPort = 7380
+webSSLDomain = "cloud.buehltech.com"
+webUpdateInterval = 1
+webPageTitle = "Home Automation Test"
+restIgnore = []
+insideTemp = "kitchenTemp"
+outsideTemp = "deckTemp"
+poolTemp = "waterTemp"
+
 import time
-import json
-import cherrypy
+from jinja2 import Environment, FileSystemLoader
+from ha.HAClasses import *
+from ha.restInterface import *
+from ha.restServer import *
+from ha.restProxy import *
+from ha.timeInterface import *
+from ha.haWeb import *
 
-dataDir = "data/"
+# global variables
+templates = None
+resources = None
+stateChangeEvent = threading.Event()
+resourceLock = threading.Lock()
 
-def convertTime(timeStr):
-    # convert time to a javascript unix time relative to zero
-    (hour, minute, second) = timeStr.split(":")
-    # round the time to 5 minute increments
-    return (int(hour)*60 + (int(minute)/5)*5)*60*1000
-
-def sumItems(itemDict, itemType):
-    itemSum = 0
-    for item in itemDict.keys():
-        itemSum += itemDict[item][itemType]
-    return itemSum
-
-def avgItems(itemDict, itemType):
-    try:
-        return sumItems(itemDict, itemType)/len(itemDict)
-    except ZeroDivisionError:
-        return 0
-            
-class WebRoot(object):
+# default - dashboard                
+def index():
+    debug('debugWeb', "/")
+    with resourceLock:
+        timeGroup = ["Time", resources.getResList(["theDateDayOfWeek", "theTimeAmPm", "sunrise", "sunset"])]
+        weatherGroup = ["Weather", resources.getResList(["deckTemp", "humidity", "barometer"])]
+        poolGroup = ["Pool", resources.getResList(["spaTemp", "poolPump", "poolPumpFlow", "spaFill", "spaFlush", "spaDrain", "filter", "clean", "flush"])]
+        lightsGroup = ["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLight", "bathroomLight", "poolLight", "spaLight"])]
+        shadesGroup = ["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])]
+        hvacGroup = ["Hvac", resources.getResList(["kitchenTemp", "southHeatTempTarget", "southCoolTempTarget", "familyRoomDoor", 
+                                                   "masterBedroomTemp", "northHeatTempTarget", "northCoolTempTarget", "masterBedroomDoor"])]
+        sprinklersGroup = ["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "backBedSequence", "frontLawnSequence"])]
+        powerGroup = ["Power", resources.getResList(["currentVoltage", "currentLoad", "currentPower", "todaysEnergy"])]
+        reply = templates.get_template("dashboard.html").render(script="",
+                            groupTemplate=templates.get_template("group.html"),
+                            resourceTemplate=templates.get_template("resource.html"),
+                            timeGroup=timeGroup,
+                            weatherGroup=weatherGroup,
+                            poolGroup=poolGroup,
+                            lightsGroup=lightsGroup,
+                            shadesGroup=shadesGroup,
+                            hvacGroup=hvacGroup,
+                            sprinklersGroup=sprinklersGroup,
+                            powerGroup=powerGroup,
+                            views=views)
+    return reply
     
-    # Display the graph    
-    @cherrypy.expose
-    def index(self, date="", type="inverters", id="", attr="Pac"):
-        if date == "":
-            date = time.strftime("%Y%m%d", time.localtime())
-        year = int(date[0:4])
-        month = int(date[4:6])
-        day = int(date[6:8])
-        reply = """
-    <!DOCTYPE html>
-    <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
-    <head>
-        <title>Solar stats</title>
-        <link rel='stylesheet' type='text/css' href='css/solar.css'> 
-        <script src='js/jquery.js'></script>
-        <script src="js/jquery.flot.js"></script>
-        <script src="js/jquery.flot.time.js"></script>
-        <script src="js/jquery.flot.stack.js"></script>
-    </head>
-    <body>
-        <div style="width: 900px">
-            <div id="graph" style="width: 900px; height: 300px">
-            </div>
-            <div  class="caption">
-                <span class="date">
-                    %s
-                </span>
-                <span class="summary">
-                    <span class="label">Current Power</span> 
-                    <span id="Pac" class="KW">0.0 KW</span>
-                    <span class="label">Todays Energy</span> 
-                    <span id="Eday" class="KWh">0.0 KWh</span>
-                    <span class="label">Lifetime Energy</span> 
-                    <span id="Etot" class="MWh">0.0 MWh</span>
-                </span>
-            </div>
-        </div>
-        <script type="text/javascript">
-          (function() {
-		    function wattsAxisFormatter(v, axis) {
-			    return v.toFixed(axis.tickDecimals) + " W";
-		        }
-		    function voltsAxisFormatter(v, axis) {
-			    return v.toFixed(axis.tickDecimals) + " V";
-		        }
-		    function tempAxisFormatter(v, axis) {
-			    return v.toFixed(axis.tickDecimals) + " F";
-		        }
+# show all resource details or specified group                
+def details(group=None):
+    debug('debugWeb', "/detail", group)
+    try:
+        groups = [group.capitalize()]
+        details = False
+    except:
+        groups = ["Time", "Temperature", "Hvac", "Pool", "Lights", "Shades", "Doors", "Water", "Power", "Solar", "Inverters", "Optimizers", "Cameras", "Services", "Tasks"]
+        details = True
+    with resourceLock:
+        reply = templates.get_template("details.html").render(title=webPageTitle, script="", 
+                            groupTemplate=templates.get_template("group.html"),
+                            resourceTemplate=templates.get_template("resource.html"),
+                            groups=[[group, resources.getGroup(group)] for group in groups],
+                            views=views,
+                            details=details)
+    return reply
+    
+# Solar   
+def solar():
+    debug('debugWeb', "/solar", cherrypy.request.method)
+    with resourceLock:
+        reply = templates.get_template("solar.html").render(script="",
+                            dayOfWeek=resources.getRes("theDayOfWeek"),
+                            date=resources.getRes("theDate"),
+                            time=resources.getRes("theTime"),
+                            ampm=resources.getRes("theAmPm"),
+                            sunrise=resources.getRes("sunrise"),
+                            sunset=resources.getRes("sunset"),
+                            latitude="%7.3f "%(abs(latLong[0])+.0005)+("N" if latLong[0]>0 else "S"), 
+                            longitude="%7.3f "%(abs(latLong[1])+.0005)+("E" if latLong[1]>0 else "W"), 
+                            elevation="%d ft"%(elevation),
+                            airTemp=resources.getRes(outsideTemp),
+                            inverterTemp=resources.getRes("inverterTemp"), 
+                            roofTemp=resources.getRes("roofTemp"), 
+                            currentVoltage=resources.getRes("currentVoltage"), 
+                            currentLoad=resources.getRes("currentLoad"), 
+                            currentPower=resources.getRes("currentPower"), 
+                            todaysEnergy=resources.getRes("todaysEnergy"), 
+                            lifetimeEnergy=resources.getRes("lifetimeEnergy"), 
+                            inverters=resources.getGroup("Inverters"), 
+                            invertersEnergy=resources.getGroup("InvertersEnergy"), 
+                            optimizers=resources.getGroup("Optimizers"), 
+                            optimizersEnergy=resources.getGroup("OptimizersEnergy"), 
+                            views=views)
+    return reply
 
-            var options = {
-                yaxes: [{
-                        min: 0,
-                        max: 10000,           // Watts
-                        tickFormatter: wattsAxisFormatter,
-                        position: "left"
-                    }, {
-                        min: 0,
-                        max: 300,           // Volts
-                        tickFormatter: voltsAxisFormatter,
-                        position: "right"
-//                    }, {
-//                        min: 0,
-//                        max: 200,           // Temp F
-//                        tickFormatter: tempAxisFormatter,
-//                        position: "right"
-                    }],
-                xaxis: {
-                    ticks: 18,
-                    mode: "time",
-                    timeformat: "%%H:%%M",
-                    min: 18000000,          // 5am
-                    max: 75600000           // 9pm
-                    },
-                grid: {
-                    color: "#ffffff",
-                    markings: [{y2axis: { from: 212, to: 212 }, 
-                                color: "#ff8800"}],
-                    markingsLineWidth: 1
-                    },
-                legend:{         
-                    backgroundOpacity: 0.5,
-                    noColumns: 0,
-                    backgroundColor: "#424242",   
-                    position: "nw"
-					}
-                };
-            var annotate = function(series, units, color, offset, axis, plot, graph) {
-                var last = series.length - 1;
-                var pos = plot.pointOffset({x: series[last][0], y: series[last][1]+offset, yaxis: axis});
-                graph.append("<div style='color: " + color + ";position:absolute;left:" + (pos.left + 4) + "px;top:" + pos.top + "px'>" + series[last][1]  + " " + units + "</div>");
-                return last;
-                };
-            var update = function() {
-                $.getJSON('state', {"date": "%s", "type": "%s", "id": "%s", "attr": "%s"}, function(data) {
-                    var plot = $.plot($("#graph"), [{data: data["7F104920"], label: "7F104920", color: "#ff0000", stack:true, lines: {show:true, fill:true}}, 
-                                       {data: data["7F104A16"], label: "7F104A16", color: "#00ff00", stack:true, lines: {show:true, fill:true}}, 
-                                       {data: data["Volts"], yaxis:2, label: "AC Volts", color: "#ffff00"}, 
-//                                       {data: data["Temp"], yaxis:3, label: "Panel temp", color: "#ff00ff"}
-                                       ], 
-                                       options);
-                    $('#Pac').text(data["Pac"]);
-                    $('#Eday').text(data["Eday"]);
-                    $('#Etot').text(data["Etot"]);
-                    var graph = $("#graph");
-                    var last = annotate(data["7F104920"], "W", "#ff0000", 0, 1, plot, graph);
-                    var last = annotate(data["7F104A16"], "W", "#00ff00", data["7F104920"][last][1], 1, plot, graph);
-                    var last = annotate(data["Volts"], "V", "#ffff00", 20, 2, plot, graph);
-//                    var last = annotate(data["Temp"], "F", "#ff00ff", 10, 3, plot, graph);
-                    });
-                };
-            $.ajaxSetup({cache: false});
-            update();
-            setInterval(function() {
-                update()
-                }, 300000);
-            })();
-        </script>
-    </body>
-    </html>
-"""
-        return reply % (time.strftime("%b %d %Y", (year, month, day, 0, 0, 0, 0, 0, 0)), date, type, id, attr)
+# iPad - 1024x768   
+def ipad():
+    debug('debugWeb', "/ipad", cherrypy.request.method)
+    with resourceLock:
+        reply = templates.get_template("ipad.html").render(script="", 
+                            time=resources.getRes("theTime"),
+                            ampm=resources.getRes("theAmPm"),
+                            day=resources.getRes("theDay"),
+                            pooltemp=resources.getRes(poolTemp),
+                            intemp=resources.getRes(insideTemp),
+                            outtemp=resources.getRes(outsideTemp),
+                            groups=[["Pool", resources.getResList(["spaTemp"])], 
+                                  ["Lights", resources.getResList(["porchLights", "poolLight", "spaLight"])], 
+#                                      ["Lights", resources.getResList(["bbqLights", "backYardLights"])], 
+#                                      ["Lights", resources.getResList(["xmasTree", "xmasCowTree", "xmasLights"])], 
+                                  ["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
+                                  ["Hvac", resources.getResList(["southHeatTempTarget", "southCoolTempTarget", "northHeatTempTarget", "northCoolTempTarget"])], 
+                                  ["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
+                                  ],
+                            views=views)
+    return reply
 
-    # Return the current state
-    @cherrypy.expose
-    def state(self, date="", type="inverters", id="", attr="Pac", _=None):
-        # find all the files for the specified date
-        dataFiles = []
-        for dataFile in os.listdir(dataDir):
-            if dataFile[0:8] == date:
-                dataFiles.append(dataFile)
-        dataFiles.sort()
-        if dataFiles == []:
-            cherrypy.response.status = "400 Error"
-            return "Date not found."
+# iPhone 5 - 320x568    
+def iphone5():
+    debug('debugWeb', "/iphone5", cherrypy.request.method)
+    with resourceLock:
+        reply = templates.get_template("iphone5.html").render(script="", 
+                            time=resources.getRes("theTime"),
+                            ampm=resources.getRes("theAmPm"),
+                            temp=resources.getRes(outsideTemp),
+                            resources=resources.getResList(["spaTemp",
+                                                            "porchLights", 
+                                                            "shade1", "shade2", "shade3", "shade4", 
+                                                            "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence",
+                                                            "poolPump"]),
+                            views=views)
+    return reply
 
-        # parse the arguments
-        if type not in ["inverters", "optimizers"]:
-            cherrypy.response.status = "400 Error"
-            return "Invalid type."
-        idList = id.split(",")
-        attrList = attr.split(",")
-#        statDict = {}
-#        for attr in attrList:
-#            statDict[attr] = []
-        stateDict = {"inverters": {}, "optimizers": {}}
-        statDict = {"7F104920": [], "7F104A16": [], "Volts": [], "Temp": [], "Pac": "0.0 KW", "Eday": "0.0 KWh", "Etot": "0.0 MWh"}
-        
-        seriesDict = {"data": [], "label": "", "units": "", "color": "white", "yaxis": 1, "stack": 0, "fill": 0}
-        
-        for dataFile in dataFiles:
-            with open(dataDir+dataFile) as inFile:
-                eDay = 0.0
-                jsonStr = inFile.readline()
-                while jsonStr != "":
-                    try:
-                        inDict = json.loads(jsonStr)
-                        if inDict[type] != {}:
-                            # update the state values
-                            stateDict["inverters"].update(inDict["inverters"])
-                            stateDict["optimizers"].update(inDict["optimizers"])
-                            inverters = inDict[type].keys()
-                            timeStamp = convertTime(inDict[type][inverters[0]]["Time"])
-                            statDict["Volts"].append([timeStamp, int(avgItems(stateDict["inverters"], "Vac"))])
-                            eDay += int(sumItems(inDict["inverters"], "Eac"))
-                            for inv in inverters:
-                                statDict[inv].append([timeStamp, inDict[type][inv]["Pac"]])
-                                statDict["Pac"] = "%7.3f KW" % (sumItems(stateDict["inverters"], "Pac") / 1000)
-                                statDict["Etot"] = "%7.3f MWh" % (sumItems(stateDict["inverters"], "Etot") / 1000000)
-                            statDict["Temp"].append([timeStamp, int(avgItems(stateDict["optimizers"], "Temp")*9/5+32)])
-                    except:
-                        print jsonStr
-                        raise
-                    jsonStr = inFile.readline()
-        statDict["Eday"] = "%7.3f KWh" % (eDay / 1000)
-        statDict["Volts"].sort()
-        statDict["Temp"].sort()
-        return json.dumps(statDict)
-        
+# iPhone 3GS - 320x480    
+def iphone3gs():
+    debug('debugWeb', "/iphone3gs", cherrypy.request.method)
+    with resourceLock:
+        reply = templates.get_template("iphone3gs.html").render(script="", 
+                            time=resources.getRes("theTime"),
+                            ampm=resources.getRes("theAmPm"),
+                            day=resources.getRes("theDay"),
+                            temp=resources.getRes(outsideTemp),
+                            resources=resources.getResList(["porchLights", "xmasLights", "bedroomLights", "recircPump", "garageDoors", "houseDoors"]),
+                            views=views)
+    return reply
+
+# dispatch table
+pathDict = {"": index,
+            "details": details,
+            "solar": solar,
+            "ipad": ipad,
+            "iphone5": iphone5,
+            "iphone3gs": iphone3gs,
+            }
+                 
 if __name__ == "__main__":
+    # initialize resources
+    try:
+        with open(rootDir+"aliases") as aliasFile:
+            aliases = json.load(aliasFile)
+    except:
+        aliases = {}
+    resources = HACollection("resources", aliases=aliases)
+
+    # add local resources
+    timeInterface = TimeInterface("time")
+    resources.addRes(HASensor("theDayOfWeek", timeInterface, "%A", type="date", group="Time", label="Day of week"))
+    resources.addRes(HASensor("theDateDayOfWeek", timeInterface, "%A %B %d %Y", type="date", group="Time", label="Date"))
+    resources.addRes(HASensor("theDate", timeInterface, "%B %d %Y", type="date", group="Time", label="Date"))
+    resources.addRes(HASensor("theTimeAmPm", timeInterface, "%I:%M %p", type="time", group="Time", label="Time"))
+    resources.addRes(HASensor("sunrise", timeInterface, "sunrise", type="time", group="Time", label="Sunrise"))
+    resources.addRes(HASensor("sunset", timeInterface, "sunset", type="time", group="Time", label="Sunset"))
+    resources.addRes(HASensor("theDay", timeInterface, "%a %b %d %Y", type="date", label="Day"))
+    resources.addRes(HASensor("theTime", timeInterface, "%I:%M", type="time", label="Time"))
+    resources.addRes(HASensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
+
+    # start the cache to listen for services on other servers
+    restIgnore.append(socket.gethostname()+":"+str(webRestPort))
+    restCache = RestProxy("restProxy", resources, restIgnore, stateChangeEvent, resourceLock)
+    restCache.start()
+    
+    # scenes and groups
+    resources.addRes(HAScene("porchLights", ["frontLights",
+                                               "backLights",
+                                               "garageBackDoorLight"],
+                                               resources=resources, 
+                                               group="Lights", label="Porch lights"))
+    resources.addRes(HAScene("xmasLights", ["xmasTree",
+                                            "xmasCowTree",
+                                            "xmasFrontLights",
+                                            "xmasBackLights"],
+                                               resources=resources, 
+                                               group="Lights", label="Xmas lights"))
+    resources.addRes(HAScene("outsideLights", ["porchLights",
+                                               "bbqLights",
+                                               "backYardLights",
+                                               "deckLights",
+                                               "trashLights",
+                                               "xmasFrontLights",
+                                               "xmasBackLights"],
+                                               resources=resources, 
+                                               group="Lights", label="Outside lights"))
+    resources.addRes(HAScene("bedroomLights", ["bedroomLight", 
+                                               "bathroomLight"],
+                                               resources=resources, 
+                                               stateList=[[0, 100, 0], [0, 100, 10]], 
+                                               type="nightLight", group="Lights", label="Night lights"))
+
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
-    appConfig = {
-        '/css': {
-            'tools.staticdir.on': True,
-            'tools.staticdir.root': os.path.join(baseDir, "static"),
-            'tools.staticdir.dir': "css",
-        },
-        '/js': {
-            'tools.staticdir.on': True,
-            'tools.staticdir.root': os.path.join(baseDir, "static"),
-            'tools.staticdir.dir': "js",
-        },
-        '/images': {
-            'tools.staticdir.on': True,
-            'tools.staticdir.root': os.path.join(baseDir, "static"),
-            'tools.staticdir.dir': "images",
-        },
-        '/favicon.ico': {
-            'tools.staticfile.on': True,
-            'tools.staticfile.filename': os.path.join(baseDir, "static/favicon.ico"),
-        },
-    }
-    root = WebRoot()
-    cherrypy.tree.mount(root, "/", appConfig)
-    globalConfig = {
-        'server.socket_port': 81,
-        'server.socket_host': "0.0.0.0",
-        }
-    cherrypy.config.update(globalConfig)
-    cherrypy.engine.start()
-    cherrypy.engine.block()
-
+    templates = Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates')))
+    webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=webPort, pathDict=pathDict, baseDir=baseDir, block=True)
+    
