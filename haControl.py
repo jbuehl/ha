@@ -57,7 +57,7 @@ def details(group=None):
         groups = [group.capitalize()]
         details = False
     except:
-        groups = ["Time", "Temperature", "Hvac", "Pool", "Lights", "Shades", "Doors", "Water", "Solar", "Power", "Cameras", "Services", "Tasks"]
+        groups = ["Time", "Temperature", "Hvac", "Pool", "Lights", "Shades", "Doors", "Water", "Power", "Solar", "Inverters", "Optimizers", "Cameras", "Services", "Tasks"]
         details = True
     with resourceLock:
         reply = templates.get_template("details.html").render(title=webPageTitle, script="", 
