@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # Schedules
     resources.addRes(schedule)
     schedule.addTask(HATask("frontLawnTask", HASchedTime(hour=[21], minute=[00], weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["frontLawnSequence"], 1, enabled=True))
-    schedule.addTask(HATask("gardenTask", HASchedTime(hour=[21], minute=[20], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["gardenSequence"], 1, enabled=True))
+    schedule.addTask(HATask("gardenTask", HASchedTime(hour=[21], minute=[20], month=[May, Jun, Jul, Aug, Sep]), resources["gardenSequence"], 1, enabled=True))
     schedule.addTask(HATask("backLawnTask", HASchedTime(hour=[21], minute=[30], weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["backLawnSequence"], 1, enabled=True))
     schedule.addTask(HATask("sideBedTask", HASchedTime(hour=[21], minute=[50], weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["sideBedSequence"], 1, enabled=True))
     schedule.addTask(HATask("backBedTask", HASchedTime(hour=[22], minute=[00], weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), resources["backBedSequence"], 1, enabled=True))
