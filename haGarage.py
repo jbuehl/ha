@@ -20,8 +20,8 @@ if __name__ == "__main__":
     tc74 = TC74Interface("TC74", i2c1)
     temp = TempInterface("Temp", tc74, sample=10)
     
-    # Lights
-#    resources.addRes(HAControl("garageBackDoorLight", gpio0, 1, type="light", group="Lights", label="Garage back door light"))
+    # Water
+    resources.addRes(HAControl("recircPump", gpio0, 0, type="hotwater", group="Water", label="Hot water recirc pump"))
 
     # Doors
     resources.addRes(HASensor("garageBackDoor", gpio1, 1, type="door", group="Doors", label="Garage Back"))
