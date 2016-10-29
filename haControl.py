@@ -185,6 +185,7 @@ if __name__ == "__main__":
     
     # scenes and groups
     resources.addRes(HAScene("porchLights", ["frontLights",
+                                               "sculptureLights",
                                                "backLights",
                                                "garageBackDoorLight"],
                                                resources=resources, 
