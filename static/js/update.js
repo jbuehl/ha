@@ -1,6 +1,8 @@
 $(document).ready(function() {
+    var blinkers = [];
     var cacheTime = 0;      // timestamp of resource cache
     var update = function(data) {
+        blinkers = data["blinkers"];
         if (data["cacheTime"] > cacheTime) {        // has the resource cache been updated ?
             location.reload(true);                  // reload the page
             }
@@ -33,6 +35,9 @@ $(document).ready(function() {
                 pending = false;
                 });
             };
+        $.each(blinkers, function(key, val) {
+            $('#'+val).toggle(document.body.style.backgroundColor);     // blink the value
+        });
         count = count + 1;
         }, 1000);
     $.ajaxSetup({cache: false});

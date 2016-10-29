@@ -1,5 +1,6 @@
 webLogging = False
 webReload = False
+blinkers = []
 
 import json
 import cherrypy
@@ -112,18 +113,26 @@ class WebRoot(object):
         else:
             cacheTime = 0
         updates = {"cacheTime": cacheTime}
+        blinkerList = []
         for resource in resourceStates.keys():
             try:
+                state = self.resources.getRes(resource).getState()
                 resState = self.resources.getRes(resource).getViewState(views)
                 resClass = self.resources.getRes(resource).type
+                debug('debugWebUpdate', "/updateStates", resource, resClass, resState, state)
                 if resClass in tempTypes:
                     updates[resource] = ("temp", resState, tempColor(resState))
                 else:
                     if resClass not in staticTypes:
                         resClass += "_"+resState
                     updates[resource] = (resClass, resState, "")
+                if (resource in blinkers) and (state > 0):
+                    debug('debugWebBlink', "/updateStates", resource, resClass, resState, state)
+                    blinkerList.append(resource)
             except:
                 pass
+        debug('debugWebBlink', "/updateStates", blinkerList)
+        updates["blinkers"] = blinkerList
         return json.dumps(updates)
         
     # change the state of a control    
