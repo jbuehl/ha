@@ -26,7 +26,7 @@ if __name__ == "__main__":
     resources.addRes(HAControl("recircPump", gpio0, 0, type="hotwater", group="Water", label="Hot water"))
 
     # Lights
-    resources.addRes(HAControl("sculptureLights", led, 7, type="led", group="Lights", label="Sculpture Lights"))
+    resources.addRes(HAControl("sculptureLights", led, 7, type="led", group="Lights", label="Sculpture"))
 
     # Doors
     resources.addRes(HASensor("garageBackDoor", gpio1, 1, type="door", group="Doors", label="Garage Back"))

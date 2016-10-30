@@ -20,9 +20,9 @@ class LedInterface(HAInterface):
             debug('debugLed', self.name, "starting", addr, value)
             while self.running:
                self.interface.write(addr, 1)
-               time.sleep(random.random()/10) 
+               time.sleep(random.random()/100) 
                self.interface.write(addr, 0)
-               time.sleep(random.random()/10) 
+               time.sleep(random.random()/100) 
             debug('debugLed', self.name, "ending", addr, value)
         if (value == 0) or (value == 1):
             if self.running:
