@@ -20,7 +20,18 @@ def tempFormat(value):
         return "--"
     else:
         return "%d F"%(value)
-        
+
+def secsFormat(value):
+    (m, s) = divmod(value, 60)
+    (h, m) = divmod(m, 60)
+    return "%d:%02d:%02d" % (h, m, s)
+            
+def latFormat(value):
+    return "%7.3f %s" % (abs(value), "N" if value > 0.0 else "S")
+            
+def longFormat(value):
+    return "%7.3f %s" % (abs(value), "E" if value > 0.0 else "W")
+            
 def spaTempFormat(value):
     temp = int(str(value).split(" ")[0])
     try:
@@ -35,7 +46,7 @@ def spaTempFormat(value):
 def hdgFormat(value):
     dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
     direction = dirs[int((value+11.25)%360/22.5)]
-    return "%d %s" % (int(value), direction)
+    return "%03d %s" % (int(value), direction)
         
 # set temp color based on temp value
 def tempColor(tempString):
@@ -92,6 +103,7 @@ views = {"power": HAView({}, "%d W"),
          "service": HAView({0:"Down", 1:"Up"}, "%s"),
          "light": HAView({0:"Off", 1:"On"}, "%s", None, OrderedDict([(1,"On"), (0,"Off")])),
          "nightLight": HAView({0:"Off", 1:"On", 2:"Sleep"}, "%s", None, OrderedDict([(1,"On"), (2,"Sleep")])),
+         "led": HAView({0:"Off", 1:"On", 2:"Flickr"}, "%s", None, OrderedDict([(0,"Off"), (1,"On"), (2,"Flickr")])),
          "dimmer": HAView(OrderedDict([(0,"Off"), (10,"Lo"), (30,"Med"), (60,"Hi"), (100,"On")]), "%s", None, OrderedDict([(0,"Off"), (10,"Lo"), (30,"Med"), (60,"Hi"), (100,"On")])),
          "hotwater": HAView({0:"Off", 1:"On"}, "%s", None, OrderedDict([(1,"On"), (0,"Off")])),
          "door": HAView({0:"Closed", 1:"Open"}, "%s"),
@@ -109,9 +121,12 @@ views = {"power": HAView({}, "%d W"),
          "cameraMode": HAView({0:"Still", 1:"Time", 2:"Video", 3:"Motion"}, "%s", None, {0:"Still", 1:"Time", 2:"Video", 3:"Motion"}),
          "cameraEnable": HAView({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"}),
          "cameraRecord": HAView({0:"Stopped", 1:"Recording"}, "%s", None, {0:"Stop", 1:"Rec"}),
-         "Ft": HAView({}, "%d Ft"),
+         "Ft": HAView({}, "%d FT"),
          "MPH": HAView({}, "%d MPH"),
          "RPM": HAView({}, "%d RPM"),
+         "Secs": HAView({}, "%s", secsFormat),
+         "Lat": HAView({}, "%s", latFormat),
+         "Long": HAView({}, "%s", longFormat),
          "Deg": HAView({}, "%s", hdgFormat),
          "KVA": HAView({}, "%7.3f KVA", kiloFormat),
          "W": HAView({}, "%7.1f W"),

@@ -3,6 +3,7 @@ from ha.GPIOInterface import *
 from ha.I2CInterface import *
 from ha.TC74Interface import *
 from ha.tempInterface import *
+from ha.ledInterface import *
 from ha.restServer import *
 from ha.restInterface import *
 
@@ -17,6 +18,7 @@ if __name__ == "__main__":
     i2c1 = I2CInterface("I2C1", bus=1, event=stateChangeEvent)
     gpio0 = GPIOInterface("GPIO0", i2c1, addr=0x20, bank=0, inOut=0x00)
     gpio1 = GPIOInterface("GPIO1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(GPIOInterface.IPOL, 0x00)])
+    led = LedInterface("LED", gpio0)
     tc74 = TC74Interface("TC74", i2c1)
     temp = TempInterface("Temp", tc74, sample=10)
     
@@ -24,7 +26,7 @@ if __name__ == "__main__":
     resources.addRes(HAControl("recircPump", gpio0, 0, type="hotwater", group="Water", label="Hot water"))
 
     # Lights
-    resources.addRes(HAControl("sculptureLights", gpio0, 7, type="light", group="Lights", label="Sculpture Lights"))
+    resources.addRes(HAControl("sculptureLights", led, 7, type="led", group="Lights", label="Sculpture Lights"))
 
     # Doors
     resources.addRes(HASensor("garageBackDoor", gpio1, 1, type="door", group="Doors", label="Garage Back"))
