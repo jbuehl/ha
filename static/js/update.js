@@ -36,7 +36,7 @@ $(document).ready(function() {
                 });
             };
         $.each(blinkers, function(key, val) {
-            $('#'+val).toggle(document.body.style.backgroundColor);     // blink the value
+            $('#'+val).toggle($("body").css("background-color"));     // blink the value
         });
         count = count + 1;
         }, 1000);
