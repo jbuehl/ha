@@ -156,6 +156,18 @@ td {
 	color: #FFFF66;
     }
 
+.led_Off {
+	color: SlateGray;
+    }
+
+.led_On {
+	color: #FFFF66;
+    }
+
+.led_Flickr {
+	color: Orange;
+    }
+
 .dimmer_Off {
 	color: SlateGray;
     }
