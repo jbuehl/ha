@@ -12,7 +12,7 @@ body {
     }
     
 .time {
-	color: LightYellow;
+	color: #efefd0;
 	font-size: 120px;
 	line-height: 90%;
 	text-align: center;
@@ -22,7 +22,7 @@ body {
     }
 
 .ampm {
-	color: LightYellow;
+	color: #efefd0;
 	font-size: 12px;
 	margin-left: 0px;
     }
@@ -36,16 +36,21 @@ body {
     }
 
 .tempF {
-	color: LightYellow;
+	color: #efefd0;
 	font-size: 30px;
 	text-align: right;
 	margin-left: 0px;
     }
 
 .label {
+    color: LightGray;
     font-size: 20px;
     padding: 0px 0px 0px 0px;
     }
+
+.state {
+    height: 28px;
+}
     
 .control {
 	margin-left: 0px;
@@ -65,7 +70,7 @@ input {
     }
 
 .door_Open {
-	color: Orange;
+	color: #ffdf6f;
     }
 
 

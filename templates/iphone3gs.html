@@ -32,8 +32,12 @@
         <col width=152><col width=168>
         {% for r in resources %}
         <tr>
-            <td><div class=label>{{ r.label }}</div>
-                <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}</div></td>
+            <td>
+                <div class=label>{{ r.label }}</div>
+                <div class="state">
+                    <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}</div>
+                </div>
+            </td>
             <td>
                 {% if r.className != "HASensor" %}
                 <div class=control>
