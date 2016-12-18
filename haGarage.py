@@ -1,3 +1,7 @@
+doorbellNotifyMsg = "Ding dong!"
+notifyFromNumber = ""
+doorbellNotifyNumbers = []
+
 from ha.HAClasses import *
 from ha.GPIOInterface import *
 from ha.I2CInterface import *
@@ -6,7 +10,25 @@ from ha.tempInterface import *
 from ha.ledInterface import *
 from ha.restServer import *
 from ha.restInterface import *
+from twilio.rest import TwilioRestClient
 
+# get the value of a variable from a file
+def getValue(fileName):
+    return json.load(open(fileName))
+    
+# send an sms notification
+def smsNotify(numbers, message):
+    smsClient = TwilioRestClient(getValue(smsSid), getValue(smsToken))
+    smsFrom = notifyFromNumber
+    for smsTo in numbers:
+        smsClient.sms.messages.create(to=smsTo, from_=smsFrom, body=message)
+
+def dingDong(sensor, state):
+    sensorState = sensor.getState()
+    debug('debugDoorbell', sensor.name, sensorState)
+    if sensorState == 1:
+        smsNotify(doorbellNotifyNumbers, doorbellNotifyMsg)
+        
 if __name__ == "__main__":
     global stateChangeEvent
 
@@ -17,7 +39,7 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
     i2c1 = I2CInterface("I2C1", bus=1, event=stateChangeEvent)
     gpio0 = GPIOInterface("GPIO0", i2c1, addr=0x20, bank=0, inOut=0x00)
-    gpio1 = GPIOInterface("GPIO1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(GPIOInterface.IPOL, 0x00)])
+    gpio1 = GPIOInterface("GPIO1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(GPIOInterface.IPOL, 0x08)])
     led = LedInterface("LED", gpio0)
     tc74 = TC74Interface("TC74", i2c1)
     temp = TempInterface("Temp", tc74, sample=10)
@@ -29,10 +51,11 @@ if __name__ == "__main__":
     resources.addRes(HAControl("sculptureLights", led, 7, type="led", group="Lights", label="Sculpture"))
 
     # Doors
+    resources.addRes(HASensor("garageDoor", gpio1, 0, type="door", group="Doors", label="Garage Door"))
     resources.addRes(HASensor("garageBackDoor", gpio1, 1, type="door", group="Doors", label="Garage Back"))
-    resources.addRes(HASensor("garageDoor", gpio1, 2, type="door", group="Doors", label="Garage Door"))
-    resources.addRes(HASensor("garageHouseDoor", gpio1, 3, type="door", group="Doors", label="Garage House"))
+    resources.addRes(HASensor("garageHouseDoor", gpio1, 2, type="door", group="Doors", label="Garage House"))
     resources.addRes(SensorGroup("garageDoors", ["garageDoor", "garageBackDoor", "garageHouseDoor"], resources=resources, type="door", group="Doors", label="Garage doors"))
+    resources.addRes(HASensor("doorbellButton", gpio1, 3, interrupt=dingDong))
 
     # Temperature
     resources.addRes(HASensor("garageTemp", temp, 0x4d, group="Temperature", label="Garage temp", type="tempF"))
