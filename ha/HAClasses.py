@@ -58,9 +58,13 @@ def normalState(value):
 # Base class for Resources
 class HAResource(object):
     def __init__(self, name):
-        self.name = name
-        debug('debugObject', self.name, "created")
-        self.className = self.__class__.__name__    # hack for web templates - FIXME
+        try:
+            if self.name:   # init has already been called for this object
+                return
+        except AttributeError:
+            self.name = name
+            debug('debugObject', self.name, "created")
+            self.className = self.__class__.__name__    # hack for web templates - FIXME
 
     def __str__(self, level=0):
         return self.name+" "+self.__class__.__name__
@@ -262,30 +266,34 @@ class HACollection(HAResource, OrderedDict):
 class HASensor(HAResource):
     def __init__(self, name, interface, addr=None, group="", type="sensor", location=None, label="", view=None, interrupt=None, event=None):
         HAResource.__init__(self, name)
-        self.type = type
-        self.interface = interface
-        self.addr = addr
-        if self.addr == None:
-            self.addr = self.name
-        self.group = group
-        if label == "":
-            self.label = self.name
-        else:
-            self.label = label
-        self.location = location
-        if view == None:
-            self.view = HAView()
-        else:
-            self.view = view
-        if self.interface:
-            self.interface.addSensor(self)
-        self.interrupt = interrupt
-        if event:
-            self.event = event
-        debug('debugInterrupt', self.name, "event")
-        self.__dict__["state"] = None   # dummy class variable so hasattr() returns True
-        self.__dict__["stateChange"] = None   # dummy class variable so hasattr() returns True
-        # FIXME - use @property
+        try:
+            if self.type:   # init has already been called for this object
+                return
+        except AttributeError:
+            self.type = type
+            self.interface = interface
+            self.addr = addr
+            if self.addr == None:
+                self.addr = self.name
+            self.group = group
+            if label == "":
+                self.label = self.name
+            else:
+                self.label = label
+            self.location = location
+            if view == None:
+                self.view = HAView()
+            else:
+                self.view = view
+            if self.interface:
+                self.interface.addSensor(self)
+            self.interrupt = interrupt
+            if event:
+                self.event = event
+            debug('debugInterrupt', self.name, "event")
+            self.__dict__["state"] = None   # dummy class variable so hasattr() returns True
+            self.__dict__["stateChange"] = None   # dummy class variable so hasattr() returns True
+            # FIXME - use @property
 
     # Return the state of the sensor by reading the value from the address on the interface.
     def getState(self):
@@ -550,16 +558,18 @@ class SensorGroup(HASensor):
         return groupState
 
 # A Scene is a set of Controls whose state can be changed together
-class HAScene(HAControl):
-    def __init__(self, name, controlList, stateList=[], resources=None, interface=HAInterface("None"), addr=None, group="", type="scene", view=None, label=""):
+class HAScene(SensorGroup, HAControl):
+    def __init__(self, name, sensorList, stateList=[], resources=None, interface=HAInterface("None"), addr=None, group="", type="scene", view=None, label=""):
+        SensorGroup.__init__(self, name, sensorList, resources, interface, addr, group=group, type=type, view=view, label=label)
         HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
-        self.controlList = controlList
+#        self.sensorList = sensorList
         self.sceneState = 0
         if stateList == []:
-            self.stateList = [[0,1]]*(len(self.controlList))
+            self.stateList = [[0,1]]*(len(self.sensorList))
         else:
             self.stateList = stateList
-        self.resources = resources  # if specified, controlList contains resource names, otherwise references
+#        self.resources = resources  # if specified, sensorList contains resource names, otherwise references
+        self.className = "HAControl"
 
     def setState(self, state, wait=False):
         if self.interface.name == "None":
@@ -581,18 +591,18 @@ class HAScene(HAControl):
 #            else:
 #                return HAControl.getState(self)
 
-    def getState(self): # FIXME - inherit this class from GroupSensor
-        groupState = 0
-        for sensorIdx in range(len(self.controlList)):
-            if self.resources:      # sensors are resource names
-                try:
-                    sensor = self.resources.getRes(self.controlList[sensorIdx])
-                except KeyError:    # can't resolve so ignore it
-                    sensor = None
-            else:                   # sensors are resource references
-                sensor = self.controlList[sensorIdx]
-            groupState = groupState or sensor.getState()
-        return groupState
+#    def getState(self): # FIXME - inherit this class from GroupSensor
+#        groupState = 0
+#        for sensorIdx in range(len(self.sensorList)):
+#            if self.resources:      # sensors are resource names
+#                try:
+#                    sensor = self.resources.getRes(self.sensorList[sensorIdx])
+#                except KeyError:    # can't resolve so ignore it
+#                    sensor = None
+#            else:                   # sensors are resource references
+#                sensor = self.sensorList[sensorIdx]
+#            groupState = groupState or sensor.getState()
+#        return groupState
 
 #    # Return the printable string value for the state of the sensor
 #    def getViewState(self, views=None):
@@ -622,14 +632,14 @@ class HAScene(HAControl):
     def doScene(self):
         debug('debugThread', self.name, "started")
         self.running = True
-        for controlIdx in range(len(self.controlList)):
+        for controlIdx in range(len(self.sensorList)):
             if self.resources:      # controls are resource names
                 try:
-                    control = self.resources[self.controlList[controlIdx]]
+                    control = self.resources[self.sensorList[controlIdx]]
                 except KeyError:    # can't resolve so ignore it
                     control = None
             else:                   # controls are resource references
-                control = self.controlList[controlIdx]
+                control = self.sensorList[controlIdx]
             if control:
                 control.setState(self.stateList[controlIdx][self.sceneState])
         self.running = False
