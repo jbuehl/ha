@@ -1,3 +1,5 @@
+tzOffset = -7
+
 rootDir = "/root/"
 dataDir = rootDir+"data/"
 audioDir = "audio/"
@@ -5,106 +7,165 @@ gpsFileName = dataDir+"gps.json"
 diagFileName = dataDir+"diags.json"
 imuFileName = dataDir+"9dof.json"
 audioFileName = audioDir+"audio.json"
-httpPort = 8080
 
-import threading
+displayDevice = "/dev/fb0"
+inputDevice = "/dev/input/event0"
+fontName = "FreeSansBold.ttf"
+fontPath = "/usr/share/fonts/TTF/"
+imageDir = "/root/images/"
+
 import time
-import cherrypy
-from jinja2 import Environment, FileSystemLoader
-
+import threading
 from ha.HAClasses import *
+from ha.displayUI import *
+from ha.haWebViews import *
 from ha.fileInterface import *
-from ha.timeInterface import *
+from ha.gpsTimeInterface import *
 from ha.I2CInterface import *
 from ha.TC74Interface import *
 from ha.tempInterface import *
-from ha.imuInterface import *
 from ha.audioInterface import *
-from ha.restServer import *
-from ha.haWeb import *
 
 # global variables
-templates = None
 resources = None
 stateChangeEvent = threading.Event()
 resourceLock = threading.Lock()
 
-# Tacoma - 800x480
-def tacoma():
-    debug('debugWeb', "/tacoma", cherrypy.request.method)
-    with resourceLock:
-        reply = templates.get_template("tacoma.html").render(title=webPageTitle, script="", 
-                            time=resources.getRes("theTime"),
-                            ampm=resources.getRes("theAmPm"),
-                            day=resources.getRes("theDay"),
-                            temp=resources.getRes("outsideTemp"),
-                            controls=[resources.getRes("volume"),
-                                      resources.getRes("mute"),
-                                      resources.getRes("wifi"),
-                                     ],
-                            group=resources.getGroup("Tacoma"),
-                            views=views)
-    return reply
-
-# dispatch table
-pathDict = {"": tacoma,
-            "tacoma": tacoma,
-            }
-            
 if __name__ == "__main__":
-    # Resources
-    resources = HACollection("resources")
+    fgColor = color("yellow")
+    bgColor = color("black")
 
-    # Interfaces
-    timeInterface = TimeInterface("Time")
+    # interfaces
     gpsInterface = FileInterface("GPS", fileName=gpsFileName, readOnly=True, event=stateChangeEvent)
+    timeInterface = GpsTimeInterface("Time", gpsInterface)
     diagInterface = FileInterface("Diag", fileName=diagFileName, readOnly=True, event=stateChangeEvent)
-    ndofInterface = FileInterface("9dof", fileName=imuFileName, readOnly=True, event=stateChangeEvent)
-    imuInterface = ImuInterface("IMU", ndofInterface)
     i2cInterface = I2CInterface("I2C", bus=1, event=stateChangeEvent)
     tc74Interface = TC74Interface("TC74", i2cInterface)
     tempInterface = TempInterface("Temp", tc74Interface, sample=1)
     audioInterface = AudioInterface("Audio", event=stateChangeEvent)
 
     # time sensors
-    resources.addRes(HASensor("theDayOfWeek", timeInterface, "%A", type="date", group="Time", label="Day of week"))
-    resources.addRes(HASensor("theDate", timeInterface, "%B %d %Y", type="date", group="Time", label="Date"))
-    resources.addRes(HASensor("theTimeAmPm", timeInterface, "%I:%M %p", type="time", group="Time", label="Time"))
-    resources.addRes(HASensor("sunrise", timeInterface, "sunrise", type="time", group="Time", label="Sunrise"))
-    resources.addRes(HASensor("sunset", timeInterface, "sunset", type="time", group="Time", label="Sunset"))
-    resources.addRes(HASensor("theDay", timeInterface, "%a %b %d %Y", type="date", label="Day"))
-    resources.addRes(HASensor("theTime", timeInterface, "%I:%M", type="time", label="Time"))
-    resources.addRes(HASensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
+    timeResource = HASensor("time", timeInterface, "%-I:%M", type="time", label="Time")
+    dateResource = HASensor("date", timeInterface, "%B %-d %Y", type="date", label="Date")
+    dayOfWeekResource = HASensor("dayOfWeek", timeInterface, "%A", type="date", label="Day of week")
+    timeZoneResource = HASensor("timeZone", timeInterface, "%Z", label="Time zone")
 
-    # GPS sensors
-#    resources.addRes(HASensor("gpsTime", gpsInterface, "Time", group="Tacoma", label="GPS time"))
-    resources.addRes(HASensor("position", gpsInterface, "Pos", group="Tacoma", label="Position"))
-    resources.addRes(HASensor("altitude", gpsInterface, "Alt", group="Tacoma", label="Elevation", type="Ft"))
-    resources.addRes(HASensor("heading", gpsInterface, "Hdg", group="Tacoma", label="Heading", type="Deg"))
-#    resources.addRes(HASensor("gpsSpeed", gpsInterface, "Speed", group="Tacoma", label="GPS speed", type="MPH"))
+    # position sensors
+    positionSensors = [
+#        HASensor("position", gpsInterface, "Pos", label="Position"),
+        HASensor("speed", diagInterface, "Speed", label="Speed", type="MPH"),
+        HASensor("heading", gpsInterface, "Hdg", label="Heading", type="Deg"),
+        HASensor("latitude", gpsInterface, "Lat", label="Latitude", type="Lat"),
+        HASensor("longitude", gpsInterface, "Long", label="Longitude", type="Long"),
+        HASensor("altitude", gpsInterface, "Alt", label="Elevation", type="Ft"),
+#        HASensor("gpsSpeed", gpsInterface, "Speed", label="Speed", type="MPH"),
+        HASensor("nSats", gpsInterface, "Nsats", label="Satellites"),
+    ]
 
-    # diag sensors
-#    resources.addRes(HASensor("speed", diagInterface, "Speed", group="Tacoma", label="Speed", type="MPH"))
-    resources.addRes(HASensor("rpm", diagInterface, "Rpm", group="Tacoma", label="RPM", type="RPM"))
-    resources.addRes(HASensor("battery", diagInterface, "Battery", group="Tacoma", label="Battery", type="V"))
-#    resources.addRes(HASensor("intakeTemp", diagInterface, "IntakeTemp", group="Tacoma", label="Intake air temp", type="tempC"))
-    resources.addRes(HASensor("coolantTemp", diagInterface, "WaterTemp", group="Tacoma", label="Water temp", type="tempC"))
-    resources.addRes(HASensor("airPressure", diagInterface, "Barometer", group="Tacoma", label="Barometer", type="barometer"))
-    resources.addRes(HASensor("outsideTemp", tempInterface, 0x4e, group="Temp", label="Outside temp", type="tempF"))
+    # engine sensors
+    engineSensors = [
+#        HASensor("speed", diagInterface, "Speed", label="Speed", type="MPH"),
+        HASensor("rpm", diagInterface, "Rpm", label="RPM", type="RPM"),
+        HASensor("battery", diagInterface, "Battery", label="Battery", type="V"),
+        HASensor("intakeTemp", diagInterface, "IntakeTemp", label="Intake temp", type="tempC"),
+        HASensor("coolantTemp", diagInterface, "WaterTemp", label="Water temp", type="tempC"),
+        HASensor("airPressure", diagInterface, "Barometer", label="Barometer", type="barometer"),
+        HASensor("runTime", diagInterface, "RunTime", label="Run time", type="Secs"),
+    ]
+    outsideTemp = HASensor("outsideTemp", tempInterface, 0x4e, label="Outside temp", type="tempF")
 
-    # Controls
-    resources.addRes(HAControl("volume", audioInterface, "volume", group="Audio", label="Vol", type="audioVolume"))
-    resources.addRes(HAControl("mute", audioInterface, "mute", group="Audio", label="Mute", type="audioMute"))
-    resources.addRes(HAControl("wifi", audioInterface, "wifi", group="Audio", label="Wifi", type="wifi"))
+    # initialization
+    display = Display(displayDevice, inputDevice, views)
+    display.clear(bgColor)
+    face = freetype.Face(fontPath+fontName)
+    
+    # styles        
+    defaultStyle = Style("default", face=face, fontSize=24, bgColor=bgColor, fgColor=fgColor)
+    timeStyle = Style("timeStyle", defaultStyle, face=face, fontSize=80, width=300, height=90, fgColor=color("LightYellow"))
+    tempStyle = Style("tempStyle", defaultStyle, face=face, fontSize=72, width=200, height=90)
+    textStyle = Style("textStyle", defaultStyle, width=300, height=30, fgColor=color("cyan"))
+    labelStyle = Style("labelStyle", defaultStyle, fontSize=32, width=220, height=50, fgColor=color("cyan"))
+    valueStyle = Style("valueStyle", defaultStyle, fontSize=32, width=180, height=50, fgColor=color("LightYellow"))
+    containerStyle = Style("container", defaultStyle)
+#    audioStyle = Style("audioButton", defaultStyle, margin=2)
+    buttonStyle = Style("button", defaultStyle, width=100, height=90, margin=2, bgColor=color("White"))
+#    buttonTextStyle = Style("buttonText", buttonStyle, fontSize=36, bgColor=color("white"), fgColor=color("black"), padding=8)
+#    buttonAltStyle = Style("buttonAlt", buttonTextStyle, bgColor=color("blue"), fgColor=color("white"))
+        
+    # button callback routines
+    def doNothing(button, display):
+        return
+
+    # layout
+    screen = Div("screen", containerStyle, [
+                    Span("heading", containerStyle, [
+                            Text("time", timeStyle, display=display, resource=timeResource),
+                            Div("text", containerStyle, [
+                                Text("dayOfWeek", textStyle, display=display, resource=dayOfWeekResource), 
+                                Text("date", textStyle, display=display, resource=dateResource),
+                                Text("timeZone", textStyle, display=display, resource=timeZoneResource),
+                            ]),
+                            Text("temp", tempStyle, display=display, resource=outsideTemp),
+                        ]),
+                    Span("sensors", containerStyle, [
+                        Div("positionSensors", containerStyle, [
+                            Span(sensor.name, containerStyle, [
+                                Text(sensor.name+"Label", labelStyle, sensor.label),
+                                Text(sensor.name+"Value", valueStyle, display=display, resource=sensor),
+                                ],
+                            )
+                            for sensor in positionSensors]),
+                        Div("engineSensors", containerStyle, [
+                            Span(sensor.name, containerStyle, [
+                                Text(sensor.name+"Label", labelStyle, sensor.label),
+                                Text(sensor.name+"Value", valueStyle, display=display, resource=sensor),
+                                ],
+                            )
+                            for sensor in engineSensors]),
+                        ], height=300),
+                    Span("buttons", containerStyle, [
+                        Button("volDownButton", buttonStyle,
+                            content=Image("volDownImage", imageFile=imageDir+"icons_volumedown-01.png"),
+                            altContent=Image("volDownImageInvert", imageFile=imageDir+"icons_volumedown-02.png"),
+                            ),
+                        Button("volUpButton", buttonStyle,
+                            content=Image("volUpImage", imageFile=imageDir+"icons_volumeup-01.png"),
+                            altContent=Image("volUpImageInvert", imageFile=imageDir+"icons_volumeup-02.png"),
+                            ),
+                        Button("rewButton", buttonStyle,
+                            content=Image("rewImage", imageFile=imageDir+"icons_rew-01.png"),
+                            altContent=Image("rewImageInvert", imageFile=imageDir+"icons_rew-02.png"),
+                            ),
+                        Button("playButton", buttonStyle,
+                            content=Image("playImage", imageFile=imageDir+"icons_play-01.png"),
+                            altContent=Image("playImageInvert", imageFile=imageDir+"icons_play-02.png"),
+                            ),
+                        Button("pauseButton", buttonStyle,
+                            content=Image("pauseImage", imageFile=imageDir+"icons_pause-01.png"),
+                            altContent=Image("pauseImageInvert", imageFile=imageDir+"icons_pause-02.png"),
+                            ),
+                        Button("ffButton", buttonStyle,
+                            content=Image("ffImage", imageFile=imageDir+"icons_ff-01.png"),
+                            altContent=Image("ffImageInvert", imageFile=imageDir+"icons_ff-02.png"),
+                            ),
+                        Button("sourceButton", buttonStyle,
+                            content=Image("sourceImage", imageFile=imageDir+"icons_source-01.png"),
+                            altContent=Image("sourceImageInvert", imageFile=imageDir+"icons_source-02.png"),
+                            ),
+                        Button("wifiButton", buttonStyle,
+                            content=Image("wifiImage", imageFile=imageDir+"icons_wifi-01.png"),
+                            altContent=Image("wifiImageInvert", imageFile=imageDir+"icons_wifi-02.png"),
+                            ),
+                        ]),
+                     ])
+
+    screen.arrange()
+    screen.render(display)
     
     # Start interfaces
     gpsInterface.start()
     diagInterface.start()
-    ndofInterface.start()
+#    ndofInterface.start()
     tempInterface.start()
-
-    # set up the web server
-    baseDir = os.path.abspath(os.path.dirname(__file__))
-    templates = Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates')))
-    webInit(resources, None, stateChangeEvent, resourceLock, httpPort=httpPort, pathDict=pathDict, baseDir=baseDir, block=True)
-
+    display.start(block=True)
+    
