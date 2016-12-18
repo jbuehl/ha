@@ -214,8 +214,8 @@ class HACollection(HAResource, OrderedDict):
                 resource = HAControl(node["name"], interface=interface, addr=path+"/state")
             elif node["class"] == "HASequence":
                 resource = HASequence(node["name"], [], interface=interface, addr=path+"/state")
-            elif node["class"] == "HAScene":
-                resource = HAScene(node["name"], [], interface=interface, addr=path+"/state")
+            elif node["class"] == "ControlGroup":
+                resource = ControlGroup(node["name"], [], interface=interface, addr=path+"/state")
             elif node["class"] == "HATask":
                 resource = HATask(node["name"], control=self[node["control"]], state=node["controlState"], 
                     schedTime=HASchedTime(**node["schedTime"]), 
@@ -558,8 +558,8 @@ class SensorGroup(HASensor):
         return groupState
 
 # A Scene is a set of Controls whose state can be changed together
-class HAScene(SensorGroup, HAControl):
-    def __init__(self, name, sensorList, stateList=[], resources=None, interface=HAInterface("None"), addr=None, group="", type="scene", view=None, label=""):
+class ControlGroup(SensorGroup, HAControl):
+    def __init__(self, name, sensorList, stateList=[], resources=None, interface=HAInterface("None"), addr=None, group="", type="controlGroup", view=None, label=""):
         SensorGroup.__init__(self, name, sensorList, resources, interface, addr, group=group, type=type, view=view, label=label)
         HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
 #        self.sensorList = sensorList
@@ -582,14 +582,11 @@ class HAScene(SensorGroup, HAControl):
         else:
             return HAControl.setState(self, state)
 
-#    def getState(self):
-#        if True: # self.type == "scene": - FIXME
-#            return -1
-#        else:
-#            if self.interface.name == "None":
-#                return self.sceneState
-#            else:
-#                return HAControl.getState(self)
+    def getState(self):
+        if self.type == "controlGroup":
+            return self.sceneState
+        else:
+            return SensorGroup.getState(self)
 
 #    def getState(self): # FIXME - inherit this class from GroupSensor
 #        groupState = 0

@@ -20,7 +20,7 @@ if __name__ == "__main__":
     resources.addRes(HAControl("shade2", shadeInterface, 1, type="shade", group="Shades", label="Shade 2"))
     resources.addRes(HAControl("shade3", shadeInterface, 2, type="shade", group="Shades", label="Shade 3"))
     resources.addRes(HAControl("shade4", shadeInterface, 3, type="shade", group="Shades", label="Shade 4"))
-    resources.addRes(HAScene("allShades", [resources["shade1"], 
+    resources.addRes(ControlGroup("allShades", [resources["shade1"], 
                                            resources["shade2"],
                                            resources["shade3"],
                                            resources["shade4"]], type="shade", group="Shades", label="All shades"))

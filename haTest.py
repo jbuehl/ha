@@ -184,18 +184,18 @@ if __name__ == "__main__":
     restCache.start()
     
     # scenes and groups
-    resources.addRes(HAScene("porchLights", ["frontLights",
+    resources.addRes(ControlGroup("porchLights", ["frontLights",
                                                "backLights",
                                                "garageBackDoorLight"],
                                                resources=resources, 
                                                group="Lights", label="Porch lights"))
-    resources.addRes(HAScene("xmasLights", ["xmasTree",
+    resources.addRes(ControlGroup("xmasLights", ["xmasTree",
                                             "xmasCowTree",
                                             "xmasFrontLights",
                                             "xmasBackLights"],
                                                resources=resources, 
                                                group="Lights", label="Xmas lights"))
-    resources.addRes(HAScene("outsideLights", ["porchLights",
+    resources.addRes(ControlGroup("outsideLights", ["porchLights",
                                                "bbqLights",
                                                "backYardLights",
                                                "deckLights",
@@ -204,7 +204,7 @@ if __name__ == "__main__":
                                                "xmasBackLights"],
                                                resources=resources, 
                                                group="Lights", label="Outside lights"))
-    resources.addRes(HAScene("bedroomLights", ["bedroomLight", 
+    resources.addRes(ControlGroup("bedroomLights", ["bedroomLight", 
                                                "bathroomLight"],
                                                resources=resources, 
                                                stateList=[[0, 100, 0], [0, 100, 10]], 
