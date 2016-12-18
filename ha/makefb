@@ -1,0 +1,3 @@
+g++ -c -fPIC fb.cpp -o fb.o
+g++ -shared -Wl,-soname,libfb.so -o libfb.so fb.o
+
