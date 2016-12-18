@@ -87,7 +87,7 @@ class SpaControl(HAControl):
                               ])
         self.onSequence = HASequence("spaOn", 
                              [HACycle(self.pumpControl, duration=0, startState=pumpMax),
-#                              HACycle(self.lightControl, duration=0, startState=on),
+                              HACycle(self.lightControl, duration=0, startState=on),
                               ])
         self.standbySequence = HASequence("spaStandby", 
                              [HACycle(self.pumpControl, duration=0, startState=pumpMed),
