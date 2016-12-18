@@ -17,7 +17,7 @@ class HARestInterface(HAInterface):
         self.cache = cache      # cache the states
         self.enabled = True
         self.hostname = socket.gethostname()
-        debug('debugRest', self.name, "created", self.hostname, self.secure)
+        debug('debugRest', self.name, "created", self.hostname, self.service, self.secure, self.cache, self.enabled)
         if self.secure:
             self.keyDir = keyDir
             self.crtFile = self.keyDir+self.hostname+"-client.crt"
@@ -56,10 +56,11 @@ class HARestInterface(HAInterface):
                         debug('debugRestStates', self.name, "start timer")
                         # wait to receive a state change notification message
                         (data, addr) = self.socket.recvfrom(8192)
-                        debug('debugRestStates', self.name, "readStateNotify", "addr:", addr[0], "data:", data)
+#                        debug('debugRestStates', self.name, "readStateNotify", "addr:", addr[0], "data:", data)
                         msg = json.loads(data)
                         if addr[0]+":"+str(msg["port"]) == self.service:   # is this from the correct service
                             # this one is for us
+                            debug('debugRestStates', self.name, "readStateNotify", "addr:", addr[0], "data:", data)
                             if readStateTimer:
                                 # cancel the timeout
                                 readStateTimer.cancel()
@@ -90,7 +91,9 @@ class HARestInterface(HAInterface):
 
     # return the state value for the specified sensor address
     def read(self, addr):
+        debug('debugRestStates', self.name, "read", addr)
         if self.cache:
+            debug('debugRestStates', self.name, "states", self.states)
             try:
                 if self.states[addr] == None:
                     if self.sensorAddrs[addr].getStateType() != None:
