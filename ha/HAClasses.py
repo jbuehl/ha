@@ -528,6 +528,27 @@ class HASequence(HAControl):
             msg += cycle.__str__()+"\n"
         return msg
             
+# A collection of sensors whose state is on if any one of them is on
+class SensorGroup(HASensor):
+    def __init__(self, name, sensorList, resources=None, interface=HAInterface("None"), addr=None, group="", type="sensor", view=None, label=""):
+        HASensor.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
+        self.sensorList = sensorList
+        self.resources = resources  # if specified, sensorList contains resource names, otherwise references
+        self.className = "HASensor"
+
+    def getState(self):
+        groupState = 0
+        for sensorIdx in range(len(self.sensorList)):
+            if self.resources:      # sensors are resource names
+                try:
+                    sensor = self.resources.getRes(self.sensorList[sensorIdx])
+                except KeyError:    # can't resolve so ignore it
+                    sensor = None
+            else:                   # sensors are resource references
+                sensor = self.sensorList[sensorIdx]
+            groupState = groupState or sensor.getState()
+        return groupState
+
 # A Scene is a set of Controls whose state can be changed together
 class HAScene(HAControl):
     def __init__(self, name, controlList, stateList=[], resources=None, interface=HAInterface("None"), addr=None, group="", type="scene", view=None, label=""):
@@ -551,21 +572,34 @@ class HAScene(HAControl):
         else:
             return HAControl.setState(self, state)
 
-    def getState(self):
-        if True: # self.type == "scene": - FIXME
-            return -1
-        else:
-            if self.interface.name == "None":
-                return self.sceneState
-            else:
-                return HAControl.getState(self)
+#    def getState(self):
+#        if True: # self.type == "scene": - FIXME
+#            return -1
+#        else:
+#            if self.interface.name == "None":
+#                return self.sceneState
+#            else:
+#                return HAControl.getState(self)
 
-    # Return the printable string value for the state of the sensor
-    def getViewState(self, views=None):
-        if True: # self.type == "scene": - FIXME
-            return ""
-        else:
-            return HAControl.getViewState(self, views)
+    def getState(self): # FIXME - inherit this class from GroupSensor
+        groupState = 0
+        for sensorIdx in range(len(self.controlList)):
+            if self.resources:      # sensors are resource names
+                try:
+                    sensor = self.resources.getRes(self.controlList[sensorIdx])
+                except KeyError:    # can't resolve so ignore it
+                    sensor = None
+            else:                   # sensors are resource references
+                sensor = self.controlList[sensorIdx]
+            groupState = groupState or sensor.getState()
+        return groupState
+
+#    # Return the printable string value for the state of the sensor
+#    def getViewState(self, views=None):
+#        if True: # self.type == "scene": - FIXME
+#            return ""
+#        else:
+#            return HAControl.getViewState(self, views)
     
 #    # return the data type of the state
 #    def getStateType(self):
@@ -600,27 +634,6 @@ class HAScene(HAControl):
                 control.setState(self.stateList[controlIdx][self.sceneState])
         self.running = False
         debug('debugThread', self.name, "finished")
-
-# A collection of sensors whose state is on if any one of them is on
-class SensorGroup(HASensor):
-    def __init__(self, name, sensorList, resources=None, interface=HAInterface("None"), addr=None, group="", type="sensor", view=None, label=""):
-        HASensor.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
-        self.sensorList = sensorList
-        self.resources = resources  # if specified, sensorList contains resource names, otherwise references
-        self.className = "HASensor"
-
-    def getState(self):
-        groupState = 0
-        for sensorIdx in range(len(self.sensorList)):
-            if self.resources:      # sensors are resource names
-                try:
-                    sensor = self.resources.getRes(self.sensorList[sensorIdx])
-                except KeyError:    # can't resolve so ignore it
-                    sensor = None
-            else:                   # sensors are resource references
-                sensor = self.sensorList[sensorIdx]
-            groupState = groupState or sensor.getState()
-        return groupState
 
 # Calculate a function of a list of sensor states
 class CalcSensor(HASensor):
