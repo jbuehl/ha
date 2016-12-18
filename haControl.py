@@ -30,7 +30,8 @@ def index():
         timeGroup = ["Time", resources.getResList(["theDateDayOfWeek", "theTimeAmPm", "sunrise", "sunset"])]
         weatherGroup = ["Weather", resources.getResList(["deckTemp", "humidity", "barometer"])]
         poolGroup = ["Pool", resources.getResList(["spaTemp", "poolPump", "poolPumpFlow", "spaFill", "spaFlush", "spaDrain", "filter", "clean", "flush"])]
-        lightsGroup = ["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLight", "bathroomLight", "poolLight", "spaLight"])]
+#        lightsGroup = ["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLight", "bathroomLight", "poolLight", "spaLight"])]
+        lightsGroup = ["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLights", "xmasLights", "xmasTree"])]
         shadesGroup = ["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])]
         hvacGroup = ["Hvac", resources.getResList(["kitchenTemp", "southHeatTempTarget", "southCoolTempTarget", "familyRoomDoor", 
                                                    "masterBedroomTemp", "northHeatTempTarget", "northCoolTempTarget", "masterBedroomDoor"])]
@@ -109,7 +110,8 @@ def ipad():
                             intemp=resources.getRes(insideTemp),
                             outtemp=resources.getRes(outsideTemp),
                             groups=[["Pool", resources.getResList(["spaTemp"])], 
-                                  ["Lights", resources.getResList(["porchLights", "poolLight", "spaLight"])], 
+#                                  ["Lights", resources.getResList(["porchLights", "poolLight", "spaLight", "xmasLights"])], 
+                                  ["Lights", resources.getResList(["porchLights", "xmasLights", "xmasTree"])], 
 #                                      ["Lights", resources.getResList(["bbqLights", "backYardLights"])], 
 #                                      ["Lights", resources.getResList(["xmasTree", "xmasCowTree", "xmasLights"])], 
                                   ["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
@@ -189,13 +191,13 @@ if __name__ == "__main__":
                                                "backLights",
                                                "garageBackDoorLight"],
                                                resources=resources, 
-                                               group="Lights", label="Porch lights"))
+                                               type="light", group="Lights", label="Porch lights"))
     resources.addRes(HAScene("xmasLights", ["xmasTree",
                                             "xmasCowTree",
                                             "xmasFrontLights",
                                             "xmasBackLights"],
                                                resources=resources, 
-                                               group="Lights", label="Xmas lights"))
+                                               type="light", group="Lights", label="Xmas lights"))
     resources.addRes(HAScene("outsideLights", ["porchLights",
                                                "bbqLights",
                                                "backYardLights",
@@ -204,7 +206,7 @@ if __name__ == "__main__":
                                                "xmasFrontLights",
                                                "xmasBackLights"],
                                                resources=resources, 
-                                               group="Lights", label="Outside lights"))
+                                               type="light", group="Lights", label="Outside lights"))
     resources.addRes(HAScene("bedroomLights", ["bedroomLight", 
                                                "bathroomLight"],
                                                resources=resources, 
@@ -220,8 +222,13 @@ if __name__ == "__main__":
     resources.addRes(HATask("xmasLightsOnSunset", HASchedTime(event="sunset"), "xmasLights", 1, resources=resources))
     resources.addRes(HATask("xmasLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, resources=resources))
     resources.addRes(HATask("xmasLightsOffSunrise", HASchedTime(event="sunrise"), "xmasLights", 0, resources=resources))
+    resources.addRes(HATask("xmasTreeOnXmas", HASchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1, resources=resources))
     resources.addRes(HATask("hotWaterRecircOn", HASchedTime(hour=[05], minute=[0]), "recircPump", 1, resources=resources))
     resources.addRes(HATask("hotWaterRecircOff", HASchedTime(hour=[23], minute=[0]), "recircPump", 0, resources=resources))
+    resources.addRes(HATask("northHeatTempUpMorning", HASchedTime(hour=[6], minute=[0]), "northHeatTempTarget", 70, resources=resources))
+    resources.addRes(HATask("southHeatTempUpMorning", HASchedTime(hour=[6], minute=[0]), "southHeatTempTarget", 70, resources=resources))
+    resources.addRes(HATask("northHeatTempDownEvening", HASchedTime(hour=[21], minute=[0]), "northHeatTempTarget", 67, resources=resources))
+    resources.addRes(HATask("southHeatTempDownEvening", HASchedTime(hour=[21], minute=[0]), "southHeatTempTarget", 67, resources=resources))
     
     # Schedule
     schedule = HASchedule("schedule")
@@ -233,8 +240,13 @@ if __name__ == "__main__":
     schedule.addTask(resources["xmasLightsOnSunset"])
     schedule.addTask(resources["xmasLightsOffMidnight"])
     schedule.addTask(resources["xmasLightsOffSunrise"])
+    schedule.addTask(resources["xmasTreeOnXmas"])
     schedule.addTask(resources["hotWaterRecircOn"])
     schedule.addTask(resources["hotWaterRecircOff"])
+    schedule.addTask(resources["northHeatTempUpMorning"])
+    schedule.addTask(resources["southHeatTempUpMorning"])
+    schedule.addTask(resources["northHeatTempDownEvening"])
+    schedule.addTask(resources["southHeatTempDownEvening"])
     schedule.start()
 
     # set up the web server
