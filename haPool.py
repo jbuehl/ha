@@ -258,7 +258,7 @@ if __name__ == "__main__":
     spaFill = ControlGroup("spaFill", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 4]], stateMode=True, group="Pool", label="Spa fill")
     spaFlush = ControlGroup("spaFlush", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 3]], stateMode=True, group="Pool", label="Spa flush")
     spaDrain = ControlGroup("spaDrain", [intakeValve, returnValve, poolPump], stateList=[[0, 1], [0, 0], [0, 4]], stateMode=True, group="Pool", label="Spa drain")
-    poolClean = ControlGroup("poolClean", [poolCleaner, poolPump], stateList=[[0, 1], [0, 3]], group="Pool", label="Pool clean")
+    poolClean = ControlGroup("poolClean", [poolCleaner, poolPump], stateList=[[0, 1], [0, 3]], stateMode=True, group="Pool", label="Pool clean")
     heater = HAControl("heater", gpio1, 2, group="Pool", label="Heater", type="heater")
     spaHeater = TempControl("spaHeater", nullInterface, heater, waterTemp, group="Pool", label="Heater", type="heater")
     spaHeater.setTarget(spaTempTarget)
