@@ -6,7 +6,7 @@ from ha.GPIOInterface import *
 from ha.HAClasses import *
 
 # valve states
-valveMoving = 2
+valveMoving = 4
 
 class ValveInterface(HAInterface):
     def __init__(self, name, interface=None, event=None):
@@ -22,23 +22,23 @@ class ValveInterface(HAInterface):
             return 0
 
     def write(self, addr, value):
-        self.newValue = value
+#        self.newValue = value
+        debug('debugValves', self.name, "start", addr, self.states[addr])
         self.states[addr] = valveMoving
         self.sensorAddrs[addr].notify()
-        debug('debugValves', self.name, "state", addr, self.states[addr])
         # cancel the timer if it is running
         if self.timers[addr]:
             self.timers[addr].cancel()
         with self.lock:
             # start the motion
-            debug('debugValves', self.name, "motion", addr, value)
+            debug('debugValves', self.name, "motion", addr, self.states[addr])
             self.interface.write(addr, value)
         # clean up and set the final state when motion is finished
         def doneMoving():
             with self.lock:
-                self.states[addr] = self.newValue # done moving
+                self.states[addr] = value # done moving
                 self.sensorAddrs[addr].notify()
-                debug('debugValves', self.name, "state", addr, self.states[addr])
+                debug('debugValves', self.name, "done", addr, self.states[addr])
         self.timers[addr] = threading.Timer(self.travelTime, doneMoving)
         self.timers[addr].start()
 
