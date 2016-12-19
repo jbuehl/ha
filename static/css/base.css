@@ -320,4 +320,35 @@ td {
 	color: Lime;
     }
 
+.poolValve_Pool {
+    color: Turquoise;
+    }
+
+.poolValve_Spa {
+    color: DeepSkyBlue;
+    }
+
+.poolValve_Moving {
+    color: Orange;
+    }
+
+.valveMode_Pool {
+    color: Turquoise;
+    }
+
+.valveMode_Spa {
+    color: DeepSkyBlue;
+    }
+
+.valveMode_Drain {
+    color: OrangeRed;
+    }
+
+.valveMode_Fill {
+    color: Lime;
+    }
+
+.valveMode_Moving {
+    color: Orange;
+    }
 
