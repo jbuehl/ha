@@ -130,7 +130,7 @@ def iphone5():
                             ampm=resources.getRes("theAmPm"),
                             temp=resources.getRes(outsideTemp),
                             resources=resources.getResList(["spaTemp",
-                                                            "porchLights", "sculptureLights",
+                                                            "porchLights", "xmasLights", "xmasTree",
                                                             "shade1", "shade2", "shade3", "shade4", 
 #                                                            "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence",
                                                             "poolPump"]),
