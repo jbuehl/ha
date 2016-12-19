@@ -49,8 +49,9 @@ seqStart = 1
 seqStopped = 0
 seqRunning = 1
 
-valvesPool = 0
-valvesSpa = 1
+valvePool = 0
+valveSpa = 1
+valveMoving = 4
 
 # get the value of a variable from a file
 def getValue(fileName):
@@ -81,7 +82,7 @@ class SpaControl(HAControl):
         
         # state transition sequences
         self.startupSequence = HASequence("spaStartup", 
-                             [HACycle(self.valveControl, duration=0, startState=valvesSpa),
+                             [HACycle(self.valveControl, duration=0, startState=valveSpa),
                               HACycle(self.pumpControl, duration=0, startState=pumpMed, delay=30),
                               HACycle(self.heaterControl, duration=0, startState=on, delay=30)
                               ])
@@ -97,7 +98,7 @@ class SpaControl(HAControl):
                              [HACycle(self.pumpControl, duration=0, startState=pumpMed),
                               HACycle(self.heaterControl, duration=0, startState=off),
                               HACycle(self.pumpControl, duration=0, startState=off, delay=60),
-                              HACycle(self.valveControl, duration=0, startState=valvesPool),
+                              HACycle(self.valveControl, duration=0, startState=valvePool),
                               HACycle(self.lightControl, duration=0, startState=off, delay=30)
                               ])
 
@@ -252,10 +253,11 @@ if __name__ == "__main__":
     poolCleaner = HAControl("poolCleaner", gpio0, 0, group="Pool", label="Polaris", type="cleaner")
     intakeValve = HAControl("intakeValve", valveInterface, 0, group="Pool", label="Intake valve", type="poolValve")
     returnValve = HAControl("returnValve", valveInterface, 1, group="Pool", label="Return valve", type="poolValve")
-    valveMode = ControlGroup("valveMode", [intakeValve, returnValve], stateList=[[0, 1, 1, 0], [0, 1, 0, 1]], type="valveMode", group="Pool", label="Valve mode")
-    spaFill = ControlGroup("spaFill", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 4]], group="Pool", label="Spa fill")
-    spaFlush = ControlGroup("spaFlush", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 3]], group="Pool", label="Spa flush")
-    spaDrain = ControlGroup("spaDrain", [intakeValve, returnValve, poolPump], stateList=[[0, 1], [0, 0], [0, 4]], group="Pool", label="Spa drain")
+    valveMode = ControlGroup("valveMode", [intakeValve, returnValve], stateList=[[0, 1, 1, 0], [0, 1, 0, 1]], stateMode=True, 
+                             type="valveMode", group="Pool", label="Valve mode")
+    spaFill = ControlGroup("spaFill", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 4]], stateMode=True, group="Pool", label="Spa fill")
+    spaFlush = ControlGroup("spaFlush", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 3]], stateMode=True, group="Pool", label="Spa flush")
+    spaDrain = ControlGroup("spaDrain", [intakeValve, returnValve, poolPump], stateList=[[0, 1], [0, 0], [0, 4]], stateMode=True, group="Pool", label="Spa drain")
     poolClean = ControlGroup("poolClean", [poolCleaner, poolPump], stateList=[[0, 1], [0, 3]], group="Pool", label="Pool clean")
     heater = HAControl("heater", gpio1, 2, group="Pool", label="Heater", type="heater")
     spaHeater = TempControl("spaHeater", nullInterface, heater, waterTemp, group="Pool", label="Heater", type="heater")

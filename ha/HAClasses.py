@@ -462,18 +462,6 @@ class HASequence(HAControl):
         else:
             return HAControl.setState(self, state)
             
-    # dictionary of pertinent attributes
-    def dict(self):
-        classDict = {"class":self.className, # FIXME __class__.__name__, 
-                "name":self.name, 
-                "type":self.type, 
-                "label":self.label, 
-                "interface":None,
-                "addr":None, 
-                "group":self.group, 
-                "location":self.location}
-        return classDict
-                    
     # Run the Cycles in the list
     def runCycles(self, wait=False):
         debug('debugState', self.name, "runCycles", wait)
@@ -554,93 +542,54 @@ class SensorGroup(HASensor):
                     sensor = None
             else:                   # sensors are resource references
                 sensor = self.sensorList[sensorIdx]
-            groupState = groupState or sensor.getState()
+            groupState = groupState or sensor.getState()    # group is on if any one sensor is on
         return groupState
 
-# A Scene is a set of Controls whose state can be changed together
+# A set of Controls whose state can be changed together
 class ControlGroup(SensorGroup, HAControl):
-    def __init__(self, name, sensorList, stateList=[], resources=None, interface=HAInterface("None"), addr=None, group="", type="controlGroup", view=None, label=""):
+    def __init__(self, name, sensorList, stateList=[], resources=None, stateMode=False, interface=HAInterface("None"), addr=None, 
+                 group="", type="controlGroup", view=None, label=""):
         SensorGroup.__init__(self, name, sensorList, resources, interface, addr, group=group, type=type, view=view, label=label)
         HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
-#        self.sensorList = sensorList
-        self.sceneState = 0
+        self.stateMode = stateMode  # which state to return: False = SensorGroup, True = groupState
+        self.groupState = 0
         if stateList == []:
             self.stateList = [[0,1]]*(len(self.sensorList))
         else:
             self.stateList = stateList
-#        self.resources = resources  # if specified, sensorList contains resource names, otherwise references
         self.className = "HAControl"
 
     def setState(self, state, wait=False):
         if self.interface.name == "None":
             debug('debugState', self.name, "setState ", state)
-            self.sceneState = state  # use Cycle - FIXME
+            self.groupState = state  # use Cycle - FIXME
             # Run it asynchronously in a separate thread.
-            self.sceneThread = threading.Thread(target=self.doScene)
+            def setGroup():
+                debug('debugThread', self.name, "started")
+                self.running = True
+                for controlIdx in range(len(self.sensorList)):
+                    if self.resources:      # controls are resource names
+                        try:
+                            control = self.resources[self.sensorList[controlIdx]]
+                        except KeyError:    # can't resolve so ignore it
+                            control = None
+                    else:                   # controls are resource references
+                        control = self.sensorList[controlIdx]
+                    if control:
+                        control.setState(self.stateList[controlIdx][self.groupState])
+                self.running = False
+                debug('debugThread', self.name, "finished")
+            self.sceneThread = threading.Thread(target=setGroup)
             self.sceneThread.start()
             return True
         else:
             return HAControl.setState(self, state)
 
     def getState(self):
-        if self.type == "controlGroup":
-            return self.sceneState
+        if self.stateMode:
+            return self.groupState
         else:
             return SensorGroup.getState(self)
-
-#    def getState(self): # FIXME - inherit this class from GroupSensor
-#        groupState = 0
-#        for sensorIdx in range(len(self.sensorList)):
-#            if self.resources:      # sensors are resource names
-#                try:
-#                    sensor = self.resources.getRes(self.sensorList[sensorIdx])
-#                except KeyError:    # can't resolve so ignore it
-#                    sensor = None
-#            else:                   # sensors are resource references
-#                sensor = self.sensorList[sensorIdx]
-#            groupState = groupState or sensor.getState()
-#        return groupState
-
-#    # Return the printable string value for the state of the sensor
-#    def getViewState(self, views=None):
-#        if True: # self.type == "scene": - FIXME
-#            return ""
-#        else:
-#            return HAControl.getViewState(self, views)
-    
-#    # return the data type of the state
-#    def getStateType(self):
-#        if self.type == "scene":
-#            return None
-#        else:
-#            return self.interface.getStateType(self)
-
-    # dictionary of pertinent attributes
-    def dict(self):
-        return {"class":self.className, # FIXME __class__.__name__, 
-                "name":self.name, 
-                "type":self.type, 
-                "label":self.label, 
-                "interface":None,
-                "addr":None, 
-                "group":self.group, 
-                "location":self.location}
-                    
-    def doScene(self):
-        debug('debugThread', self.name, "started")
-        self.running = True
-        for controlIdx in range(len(self.sensorList)):
-            if self.resources:      # controls are resource names
-                try:
-                    control = self.resources[self.sensorList[controlIdx]]
-                except KeyError:    # can't resolve so ignore it
-                    control = None
-            else:                   # controls are resource references
-                control = self.sensorList[controlIdx]
-            if control:
-                control.setState(self.stateList[controlIdx][self.sceneState])
-        self.running = False
-        debug('debugThread', self.name, "finished")
 
 # Calculate a function of a list of sensor states
 class CalcSensor(HASensor):
@@ -823,7 +772,8 @@ class HASchedule(HACollection):
 
 # a Task specifies a control to be set to a specified state at a specified time
 class HATask(HAControl):
-    def __init__(self, name, schedTime, control, state, resources=None, parent=None, enabled=True, interface=HAInterface("None"), addr=None, type="task", group="Tasks", view=None, label=""):
+    def __init__(self, name, schedTime, control, state, resources=None, parent=None, enabled=True, interface=HAInterface("None"), addr=None, 
+                 type="task", group="Tasks", view=None, label=""):
         HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.schedTime = schedTime
         self.control = control
