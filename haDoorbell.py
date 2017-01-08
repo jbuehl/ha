@@ -2,6 +2,7 @@ doorbellService = "192.168.1.52:7378"
 doorbellSensor = "doorbellButton"
 doorbellState = 1
 doorbellSound = "doorbell2.wav"
+doorbellRepeat = 1
 
 #doorbellService = "192.168.1.59:7378"
 #doorbellSensor = "spa"
@@ -33,9 +34,11 @@ if __name__ == "__main__":
     lastState = 0
     while True:
         state = doorbell.getStateChange()
-        debug('debugDoorbell', "doorbellState", state)
+        debug('debugDoorbell', "doorbellState", state, lastState)
         if state != lastState:
             if state == doorbellState:
-                os.system("aplay "+doorbellDir+doorbellSound)
+                for i in range(doorbellRepeat):
+                    os.system("aplay "+doorbellDir+doorbellSound)
+                state = 0
         lastState = state
     
