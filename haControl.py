@@ -58,7 +58,9 @@ def details(group=None):
         groups = [group.capitalize()]
         details = False
     except:
-        groups = ["Time", "Temperature", "Hvac", "Pool", "Lights", "Shades", "Doors", "Water", "Power", "Solar", "Inverters", "Optimizers", "Cameras", "Services", "Tasks"]
+        groups = ["Time", "Temperature", "Hvac", "Pool", "Lights", "Shades", "Doors", 
+                  "Water", "Power", "Solar", "Inverters", "Optimizers", "Cameras", 
+                  "Services", "Tasks"]
         details = True
     with resourceLock:
         reply = templates.get_template("details.html").render(title=webPageTitle, script="", 
@@ -110,8 +112,8 @@ def ipad():
                             intemp=resources.getRes(insideTemp),
                             outtemp=resources.getRes(outsideTemp),
                             groups=[["Pool", resources.getResList(["spaTemp"])], 
-#                                  ["Lights", resources.getResList(["porchLights", "poolLight", "spaLight", "xmasLights"])], 
-                                  ["Lights", resources.getResList(["porchLights", "xmasLights", "xmasTree"])], 
+                                  ["Lights", resources.getResList(["porchLights", "poolLight", "spaLight"])], 
+#                                  ["Lights", resources.getResList(["porchLights", "xmasLights", "xmasTree"])], 
 #                                      ["Lights", resources.getResList(["bbqLights", "backYardLights"])], 
 #                                      ["Lights", resources.getResList(["xmasTree", "xmasCowTree", "xmasLights"])], 
                                   ["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
@@ -130,7 +132,8 @@ def iphone5():
                             ampm=resources.getRes("theAmPm"),
                             temp=resources.getRes(outsideTemp),
                             resources=resources.getResList(["spaTemp",
-                                                            "porchLights", "xmasLights", "xmasTree",
+                                                            "porchLights", 
+#                                                            "xmasLights", "xmasTree",
                                                             "shade1", "shade2", "shade3", "shade4", 
 #                                                            "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence",
                                                             "poolPump"]),
@@ -146,7 +149,9 @@ def iphone3gs():
                             ampm=resources.getRes("theAmPm"),
                             day=resources.getRes("theDay"),
                             temp=resources.getRes(outsideTemp),
-                            resources=resources.getResList(["porchLights", "xmasLights", "bedroomLights", "recircPump", "garageDoors", "houseDoors"]),
+                            resources=resources.getResList(["porchLights", 
+#                                                            "xmasLights", 
+                                                            "bedroomLights", "recircPump", "garageDoors", "houseDoors"]),
                             views=views)
     return reply
 
@@ -176,7 +181,7 @@ if __name__ == "__main__":
     resources.addRes(HASensor("theTimeAmPm", timeInterface, "%I:%M %p", type="time", group="Time", label="Time"))
     resources.addRes(HASensor("sunrise", timeInterface, "sunrise", type="time", group="Time", label="Sunrise"))
     resources.addRes(HASensor("sunset", timeInterface, "sunset", type="time", group="Time", label="Sunset"))
-    resources.addRes(HASensor("theDay", timeInterface, "%a %b %d %Y", type="date", label="Day"))
+    resources.addRes(HASensor("theDay", timeInterface, "%a %b %-d %Y", type="date", label="Day"))
     resources.addRes(HASensor("theTime", timeInterface, "%I:%M", type="time", label="Time"))
     resources.addRes(HASensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
 
@@ -219,15 +224,17 @@ if __name__ == "__main__":
     resources.addRes(HATask("porchLightsOnSunset", HASchedTime(event="sunset"), "porchLights", 1, resources=resources))
     resources.addRes(HATask("outsideLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), "outsideLights", 0, resources=resources))
     resources.addRes(HATask("outsideLightsOffSunrise", HASchedTime(event="sunrise"), "outsideLights", 0, resources=resources))
-    resources.addRes(HATask("xmasLightsOnSunset", HASchedTime(event="sunset"), "xmasLights", 1, resources=resources))
-    resources.addRes(HATask("xmasLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, resources=resources))
-    resources.addRes(HATask("xmasLightsOffSunrise", HASchedTime(event="sunrise"), "xmasLights", 0, resources=resources))
-    resources.addRes(HATask("xmasTreeOnXmas", HASchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1, resources=resources))
+#    resources.addRes(HATask("xmasLightsOnSunset", HASchedTime(event="sunset"), "xmasLights", 1, resources=resources))
+#    resources.addRes(HATask("xmasLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, resources=resources))
+#    resources.addRes(HATask("xmasLightsOffSunrise", HASchedTime(event="sunrise"), "xmasLights", 0, resources=resources))
+#    resources.addRes(HATask("xmasTreeOnXmas", HASchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1, resources=resources))
     resources.addRes(HATask("hotWaterRecircOn", HASchedTime(hour=[05], minute=[0]), "recircPump", 1, resources=resources))
     resources.addRes(HATask("hotWaterRecircOff", HASchedTime(hour=[23], minute=[0]), "recircPump", 0, resources=resources))
-    resources.addRes(HATask("northHeatTempUpMorning", HASchedTime(hour=[6], minute=[0]), "northHeatTempTarget", 70, resources=resources))
+    resources.addRes(HATask("northHeatTempUpMorning", HASchedTime(hour=[6], minute=[0]), "northHeatTempTarget", 69, resources=resources))
     resources.addRes(HATask("southHeatTempUpMorning", HASchedTime(hour=[6], minute=[0]), "southHeatTempTarget", 70, resources=resources))
-    resources.addRes(HATask("northHeatTempDownEvening", HASchedTime(hour=[21], minute=[0]), "northHeatTempTarget", 67, resources=resources))
+    resources.addRes(HATask("northHeatTempDownMorning", HASchedTime(hour=[8], minute=[0]), "northHeatTempTarget", 66, resources=resources))
+    resources.addRes(HATask("southHeatTempDownMorning", HASchedTime(hour=[8], minute=[0]), "southHeatTempTarget", 67, resources=resources))
+    resources.addRes(HATask("northHeatTempDownEvening", HASchedTime(hour=[21], minute=[0]), "northHeatTempTarget", 66, resources=resources))
     resources.addRes(HATask("southHeatTempDownEvening", HASchedTime(hour=[21], minute=[0]), "southHeatTempTarget", 67, resources=resources))
     
     # Schedule
@@ -252,5 +259,7 @@ if __name__ == "__main__":
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
     templates = Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates')))
-    webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=webPort, ssl=True, httpsPort=webSSLPort, domain=webSSLDomain, pathDict=pathDict, baseDir=baseDir, block=True)
+    webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=webPort, 
+            ssl=True, httpsPort=webSSLPort, domain=webSSLDomain, 
+            pathDict=pathDict, baseDir=baseDir, block=True)
     
