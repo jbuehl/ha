@@ -30,8 +30,9 @@ def index():
         timeGroup = ["Time", resources.getResList(["theDateDayOfWeek", "theTimeAmPm", "sunrise", "sunset"])]
         weatherGroup = ["Weather", resources.getResList(["deckTemp", "humidity", "barometer"])]
         poolGroup = ["Pool", resources.getResList(["spaTemp", "poolPump", "poolPumpFlow", "spaFill", "spaFlush", "spaDrain", "filter", "clean", "flush"])]
-#        lightsGroup = ["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLight", "bathroomLight", "poolLight", "spaLight"])]
-        lightsGroup = ["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLights", "xmasLights", "xmasTree"])]
+        lightsGroup = ["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLights", 
+#                                                       "xmasLights", "xmasTree",
+                                                       "poolLight", "spaLight"])]
         shadesGroup = ["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])]
         hvacGroup = ["Hvac", resources.getResList(["kitchenTemp", "southHeatTempTarget", "southCoolTempTarget", "familyRoomDoor", 
                                                    "masterBedroomTemp", "northHeatTempTarget", "northCoolTempTarget", "masterBedroomDoor"])]
@@ -244,10 +245,10 @@ if __name__ == "__main__":
     schedule.addTask(resources["porchLightsOnSunset"])
     schedule.addTask(resources["outsideLightsOffMidnight"])
     schedule.addTask(resources["outsideLightsOffSunrise"])
-    schedule.addTask(resources["xmasLightsOnSunset"])
-    schedule.addTask(resources["xmasLightsOffMidnight"])
-    schedule.addTask(resources["xmasLightsOffSunrise"])
-    schedule.addTask(resources["xmasTreeOnXmas"])
+#    schedule.addTask(resources["xmasLightsOnSunset"])
+#    schedule.addTask(resources["xmasLightsOffMidnight"])
+#    schedule.addTask(resources["xmasLightsOffSunrise"])
+#    schedule.addTask(resources["xmasTreeOnXmas"])
     schedule.addTask(resources["hotWaterRecircOn"])
     schedule.addTask(resources["hotWaterRecircOff"])
     schedule.addTask(resources["northHeatTempUpMorning"])
