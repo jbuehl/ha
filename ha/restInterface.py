@@ -32,9 +32,7 @@ class HARestInterface(HAInterface):
                     states = self.readStates("/resources/states/stateChange")
                     if states == {}:    # give up if there is an error
                         break
-                    if self.event:
-                        self.event.set()
-                        debug('debugInterrupt', self.name, "event set")
+                    self.notify()
                 debug('debugRestStates', self.name, "readStateChange terminated")
             readStateChangeThread = threading.Thread(target=readStateChange)
             readStateChangeThread.start()
@@ -71,9 +69,7 @@ class HARestInterface(HAInterface):
                             if self.enabled:
                                 # update the states
                                 self.setStates(states)
-                                if self.event:
-                                    self.event.set()
-                                    debug('debugInterrupt', self.name, "event set")
+                                self.notify()
                                 # start the timer
                                 readStateTimer = threading.Timer(restTimeout, readStateTimeout)
                                 readStateTimer.start()

@@ -71,14 +71,12 @@ class FileInterface(HAInterface):
         except:
             log(self.name, "readData file read error")
         debug('debugFile', self.name, "readData", self.data)
-        if self.event:
-            self.event.set()
+        self.notify()
 
     def writeData(self):
         debug('debugFile', self.name, "writeData", self.data)
         with open(self.fileName, "w") as dataFile:
             json.dump(self.data, dataFile)
         self.mtime = time.time()
-        if self.event:
-            self.event.set()
+        self.notify()
 
