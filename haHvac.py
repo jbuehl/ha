@@ -81,10 +81,18 @@ if __name__ == "__main__":
     southFan  = HAControl("southFan",  gpio00, 2, group="Hvac", label="South fan")
 
     # Temp controls
-    northHeatControl = TempControl("northHeatControl", nullInterface, northHeat, masterBedroomTemp, northHeatTempTarget, masterBedroomDoor, unitType=0, group="Hvac", label="North heat control", type="heater")
-    northCoolControl = TempControl("northCoolControl", nullInterface, northCool, masterBedroomTemp, northCoolTempTarget, masterBedroomDoor, unitType=1, group="Hvac", label="North cool control", type="heater")
-    southHeatControl = TempControl("southHeatControl", nullInterface, southHeat, kitchenTemp, southHeatTempTarget, familyRoomDoor, unitType=0, group="Hvac", label="South heat control", type="heater")
-    southCoolControl = TempControl("southCoolControl", nullInterface, southCool, kitchenTemp, southCoolTempTarget, familyRoomDoor, unitType=1, group="Hvac", label="South cool control", type="heater")
+    northHeatControl = TempControl("northHeatControl", nullInterface, 
+                                    northHeat, masterBedroomTemp, northHeatTempTarget, masterBedroomDoor, unitType=0, 
+                                    group="Hvac", label="North heat control", type="heater")
+    northCoolControl = TempControl("northCoolControl", nullInterface, 
+                                    northCool, masterBedroomTemp, northCoolTempTarget, masterBedroomDoor, unitType=1, 
+                                    group="Hvac", label="North cool control", type="heater")
+    southHeatControl = TempControl("southHeatControl", nullInterface, 
+                                    southHeat, kitchenTemp, southHeatTempTarget, familyRoomDoor, unitType=0, 
+                                    group="Hvac", label="South heat control", type="heater")
+    southCoolControl = TempControl("southCoolControl", nullInterface, 
+                                    southCool, kitchenTemp, southCoolTempTarget, familyRoomDoor, unitType=1, 
+                                    group="Hvac", label="South cool control", type="heater")
     
     resources.addRes(northHeat)
     resources.addRes(northCool)
@@ -124,10 +132,12 @@ if __name__ == "__main__":
     if not southCoolTempTarget.getState():
         southCoolTempTarget.setState(southCoolTempTargetDefault)
     # temporary
+    northHeatControl.setState(1)
+    southHeatControl.setState(1)
     northCoolControl.setState(1)
     southCoolControl.setState(1)
-    northCool.setState(1)
-    southCool.setState(1)
+#    northCool.setState(1)
+#    southCool.setState(1)
 
     gpio00.start()
     gpio10.start()
