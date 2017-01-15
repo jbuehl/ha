@@ -253,6 +253,8 @@ if __name__ == "__main__":
     schedule.addTask(resources["hotWaterRecircOff"])
     schedule.addTask(resources["northHeatTempUpMorning"])
     schedule.addTask(resources["southHeatTempUpMorning"])
+    schedule.addTask(resources["northHeatTempDownMorning"])
+    schedule.addTask(resources["southHeatTempDownMorning"])
     schedule.addTask(resources["northHeatTempDownEvening"])
     schedule.addTask(resources["southHeatTempDownEvening"])
     schedule.start()
