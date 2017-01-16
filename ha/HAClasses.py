@@ -85,7 +85,7 @@ class HAInterface(HAResource):
             self.event = interface.event    # otherwise inherit event from this interface's interface
         else:
             self.event = None
-        debug('debugInterrupt', self.name, "event", self.event)
+        debug('debugInterrupt', self.name, "interface event", self.event)
         self.sensors = {}   # sensors using this instance of the interface by name
         self.sensorAddrs = {}   # sensors using this instance of the interface by addr
         self.states = {}    # state cache
@@ -274,7 +274,7 @@ class HASensor(HAResource):
         except AttributeError:
             self.type = type
             if interface == None:
-                self.interface = HAInterface("None", event=event)
+                self.interface = HAInterface(name+"NullInterface", event=event)
             else:
                 self.interface = interface
             self.addr = addr
@@ -295,7 +295,7 @@ class HASensor(HAResource):
             self.interrupt = interrupt
             if event:
                 self.event = event
-                debug('debugInterrupt', self.name, "event", self.event)
+                debug('debugInterrupt', self.name, "sensor event", self.event)
             self.__dict__["state"] = None   # dummy class variable so hasattr() returns True
             self.__dict__["stateChange"] = None   # dummy class variable so hasattr() returns True
             # FIXME - use @property
@@ -445,7 +445,7 @@ class HACycle(object):
                             
 # a Sequence is a Control that consists of a list of Cycles that are run in the specified order
 class HASequence(HAControl):
-    def __init__(self, name, cycleList, addr=None, interface=HAInterface("None"), event=None, group="", type="sequence", view=None, label=""):
+    def __init__(self, name, cycleList, addr=None, interface=None, event=None, group="", type="sequence", view=None, label=""):
         HAControl.__init__(self, name, addr=addr, interface=interface, event=event, group=group, type=type, view=view, label=label)
         self.cycleList = cycleList
         self.running = False
@@ -531,7 +531,7 @@ class HASequence(HAControl):
             
 # A collection of sensors whose state is on if any one of them is on
 class SensorGroup(HASensor):
-    def __init__(self, name, sensorList, resources=None, interface=HAInterface("None"), addr=None, group="", type="sensor", view=None, label=""):
+    def __init__(self, name, sensorList, resources=None, interface=None, addr=None, group="", type="sensor", view=None, label=""):
         HASensor.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.sensorList = sensorList
         self.resources = resources  # if specified, sensorList contains resource names, otherwise references
@@ -552,7 +552,7 @@ class SensorGroup(HASensor):
 
 # A set of Controls whose state can be changed together
 class ControlGroup(SensorGroup, HAControl):
-    def __init__(self, name, sensorList, stateList=[], resources=None, stateMode=False, interface=HAInterface("None"), addr=None, 
+    def __init__(self, name, sensorList, stateList=[], resources=None, stateMode=False, interface=None, addr=None, 
                  group="", type="controlGroup", view=None, label=""):
         SensorGroup.__init__(self, name, sensorList, resources, interface, addr, group=group, type=type, view=view, label=label)
         HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
@@ -598,7 +598,7 @@ class ControlGroup(SensorGroup, HAControl):
 
 # Calculate a function of a list of sensor states
 class CalcSensor(HASensor):
-    def __init__(self, name, sensors, function, interface=HAInterface("None"), addr=None, group="", type="sensor", view=None, label="", location=None):
+    def __init__(self, name, sensors, function, interface=None, addr=None, group="", type="sensor", view=None, label="", location=None):
         HASensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
         self.sensors = sensors
         self.function = function.lower()
@@ -764,7 +764,7 @@ class HASchedule(HACollection):
 
 # a Task specifies a control to be set to a specified state at a specified time
 class HATask(HAControl):
-    def __init__(self, name, schedTime, control, state, resources=None, parent=None, enabled=True, interface=HAInterface("None"), addr=None, 
+    def __init__(self, name, schedTime, control, state, resources=None, parent=None, enabled=True, interface=None, addr=None, 
                  type="task", group="Tasks", view=None, label=""):
         HAControl.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.schedTime = schedTime

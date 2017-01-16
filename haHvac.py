@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     # Interfaces
     stateChangeEvent = threading.Event()
-    nullInterface = HAInterface("Null", event=stateChangeEvent)
+    nullInterface = HAInterface("NullInterface", event=stateChangeEvent)
     owfs = OWFSInterface("owfs", event=stateChangeEvent)
     configData = FileInterface("configData", fileName=rootDir+"hvac.conf", event=stateChangeEvent)
     i2c1 = I2CInterface("I2C1", bus=1, event=stateChangeEvent)
