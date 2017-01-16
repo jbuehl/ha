@@ -26,6 +26,7 @@ class RestServer(object):
         self.beacon = beacon
         self.heartbeat = heartbeat
         self.event = event
+        debug('debugInterrupt', self.label, "event", self.event)
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
 
     def start(self):
@@ -55,7 +56,7 @@ class RestServer(object):
                 stateResource = self.resources.getRes("states", dummy=False)
             except:
                 debug('debugRestHeartbeat', "created resource state sensor")
-                stateResource = ResourceStateSensor("states", HAInterface("None"), resources=self.resources, event=self.event)
+                stateResource = ResourceStateSensor("states", None, resources=self.resources, event=self.event)
                 self.resources.addRes(stateResource)
             def heartbeat():
                 while True:

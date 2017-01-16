@@ -1,3 +1,5 @@
+stateChangeInterval = 10
+
 import time
 import datetime
 import threading
@@ -120,7 +122,7 @@ class HAInterface(HAResource):
     def notify(self):
         if self.event:
             self.event.set()
-            debug('debugInterrupt', self.name, "event set")
+            debug('debugInterrupt', self.name, "set", self.event)
         
 # Resource collection 
 
@@ -264,14 +266,17 @@ class HACollection(HAResource, OrderedDict):
 # The state is associated with a unique address on an interface.
 # Sensors can also optionally be associated with a group and a physical location.
 class HASensor(HAResource):
-    def __init__(self, name, interface, addr=None, group="", type="sensor", location=None, label="", view=None, interrupt=None, event=None):
+    def __init__(self, name, interface=None, addr=None, group="", type="sensor", location=None, label="", view=None, interrupt=None, event=None):
         HAResource.__init__(self, name)
         try:
             if self.type:   # init has already been called for this object
                 return
         except AttributeError:
             self.type = type
-            self.interface = interface
+            if interface == None:
+                self.interface = HAInterface("None", event=event)
+            else:
+                self.interface = interface
             self.addr = addr
             if self.addr == None:
                 self.addr = self.name
@@ -290,7 +295,7 @@ class HASensor(HAResource):
             self.interrupt = interrupt
             if event:
                 self.event = event
-            debug('debugInterrupt', self.name, "event")
+                debug('debugInterrupt', self.name, "event", self.event)
             self.__dict__["state"] = None   # dummy class variable so hasattr() returns True
             self.__dict__["stateChange"] = None   # dummy class variable so hasattr() returns True
             # FIXME - use @property
@@ -308,16 +313,16 @@ class HASensor(HAResource):
         if self.event:
             # the routine that changes state must call notify() after the state is changed
             self.event.clear()
-            debug('debugInterrupt', self.name, "event clear")
+            debug('debugInterrupt', self.name, "clear", self.event)
             self.event.wait()
-            debug('debugInterrupt', self.name, "event wait")
+            debug('debugInterrupt', self.name, "wait", self.event)
         return self.getState()
 
     # Trigger the sending of a state change notification
     def notify(self):
         if self.event:
             self.event.set()
-            debug('debugInterrupt', self.name, "event set")
+            debug('debugInterrupt', self.name, "set", self.event)
         
     # Return the printable string value for the state of the sensor
     def getViewState(self, views=None):
@@ -611,11 +616,9 @@ class CalcSensor(HASensor):
 # Sensor that returns the states of all sensors in a list of resources
 class ResourceStateSensor(HASensor):
     def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, view=None, label="", interrupt=None):
-        HASensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+        HASensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.resources = resources
-        self.event = event
         self.states = {}    # current sensor states
-        self.lastStates = {}
 
     # return the current state of all sensors in the collection
     def getState(self):
@@ -638,24 +641,13 @@ class ResourceStateSensor(HASensor):
     def getStateChange(self):
         debug('debugInterrupt', self.name, "getStateChange")
         if self.event:      # wait for state change event
-            debug('debugInterrupt', self.name, "event wait")
+            debug('debugInterrupt', self.name, "wait", self.event)
             self.event.wait()
-            debug('debugInterrupt', self.name, "event clear")
+            debug('debugInterrupt', self.name, "clear", self.event)
             self.event.clear()
         else:               # no event specified, return periodically
-            time.sleep(10)
-        debug('debugStateChange', self.name, "lastState", self.lastStates)
-        newStates = self.getState()
-        changeStates = {}
-        for sensor in newStates.keys():
-            try:
-                if True: # newStates[sensor] != self.lastStates[sensor]:
-                    changeStates[sensor] = newStates[sensor]
-            except KeyError:
-                changeStates[sensor] = newStates[sensor]
-        self.lastStates = copy.copy(self.states)
-        debug('debugStateChange', self.name, "changeStates", changeStates)
-        return changeStates
+            time.sleep(stateChangeInterval)
+        return self.getState()
 
 Mon = 0
 Tue = 1

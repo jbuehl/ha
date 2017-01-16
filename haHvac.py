@@ -19,9 +19,9 @@ if __name__ == "__main__":
 
     # Interfaces
     stateChangeEvent = threading.Event()
-    nullInterface = HAInterface("Null", HAInterface("None"))
+    nullInterface = HAInterface("Null", event=stateChangeEvent)
     owfs = OWFSInterface("owfs", event=stateChangeEvent)
-    configData = FileInterface("config", fileName=rootDir+"hvac.conf", event=stateChangeEvent)
+    configData = FileInterface("configData", fileName=rootDir+"hvac.conf", event=stateChangeEvent)
     i2c1 = I2CInterface("I2C1", bus=1, event=stateChangeEvent)
     gpio00 = GPIOInterface("GPIO00", i2c1, addr=0x20, bank=0)
     gpio10 = GPIOInterface("GPIO10", i2c1, addr=0x21, bank=0, inOut=0xff, config=[(GPIOInterface.IPOL, 0x00)])
