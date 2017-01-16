@@ -274,7 +274,7 @@ class HASensor(HAResource):
         except AttributeError:
             self.type = type
             if interface == None:
-                self.interface = HAInterface(name+"NullInterface", event=event)
+                self.interface = HAInterface("None", event=event)
             else:
                 self.interface = interface
             self.addr = addr
