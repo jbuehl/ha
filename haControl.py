@@ -263,6 +263,9 @@ if __name__ == "__main__":
     baseDir = os.path.abspath(os.path.dirname(__file__))
     templates = Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates')))
     webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=webPort, 
-            ssl=True, httpsPort=webSSLPort, domain=webSSLDomain, 
-            pathDict=pathDict, baseDir=baseDir, block=True)
-    
+#            ssl=True, httpsPort=webSSLPort, domain=webSSLDomain, 
+            pathDict=pathDict, baseDir=baseDir, block=False)
+
+    restServer = RestServer(resources, port=7378, event=stateChangeEvent, label="Hvac")
+    restServer.start()
+ 
