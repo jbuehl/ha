@@ -60,6 +60,16 @@ if __name__ == "__main__":
     # Temperature
     resources.addRes(HASensor("garageTemp", temp, 0x4d, group="Temperature", label="Garage temp", type="tempF"))
     
+    # Tasks
+    resources.addRes(HATask("hotWaterRecircOn", HASchedTime(hour=[05], minute=[0]), "recircPump", 1, resources=resources))
+    resources.addRes(HATask("hotWaterRecircOff", HASchedTime(hour=[23], minute=[0]), "recircPump", 0, resources=resources))
+    
+    # Schedule
+    schedule = HASchedule("schedule")
+    schedule.addTask(resources["hotWaterRecircOn"])
+    schedule.addTask(resources["hotWaterRecircOff"])
+    schedule.start()
+
     # Start interfaces
     gpio0.start()
     gpio1.start()

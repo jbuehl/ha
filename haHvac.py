@@ -110,16 +110,22 @@ if __name__ == "__main__":
     resources.addRes(southCoolControl)
 
     # Tasks
-#    resources.addRes(HATask("northHeatNight", HASchedTime(hour=[21], minute=[00]), northHeatTempTarget, 65))
-#    resources.addRes(HATask("southHeatNight", HASchedTime(hour=[21], minute=[00]), southHeatTempTarget, 65))
-#    resources.addRes(HATask("southHeatMorning", HASchedTime(hour=[6], minute=[00]), southHeatTempTarget, 70))
+    resources.addRes(HATask("northHeatTempUpMorning", HASchedTime(hour=[6], minute=[0]), "northHeatTempTarget", 69, resources=resources))
+    resources.addRes(HATask("southHeatTempUpMorning", HASchedTime(hour=[6], minute=[0]), "southHeatTempTarget", 70, resources=resources))
+    resources.addRes(HATask("northHeatTempDownMorning", HASchedTime(hour=[8], minute=[0]), "northHeatTempTarget", 66, resources=resources))
+    resources.addRes(HATask("southHeatTempDownMorning", HASchedTime(hour=[8], minute=[0]), "southHeatTempTarget", 67, resources=resources))
+    resources.addRes(HATask("northHeatTempDownEvening", HASchedTime(hour=[21], minute=[0]), "northHeatTempTarget", 66, resources=resources))
+    resources.addRes(HATask("southHeatTempDownEvening", HASchedTime(hour=[21], minute=[0]), "southHeatTempTarget", 67, resources=resources))
     
     # Schedule
-#    schedule = HASchedule("schedule")
-#    schedule.addTask(resources["northHeatNight"])
-#    schedule.addTask(resources["southHeatNight"])
-#    schedule.addTask(resources["southHeatMorning"])
-#    schedule.start()
+    schedule = HASchedule("schedule")
+    schedule.addTask(resources["northHeatTempUpMorning"])
+    schedule.addTask(resources["southHeatTempUpMorning"])
+    schedule.addTask(resources["northHeatTempDownMorning"])
+    schedule.addTask(resources["southHeatTempDownMorning"])
+    schedule.addTask(resources["northHeatTempDownEvening"])
+    schedule.addTask(resources["southHeatTempDownEvening"])
+    schedule.start()
 
     # Start interfaces
     configData.start()
