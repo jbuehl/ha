@@ -178,7 +178,7 @@ if __name__ == "__main__":
     # add local resources
     timeInterface = TimeInterface("time")
     resources.addRes(HASensor("theDayOfWeek", timeInterface, "%A", type="date", group="Time", label="Day of week"))
-    resources.addRes(HASensor("theDateDayOfWeek", timeInterface, "%A %B %-d %Y", type="date", group="Time", label="Date"))
+    resources.addRes(HASensor("theDateDayOfWeek", timeInterface, "%a %B %-d %Y", type="date", label="Date"))
     resources.addRes(HASensor("theDate", timeInterface, "%B %-d %Y", type="date", group="Time", label="Date"))
     resources.addRes(HASensor("theTimeAmPm", timeInterface, "%I:%M %p", type="time", group="Time", label="Time"))
     resources.addRes(HASensor("sunrise", timeInterface, "sunrise", type="time", group="Time", label="Sunrise"))
