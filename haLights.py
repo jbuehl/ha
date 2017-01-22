@@ -4,6 +4,7 @@ restPortControl = 7378
 xmas = False
 
 import time
+import copy
 from ha.HAClasses import *
 from ha.restInterface import *
 from ha.restServer import *
@@ -29,33 +30,42 @@ if __name__ == "__main__":
     restCache.start()
     
     # scenes and groups
-    localResources.addRes(ControlGroup("porchLights", ["frontLights",
+    porchLights = ControlGroup("porchLights", ["frontLights",
                                                "sculptureLights",
                                                "backLights",
                                                "garageBackDoorLight"],
                                                resources=cacheResources, 
-                                               type="light", group="Lights", label="Porch lights"))
-    localResources.addRes(ControlGroup("xmasLights", ["xmasTree",
+                                               type="light", group="Lights", label="Porch lights")
+    xmasLights = ControlGroup("xmasLights", ["xmasTree",
                                                 "xmasCowTree",
                                                 "xmasFrontLights",
                                                 "xmasBackLights"],
                                                resources=cacheResources, 
-                                               type="light", group="Lights", label="Xmas lights"))
-    localResources.addRes(ControlGroup("outsideLights", ["porchLights",
+                                               type="light", group="Lights", label="Xmas lights")
+    bedroomLights = ControlGroup("bedroomLights", ["bedroomLight", 
+                                               "bathroomLight"],
+                                               resources=cacheResources, 
+                                               stateList=[[0, 100, 0], [0, 100, 10]], 
+                                               type="nightLight", group="Lights", label="Night lights")
+    outsideLights = ControlGroup("outsideLights", ["frontLights",
+                                               "sculptureLights",
+                                               "backLights",
+                                               "garageBackDoorLight",
                                                "bbqLights",
                                                "backYardLights",
                                                "deckLights",
                                                "trashLights",
+                                               "xmasTree",
+                                               "xmasCowTree",
                                                "xmasFrontLights",
                                                "xmasBackLights"],
                                                resources=cacheResources, 
-                                               type="light", group="Lights", label="Outside lights"))
-    localResources.addRes(ControlGroup("bedroomLights", ["bedroomLight", 
-                                               "bathroomLight"],
-                                               resources=cacheResources, 
-                                               stateList=[[0, 100, 0], [0, 100, 10]], 
-                                               type="nightLight", group="Lights", label="Night lights"))
-
+                                               type="light", group="Lights", label="Outside lights")
+    localResources.addRes(porchLights)
+    localResources.addRes(xmasLights)
+    localResources.addRes(bedroomLights)
+    localResources.addRes(outsideLights)
+    
     # Tasks
     localResources.addRes(HATask("bedroomLightsOnSunset", HASchedTime(event="sunset"), "bedroomLights", 1, resources=localResources))
     localResources.addRes(HATask("bedroomLightsOffSunrise", HASchedTime(event="sunrise"), "bedroomLights", 0, resources=localResources))
