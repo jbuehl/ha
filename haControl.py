@@ -3,6 +3,7 @@ webSSLPort = 7380
 webSSLDomain = "cloud.buehltech.com"
 webUpdateInterval = 1
 webPageTitle = "Home Automation"
+runRestServer = False
 restIgnore = []
 restPort = 7378
 insideTemp = "kitchenTemp"
@@ -192,13 +193,22 @@ if __name__ == "__main__":
     restCache = RestProxy("restProxy", resources, restIgnore, stateChangeEvent, resourceLock)
     restCache.start()
     
+    # Schedules
+    schedule = HASchedule("schedule")
+    resources.addRes(HATask("sundaySpaOn", HASchedTime(year=[2017], month=[1], day=[22], hour=[17], minute=[00]), "spa", 1, resources=resources))
+    resources.addRes(HATask("sundaySpaOff", HASchedTime(year=[2017], month=[1], day=[22], hour=[18], minute=[55]), "spa", 0, resources=resources))
+    schedule.addTask(resources["sundaySpaOn"])
+    schedule.addTask(resources["sundaySpaOff"])
+    schedule.start()
+    
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
     templates = Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates')))
     webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=webPort, 
 #            ssl=True, httpsPort=webSSLPort, domain=webSSLDomain, 
-            pathDict=pathDict, baseDir=baseDir, block=False)
+            pathDict=pathDict, baseDir=baseDir, block=not runRestServer)
 
-    restServer = RestServer(resources, port=restPort, event=stateChangeEvent, label="Control")
-    restServer.start()
+    if runRestServer:
+        restServer = RestServer(resources, port=restPort, event=stateChangeEvent, label="Control")
+        restServer.start()
  
