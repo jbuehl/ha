@@ -1,4 +1,6 @@
 stateChangeInterval = 10
+dataLogDir = "data/"
+dataLogFileName = ""
 
 import time
 import datetime
@@ -13,7 +15,11 @@ from dateutil import tz
 from ha.sunriseset import *
 from ha.HAConf import *
 
-# log a message
+# standard timestamp
+def timeStamp(fmt):
+    return time.strftime(fmt, time.localtime())
+    
+# log a message to syslog or stdout
 def log(*args):
     message = args[0]+" "   # first argument is the object doing the logging
     for arg in args[1:]:
@@ -21,16 +27,25 @@ def log(*args):
     if sysLogging:
         syslog.syslog(message)
     else:
-        print message
+        print timeStamp("%b %d %H:%M:%S")+" "+message
 
-# log a debug message
+# log a debug message conditioned on a specified global variable
 def debug(*args):
     if debugEnable:   # global debug flag enables debugging
         try:
-            if globals()[args[0]]:
+            if globals()[args[0]]:  # only log if the specified debug variable is True
                 log(*args[1:])
         except:
             pass
+
+# log a data point
+def logData(name, value):
+    try:
+        if debugFileName != "":
+            with open(dataLogDir+timestamp("%Y%m%d-")+dataLogFileName+".csv", "a") as dataLogFile:
+                dataLogFile.write(timestamp("%Y %m %d %H:%M:%S")+","+name+","+value)
+    except:
+        pass
             
 # read configuration files
 try:
@@ -540,7 +555,7 @@ class SensorGroup(HASensor):
     def getState(self):
         groupState = 0
         for sensorIdx in range(len(self.sensorList)):
-            if self.resources:      # sensors are resource names
+            if self.resources:      # sensors are resource names - FIXME - test list element type
                 try:
                     sensor = self.resources.getRes(self.sensorList[sensorIdx])
                 except KeyError:    # can't resolve so ignore it
@@ -573,7 +588,7 @@ class ControlGroup(SensorGroup, HAControl):
                 debug('debugThread', self.name, "started")
                 self.running = True
                 for controlIdx in range(len(self.sensorList)):
-                    if self.resources:      # controls are resource names
+                    if self.resources:      # controls are resource names - FIXME - test list element type
                         try:
                             control = self.resources[self.sensorList[controlIdx]]
                         except KeyError:    # can't resolve so ignore it
@@ -797,7 +812,7 @@ class HATask(HAControl):
         
     # dictionary of pertinent attributes
     def dict(self):
-        if self.resources:      # control is resource name
+        if self.resources:      # control is resource name - FIXME - test list element type
             try:
                 control = self.resources[self.control]
             except KeyError:    # can't resolve so ignore it
@@ -812,7 +827,7 @@ class HATask(HAControl):
                 "schedTime": self.schedTime.dict()}
                     
     def __str__(self, views=None):
-        if self.resources:      # control is resource name
+        if self.resources:      # control is resource name - FIXME - test list element type
             try:
                 control = self.resources[self.control]
             except KeyError:    # can't resolve so ignore it
