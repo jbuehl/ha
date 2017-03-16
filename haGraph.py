@@ -5,6 +5,9 @@ import cherrypy
 
 dataDir = "/root/data/"
 
+def convertDate(dateStr):
+    return dateStr[0:4]+dateStr[5:7]+dateStr[8:10]
+    
 def convertTime(timeStr):
     # convert time to a javascript unix time relative to zero
     (hour, minute, second) = timeStr.split(":")
@@ -186,14 +189,15 @@ class WebRoot(object):
                             stateDict["inverters"].update(inDict["inverters"])
                             stateDict["optimizers"].update(inDict["optimizers"])
                             inverters = inDict[type].keys()
-                            timeStamp = convertTime(inDict[type][inverters[0]]["Time"])
-                            statDict["Volts"].append([timeStamp, int(avgItems(stateDict["inverters"], "Vac"))])
-                            eDay += int(sumItems(inDict["inverters"], "Eac"))
-                            for inv in inverters:
-                                statDict[inv].append([timeStamp, inDict[type][inv]["Pac"]])
-                                statDict["Pac"] = "%7.3f KW" % (sumItems(stateDict["inverters"], "Pac") / 1000)
-                                statDict["Etot"] = "%7.3f MWh" % (sumItems(stateDict["inverters"], "Etot") / 1000000)
-                            statDict["Temp"].append([timeStamp, int(avgItems(stateDict["optimizers"], "Temp")*9/5+32)])
+                            if convertDate(inDict[type][inverters[0]]["Date"]) == date:
+                                timeStamp = convertTime(inDict[type][inverters[0]]["Time"])
+                                statDict["Volts"].append([timeStamp, int(avgItems(stateDict["inverters"], "Vac"))])
+                                eDay += int(sumItems(inDict["inverters"], "Eac"))
+                                for inv in inverters:
+                                    statDict[inv].append([timeStamp, inDict[type][inv]["Pac"]])
+                                    statDict["Pac"] = "%7.3f KW" % (sumItems(stateDict["inverters"], "Pac") / 1000)
+                                    statDict["Etot"] = "%7.3f MWh" % (sumItems(stateDict["inverters"], "Etot") / 1000000)
+                                statDict["Temp"].append([timeStamp, int(avgItems(stateDict["optimizers"], "Temp")*9/5+32)])
                     except:
                         print jsonStr
                         raise
