@@ -31,12 +31,12 @@ def log(*args):
 
 # log a debug message conditioned on a specified global variable
 def debug(*args):
-    if debugEnable:   # global debug flag enables debugging
-        try:
+    try:
+        if debugEnable:   # global debug flag enables debugging
             if globals()[args[0]]:  # only log if the specified debug variable is True
                 log(*args[1:])
-        except:
-            pass
+    except:
+        pass
 
 # log a data point
 def logData(name, value):
@@ -49,7 +49,7 @@ def logData(name, value):
             
 # read configuration files
 try:
-    for configFileName in os.listdir(configDir):
+    for configFileName in ['ha.conf']: #os.listdir(configDir):
         debug('debugConf', "config open", configFileName)
         try:
             with open(configDir+configFileName) as configFile:
