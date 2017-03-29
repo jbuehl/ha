@@ -23,23 +23,3 @@ smsSid = keyDir+"twilio.sid"
 smsToken = keyDir+"twilio.tkn"
 notifyFromNumber = keyDir+"notifyFromNumber"
 
-# General debugging
-debugEnable = False
-debugConf = False
-debugObject = False
-debugState = False
-debugStateChange = False
-debugThread = False
-debugInterrupt = False
-
-# REST interface
-debugRest = False
-debugRestResources = False
-debugRestGet = False
-debugRestPut = False
-debugRestStates = False
-
-# Scheduler
-debugEvent = False
-debugSched = False
-
