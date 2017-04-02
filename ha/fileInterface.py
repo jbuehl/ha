@@ -69,7 +69,7 @@ class FileInterface(HAInterface):
             with open(self.fileName) as dataFile:
                 self.data = json.load(dataFile)
         except:
-            log(self.name, "readData file read error")
+            log(self.name, self.fileName, "readData file read error")
         debug('debugFile', self.name, "readData", self.data)
 
     def writeData(self):
