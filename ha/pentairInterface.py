@@ -107,6 +107,7 @@ class PentairInterface(HAInterface):
             else:
                 debug('debugPentairData', self.name, "-->", pmsg.printState(), 
                                   "*** bad checksum ***")
+                return (pmsg.src, pmsg.cmd, pmsg.dat)
 
     def sendMsg(self, (dst, cmd, dat)):
         """ Send a message.
