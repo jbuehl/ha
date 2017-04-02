@@ -93,6 +93,6 @@ if __name__ == "__main__":
     schedule.start()
 
     # start the REST server for this service
-    restServer = RestServer(localResources, port=restPort, event=stateChangeEvent)
+    restServer = RestServer(localResources, port=restPort, event=stateChangeEvent, label="Lights")
     restServer.start()
 
