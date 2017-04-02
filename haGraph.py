@@ -3,7 +3,7 @@ import time
 import json
 import cherrypy
 
-dataDir = "/root/data/"
+dataDir = "/data/data/"
 
 def convertDate(dateStr):
     return dateStr[0:4]+dateStr[5:7]+dateStr[8:10]
