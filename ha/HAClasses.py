@@ -199,12 +199,15 @@ class HACollection(HAResource, OrderedDict):
     # this does not replicate the collection hierarchy being read
     def load(self, interface, path, views={}, level=0):
         node = interface.read(path)
-        if debugRestResources:
-            if node != {}:
-                log("    "*(level)+node["name"])
-                for attr in node.keys():
-                    if (attr != "name") and (attr != "resources"):
-                        log("    "*(level+1)+attr+": "+node[attr].__str__())
+        try:
+            if debugRestResources:
+                if node != {}:
+                    log("    "*(level)+node["name"])
+                    for attr in node.keys():
+                        if (attr != "name") and (attr != "resources"):
+                            log("    "*(level+1)+attr+": "+node[attr].__str__())
+        except NameError:
+            pass
         self.loadResource(interface, node, path)
         if "resources" in node.keys():
             # the node is a collection
@@ -253,8 +256,11 @@ class HACollection(HAResource, OrderedDict):
                 self.addRes(resource)
         except:
             debug('debug', self.name, "loadResource", str(node), "exception")
-            if debugExceptions:
-                raise
+            try:
+                if debugExceptions:
+                    raise
+            except NameError:
+                pass
 
     # add Views to each resource
     def addViews(self, views):            
@@ -557,12 +563,15 @@ class SensorGroup(HASensor):
         for sensorIdx in range(len(self.sensorList)):
             if self.resources:      # sensors are resource names - FIXME - test list element type
                 try:
-                    sensor = self.resources.getRes(self.sensorList[sensorIdx])
+                    sensorState = self.resources.getRes(self.sensorList[sensorIdx]).getState()
                 except KeyError:    # can't resolve so ignore it
-                    sensor = None
+                    sensorState = 0
             else:                   # sensors are resource references
-                sensor = self.sensorList[sensorIdx]
-            groupState = groupState or sensor.getState()    # group is on if any one sensor is on
+                try:
+                    sensorState = self.sensorList[sensorIdx].getState()
+                except AttributeError:
+                    sensorState = 0
+            groupState = groupState or sensorState    # group is on if any one sensor is on
         return groupState
 
 # A set of Controls whose state can be changed together
