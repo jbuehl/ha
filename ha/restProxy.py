@@ -14,7 +14,8 @@ import time
 
 class RestProxy(threading.Thread):
     def __init__(self, name, resources, selfRest, stateChangeEvent, resourceLock):
-        debug('debugRestProxy', name, "starting", selfRest)
+        debug('debugRestProxy', name, "starting", name)
+        debug('debugRestProxy', name, "ignoring", selfRest)
         threading.Thread.__init__(self, target=self.doRest)
         self.name = name
         self.services = {}
