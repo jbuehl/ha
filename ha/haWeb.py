@@ -121,11 +121,11 @@ class WebRoot(object):
                 resClass = self.resources.getRes(resource).type
                 debug('debugWebUpdate', "/updateStates", resource, resClass, resState, state)
                 if resClass in tempTypes:
-                    updates[resource] = ("temp", resState, tempColor(resState))
+                    updates[resource] = ("temp", resState)
                 else:
                     if resClass not in staticTypes:
                         resClass += "_"+resState
-                    updates[resource] = (resClass, resState, "")
+                    updates[resource] = (resClass, resState)
                 if (resource in blinkers) and (state > 0):
                     debug('debugWebBlink', "/updateStates", resource, resClass, resState, state)
                     blinkerList.append(resource)
