@@ -6,7 +6,7 @@ webPageTitle = "Home Automation"
 runRestServer = False
 restIgnore = []
 restPort = 7378
-insideTemp = "kitchenTemp"
+insideTemp = "familyRoomTemp"
 outsideTemp = "deckTemp"
 poolTemp = "waterTemp"
 
@@ -36,7 +36,7 @@ def index():
 #                                                       "xmasLights", "xmasTree",
                                                        "poolLight", "spaLight"])]
         shadesGroup = ["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])]
-        hvacGroup = ["Hvac", resources.getResList(["kitchenTemp", "southHeatTempTarget", "southCoolTempTarget", "familyRoomDoor", 
+        hvacGroup = ["Hvac", resources.getResList(["familyRoomTemp", "southHeatTempTarget", "southCoolTempTarget", "familyRoomDoor", 
                                                    "masterBedroomTemp", "northHeatTempTarget", "northCoolTempTarget", "masterBedroomDoor"])]
         sprinklersGroup = ["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "backBedSequence", "frontLawnSequence"])]
         powerGroup = ["Power", resources.getResList(["currentVoltage", "currentLoad", "currentPower", "todaysEnergy"])]

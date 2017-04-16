@@ -88,10 +88,10 @@ if __name__ == "__main__":
                                     northCool, masterBedroomTemp, northCoolTempTarget, masterBedroomDoor, unitType=1, 
                                     group="Hvac", label="North cool control", type="heater")
     southHeatControl = TempControl("southHeatControl", nullInterface, 
-                                    southHeat, kitchenTemp, southHeatTempTarget, familyRoomDoor, unitType=0, 
+                                    southHeat, familyRoomTemp, southHeatTempTarget, familyRoomDoor, unitType=0, 
                                     group="Hvac", label="South heat control", type="heater")
     southCoolControl = TempControl("southCoolControl", nullInterface, 
-                                    southCool, kitchenTemp, southCoolTempTarget, familyRoomDoor, unitType=1, 
+                                    southCool, familyRoomTemp, southCoolTempTarget, familyRoomDoor, unitType=1, 
                                     group="Hvac", label="South cool control", type="heater")
     
     resources.addRes(northHeat)
