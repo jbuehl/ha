@@ -10,10 +10,10 @@
                 {% endfor %}
             </form>
                 {% if resource.className == "HATask" %}
-                    {{ resource.__str__().replace(",","<br>") }}
+                    <div class=task>{{ resource.__str__().replace(",","<br>") }}</div>
                 {% endif %}
                 {% if resource.className == "HASequence" %}
-                    {{ resource.__str__().replace(",","<br>") }}
+                    <div class=sequence>{{ resource.__str__().replace(",","<br>") }}</div>
                 {% endif %}
             </div>
             {% endif %}

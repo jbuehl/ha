@@ -73,6 +73,14 @@ td {
     text-align: left;
     }
 
+.task {
+    font-family: "Courier New", Courier, monospace;
+    }
+    
+.sequence {
+    font-family: "Courier New", Courier, monospace;
+    }
+    
 .container {
 /*    background-color: Red;*/
     padding: 2 2 2 2;
