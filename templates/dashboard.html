@@ -13,16 +13,16 @@
         <col width=640><col width=640>
         <tr>
             <td>
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=timeGroup, details=False, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=weatherGroup, details=False, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=lightsGroup, details=False, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=poolGroup, details=False, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=timeGroup, details=False, link=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=weatherGroup, details=False, link=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=lightsGroup, details=False, link=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=poolGroup, details=False, link=True, views=views) }}
             </td>
             <td>
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=shadesGroup, details=False, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=hvacGroup, details=False, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=sprinklersGroup, details=False, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=powerGroup, details=False, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=shadesGroup, details=False, link=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=hvacGroup, details=False, link=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=sprinklersGroup, details=False, link=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=powerGroup, details=False, link=True, views=views) }}
             </td>
         </tr>
     </table>

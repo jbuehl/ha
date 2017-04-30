@@ -71,7 +71,8 @@ def details(group=None):
                             resourceTemplate=templates.get_template("resource.html"),
                             groups=[[group, resources.getGroup(group)] for group in groups],
                             views=views,
-                            details=details)
+                            details=details,
+                            link=False)
     return reply
     
 # Solar   
@@ -138,7 +139,7 @@ def iphone5():
                                                             "porchLights", 
 #                                                            "xmasLights", "xmasTree",
                                                             "shade1", "shade2", "shade3", "shade4", 
-#                                                            "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence",
+                                                            "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence",
                                                             "poolPump"]),
                             views=views)
     return reply

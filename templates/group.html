@@ -1,4 +1,8 @@
+    {% if link %}
+    <h2><a href="/details?group={{ group[0] }}">{{ group[0] }}</a></h2>
+    {% else %}
     <h2>{{ group[0] }}</h2>
+    {% endif %}
     {% if details %}
     <table border=0 width=1280 style='table-layout:fixed'>
         <col width=180><col width=200><col width=260><col width=120><col width=100><col width=120><col width=240><col width=60>
