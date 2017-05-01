@@ -9,20 +9,22 @@
     {{ script }}
 </head>
 <body>
-    <table border=0 width=1280 style='table-layout:fixed'>
-        <col width=640><col width=640>
+    <table border=0 width={{ widths[0] }} style='table-layout:fixed'>
+        {% for w in widths[1] %}
+        <col width={{ w[0] }}>
+        {% endfor %}
         <tr>
             <td>
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=timeGroup, details=False, link=True, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=weatherGroup, details=False, link=True, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=lightsGroup, details=False, link=True, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=poolGroup, details=False, link=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=timeGroup, details=False, name=True, link=True, label=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=weatherGroup, details=False, name=True, link=True, label=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=lightsGroup, details=False, name=True, link=True, label=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=poolGroup, details=False, name=True, link=True, label=True, views=views) }}
             </td>
             <td>
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=shadesGroup, details=False, link=True, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=hvacGroup, details=False, link=True, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=sprinklersGroup, details=False, link=True, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=powerGroup, details=False, link=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1], group=shadesGroup, details=False, name=True, link=True, label=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1], group=hvacGroup, details=False, name=True, link=True, label=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1], group=sprinklersGroup, details=False, name=True, link=True, label=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1], group=powerGroup, details=False, name=True, link=True, label=True, views=views) }}
             </td>
         </tr>
     </table>

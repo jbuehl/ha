@@ -29,6 +29,7 @@ resourceLock = threading.Lock()
 def index():
     debug('debugWeb', "/")
     with resourceLock:
+        widths = [1280, [[640, [180, 200, 260]], [640, [180, 200, 260]]]]
         timeGroup = ["Time", resources.getResList(["theDateDayOfWeek", "theTimeAmPm", "sunrise", "sunset"])]
         weatherGroup = ["Weather", resources.getResList(["deckTemp", "humidity", "barometer"])]
         poolGroup = ["Pool", resources.getResList(["spaTemp", "poolPump", "poolPumpFlow", "spaFill", "spaFlush", "spaDrain", "filter", "clean", "flush"])]
@@ -43,6 +44,7 @@ def index():
         reply = templates.get_template("dashboard.html").render(script="",
                             groupTemplate=templates.get_template("group.html"),
                             resourceTemplate=templates.get_template("resource.html"),
+                            widths=widths,
                             timeGroup=timeGroup,
                             weatherGroup=weatherGroup,
                             poolGroup=poolGroup,
@@ -66,9 +68,11 @@ def details(group=None):
                   "Services", "Tasks"]
         details = True
     with resourceLock:
+        widths = [1280, [180, 200, 260, 120, 100, 120, 240, 60]]
         reply = templates.get_template("details.html").render(title=webPageTitle, script="", 
                             groupTemplate=templates.get_template("group.html"),
                             resourceTemplate=templates.get_template("resource.html"),
+                            widths=widths,
                             groups=[[group, resources.getGroup(group)] for group in groups],
                             views=views,
                             details=details,
@@ -108,22 +112,25 @@ def solar():
 def ipad():
     debug('debugWeb', "/ipad", cherrypy.request.method)
     with resourceLock:
+        widths = [[1024, [62, 58, 292, 200, 200, 200]], [1024, [[512, [180, 140, 192]], [512, [180, 140, 192]]]]]
         reply = templates.get_template("ipad.html").render(script="", 
+                            groupTemplate=templates.get_template("group.html"),
+                            resourceTemplate=templates.get_template("resource.html"),
+                            widths=widths,
                             time=resources.getRes("theTime"),
                             ampm=resources.getRes("theAmPm"),
                             day=resources.getRes("theDay"),
                             pooltemp=resources.getRes(poolTemp),
                             intemp=resources.getRes(insideTemp),
                             outtemp=resources.getRes(outsideTemp),
-                            groups=[["Pool", resources.getResList(["spaTemp"])], 
-                                  ["Lights", resources.getResList(["porchLights", "poolLight", "spaLight"])], 
-#                                  ["Lights", resources.getResList(["porchLights", "xmasLights", "xmasTree"])], 
+                            poolGroup=["Pool", resources.getResList(["spaTemp"])], 
+                            lightsGroup=["Lights", resources.getResList(["porchLights", "poolLight", "spaLight"])], 
+#                           xmasGroup=["Lights", resources.getResList(["porchLights", "xmasLights", "xmasTree"])], 
 #                                      ["Lights", resources.getResList(["bbqLights", "backYardLights"])], 
 #                                      ["Lights", resources.getResList(["xmasTree", "xmasCowTree", "xmasLights"])], 
-                                  ["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
-                                  ["Hvac", resources.getResList(["southHeatTempTarget", "southCoolTempTarget", "northHeatTempTarget", "northCoolTempTarget"])], 
-                                  ["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])]
-                                  ],
+                            shadesGroup=["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
+                            hvacGroup=["Hvac", resources.getResList(["southHeatTempTarget", "southCoolTempTarget", "northHeatTempTarget", "northCoolTempTarget"])], 
+                            sprinklersGroup=["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])],
                             views=views)
     return reply
 
@@ -131,7 +138,11 @@ def ipad():
 def iphone5():
     debug('debugWeb', "/iphone5", cherrypy.request.method)
     with resourceLock:
+        widths = [[320, [60, 100, 60]], [320, [120, 72, 128]]]
         reply = templates.get_template("iphone5.html").render(script="", 
+                            groupTemplate=templates.get_template("group.html"),
+                            resourceTemplate=templates.get_template("resource.html"),
+                            widths=widths,
                             time=resources.getRes("theTime"),
                             ampm=resources.getRes("theAmPm"),
                             temp=resources.getRes(outsideTemp),
@@ -148,7 +159,11 @@ def iphone5():
 def iphone3gs():
     debug('debugWeb', "/iphone3gs", cherrypy.request.method)
     with resourceLock:
+        widths = [[320, [296, 24]], [320, [240, 80]], [320, [152, 168]]]
         reply = templates.get_template("iphone3gs.html").render(script="", 
+                            groupTemplate=templates.get_template("group.html"),
+                            resourceTemplate=templates.get_template("resource.html"),
+                            widths=widths,
                             time=resources.getRes("theTime"),
                             ampm=resources.getRes("theAmPm"),
                             day=resources.getRes("theDay"),

@@ -1,5 +1,17 @@
-        <td><div class=label>{{ resource.label }}</div></td>
-        <td><div id="{{ resource.name }}" class="{{ resource.type+'_'+resource.getViewState(views) }}">{{ resource.getViewState(views) }}</div></td>
+    <!-- label - display the resource label -->
+    <!-- stack - display the resource state under the label -->
+    <!-- details - display resource details -->
+
+        <td>
+        {% if label %}  
+            <div class=label>{{ resource.label }}</div>
+        {% if not stack %}
+        </td>
+        <td>
+        {% endif %}
+        {% endif %}
+            <div id="{{ resource.name }}" class="{{ resource.type+'_'+resource.getViewState(views) }}">{{ resource.getViewState(views) }}</div>
+        </td>
         <td>
             {% if resource.className != "HASensor" %}
             <div class=control>

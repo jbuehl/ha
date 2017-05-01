@@ -11,7 +11,7 @@
 <body>
     <h1>{{ title }}</h1>
     {% for group in groups %}
-        {{ groupTemplate.render(resourceTemplate=resourceTemplate, group=group, details=details, views=views) }}
+        {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths, group=group, details=details, name=True, link=False, label=True, views=views) }}
     {% endfor %}
 </body>
 </html>

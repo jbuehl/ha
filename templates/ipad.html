@@ -10,8 +10,10 @@
     {{ script }}
 </head>
 <body>
-    <table border=0 width=1024 style='table-layout:fixed'>
-        <col width=62><col width=58><col width=292><col width=200><col width=200><col width=200>
+    <table border=0 width={{ widths[0][0] }} style='table-layout:fixed'>
+        {% for w in widths[0][1] %}
+        <col width={{ w }}>
+        {% endfor %}
         <tr>
             <td><div id="{{ time.name }}" class="time">{{ time.getViewState(views) }}</div></td>
             <td><div id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState(views) }}</div></td>
@@ -21,37 +23,22 @@
             <td>outside<div id="{{ outtemp.name }}" class="tempF">{{ outtemp.getViewState(views) }}</div></td>
         </tr>
     </table>
-    {% for g in groups %}
-    <br>
-    <table border=0 width=1024 style='table-layout:fixed'>
-        <col width=180><col width=140><col width=320>
-        {% for r in g[1] %}
+    <table border=0 width={{ widths[1][0] }} style='table-layout:fixed'>
+        {% for w in widths[1][1] %}
+        <col width={{ w[0] }}>
+        {% endfor %}
         <tr>
-            <td><div class=label>{{ r.label }}</div></td>
-            <td><div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}</div></td>
             <td>
-                {% if r.className != "HASensor" %}
-                <div class=control>
-                <form name='control' action='' method='get'>
-                    <input type='hidden' name='resource' value='{{ r.name }}' />
-                    {% for v in r.setValues(views).values() %}
-                    <input type='submit' class='button' name='action' value='{{ v }}' />
-                    {% endfor %}
-                </form>
-                    {% if r.className == "HATask" %}
-                        {{ r.control.name }}: {{ r.control.setValues(views)[r.controlState] }}<br>
-                        {{ r.schedTime.__str__().replace(",","<br>") }}
-                    {% endif %}
-                    {% if r.className == "HASequence" %}
-                        {{ r.__str__().replace(",","<br>") }}
-                    {% endif %}
-                </div>
-                {% endif %}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][0], group=lightsGroup, details=False, name=False, label=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][0], group=shadesGroup, details=False, name=False, label=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][0], group=hvacGroup, details=False, name=False, label=True, views=views) }}
+            </td>
+            <td>
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][1], group=poolGroup, details=False, name=False, label=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][1], group=sprinklersGroup, details=False, name=False, label=True, views=views) }}
             </td>
         </tr>
-        {% endfor %}
     </table>
-    {% endfor %}
 </body>
 </html>
 

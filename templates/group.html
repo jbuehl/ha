@@ -1,18 +1,22 @@
+    <!-- name - display the group name -->
+    <!-- link - make the group name be a link -->
+
+    {% if name %}
     {% if link %}
-    <h2><a href="/details?group={{ group[0] }}">{{ group[0] }}</a></h2>
+    <a href="/details?group={{ group[0] }}"><h2>{{ group[0] }}</h2></a>
     {% else %}
     <h2>{{ group[0] }}</h2>
     {% endif %}
-    {% if details %}
-    <table border=0 width=1280 style='table-layout:fixed'>
-        <col width=180><col width=200><col width=260><col width=120><col width=100><col width=120><col width=240><col width=60>
     {% else %}
-    <table border=0 width=640 style='table-layout:fixed'>
-        <col width=180><col width=200><col width=260>
+    <br>
     {% endif %}
+    <table border=0 width={{ widths[0] }} style='table-layout:fixed'>
+        {% for w in widths[1] %}
+        <col width={{ w }}>
+        {% endfor %}
         {% for resource in group[1] %}
         <tr>
-            {{ resourceTemplate.render(resource=resource, views=views, details=details) }}
+            {{ resourceTemplate.render(resource=resource, views=views, details=details, label=label) }}
         </tr>
         {% endfor %}
     </table>

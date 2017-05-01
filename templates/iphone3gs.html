@@ -14,42 +14,31 @@
     {{ script }}
 </head>
 <body>
-    <table border=0 width=320 style='table-layout:fixed'>
-        <col width=296><col width=24>
+    <table border=0 width={{ widths[0][0] }} style='table-layout:fixed'>
+        {% for w in widths[0][1] %}
+        <col width={{ w }}>
+        {% endfor %}
         <tr>
             <td><div id="{{ time.name }}" class="time">{{ time.getViewState(views) }}</div></td>
             <td><div id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState(views) }}</div></td>
         </tr>
     </table>
-    <table border=0 width=320 style='table-layout:fixed'>
-        <col width=240><col width=80>
+    <table border=0 width={{ widths[1][0] }} style='table-layout:fixed'>
+        {% for w in widths[1][1] %}
+        <col width={{ w }}>
+        {% endfor %}
         <tr>
             <td><div id="{{ day.name }}" class="date">{{ day.getViewState(views) }}</div></td>
             <td><div id="{{ temp.name }}" class="tempF">{{ temp.getViewState(views) }}</div></td>
         </tr>
     </table>
-    <table border=0 width=320 style='table-layout:fixed'>
-        <col width=152><col width=168>
-        {% for r in resources %}
+    <table border=0 width={{ widths[2][0] }} style='table-layout:fixed'>
+        {% for w in widths[2][1] %}
+        <col width={{ w }}>
+        {% endfor %}
+        {% for resource in resources %}
         <tr>
-            <td>
-                <div class=label>{{ r.label }}</div>
-                <div class="state">
-                    <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}</div>
-                </div>
-            </td>
-            <td>
-                {% if r.className != "HASensor" %}
-                <div class=control>
-                <form name='control' action='' method='get'>
-                    <input type='hidden' name='resource' value='{{ r.name }}' />
-                    {% for v in r.setValues(views).values() %}
-                    <input type='submit' class='button' name='action' value='{{ v }}' />
-                    {% endfor %}
-                </form>
-                </div>
-                {% endif %}
-            </td>
+            {{ resourceTemplate.render(resource=resource, views=views, details=False, label=True, stack=True) }}
         </tr>
         {% endfor %}
     </table>
