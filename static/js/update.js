@@ -67,6 +67,8 @@ $(document).ready(function() {
         }
     var pending = false;    // true while an stateChange request is pending
     var count = 0;
+    var blinkToggle = false;
+    var blinkOpacity = 1.0;
     // main loop
     var refreshId = setInterval(function() {
         if (count == 60) {     // every minute
@@ -82,8 +84,16 @@ $(document).ready(function() {
                 pending = false;
                 });
             };
+        if (blinkToggle) {
+            blinkOpacity = 1.0;
+            blinkToggle = false;
+            }
+        else {
+            blinkOpacity = 0.5;
+            blinkToggle = true;
+            };
         $.each(blinkers, function(key, val) {
-            $('#'+val).toggle($("body").css("background-color"));     // blink the value
+            $('#'+val).css("opacity", blinkOpacity);     // blink the value
         });
         count = count + 1;
         }, 1000);
