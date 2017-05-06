@@ -1,18 +1,19 @@
 # Sunrise/Sunset Algorithm
 
 import math
+import time
 import datetime
 from dateutil import tz
 
 # is the sun up at the specified time
 def sunIsUp(date, latLong):
-    return sunrise(date, latLong) > sunset(date, latLong)
+    return (date > sunrise(date, latLong)) and (date < sunset(date, latLong))
     
-# return the time of the next sunrise after the specified time
+# return the time of sunrise of the specified date
 def sunrise(date, latLong):
     return sunRiseSet(date, latLong[0], latLong[1], True)
     
-# return the time of the next sunset after the specified time
+# return the time of sunset of the specified date
 def sunset(date, latLong):
     return sunRiseSet(date, latLong[0], latLong[1], False)
     
@@ -61,9 +62,6 @@ def atan(x):
     return math.degrees(math.atan(x))
 
 def sunRiseSet(date, latitude, longitude, rising):
-    year = date.year
-    month = date.month
-    day = date.day
 
 # 1. first calculate the day of the year
 #	N1 = floor(275 * month / 9)
@@ -72,7 +70,6 @@ def sunRiseSet(date, latitude, longitude, rising):
 #	N = N1 - (N2 * N3) + day - 30
     N = date.timetuple().tm_yday
     zenith = 90
-    localOffset = -8
 
 # 2. convert the longitude to hour value and calculate an approximate time
     lngHour = longitude / 15
@@ -87,10 +84,18 @@ def sunRiseSet(date, latitude, longitude, rising):
 # 4. calculate the Sun's true longitude
     L = M + (1.916 * sin(M)) + (0.020 * sin(2 * M)) + 282.634
 #	NOTE: L potentially needs to be adjusted into the range [0,360) by adding/subtracting 360
+#    if L > 360:
+#        L = L - 360
+#    elif L < 0:
+#        L = L + 360
 
 # 5a. calculate the Sun's right ascension
     RA = atan(0.91764 * tan(L))
 #	NOTE: RA potentially needs to be adjusted into the range [0,360) by adding/subtracting 360
+#    if RA > 360:
+#        RA = RA - 360
+#    elif RA < 0:
+#        RA = RA + 360
 
 # 5b. right ascension value needs to be in the same quadrant as L
     Lquadrant  = (math.floor( L/90)) * 90
@@ -124,22 +129,16 @@ def sunRiseSet(date, latitude, longitude, rising):
 # 9. adjust back to UTC
     UT = T - lngHour
 #	NOTE: UT potentially needs to be adjusted into the range [0,24) by adding/subtracting 24
-    if UT > 24:
+    if UT >= 24:
         UT = UT - 24
-        date = date + datetime.timedelta(days=1)
-        year = date.year
-        month = date.month
-        day = date.day
+    elif UT < 0:
+        UT = UT + 24
         
 # 10. convert UT value to local time zone of latitude/longitude
+    tzoffset = datetime.datetime(*time.gmtime()[:6]) - datetime.datetime(*time.localtime()[:6])
     hour = int(UT)
-    minute = int((UT - hour)	 * 60) 
-    LT = datetime.datetime(year, month, day, hour, minute, tzinfo=tz.tzutc()).astimezone(tz.tzlocal())
-    return LT
+    minute = int((UT - hour)	 * 60)
+    LT = datetime.datetime(date.year, date.month, date.day, hour, minute, tzinfo=tz.tzutc()).astimezone(tz.tzlocal())
+    # return a datetime containing the specified date (yyyymmdd) and the computed time (hhmm)
+    return datetime.datetime(date.year, date.month, date.day, LT.hour, LT.minute, tzinfo=LT.tzinfo)
 
-#if __name__ == "__main__":
-
-#    date = datetime.date(2013, 2, 1)
-#    for i in xrange(0, 10):
-#        print date, "%2d:%02d %2d:%02d" % (sunrise(date).hour, sunrise(date).minute, sunset(date).hour, sunset(date).minute)
-#        date = date + datetime.timedelta(days=1)    
