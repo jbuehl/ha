@@ -77,10 +77,12 @@ td {
 
 .task {
     font-family: "Courier New", Courier, monospace;
+    font-weight: normal;
     }
     
 .sequence {
     font-family: "Courier New", Courier, monospace;
+    font-weight: normal;
     }
     
 .container {

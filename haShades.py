@@ -28,9 +28,10 @@ if __name__ == "__main__":
     # Schedules
     resources.addRes(schedule)
     schedule.addTask(HATask("shadesDown", HASchedTime(hour=[13], minute=[00], month=[Apr, May, Jun, Jul, Aug, Sep]), resources["allShades"], 1, enabled=True))
-    schedule.addTask(HATask("shadesUpJunJul", HASchedTime(hour=[19], minute=[15], month=[Jun, Jul]), resources["allShades"], 0, enabled=True))
-    schedule.addTask(HATask("shadesUpMayAug", HASchedTime(hour=[19], minute=[00], month=[May, Aug]), resources["allShades"], 0, enabled=True))
-    schedule.addTask(HATask("shadesUpAprSep", HASchedTime(hour=[18], minute=[45], month=[Apr, Sep]), resources["allShades"], 0, enabled=True))
+    schedule.addTask(HATask("shadesUp", HASchedTime(minute=-30, event="sunset", month=[Apr, May, Jun, Jul, Aug, Sep]), resources["allShades"], 0, enabled=True))
+#    schedule.addTask(HATask("shadesUpJunJul", HASchedTime(hour=[19], minute=[15], month=[Jun, Jul]), resources["allShades"], 0, enabled=True))
+#    schedule.addTask(HATask("shadesUpMayAug", HASchedTime(hour=[19], minute=[00], month=[May, Aug]), resources["allShades"], 0, enabled=True))
+#    schedule.addTask(HATask("shadesUpAprSep", HASchedTime(hour=[18], minute=[45], month=[Apr, Sep]), resources["allShades"], 0, enabled=True))
 
     # Start interfaces
     gpioInterface.start()

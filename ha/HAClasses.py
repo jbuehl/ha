@@ -725,6 +725,7 @@ class HASchedule(HACollection):
         if resource.schedTime.event != "":
             # if an event is specified, add a child task with a specific date and time
             self.addRes(resource.child())
+            debug('debugEvent', self.name, "adding", resource.child().__str__())
         
     # add a task to the scheduler list
     def addTask(self, theTask):
@@ -852,9 +853,11 @@ class HATask(HAControl):
     def __del__(self):
         del(self.schedTime)
 
-# Schedule Time defines a time to perform a task.
+# Schedule Time defines a date and time to perform a task.
 # Year, month, day, hour, minute, and weekday may be specified as a list of zero or more values.
 # Relative dates of "today" or "tomorrow" and events of "sunrise" or "sunset" may also be specified.
+# If an event and a time (hours, minutes) are specified, the time is considered to be a delta from the event
+# and may contain negative values.
 class HASchedTime(object):
     def __init__(self, year=[], month=[], day=[], hour=[], minute=[], weekday=[], date="", event=""):
         self.year = listize(year)
@@ -907,6 +910,14 @@ class HASchedTime(object):
             self.year = [eventTime.year]
             self.month = [eventTime.month]
             self.day = [eventTime.day]
+            # offset by delta time if hours or minutes are specified
+            deltaMinutes = 0
+            if self.hour != []:
+                deltaMinutes += self.hour[0]*60
+            if self.minute != []:
+                deltaMinutes += self.minute[0]
+            if deltaMinutes != 0:
+                eventTime += datetime.timedelta(minutes=deltaMinutes)
         self.hour = [eventTime.hour]
         self.minute = [eventTime.minute]
 
