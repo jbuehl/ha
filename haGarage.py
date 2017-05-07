@@ -10,18 +10,7 @@ from ha.tempInterface import *
 from ha.ledInterface import *
 from ha.restServer import *
 from ha.restInterface import *
-from twilio.rest import TwilioRestClient
-
-# get the value of a variable from a file
-def getValue(fileName):
-    return json.load(open(fileName))
-    
-# send an sms notification
-def smsNotify(numbers, message):
-    smsClient = TwilioRestClient(getValue(smsSid), getValue(smsToken))
-    smsFrom = notifyFromNumber
-    for smsTo in numbers:
-        smsClient.sms.messages.create(to=smsTo, from_=smsFrom, body=message)
+from ha.notify import *
 
 def dingDong(sensor, state):
     sensorState = sensor.getState()

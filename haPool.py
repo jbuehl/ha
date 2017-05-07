@@ -7,9 +7,6 @@ spaReadyNotifyApp = ""
 import threading
 import time
 import json
-import requests
-import urllib
-from twilio.rest import TwilioRestClient
 from ha.HAClasses import *
 from ha.serialInterface import *
 from ha.GPIOInterface import *
@@ -21,7 +18,8 @@ from ha.ADS1015Interface import *
 from ha.analogTempInterface import *
 from ha.valveInterface import *
 from ha.tempControl import *
-#from ha.timeInterface import *
+from ha.timeInterface import *
+from ha.notify import *
 
 serial1Config = {"baudrate": 9600, 
                  "bytesize": serial.EIGHTBITS, 
@@ -53,24 +51,9 @@ valvePool = 0
 valveSpa = 1
 valveMoving = 4
 
-# get the value of a variable from a file
-def getValue(fileName):
-    return json.load(open(fileName))
-    
-# send an sms notification
-def smsNotify(numbers, message):
-    smsClient = TwilioRestClient(getValue(smsSid), getValue(smsToken))
-    smsFrom = notifyFromNumber
-    for smsTo in numbers:
-        smsClient.sms.messages.create(to=smsTo, from_=smsFrom, body=message)
-
-# send an iOS app notification
-def iosNotify(app, message):
-    if app != "":
-        requests.get("http://"+app+".appspot.com/notify?message="+urllib.quote(message))
-    
 class SpaControl(HAControl):
-    def __init__(self, name, interface, valveControl, pumpControl, heaterControl, lightControl, tempSensor, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
+    def __init__(self, name, interface, valveControl, pumpControl, heaterControl, lightControl, tempSensor, addr=None, 
+            group="", type="control", location=None, view=None, label="", interrupt=None):
         HAControl.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.className = "HAControl"
         self.currentState = spaOff
@@ -233,7 +216,7 @@ if __name__ == "__main__":
     ads1015Interface = ADS1015Interface("ADS1015", addr=0x48)
     analogTempInterface = AnalogTempInterface("AnalogTemp", ads1015Interface)
     valveInterface = ValveInterface("Valves", gpio1)
-#    timeInterface = TimeInterface("Time")
+    timeInterface = TimeInterface("Time")
     
     # Lights
     poolLight = HAControl("poolLight", gpio0, 2, type="light", group="Lights", label="Pool light")
@@ -279,10 +262,10 @@ if __name__ == "__main__":
     resources.addRes(spaBlower)
 
     # Spa
-#    dayLight = HASensor("daylight", timeInterface, "daylight")
+    dayLight = HASensor("daylight", timeInterface, "daylight")
     spa = SpaControl("spa", nullInterface, valveMode, poolPump, spaHeater, spaLight, waterTemp, group="Pool", label="Spa", type="spa")
     spaTemp = SpaTempControl("spaTemp", nullInterface, spa, waterTemp, group="Pool", label="Spa", type="spaTemp")
-    spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(spa, 1)])
+    spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(spa, 1), (dayLight, 0)])
     resources.addRes(spa)
     resources.addRes(spaTemp)
     
