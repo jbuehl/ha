@@ -894,30 +894,31 @@ class HASchedTime(object):
             self.month = [tomorrow.month]
             self.day = [tomorrow.day]
 
+    def offsetEventTime(self, eventTime):
+        # offset by delta time if hours or minutes are specified
+        deltaMinutes = 0
+        if self.hour != []:
+            deltaMinutes += self.hour[0]*60
+        if self.minute != []:
+            deltaMinutes += self.minute[0]
+        return eventTime + datetime.timedelta(minutes=deltaMinutes)
+    
     # determine the specific time of the next occurrence of an event
     def eventTime(self, latLong):
         eventTbl = {"sunrise": sunrise,
                     "sunset": sunset}
         (today, tomorrow) = todaysDate()
         if (self.year != []) and (self.month != []) and (self.day != []):
-            eventTime = eventTbl[self.event](datetime.date(self.year[0], self.month[0], self.day[0]), latLong)
+            eventTime = self.offsetEventTime(eventTbl[self.event](datetime.date(self.year[0], self.month[0], self.day[0]), latLong))
         else:
             # use today's event time
-            eventTime = eventTbl[self.event](today, latLong)
+            eventTime = self.offsetEventTime(eventTbl[self.event](today, latLong))
             if (eventTime <= today) and (self.day == []):
                 # use tomorrow's time if today's time was in the past
-                eventTime = eventTbl[self.event](tomorrow, latLong)
+                eventTime = self.offsetEventTime(eventTbl[self.event](tomorrow, latLong))
             self.year = [eventTime.year]
             self.month = [eventTime.month]
             self.day = [eventTime.day]
-            # offset by delta time if hours or minutes are specified
-            deltaMinutes = 0
-            if self.hour != []:
-                deltaMinutes += self.hour[0]*60
-            if self.minute != []:
-                deltaMinutes += self.minute[0]
-            if deltaMinutes != 0:
-                eventTime += datetime.timedelta(minutes=deltaMinutes)
         self.hour = [eventTime.hour]
         self.minute = [eventTime.minute]
 
