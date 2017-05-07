@@ -1,7 +1,6 @@
 # Sunrise/Sunset Algorithm
 
 import math
-import time
 import datetime
 from dateutil import tz
 
@@ -135,7 +134,6 @@ def sunRiseSet(date, latitude, longitude, rising):
         UT = UT + 24
         
 # 10. convert UT value to local time zone of latitude/longitude
-    tzoffset = datetime.datetime(*time.gmtime()[:6]) - datetime.datetime(*time.localtime()[:6])
     hour = int(UT)
     minute = int((UT - hour)	 * 60)
     LT = datetime.datetime(date.year, date.month, date.day, hour, minute, tzinfo=tz.tzutc()).astimezone(tz.tzlocal())
