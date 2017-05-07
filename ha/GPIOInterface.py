@@ -7,7 +7,7 @@ def interruptCallback(pin, value):
     debug('debugGPIO', "interruptCallback", "pin:", pin, "value:", value)
     try:
         gpioInterfaces[pin].interrupt()
-    except:
+    except KeyError:
         log("interruptCallback", "unknown interrupt", "pin:", pin, "value:", value, "gpioInterfaces:", gpioInterfaces)
     
 
