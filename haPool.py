@@ -62,6 +62,7 @@ class SpaControl(HAControl):
         self.heaterControl = heaterControl
         self.lightControl = lightControl
         self.tempSensor = tempSensor
+        self.eventThread = None
         
         # state transition sequences
         self.startupSequence = HASequence("spaStartup", 
@@ -129,20 +130,17 @@ class SpaControl(HAControl):
             self.standbySequence.setState(seqStart, wait=True)
         elif state == spaStarting:
             self.startupSequence.setState(seqStart, wait=False)
-            startEvent = EventThread("spaStarting", self.startupSequence.getState, seqStopped, self.spaStarted, endState)
-            startEvent.start()
+            self.startEventThread("spaStarting", self.startupSequence.getState, seqStopped, self.spaStarted, endState)
         elif state == spaStopping:
             self.shutdownSequence.setState(seqStart, wait=False)
-            stopEvent = EventThread("spaStopping", self.shutdownSequence.getState, seqStopped, self.stateTransition, spaOff)
-            stopEvent.start()
+            self.startEventThread("spaStopping", self.shutdownSequence.getState, seqStopped, self.stateTransition, spaOff)
         self.currentState = state
 
     # called when startup sequence is complete
     def spaStarted(self, endState):
         debug('debugState', self.name, "spaStarted ", endState)
         self.stateTransition(spaWarming)
-        tempEvent = EventThread("spaWarming", self.tempSensor.getState, spaTempTarget, self.spaReady, endState)
-        tempEvent.start()
+        self.startEventThread("spaWarming", self.tempSensor.getState, spaTempTarget, self.spaReady, endState)
 
     # called when target temperature is reached        
     def spaReady(self, state):
@@ -150,7 +148,15 @@ class SpaControl(HAControl):
         self.stateTransition(state)
         smsNotify(spaReadyNotifyNumbers, spaNotifyMsg)
         iosNotify(spaReadyNotifyApp, spaNotifyMsg)
-        
+
+    # start an event thread
+    def startEventThread(self, name, checkFunction, checkValue, actionFunction, actionValue):
+        if self.eventThread:
+            self.eventThread.cancel()
+            self.eventThread = None
+        self.eventThread = EventThread(name, checkFunction, checkValue, actionFunction, actionValue)
+        self.eventThread.start()
+            
 # start a thread to wait for the state of the specified sensor to reach the specified value
 # then call the specified action function with the specified action value
 class EventThread(threading.Thread):
@@ -161,13 +167,20 @@ class EventThread(threading.Thread):
         self.checkValue = checkValue
         self.actionFunction = actionFunction
         self.actionValue = actionValue
+        self.cancelled = False
 
+    def cancel(self):
+        self.cancelled = True
+        
     def asyncEvent(self):
         debug('debugThread', self.name, "started")
         while self.checkFunction() != self.checkValue:
             time.sleep(1)
+            if self.cancelled:
+                debug('debugThread', self.name, "cancelled")
+                return
         self.actionFunction(self.actionValue)
-        debug('debugThread', self.name, "terminated")
+        debug('debugThread', self.name, "finished")
 
 # spa control whose state value includes the temperature
 class SpaTempControl(HAControl):
@@ -262,10 +275,13 @@ if __name__ == "__main__":
     resources.addRes(spaBlower)
 
     # Spa
-    dayLight = HASensor("daylight", timeInterface, "daylight")
-    spa = SpaControl("spa", nullInterface, valveMode, poolPump, spaHeater, spaLight, waterTemp, group="Pool", label="Spa", type="spa")
+    sunUp = HASensor("sunUp", timeInterface, "sunUp")
+    # spa light control that will only turn on if the sun is down
+    spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(sunUp, 0)])
+    spa = SpaControl("spa", nullInterface, valveMode, poolPump, spaHeater, spaLightNight, waterTemp, group="Pool", label="Spa", type="spa")
     spaTemp = SpaTempControl("spaTemp", nullInterface, spa, waterTemp, group="Pool", label="Spa", type="spaTemp")
-    spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(spa, 1), (dayLight, 0)])
+    # spa light control that will only turn on if the sun is down and the spa is on
+    spaLightNightSpa = DependentControl("spaLightNightSpa", nullInterface, spaLightNight, [(spa, 1)])
     resources.addRes(spa)
     resources.addRes(spaTemp)
     
@@ -290,7 +306,7 @@ if __name__ == "__main__":
     schedule.addTask(HATask("Pool filter", HASchedTime(hour=[21], minute=[0]), resources["filter"], 1))
     schedule.addTask(HATask("Pool cleaner", HASchedTime(hour=[8], minute=[1]), resources["clean"], 1))
     schedule.addTask(HATask("Flush spa", HASchedTime(hour=[9], minute=[2]), resources["flush"], 1))
-    schedule.addTask(HATask("Spa light on sunset", HASchedTime(event="sunset"), spaLightNight, 1))
+    schedule.addTask(HATask("Spa light on sunset", HASchedTime(event="sunset"), spaLightNightSpa, 1))
 
     # Start interfaces
     gpio0.start()
