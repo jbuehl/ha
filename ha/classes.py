@@ -1,6 +1,22 @@
-stateChangeInterval = 10
+# Environment
+import os
+rootDir = os.path.dirname(os.path.realpath(__file__))+"/../../"
+configDir = rootDir+"conf/"
+keyDir = rootDir+"keys/"
+stateDir = rootDir+"state/"
 dataLogDir = "data/"
 dataLogFileName = ""
+
+sysLogging = True
+debugEnable = False
+
+stateChangeInterval = 10
+running = True  # FIXME - get rid of this
+
+# Localization - FIXME - put in a config file
+latLong = (34.149044, -118.401994)
+elevation = 620 # elevation in feet
+tempScale = "F"
 
 import time
 import datetime
@@ -8,12 +24,9 @@ import threading
 import copy
 import syslog
 import sys
-import os
-import copy
 from collections import OrderedDict
 from dateutil import tz
 from ha.sunriseset import *
-from ha.conf import *
 
 # standard timestamp
 def timeStamp(fmt):
