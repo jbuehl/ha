@@ -1,3 +1,8 @@
+# Notification
+smsSid = keyDir+"twilio.sid"
+smsToken = keyDir+"twilio.tkn"
+notifyFromNumber = keyDir+"notifyFromNumber"
+
 import requests
 import urllib
 import json

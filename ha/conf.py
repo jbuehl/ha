@@ -18,8 +18,3 @@ latLong = (34.149044, -118.401994)
 elevation = 620 # elevation in feet
 tempScale = "F"
 
-# Notification
-smsSid = keyDir+"twilio.sid"
-smsToken = keyDir+"twilio.tkn"
-notifyFromNumber = keyDir+"notifyFromNumber"
-
