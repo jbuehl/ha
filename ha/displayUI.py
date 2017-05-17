@@ -20,7 +20,7 @@ import threading
 import copy
 import webcolors
 import png
-from ha.HAClasses import *
+from ha import *
 from ha.haWebViews import *
 
 def png2fb(pngImage):

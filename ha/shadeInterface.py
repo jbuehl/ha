@@ -1,8 +1,8 @@
 
 import time
 import threading
-from ha.GPIOInterface import *
-from ha.HAClasses import *
+from ha.gpioInterface import *
+from ha import *
 
 # shade states
 shadeUp = 0

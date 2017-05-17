@@ -11,7 +11,7 @@ unitOn = 1
 unitTypeHeater = 0
 unitTypeAc = 1
 
-from ha.HAClasses import *
+from ha import *
 
 # a temperature controlled heating or cooling unit
 class TempControl(HAControl):

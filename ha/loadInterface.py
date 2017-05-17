@@ -1,4 +1,4 @@
-from ha.HAClasses import *
+from ha import *
 
 class LoadInterface(HAInterface):
     def __init__(self, name, interface=None, event=None):

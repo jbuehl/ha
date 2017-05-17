@@ -1,4 +1,4 @@
-from ha.HAClasses import *
+from ha import *
 
 # TC74 temp sensor
 

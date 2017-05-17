@@ -4,7 +4,7 @@ thingRetries = 3
 
 import subprocess
 import requests
-from ha.HAClasses import *
+from ha import *
 
 class ThingInterface(HAInterface):
     def __init__(self, name, interface=None, event=None):

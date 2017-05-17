@@ -1,6 +1,6 @@
 filePollInterval = 1
 
-from ha.HAClasses import *
+from ha import *
 import json
 import os
 import threading

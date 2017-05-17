@@ -1,6 +1,6 @@
 import threading
 import time
-from ha.HAClasses import *
+from ha import *
 
 class TempInterface(HAInterface):
     def __init__(self, theName, theInterface, sample=1):

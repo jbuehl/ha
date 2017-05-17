@@ -26,7 +26,7 @@ modeMotion = 3
 
 import subprocess
 import threading
-from ha.HAClasses import *
+from ha import *
 
 class CameraInterface(HAInterface):
     def __init__(self, name, interface=None, event=None, mode=modeStill, imageDir="", rotation=0, enabled=True):

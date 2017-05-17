@@ -1,5 +1,5 @@
 import socket
-from ha.HAClasses import *
+from ha import *
 from ha.cameraInterface import *
 from ha.restServer import *
 

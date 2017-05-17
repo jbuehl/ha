@@ -1,7 +1,7 @@
 
 import time
 import smbus
-from ha.HAClasses import *
+from ha import *
 
 # ADS1015 analog digital converter
 

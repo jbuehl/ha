@@ -1,7 +1,7 @@
 import threading
 
-from ha.HAClasses import *
-from ha.GPIOInterface import *
+from ha import *
+from ha.gpioInterface import *
 from ha.shadeInterface import *
 from ha.restServer import *
 

@@ -10,7 +10,7 @@ poolTemp = "waterTemp"
 
 import time
 from jinja2 import Environment, FileSystemLoader
-from ha.HAClasses import *
+from ha import *
 from ha.restInterface import *
 from ha.restServer import *
 from ha.restProxy import *

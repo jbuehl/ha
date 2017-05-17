@@ -1,4 +1,4 @@
-from ha.HAClasses import *
+from ha import *
 
 #    interface - an instance of a fileInterface that contains solar performance data
 

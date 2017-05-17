@@ -3,7 +3,7 @@ audioSink = "0"
 
 import os
 import subprocess
-from ha.HAClasses import *
+from ha import *
 
 class AudioInterface(HAInterface):
     def __init__(self, name, interface=None, event=None):

@@ -1,5 +1,5 @@
 
-from ha.HAClasses import *
+from ha import *
 from ha.restInterface import *
 import json
 import threading

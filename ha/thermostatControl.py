@@ -12,7 +12,7 @@ coolOff = 0
 coolOn = 1
 coolEnabled = 4
 
-from ha.HAClasses import *
+from ha import *
 
 # thermostat control for heating and cooling
 class ThermostatControl(HAControl):

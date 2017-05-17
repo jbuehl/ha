@@ -1,5 +1,5 @@
-from ha.HAClasses import *
-from ha.X10Interface import *
+from ha import *
+from ha.x10Interface import *
 from ha.serialInterface import *
 from ha.restServer import *
 

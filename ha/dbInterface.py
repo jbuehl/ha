@@ -1,7 +1,7 @@
 import MySQLdb
 import time
 import threading
-from ha.HAClasses import *
+from ha import *
 
 class HADbInterface(HAInterface):
     def __init__(self, theName, dataBase, hostName="localhost", userName="", password=""):

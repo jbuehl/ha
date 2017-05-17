@@ -1,4 +1,4 @@
-from ha.HAClasses import *
+from ha import *
 from ha.fileInterface import *
 from ha.solarInterface import *
 from ha.restServer import *

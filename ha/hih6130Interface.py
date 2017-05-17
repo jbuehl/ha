@@ -1,5 +1,5 @@
 import time
-from ha.HAClasses import *
+from ha import *
 
 # HIH-6130/6131 humidity sensor
 

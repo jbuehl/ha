@@ -1,9 +1,9 @@
 import threading
 
-from ha.HAClasses import *
-from ha.I2CInterface import *
-from ha.BMP085Interface import *
-from ha.HIH6130Interface import *
+from ha import *
+from ha.i2cInterface import *
+from ha.bmp085Interface import *
+from ha.hih6130Interface import *
 from ha.tempInterface import *
 from ha.restServer import *
 

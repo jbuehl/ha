@@ -2,7 +2,7 @@ import requests
 import urllib
 import json
 from twilio.rest import TwilioRestClient
-from ha.HAClasses import *
+from ha import *
 
 # get the value of a variable from a file
 def getValue(fileName):

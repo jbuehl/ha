@@ -7,7 +7,7 @@ import requests
 import urllib
 import socket
 import threading
-from ha.HAClasses import *
+from ha import *
 
 class HARestInterface(HAInterface):
     def __init__(self, name, interface=None, event=None, service="", secure=False, cache=True):

@@ -1,6 +1,6 @@
 
 import subprocess
-from ha.HAClasses import *
+from ha import *
 
 class I2CCmdInterface(HAInterface):
     def __init__(self, name, interface=None, event=None, bus=0):

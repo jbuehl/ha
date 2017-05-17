@@ -7,14 +7,14 @@ spaReadyNotifyApp = ""
 import threading
 import time
 import json
-from ha.HAClasses import *
+from ha import *
 from ha.serialInterface import *
-from ha.GPIOInterface import *
-from ha.I2CInterface import *
+from ha.gpioInterface import *
+from ha.i2cInterface import *
 from ha.pentairInterface import *
 from ha.powerInterface import *
 from ha.restServer import *
-from ha.ADS1015Interface import *
+from ha.ads1015Interface import *
 from ha.analogTempInterface import *
 from ha.valveInterface import *
 from ha.tempControl import *

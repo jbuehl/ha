@@ -3,10 +3,10 @@ tempType = "tc74"
 tempAddr = 0x4b
 
 import sys
-from ha.HAClasses import *
-from ha.I2CCmdInterface import *
-from ha.TC74Interface import *
-from ha.MCP9803Interface import *
+from ha import *
+from ha.i2cCmdInterface import *
+from ha.tc74Interface import *
+from ha.mcp9803Interface import *
 from ha.tempInterface import *
 from ha.restServer import *
 

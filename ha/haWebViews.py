@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from ha.HAClasses import *
+from ha import *
 
 # transform functions for views
 def ctofFormat(value):

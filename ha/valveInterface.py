@@ -2,8 +2,8 @@ poolValveTravelTime = 35
 
 import time
 import threading
-from ha.GPIOInterface import *
-from ha.HAClasses import *
+from ha.gpioInterface import *
+from ha import *
 
 # valve states
 valveMoving = 4

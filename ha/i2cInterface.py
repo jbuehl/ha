@@ -1,6 +1,6 @@
 
 import smbus
-from ha.HAClasses import *
+from ha import *
 
 class I2CInterface(HAInterface):
     def __init__(self, name, interface=None, event=None, bus=0):

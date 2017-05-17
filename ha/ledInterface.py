@@ -3,7 +3,7 @@ flickerFreq = 100   # frequency of flickering per second
 import random
 import time
 import threading
-from ha.HAClasses import *
+from ha import *
 
 class LedInterface(HAInterface):
     def __init__(self, name, interface=None, event=None):

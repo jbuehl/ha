@@ -1,4 +1,4 @@
-from ha.HAClasses import *
+from ha import *
 import time
 import datetime
 import pytz

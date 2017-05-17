@@ -1,4 +1,4 @@
-from ha.HAClasses import *
+from ha import *
 
 # One Wire File System interface
 

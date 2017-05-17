@@ -16,13 +16,13 @@ imageDir = "/root/images/"
 
 import time
 import threading
-from ha.HAClasses import *
+from ha import *
 from ha.displayUI import *
 from ha.haWebViews import *
 from ha.fileInterface import *
 from ha.gpsTimeInterface import *
-from ha.I2CInterface import *
-from ha.TC74Interface import *
+from ha.i2cInterface import *
+from ha.tc74Interface import *
 from ha.tempInterface import *
 from ha.audioInterface import *
 

@@ -5,7 +5,7 @@ import time
 import serial
 import struct
 import threading
-from ha.HAClasses import *
+from ha import *
 
 ########################################################################################################
 # state of the pool and equipment

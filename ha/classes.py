@@ -13,7 +13,7 @@ import copy
 from collections import OrderedDict
 from dateutil import tz
 from ha.sunriseset import *
-from ha.HAConf import *
+from ha.conf import *
 
 # standard timestamp
 def timeStamp(fmt):

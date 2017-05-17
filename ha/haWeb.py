@@ -5,7 +5,7 @@ blinkers = []
 import json
 import cherrypy
 from cherrypy.lib import auth_basic
-from ha.HAClasses import *
+from ha import *
 from ha.haWebViews import *
 
 # https://cherrypy.readthedocs.io/en/3.2.6/progguide/extending/customtools.html

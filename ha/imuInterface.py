@@ -1,6 +1,6 @@
 import math
 
-from ha.HAClasses import *
+from ha import *
 
 class ImuInterface(HAInterface):
     def __init__(self, name, interface=None, event=None):

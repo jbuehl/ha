@@ -4,9 +4,9 @@ southHeatTempTargetDefault = 65
 southCoolTempTargetDefault = 75
 
 import threading
-from ha.HAClasses import *
-from ha.GPIOInterface import *
-from ha.I2CInterface import *
+from ha import *
+from ha.gpioInterface import *
+from ha.i2cInterface import *
 from ha.owfsInterface import *
 from ha.fileInterface import *
 from ha.tempInterface import *

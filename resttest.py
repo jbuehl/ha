@@ -1,4 +1,4 @@
-from ha.HAClasses import *
+from ha import *
 from ha.restServer import *
 
 if __name__ == "__main__":

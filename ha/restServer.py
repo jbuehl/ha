@@ -4,7 +4,7 @@ restStatePort = 4243
 restBeaconInterval = 10
 restHeartbeatInterval = 30
 
-from ha.HAClasses import *
+from ha import *
 from SocketServer import ThreadingMixIn
 from BaseHTTPServer import HTTPServer
 from BaseHTTPServer import BaseHTTPRequestHandler

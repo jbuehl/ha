@@ -1,5 +1,5 @@
 import time
-from ha.HAClasses import *
+from ha import *
 
 # BMP085 pressure and temp sensor
 # Code lifted from Adafruit_BMP085

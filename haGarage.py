@@ -2,10 +2,10 @@ doorbellNotifyMsg = "Ding dong!"
 notifyFromNumber = ""
 doorbellNotifyNumbers = []
 
-from ha.HAClasses import *
-from ha.GPIOInterface import *
-from ha.I2CInterface import *
-from ha.TC74Interface import *
+from ha import *
+from ha.gpioInterface import *
+from ha.i2cInterface import *
+from ha.tc74Interface import *
 from ha.tempInterface import *
 from ha.ledInterface import *
 from ha.restServer import *

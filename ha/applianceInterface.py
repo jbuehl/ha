@@ -1,6 +1,6 @@
 import json
-from ha.GPIOInterface import *
-from ha.HAClasses import *
+from ha.gpioInterface import *
+from ha import *
 
 class ApplianceInterface(HAInterface):
     def __init__(self, name, interface):

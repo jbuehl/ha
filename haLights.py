@@ -5,7 +5,7 @@ xmas = False
 
 import time
 import copy
-from ha.HAClasses import *
+from ha import *
 from ha.restInterface import *
 from ha.restServer import *
 from ha.restProxy import *
