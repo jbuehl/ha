@@ -40,21 +40,24 @@ HA uses an object model that is defined by the following base classes:
 	+ class Resource(object):
 	    - class Interface(Resource):
 	    + class Sensor(Resource):
-	            - class View(object):
-	        + class Control(Sensor):
+	        - class Control(Sensor):
 	    + class Collection(Resource, OrderedDict):
 	        + class Schedule(Collection):
-	            + class Task(Control):
-	                + class SchedTime(object):
+	            - class Task(Control):
 	                
-Other classes are built on the base classes:
+Other classes are inherited from the base classes:
 
-    - class Cycle(object):
     - class Sequence(Control):
     - class SensorGroup(Sensor):
     - class ControlGroup(SensorGroup, Control):
     - class CalcSensor(Sensor):
     - class ResourceStateSensor(Sensor):
+
+These standalone classes are used by the HA classes
+
+    - class View(object):
+    - class Cycle(object):
+    - class SchedTime(object):
 
 ##### Resource
 The base class for most HA objects.
@@ -66,6 +69,7 @@ Defines the abstract class for interface implementations.
 
     - interface
     - sensors
+    - event
     - start()
     - stop()
     - read(addr)
@@ -78,6 +82,7 @@ Defines the model for the basic HA sensor.
 
     - interface
     - addr
+    - event
     - type
     - label
     - group
@@ -93,9 +98,9 @@ Defines the model for a sensor whose state can be changed.
 
     - setState(value)
 
-##### Cycle, Sequence, and HAScene
-Used to define aggregations of Controls that 
-can be set collectively.
+##### Cycle, Sequence, SensorGroup, and ControlGroup
+Used to define aggregations of Sensors that 
+can be managed collectively.
 
 ##### Collection
 Defines an ordered list of Resources.
