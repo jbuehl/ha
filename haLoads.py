@@ -5,7 +5,7 @@ from ha.restServer import *
 
 if __name__ == "__main__":
     # Resources
-    resources = HACollection("resources")
+    resources = Collection("resources")
 
     # Interfaces
     stateChangeEvent = threading.Event()
@@ -13,15 +13,15 @@ if __name__ == "__main__":
     loadInterface = LoadInterface("Loads", fileInterface)
 
     # Loads
-    lightsLoad = HASensor("lightsLoad", loadInterface, "Lights", group="Power", label="Lights", type="KVA")
-    plugsLoad = HASensor("plugsLoad", loadInterface, "Plugs", group="Power", label="Plugs", type="KVA")
-    appl1Load = HASensor("appl1Load", loadInterface, "Appl1", group="Power", label="Appliances 1", type="KVA")
-    appl2Load = HASensor("appl2Load", loadInterface, "Appl2", group="Power", label="Appliances 2", type="KVA")
-    cookingLoad = HASensor("cookingLoad", loadInterface, "Cooking", group="Power", label="Stove & oven", type="KVA")
-    acLoad = HASensor("acLoad", loadInterface, "Ac", group="Power", label="Air conditioners", type="KVA")
-    poolLoad = HASensor("poolLoad", loadInterface, "Pool", group="Power", label="Pool equipment", type="KVA")
-    backLoad = HASensor("backLoad", loadInterface, "Back", group="Power", label="Back house", type="KVA")
-    resources.addRes(HASensor("lightsLoad", loadInterface, "Lights", group="Power", label="Lights", type="KVA"))
+    lightsLoad = Sensor("lightsLoad", loadInterface, "Lights", group="Power", label="Lights", type="KVA")
+    plugsLoad = Sensor("plugsLoad", loadInterface, "Plugs", group="Power", label="Plugs", type="KVA")
+    appl1Load = Sensor("appl1Load", loadInterface, "Appl1", group="Power", label="Appliances 1", type="KVA")
+    appl2Load = Sensor("appl2Load", loadInterface, "Appl2", group="Power", label="Appliances 2", type="KVA")
+    cookingLoad = Sensor("cookingLoad", loadInterface, "Cooking", group="Power", label="Stove & oven", type="KVA")
+    acLoad = Sensor("acLoad", loadInterface, "Ac", group="Power", label="Air conditioners", type="KVA")
+    poolLoad = Sensor("poolLoad", loadInterface, "Pool", group="Power", label="Pool equipment", type="KVA")
+    backLoad = Sensor("backLoad", loadInterface, "Back", group="Power", label="Back house", type="KVA")
+    resources.addRes(Sensor("lightsLoad", loadInterface, "Lights", group="Power", label="Lights", type="KVA"))
     resources.addRes(plugsLoad)
     resources.addRes(appl1Load)
     resources.addRes(appl2Load)

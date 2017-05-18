@@ -2,9 +2,9 @@ from ha import *
 
 # One Wire File System interface
 
-class OWFSInterface(HAInterface):
+class OWFSInterface(Interface):
     def __init__(self, name, interface=None, home="/mnt/1wire/", event=None):
-        HAInterface.__init__(self, name, interface, event=event)
+        Interface.__init__(self, name, interface, event=event)
         self.home = home
 
     def read(self, addr):

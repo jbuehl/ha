@@ -12,7 +12,7 @@ def interruptCallback(pin, value):
     
 
 # Interface to GPIO either directly or via MCP23017 I2C I/O expander
-class GPIOInterface(HAInterface):
+class GPIOInterface(Interface):
     # MCP23017 I2C I/O expander
     IODIR = 0x00        # I/O direction
     IPOL = 0x02         # input polarity
@@ -36,7 +36,7 @@ class GPIOInterface(HAInterface):
                                              inOut=0x00,        # I/O direction out=0, in=1
                                              interruptPin=17,   # RPIO pin used for interrupt (BCM number)
                                              config=[]):        # additional configuration
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
         global gpioInterfaces
         self.name = name
         if interface:

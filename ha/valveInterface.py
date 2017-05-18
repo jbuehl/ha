@@ -8,9 +8,9 @@ from ha import *
 # valve states
 valveMoving = 4
 
-class ValveInterface(HAInterface):
+class ValveInterface(Interface):
     def __init__(self, name, interface=None, event=None):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
         self.travelTime = poolValveTravelTime
         self.timers = {}
         self.lock = threading.Lock()
@@ -44,4 +44,4 @@ class ValveInterface(HAInterface):
 
     def addSensor(self, sensor):
         self.timers[sensor.addr] = None
-        HAInterface.addSensor(self, sensor)
+        Interface.addSensor(self, sensor)

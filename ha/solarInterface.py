@@ -7,9 +7,9 @@ from ha import *
 #        device ID or operator - "sum" | "avg"
 #        attribute
     
-class HASolarInterface(HAInterface):
+class SolarInterface(Interface):
     def __init__(self, name, interface=None, event=None):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
 
     def read(self, addr):
         try:

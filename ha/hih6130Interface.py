@@ -3,9 +3,9 @@ from ha import *
 
 # HIH-6130/6131 humidity sensor
 
-class HIH6130Interface(HAInterface):
+class HIH6130Interface(Interface):
     def __init__(self, name, interface, addr=0x27):
-        HAInterface.__init__(self, name, interface)
+        Interface.__init__(self, name, interface)
         self.addr = addr
 
     def read(self, addr):

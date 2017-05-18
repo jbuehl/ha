@@ -45,34 +45,34 @@ if __name__ == "__main__":
     audioInterface = AudioInterface("Audio", event=stateChangeEvent)
 
     # time sensors
-    timeResource = HASensor("time", timeInterface, "%-I:%M", type="time", label="Time")
-    dateResource = HASensor("date", timeInterface, "%B %-d %Y", type="date", label="Date")
-    dayOfWeekResource = HASensor("dayOfWeek", timeInterface, "%A", type="date", label="Day of week")
-    timeZoneResource = HASensor("timeZone", timeInterface, "%Z", label="Time zone")
+    timeResource = Sensor("time", timeInterface, "%-I:%M", type="time", label="Time")
+    dateResource = Sensor("date", timeInterface, "%B %-d %Y", type="date", label="Date")
+    dayOfWeekResource = Sensor("dayOfWeek", timeInterface, "%A", type="date", label="Day of week")
+    timeZoneResource = Sensor("timeZone", timeInterface, "%Z", label="Time zone")
 
     # position sensors
     positionSensors = [
-#        HASensor("position", gpsInterface, "Pos", label="Position"),
-        HASensor("speed", diagInterface, "Speed", label="Speed", type="MPH"),
-        HASensor("heading", gpsInterface, "Hdg", label="Heading", type="Deg"),
-        HASensor("latitude", gpsInterface, "Lat", label="Latitude", type="Lat"),
-        HASensor("longitude", gpsInterface, "Long", label="Longitude", type="Long"),
-        HASensor("altitude", gpsInterface, "Alt", label="Elevation", type="Ft"),
-#        HASensor("gpsSpeed", gpsInterface, "Speed", label="Speed", type="MPH"),
-        HASensor("nSats", gpsInterface, "Nsats", label="Satellites"),
+#        Sensor("position", gpsInterface, "Pos", label="Position"),
+        Sensor("speed", diagInterface, "Speed", label="Speed", type="MPH"),
+        Sensor("heading", gpsInterface, "Hdg", label="Heading", type="Deg"),
+        Sensor("latitude", gpsInterface, "Lat", label="Latitude", type="Lat"),
+        Sensor("longitude", gpsInterface, "Long", label="Longitude", type="Long"),
+        Sensor("altitude", gpsInterface, "Alt", label="Elevation", type="Ft"),
+#        Sensor("gpsSpeed", gpsInterface, "Speed", label="Speed", type="MPH"),
+        Sensor("nSats", gpsInterface, "Nsats", label="Satellites"),
     ]
 
     # engine sensors
     engineSensors = [
-#        HASensor("speed", diagInterface, "Speed", label="Speed", type="MPH"),
-        HASensor("rpm", diagInterface, "Rpm", label="RPM", type="RPM"),
-        HASensor("battery", diagInterface, "Battery", label="Battery", type="V"),
-        HASensor("intakeTemp", diagInterface, "IntakeTemp", label="Intake temp", type="tempC"),
-        HASensor("coolantTemp", diagInterface, "WaterTemp", label="Water temp", type="tempC"),
-        HASensor("airPressure", diagInterface, "Barometer", label="Barometer", type="barometer"),
-        HASensor("runTime", diagInterface, "RunTime", label="Run time", type="Secs"),
+#        Sensor("speed", diagInterface, "Speed", label="Speed", type="MPH"),
+        Sensor("rpm", diagInterface, "Rpm", label="RPM", type="RPM"),
+        Sensor("battery", diagInterface, "Battery", label="Battery", type="V"),
+        Sensor("intakeTemp", diagInterface, "IntakeTemp", label="Intake temp", type="tempC"),
+        Sensor("coolantTemp", diagInterface, "WaterTemp", label="Water temp", type="tempC"),
+        Sensor("airPressure", diagInterface, "Barometer", label="Barometer", type="barometer"),
+        Sensor("runTime", diagInterface, "RunTime", label="Run time", type="Secs"),
     ]
-    outsideTemp = HASensor("outsideTemp", tempInterface, 0x4e, label="Outside temp", type="tempF")
+    outsideTemp = Sensor("outsideTemp", tempInterface, 0x4e, label="Outside temp", type="tempF")
 
     # initialization
     display = Display(displayDevice, inputDevice, views)

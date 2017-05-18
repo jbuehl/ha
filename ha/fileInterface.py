@@ -6,9 +6,9 @@ import os
 import threading
 import time
 
-class FileInterface(HAInterface):
+class FileInterface(Interface):
     def __init__(self, name, interface=None, event=None, fileName="", readOnly=False, changeMonitor=True):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
         self.fileName = fileName
         self.readOnly = readOnly
         self.changeMonitor = changeMonitor

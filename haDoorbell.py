@@ -21,14 +21,14 @@ from ha.restInterface import *
 
 if __name__ == "__main__":
     # Resources
-    resources = HACollection("resources")
+    resources = Collection("resources")
 
     # Interfaces
     stateChangeEvent = threading.Event()
-    restInterface = HARestInterface("rest", None, service=doorbellService, event=stateChangeEvent)
+    restInterface = RestInterface("rest", None, service=doorbellService, event=stateChangeEvent)
     
     # Sensors
-    doorbell = HASensor(doorbellSensor, restInterface, "/resources/"+doorbellSensor+"/state")
+    doorbell = Sensor(doorbellSensor, restInterface, "/resources/"+doorbellSensor+"/state")
 
     # Wait for events
     lastState = 0

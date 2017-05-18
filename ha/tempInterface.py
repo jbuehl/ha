@@ -2,9 +2,9 @@ import threading
 import time
 from ha import *
 
-class TempInterface(HAInterface):
+class TempInterface(Interface):
     def __init__(self, theName, theInterface, sample=1):
-        HAInterface.__init__(self, theName, theInterface)
+        Interface.__init__(self, theName, theInterface)
         self.sample = sample
 
     def start(self):

@@ -9,7 +9,7 @@ from ha.restServer import *
 
 if __name__ == "__main__":
     # Resources
-    resources = HACollection("resources")
+    resources = Collection("resources")
 
     # Interfaces
     stateChangeEvent = threading.Event()
@@ -20,9 +20,9 @@ if __name__ == "__main__":
     humidityCache = TempInterface("humidityCache", humidity, sample=10)
     
     # Temperature
-    resources.addRes(HASensor("deckTemp", barometerCache, "temp", group="Temperature", label="Deck temp", type="tempF"))
-    resources.addRes(HASensor("barometer", barometerCache, "barometer", group="Temperature", label="Barometer", type="barometer"))
-    resources.addRes(HASensor("humidity", humidityCache, "humidity", group="Temperature", label="Humidity", type="humidity"))
+    resources.addRes(Sensor("deckTemp", barometerCache, "temp", group="Temperature", label="Deck temp", type="tempF"))
+    resources.addRes(Sensor("barometer", barometerCache, "barometer", group="Temperature", label="Barometer", type="barometer"))
+    resources.addRes(Sensor("humidity", humidityCache, "humidity", group="Temperature", label="Humidity", type="humidity"))
     
     # Start interfaces
     barometerCache.start()

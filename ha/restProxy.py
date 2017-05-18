@@ -48,7 +48,7 @@ class RestProxy(threading.Thread):
                 if serviceName not in self.services.keys():   # new service
                     debug('debugRestProxy', self.name, timeStamp, "adding", serviceName, serviceAddr, serviceTimeStamp, serviceLabel)
                     self.services[serviceName] = RestServiceProxy(serviceName, serviceAddr, serviceTimeStamp, 
-                                                               HARestInterface(serviceName, service=serviceAddr, event=self.stateChangeEvent, secure=False),
+                                                               RestInterface(serviceName, service=serviceAddr, event=self.stateChangeEvent, secure=False),
                                                                label=serviceLabel, group="Services")
                     self.getResources(self.services[serviceName], serviceResources, serviceTimeStamp)
                     self.cacheTime = timeStamp
@@ -79,7 +79,7 @@ class RestProxy(threading.Thread):
     # get all the resources on the specified service and add them to the cache
     def getResources(self, service, serviceResources, timeStamp):
         debug('debugRestProxy', self.name, "getting", service.name)
-        resources = HACollection(service.name+"Resources", aliases=self.resources.aliases)
+        resources = Collection(service.name+"Resources", aliases=self.resources.aliases)
         service.interface.enabled = True
         resources.load(service.interface, "/"+serviceResources["name"])
         service.resourceNames = resources.keys()
@@ -100,16 +100,16 @@ class RestProxy(threading.Thread):
             self.resources.delRes(service.name)
 
 # proxy for a REST service
-class RestServiceProxy(HASensor):
+class RestServiceProxy(Sensor):
     def __init__(self, name, addr, timeStamp, interface, event=None, group="", type="service", location=None, view=None, label="", interrupt=None):
-        HASensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         debug('debugRestProxy', name, "created")
         self.name = name
         self.addr = addr
         self.timeStamp = timeStamp
         self.resourceNames = []
         self.interface = interface
-#        self.className = "HASensor" # so the web UI doesn't think it's a control
+#        self.className = "Sensor" # so the web UI doesn't think it's a control
         self.enabled = False
 
     def getState(self):

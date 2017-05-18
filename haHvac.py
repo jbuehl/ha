@@ -15,11 +15,11 @@ from ha.restServer import *
 
 if __name__ == "__main__":
     # Resources
-    resources = HACollection("resources")
+    resources = Collection("resources")
 
     # Interfaces
     stateChangeEvent = threading.Event()
-    nullInterface = HAInterface("NullInterface", event=stateChangeEvent)
+    nullInterface = Interface("NullInterface", event=stateChangeEvent)
     owfs = OWFSInterface("owfs", event=stateChangeEvent)
     configData = FileInterface("configData", fileName=stateDir+"hvac.conf", event=stateChangeEvent)
     i2c1 = I2CInterface("I2C1", bus=1, event=stateChangeEvent)
@@ -28,22 +28,22 @@ if __name__ == "__main__":
     gpio11 = GPIOInterface("GPIO11", i2c1, addr=0x21, bank=1, inOut=0xff, config=[(GPIOInterface.IPOL, 0x00)])
 
     # Doors
-#    resources.addRes(HASensor("door00", gpio10, 0, type="door", group="Doors", label="door00"))
-#    resources.addRes(HASensor("door01", gpio10, 1, type="door", group="Doors", label="door01"))
-#    resources.addRes(HASensor("door02", gpio10, 2, type="door", group="Doors", label="door02"))
-#    resources.addRes(HASensor("door03", gpio10, 3, type="door", group="Doors", label="door03"))
-#    resources.addRes(HASensor("door04", gpio10, 4, type="door", group="Doors", label="door04"))
-#    resources.addRes(HASensor("door05", gpio10, 5, type="door", group="Doors", label="door05"))
-#    resources.addRes(HASensor("door06", gpio10, 6, type="door", group="Doors", label="door06"))
-#    resources.addRes(HASensor("door07", gpio10, 7, type="door", group="Doors", label="door07"))
-#    resources.addRes(HASensor("officeWindow", gpio11, 0, type="door", group="Doors", label="Office window"))
-#    resources.addRes(HASensor("door11", gpio11, 1, type="door", group="Doors", label="door11"))
-#    resources.addRes(HASensor("door12", gpio11, 2, type="door", group="Doors", label="door12"))
-#    resources.addRes(HASensor("door13", gpio11, 3, type="door", group="Doors", label="door13"))
-#    resources.addRes(HASensor("door14", gpio11, 4, type="door", group="Doors", label="door14"))
-    frontDoor = HASensor("frontDoor", gpio11, 5, type="door", group="Doors", label="Front")
-    familyRoomDoor = HASensor("familyRoomDoor", gpio11, 6, type="door", group="Doors", label="Family room")
-    masterBedroomDoor = HASensor("masterBedroomDoor", gpio11, 7, type="door", group="Doors", label="Master bedroom")
+#    resources.addRes(Sensor("door00", gpio10, 0, type="door", group="Doors", label="door00"))
+#    resources.addRes(Sensor("door01", gpio10, 1, type="door", group="Doors", label="door01"))
+#    resources.addRes(Sensor("door02", gpio10, 2, type="door", group="Doors", label="door02"))
+#    resources.addRes(Sensor("door03", gpio10, 3, type="door", group="Doors", label="door03"))
+#    resources.addRes(Sensor("door04", gpio10, 4, type="door", group="Doors", label="door04"))
+#    resources.addRes(Sensor("door05", gpio10, 5, type="door", group="Doors", label="door05"))
+#    resources.addRes(Sensor("door06", gpio10, 6, type="door", group="Doors", label="door06"))
+#    resources.addRes(Sensor("door07", gpio10, 7, type="door", group="Doors", label="door07"))
+#    resources.addRes(Sensor("officeWindow", gpio11, 0, type="door", group="Doors", label="Office window"))
+#    resources.addRes(Sensor("door11", gpio11, 1, type="door", group="Doors", label="door11"))
+#    resources.addRes(Sensor("door12", gpio11, 2, type="door", group="Doors", label="door12"))
+#    resources.addRes(Sensor("door13", gpio11, 3, type="door", group="Doors", label="door13"))
+#    resources.addRes(Sensor("door14", gpio11, 4, type="door", group="Doors", label="door14"))
+    frontDoor = Sensor("frontDoor", gpio11, 5, type="door", group="Doors", label="Front")
+    familyRoomDoor = Sensor("familyRoomDoor", gpio11, 6, type="door", group="Doors", label="Family room")
+    masterBedroomDoor = Sensor("masterBedroomDoor", gpio11, 7, type="door", group="Doors", label="Master bedroom")
     houseDoors = SensorGroup("houseDoors", ["frontDoor", "familyRoomDoor", "masterBedroomDoor"], resources=resources, type="door", group="Doors", label="House doors")
     resources.addRes(frontDoor)
     resources.addRes(familyRoomDoor)
@@ -51,19 +51,19 @@ if __name__ == "__main__":
     resources.addRes(houseDoors)
 
     # persistent config data
-    northHeatTempTarget = HAControl("northHeatTempTarget", configData, "northHeatTempTarget", group="Hvac", label="North heat set", type="tempFControl")
-    northCoolTempTarget = HAControl("northCoolTempTarget", configData, "northCoolTempTarget", group="Hvac", label="North cool set", type="tempFControl")
-    southHeatTempTarget = HAControl("southHeatTempTarget", configData, "southHeatTempTarget", group="Hvac", label="South heat set", type="tempFControl")
-    southCoolTempTarget = HAControl("southCoolTempTarget", configData, "southCoolTempTarget", group="Hvac", label="South cool set", type="tempFControl")
+    northHeatTempTarget = Control("northHeatTempTarget", configData, "northHeatTempTarget", group="Hvac", label="North heat set", type="tempFControl")
+    northCoolTempTarget = Control("northCoolTempTarget", configData, "northCoolTempTarget", group="Hvac", label="North cool set", type="tempFControl")
+    southHeatTempTarget = Control("southHeatTempTarget", configData, "southHeatTempTarget", group="Hvac", label="South heat set", type="tempFControl")
+    southCoolTempTarget = Control("southCoolTempTarget", configData, "southCoolTempTarget", group="Hvac", label="South cool set", type="tempFControl")
    
     # Temperature sensors
-    masterBedroomTemp = HASensor("masterBedroomTemp", owfs, "28.175CDC060000", group="Temperature", label="Master bedroom temp", type="tempF")
-    kitchenTemp = HASensor("kitchenTemp", owfs, "28.E4F6DB060000", group="Temperature", label="Kitchen temp", type="tempF")
-    hallTemp = HASensor("hallTemp", owfs, "28.FA78DB060000", group="Temperature", label="Hall temp", type="tempF")
-    atticTemp = HASensor("atticTemp", owfs, "28.CC02DC060000", group="Temperature", label="Attic temp", type="tempF")
-#    officeTemp = HASensor("officeTemp", owfs, "", group="Temperature", label="Office temp", type="tempF")
-    livingRoomTemp = HASensor("livingRoomTemp", owfs, "28.B9CA5F070000", group="Temperature", label="Living room temp", type="tempF")
-    familyRoomTemp = HASensor("familyRoomTemp", owfs, "28.7202DC060000", group="Temperature", label="Family room temp", type="tempF")
+    masterBedroomTemp = Sensor("masterBedroomTemp", owfs, "28.175CDC060000", group="Temperature", label="Master bedroom temp", type="tempF")
+    kitchenTemp = Sensor("kitchenTemp", owfs, "28.E4F6DB060000", group="Temperature", label="Kitchen temp", type="tempF")
+    hallTemp = Sensor("hallTemp", owfs, "28.FA78DB060000", group="Temperature", label="Hall temp", type="tempF")
+    atticTemp = Sensor("atticTemp", owfs, "28.CC02DC060000", group="Temperature", label="Attic temp", type="tempF")
+#    officeTemp = Sensor("officeTemp", owfs, "", group="Temperature", label="Office temp", type="tempF")
+    livingRoomTemp = Sensor("livingRoomTemp", owfs, "28.B9CA5F070000", group="Temperature", label="Living room temp", type="tempF")
+    familyRoomTemp = Sensor("familyRoomTemp", owfs, "28.7202DC060000", group="Temperature", label="Family room temp", type="tempF")
     resources.addRes(atticTemp)
     resources.addRes(hallTemp)
 #    resources.addRes(officeTemp)
@@ -73,12 +73,12 @@ if __name__ == "__main__":
     resources.addRes(kitchenTemp)
     
     # HVAC equipment
-    northHeat = HAControl("northHeat", gpio00, 4, group="Hvac", label="North heat")
-    southHeat = HAControl("southHeat", gpio00, 0, group="Hvac", label="South heat")
-    northCool = HAControl("northCool", gpio00, 5, group="Hvac", label="North cool")
-    southCool = HAControl("southCool", gpio00, 1, group="Hvac", label="South cool")
-    northFan  = HAControl("northFan",  gpio00, 6, group="Hvac", label="North fan")
-    southFan  = HAControl("southFan",  gpio00, 2, group="Hvac", label="South fan")
+    northHeat = Control("northHeat", gpio00, 4, group="Hvac", label="North heat")
+    southHeat = Control("southHeat", gpio00, 0, group="Hvac", label="South heat")
+    northCool = Control("northCool", gpio00, 5, group="Hvac", label="North cool")
+    southCool = Control("southCool", gpio00, 1, group="Hvac", label="South cool")
+    northFan  = Control("northFan",  gpio00, 6, group="Hvac", label="North fan")
+    southFan  = Control("southFan",  gpio00, 2, group="Hvac", label="South fan")
 
     # Temp controls
     northHeatControl = TempControl("northHeatControl", nullInterface, 
@@ -110,15 +110,15 @@ if __name__ == "__main__":
     resources.addRes(southCoolControl)
 
     # Tasks
-    resources.addRes(HATask("northHeatTempUpMorning", HASchedTime(hour=[6], minute=[0]), "northHeatTempTarget", 69, resources=resources))
-    resources.addRes(HATask("southHeatTempUpMorning", HASchedTime(hour=[6], minute=[0]), "southHeatTempTarget", 70, resources=resources))
-    resources.addRes(HATask("northHeatTempDownMorning", HASchedTime(hour=[8], minute=[0]), "northHeatTempTarget", 66, resources=resources))
-    resources.addRes(HATask("southHeatTempDownMorning", HASchedTime(hour=[8], minute=[0]), "southHeatTempTarget", 67, resources=resources))
-    resources.addRes(HATask("northHeatTempDownEvening", HASchedTime(hour=[21], minute=[0]), "northHeatTempTarget", 66, resources=resources))
-    resources.addRes(HATask("southHeatTempDownEvening", HASchedTime(hour=[21], minute=[0]), "southHeatTempTarget", 67, resources=resources))
+    resources.addRes(Task("northHeatTempUpMorning", SchedTime(hour=[6], minute=[0]), "northHeatTempTarget", 69, resources=resources))
+    resources.addRes(Task("southHeatTempUpMorning", SchedTime(hour=[6], minute=[0]), "southHeatTempTarget", 70, resources=resources))
+    resources.addRes(Task("northHeatTempDownMorning", SchedTime(hour=[8], minute=[0]), "northHeatTempTarget", 66, resources=resources))
+    resources.addRes(Task("southHeatTempDownMorning", SchedTime(hour=[8], minute=[0]), "southHeatTempTarget", 67, resources=resources))
+    resources.addRes(Task("northHeatTempDownEvening", SchedTime(hour=[21], minute=[0]), "northHeatTempTarget", 66, resources=resources))
+    resources.addRes(Task("southHeatTempDownEvening", SchedTime(hour=[21], minute=[0]), "southHeatTempTarget", 67, resources=resources))
     
     # Schedule
-    schedule = HASchedule("schedule")
+    schedule = Schedule("schedule")
     schedule.addTask(resources["northHeatTempUpMorning"])
     schedule.addTask(resources["southHeatTempUpMorning"])
     schedule.addTask(resources["northHeatTempDownMorning"])

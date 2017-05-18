@@ -2,9 +2,9 @@
 import smbus
 from ha import *
 
-class I2CInterface(HAInterface):
+class I2CInterface(Interface):
     def __init__(self, name, interface=None, event=None, bus=0):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
         self.bus = smbus.SMBus(bus)
 
     def read(self, addr):

@@ -13,7 +13,7 @@
             <div id="{{ resource.name }}" class="{{ resource.type+'_'+resource.getViewState(views) }}">{{ resource.getViewState(views) }}</div>
         </td>
         <td>
-            {% if resource.className != "HASensor" %}
+            {% if resource.className != "Sensor" %}
             <div class=control>
             <form name='control' action='' method='get'>
                 <input type='hidden' name='resource' value='{{ resource.name }}' />
@@ -21,10 +21,10 @@
                 <input type='submit' class='button' name='action' value='{{ value }}' />
                 {% endfor %}
             </form>
-                {% if resource.className == "HATask" %}
+                {% if resource.className == "Task" %}
                     <div class=task>{{ resource.__str__().replace(",","<br>") }}</div>
                 {% endif %}
-                {% if resource.className == "HASequence" %}
+                {% if resource.className == "Sequence" %}
                     <div class=sequence>{{ resource.__str__().replace(",","<br>") }}</div>
                 {% endif %}
             </div>

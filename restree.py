@@ -24,6 +24,6 @@ if __name__ == "__main__":
     if len(hostName.split(":")) == 1:
         hostName += ":7378"
     # instantiate the REST client
-    rest = HARestInterface("rest", service=hostName, cache=False)
+    rest = RestInterface("rest", service=hostName, cache=False)
     resBranch("/resources", 0)
 

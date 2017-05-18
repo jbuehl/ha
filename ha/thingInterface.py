@@ -6,13 +6,13 @@ import subprocess
 import requests
 from ha import *
 
-class ThingInterface(HAInterface):
+class ThingInterface(Interface):
     def __init__(self, name, interface=None, event=None):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
         self.ipAddrs = {}
 
     def addSensor(self, sensor):
-        HAInterface.addSensor(self, sensor)
+        Interface.addSensor(self, sensor)
         self.ipAddrs[sensor.addr] = self.getIpAddr(sensor.addr)
 
     def getIpAddr(self, addr):

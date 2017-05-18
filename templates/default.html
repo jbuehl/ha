@@ -40,7 +40,7 @@
                     </div>
                 </td>
                 <td>
-                {% if r.className != "HASensor" %}
+                {% if r.className != "Sensor" %}
                     <div class=control>
                     <form name='control' action='' method='get'>
                         <input type='hidden' name='resource' value='{{ r.name }}' />
@@ -48,10 +48,10 @@
                         <input type='submit' class='button' name='action' value='{{ v }}' />
                         {% endfor %}
                     </form>
-                        {% if r.className == "HATask" %}
+                        {% if r.className == "Task" %}
                             {{ r.__str__().replace(",","<br>") }}
                         {% endif %}
-                        {% if r.className == "HASequence" %}
+                        {% if r.className == "Sequence" %}
                             {{ r.__str__().replace(",","<br>") }}
                         {% endif %}
                     </div>

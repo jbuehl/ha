@@ -2,9 +2,9 @@ from ha import *
 
 # TMP102 temp sensor
 
-class TMP102Interface(HAInterface):
+class TMP102Interface(Interface):
     def __init__(self, name, interface):
-        HAInterface.__init__(self, name, interface)
+        Interface.__init__(self, name, interface)
 
     def read(self, addr):
         debug('debugTemp', self.name, "read", addr)

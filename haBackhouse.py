@@ -15,18 +15,18 @@ serial2Config = {"baudrate": 9600}
 
 if __name__ == "__main__":
     # Resources
-    resources = HACollection("resources")
-    schedule = HASchedule("schedule")
+    resources = Collection("resources")
+    schedule = Schedule("schedule")
 
     # Interfaces
     stateChangeEvent = threading.Event()
-    serial2 = HASerialInterface("serial2", device=x10Device, config=serial2Config, event=stateChangeEvent)
+    serial2 = SerialInterface("serial2", device=x10Device, config=serial2Config, event=stateChangeEvent)
     x10Interface = X10Interface("x10", serial2)
     
     # Lights
-    resources.addRes(HAControl("xmasCowTree", x10Interface, "A1", type="light", group="Lights", label="Cow tree"))
-    resources.addRes(HAControl("bbqLights", x10Interface, "A6", type="light", group="Lights", label="Barbeque lights"))
-    resources.addRes(HAControl("backYardLights", x10Interface, "A7", type="light", group="Lights", label="Back yard lights"))
+    resources.addRes(Control("xmasCowTree", x10Interface, "A1", type="light", group="Lights", label="Cow tree"))
+    resources.addRes(Control("bbqLights", x10Interface, "A6", type="light", group="Lights", label="Barbeque lights"))
+    resources.addRes(Control("backYardLights", x10Interface, "A7", type="light", group="Lights", label="Back yard lights"))
 
     # Start interfaces
     x10Interface.start()

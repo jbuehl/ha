@@ -2,9 +2,9 @@ import json
 from ha.gpioInterface import *
 from ha import *
 
-class ApplianceInterface(HAInterface):
+class ApplianceInterface(Interface):
     def __init__(self, name, interface):
-        HAInterface.__init__(self, name, interface)
+        Interface.__init__(self, name, interface)
         self.stateFile = stateDir+name+".state"
 
     def start(self):

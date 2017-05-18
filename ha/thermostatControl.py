@@ -15,10 +15,10 @@ coolEnabled = 4
 from ha import *
 
 # thermostat control for heating and cooling
-class ThermostatControl(HAControl):
+class ThermostatControl(Control):
     def __init__(self, name, interface, heatControl, coolControl, fanControl, tempSensor, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
-        HAControl.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
-        self.className = "HAControl"
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+        self.className = "Control"
         self.heatControl = heatControl        # the heat
         self.coolControl = coolControl        # the A/C
         self.fanControl = fanControl          # the fan

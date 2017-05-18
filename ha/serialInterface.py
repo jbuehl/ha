@@ -2,9 +2,9 @@ import serial
 import sys
 from ha import *
 
-class HASerialInterface(HAInterface):
+class SerialInterface(Interface):
     def __init__(self, name, interface=None, event=None, device="", config={}):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
         self.device = device
         self.config = config
 

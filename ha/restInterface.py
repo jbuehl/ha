@@ -9,9 +9,9 @@ import socket
 import threading
 from ha import *
 
-class HARestInterface(HAInterface):
+class RestInterface(Interface):
     def __init__(self, name, interface=None, event=None, service="", secure=False, cache=True):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
         self.service = service  # the REST service to target
         self.secure = secure    # use SSL
         self.cache = cache      # cache the states

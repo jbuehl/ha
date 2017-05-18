@@ -1,9 +1,9 @@
 from ha import *
 from ha.fileInterface import *
 
-class ConfigInterface(HAInterface):
+class ConfigInterface(Interface):
     def __init__(self, name, interface=None, event=None, fileName="ha.conf"):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
         try:
             with open(configDir+fileName) as configFile:
                 lines = [line.rstrip('\n') for line in configFile]

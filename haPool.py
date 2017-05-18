@@ -51,11 +51,11 @@ valvePool = 0
 valveSpa = 1
 valveMoving = 4
 
-class SpaControl(HAControl):
+class SpaControl(Control):
     def __init__(self, name, interface, valveControl, pumpControl, heaterControl, lightControl, tempSensor, addr=None, 
             group="", type="control", location=None, view=None, label="", interrupt=None):
-        HAControl.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
-        self.className = "HAControl"
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+        self.className = "Control"
         self.currentState = spaOff
         self.valveControl = valveControl
         self.pumpControl = pumpControl
@@ -65,25 +65,25 @@ class SpaControl(HAControl):
         self.eventThread = None
         
         # state transition sequences
-        self.startupSequence = HASequence("spaStartup", 
-                             [HACycle(self.valveControl, duration=0, startState=valveSpa),
-                              HACycle(self.pumpControl, duration=0, startState=pumpMed, delay=30),
-                              HACycle(self.heaterControl, duration=0, startState=on, delay=30)
+        self.startupSequence = Sequence("spaStartup", 
+                             [Cycle(self.valveControl, duration=0, startState=valveSpa),
+                              Cycle(self.pumpControl, duration=0, startState=pumpMed, delay=30),
+                              Cycle(self.heaterControl, duration=0, startState=on, delay=30)
                               ])
-        self.onSequence = HASequence("spaOn", 
-                             [HACycle(self.pumpControl, duration=0, startState=pumpMax),
-                              HACycle(self.lightControl, duration=0, startState=on),
+        self.onSequence = Sequence("spaOn", 
+                             [Cycle(self.pumpControl, duration=0, startState=pumpMax),
+                              Cycle(self.lightControl, duration=0, startState=on),
                               ])
-        self.standbySequence = HASequence("spaStandby", 
-                             [HACycle(self.pumpControl, duration=0, startState=pumpMed),
-                              HACycle(self.lightControl, duration=0, startState=off),
+        self.standbySequence = Sequence("spaStandby", 
+                             [Cycle(self.pumpControl, duration=0, startState=pumpMed),
+                              Cycle(self.lightControl, duration=0, startState=off),
                               ])
-        self.shutdownSequence = HASequence("spaShutdown", 
-                             [HACycle(self.pumpControl, duration=0, startState=pumpMed),
-                              HACycle(self.heaterControl, duration=0, startState=off),
-                              HACycle(self.pumpControl, duration=0, startState=off, delay=60),
-                              HACycle(self.valveControl, duration=0, startState=valvePool),
-                              HACycle(self.lightControl, duration=0, startState=off, delay=30)
+        self.shutdownSequence = Sequence("spaShutdown", 
+                             [Cycle(self.pumpControl, duration=0, startState=pumpMed),
+                              Cycle(self.heaterControl, duration=0, startState=off),
+                              Cycle(self.pumpControl, duration=0, startState=off, delay=60),
+                              Cycle(self.valveControl, duration=0, startState=valvePool),
+                              Cycle(self.lightControl, duration=0, startState=off, delay=30)
                               ])
 
     def getState(self):
@@ -183,10 +183,10 @@ class EventThread(threading.Thread):
         debug('debugThread', self.name, "finished")
 
 # spa control whose state value includes the temperature
-class SpaTempControl(HAControl):
+class SpaTempControl(Control):
     def __init__(self, name, interface, spaControl, tempSensor, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
-        HAControl.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
-        self.className = "HAControl"
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+        self.className = "Control"
         self.spaControl = spaControl
         self.tempSensor = tempSensor
 
@@ -197,10 +197,10 @@ class SpaTempControl(HAControl):
         self.spaControl.setState(state)
         
 # control that can only be turned on if all the specified resources are in the specified states
-class DependentControl(HAControl):
+class DependentControl(Control):
     def __init__(self, name, interface, control, resources, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
-        HAControl.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
-        self.className = "HAControl"
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+        self.className = "Control"
         self.control = control
         self.resources = resources
 
@@ -214,55 +214,55 @@ class DependentControl(HAControl):
 
 if __name__ == "__main__":
     # Resources
-    resources = HACollection("resources")
-    schedule = HASchedule("schedule")
+    resources = Collection("resources")
+    schedule = Schedule("schedule")
 
     # Interfaces
     stateChangeEvent = threading.Event()
-    nullInterface = HAInterface("Null", HAInterface("None"))
-    serial1 = HASerialInterface("Serial1", device=pentairDevice, config=serial1Config, event=stateChangeEvent)
+    nullInterface = Interface("Null", Interface("None"))
+    serial1 = SerialInterface("Serial1", device=pentairDevice, config=serial1Config, event=stateChangeEvent)
     i2c1 = I2CInterface("I2C1", bus=1, event=stateChangeEvent)
     gpio0 = GPIOInterface("GPIO0", i2c1, addr=0x20, bank=0, inOut=0x00)
     gpio1 = GPIOInterface("GPIO1", i2c1, addr=0x20, bank=1, inOut=0x00)
     pentairInterface = PentairInterface("Pentair", serial1)
-    powerInterface = HAPowerInterface("Power", HAInterface("None"), event=stateChangeEvent)
+    powerInterface = PowerInterface("Power", Interface("None"), event=stateChangeEvent)
     ads1015Interface = ADS1015Interface("ADS1015", addr=0x48)
     analogTempInterface = AnalogTempInterface("AnalogTemp", ads1015Interface)
     valveInterface = ValveInterface("Valves", gpio1)
     timeInterface = TimeInterface("Time")
     
     # Lights
-    poolLight = HAControl("poolLight", gpio0, 2, type="light", group="Lights", label="Pool light")
-    spaLight = HAControl("spaLight", gpio0, 3, type="light", group="Lights", label="Spa light")
+    poolLight = Control("poolLight", gpio0, 2, type="light", group="Lights", label="Pool light")
+    spaLight = Control("spaLight", gpio0, 3, type="light", group="Lights", label="Spa light")
     resources.addRes(poolLight)
     resources.addRes(spaLight)
     resources.addRes(ControlGroup("poolLights", [poolLight, spaLight], type="light", group="Lights", label="Pool and spa"))
 
     # Temperature
-    waterTemp = HASensor("waterTemp", analogTempInterface, 0, "Temperature",label="Water temp", type="tempF")
-    poolEquipTemp = HASensor("poolEquipTemp", analogTempInterface, 1, "Temperature",label="Pool equipment temp", type="tempF")
+    waterTemp = Sensor("waterTemp", analogTempInterface, 0, "Temperature",label="Water temp", type="tempF")
+    poolEquipTemp = Sensor("poolEquipTemp", analogTempInterface, 1, "Temperature",label="Pool equipment temp", type="tempF")
     resources.addRes(waterTemp)
     resources.addRes(poolEquipTemp)
 
     # Pool
-    poolPump = HAControl("poolPump", pentairInterface, 0, group="Pool", label="Pump", type="pump")
-    poolCleaner = HAControl("poolCleaner", gpio0, 0, group="Pool", label="Polaris", type="cleaner")
-    intakeValve = HAControl("intakeValve", valveInterface, 0, group="Pool", label="Intake valve", type="poolValve")
-    returnValve = HAControl("returnValve", valveInterface, 1, group="Pool", label="Return valve", type="poolValve")
+    poolPump = Control("poolPump", pentairInterface, 0, group="Pool", label="Pump", type="pump")
+    poolCleaner = Control("poolCleaner", gpio0, 0, group="Pool", label="Polaris", type="cleaner")
+    intakeValve = Control("intakeValve", valveInterface, 0, group="Pool", label="Intake valve", type="poolValve")
+    returnValve = Control("returnValve", valveInterface, 1, group="Pool", label="Return valve", type="poolValve")
     valveMode = ControlGroup("valveMode", [intakeValve, returnValve], stateList=[[0, 1, 1, 0], [0, 1, 0, 1]], stateMode=True, 
                              type="valveMode", group="Pool", label="Valve mode")
     spaFill = ControlGroup("spaFill", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 4]], stateMode=True, group="Pool", label="Spa fill")
     spaFlush = ControlGroup("spaFlush", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 3]], stateMode=True, group="Pool", label="Spa flush")
     spaDrain = ControlGroup("spaDrain", [intakeValve, returnValve, poolPump], stateList=[[0, 1], [0, 0], [0, 4]], stateMode=True, group="Pool", label="Spa drain")
     poolClean = ControlGroup("poolClean", [poolCleaner, poolPump], stateList=[[0, 1], [0, 3]], stateMode=True, group="Pool", label="Pool clean")
-    heater = HAControl("heater", gpio1, 2, group="Pool", label="Heater", type="heater")
+    heater = Control("heater", gpio1, 2, group="Pool", label="Heater", type="heater")
     spaHeater = TempControl("spaHeater", nullInterface, heater, waterTemp, group="Pool", label="Heater", type="heater")
     spaHeater.setTarget(spaTempTarget)
-    spaBlower = HAControl("spaBlower", gpio0, 1, group="Pool", label="Blower")
+    spaBlower = Control("spaBlower", gpio0, 1, group="Pool", label="Blower")
     
     resources.addRes(poolPump)
-    resources.addRes(HASensor("poolPumpSpeed", pentairInterface, 1, group="Pool", label="Pump speed", type="pumpSpeed"))
-    resources.addRes(HASensor("poolPumpFlow", pentairInterface, 3, group="Pool", label="Pump flow", type="pumpFlow"))
+    resources.addRes(Sensor("poolPumpSpeed", pentairInterface, 1, group="Pool", label="Pump speed", type="pumpSpeed"))
+    resources.addRes(Sensor("poolPumpFlow", pentairInterface, 3, group="Pool", label="Pump flow", type="pumpFlow"))
     resources.addRes(poolCleaner)
     resources.addRes(poolClean)
     resources.addRes(intakeValve)
@@ -275,7 +275,7 @@ if __name__ == "__main__":
     resources.addRes(spaBlower)
 
     # Spa
-    sunUp = HASensor("sunUp", timeInterface, "sunUp")
+    sunUp = Sensor("sunUp", timeInterface, "sunUp")
     # spa light control that will only turn on if the sun is down
     spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(sunUp, 0)])
     spa = SpaControl("spa", nullInterface, valveMode, poolPump, spaHeater, spaLightNight, waterTemp, group="Pool", label="Spa", type="spa")
@@ -285,28 +285,28 @@ if __name__ == "__main__":
     resources.addRes(spa)
     resources.addRes(spaTemp)
     
-    resources.addRes(HASequence("filter", [HACycle(poolPump, duration=39600, startState=1),  # filter 11 hr
+    resources.addRes(Sequence("filter", [Cycle(poolPump, duration=39600, startState=1),  # filter 11 hr
                                               ], group="Pool", label="Filter daily"))
-    resources.addRes(HASequence("clean", [HACycle(poolClean, duration=3600, startState=1), 
+    resources.addRes(Sequence("clean", [Cycle(poolClean, duration=3600, startState=1), 
                                               ], group="Pool", label="Clean 1 hr"))
-    resources.addRes(HASequence("flush", [HACycle(spaFlush, duration=900, startState=1), 
+    resources.addRes(Sequence("flush", [Cycle(spaFlush, duration=900, startState=1), 
                                               ], group="Pool", label="Flush spa 15 min"))
 
     # Power
-    resources.addRes(HASensor("poolPumpPower", pentairInterface, 2, type="power", group="Power", label="Pool pump"))
-    resources.addRes(HASensor("poolCleanerPower", powerInterface, poolCleaner, type="power", group="Power", label="Pool cleaner"))
-    resources.addRes(HASensor("spaBlowerPower", powerInterface, spaBlower, type="power", group="Power", label="Spa blower"))
-    resources.addRes(HASensor("poolLightPower", powerInterface, poolLight, type="power", group="Power", label="Pool light"))
-    resources.addRes(HASensor("spaLightPower", powerInterface, spaLight, type="power", group="Power", label="Spa light"))
+    resources.addRes(Sensor("poolPumpPower", pentairInterface, 2, type="power", group="Power", label="Pool pump"))
+    resources.addRes(Sensor("poolCleanerPower", powerInterface, poolCleaner, type="power", group="Power", label="Pool cleaner"))
+    resources.addRes(Sensor("spaBlowerPower", powerInterface, spaBlower, type="power", group="Power", label="Spa blower"))
+    resources.addRes(Sensor("poolLightPower", powerInterface, poolLight, type="power", group="Power", label="Pool light"))
+    resources.addRes(Sensor("spaLightPower", powerInterface, spaLight, type="power", group="Power", label="Spa light"))
 
     # Schedules
     resources.addRes(schedule)
-    schedule.addTask(HATask("Sunday spa on", HASchedTime(year=[2016], month=[8], day=[14], hour=[16], minute=[30]), resources["spa"], 1))
-    schedule.addTask(HATask("Sunday spa off", HASchedTime(year=[2016], month=[8], day=[14], hour=[18], minute=[30]), resources["spa"], 0))
-    schedule.addTask(HATask("Pool filter", HASchedTime(hour=[21], minute=[0]), resources["filter"], 1))
-    schedule.addTask(HATask("Pool cleaner", HASchedTime(hour=[8], minute=[1]), resources["clean"], 1))
-    schedule.addTask(HATask("Flush spa", HASchedTime(hour=[9], minute=[2]), resources["flush"], 1))
-    schedule.addTask(HATask("Spa light on sunset", HASchedTime(event="sunset"), spaLightNightSpa, 1))
+    schedule.addTask(Task("Sunday spa on", SchedTime(year=[2016], month=[8], day=[14], hour=[16], minute=[30]), resources["spa"], 1))
+    schedule.addTask(Task("Sunday spa off", SchedTime(year=[2016], month=[8], day=[14], hour=[18], minute=[30]), resources["spa"], 0))
+    schedule.addTask(Task("Pool filter", SchedTime(hour=[21], minute=[0]), resources["filter"], 1))
+    schedule.addTask(Task("Pool cleaner", SchedTime(hour=[8], minute=[1]), resources["clean"], 1))
+    schedule.addTask(Task("Flush spa", SchedTime(hour=[9], minute=[2]), resources["flush"], 1))
+    schedule.addTask(Task("Spa light on sunset", SchedTime(event="sunset"), spaLightNightSpa, 1))
 
     # Start interfaces
     gpio0.start()

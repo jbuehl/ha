@@ -45,19 +45,19 @@ optimizers = {
 "100F74B7": (578, 443),
 }
 
-class SolarSensor(HASensor):
+class SolarSensor(Sensor):
     def __init__(self, name, attrs, interface, addr=None, group="", type="sensor", view=None, label="", location=None):
-        HASensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
+        Sensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
         debug("debugSolar", "creating", name)
         # set the specified attributes
         self.attrNames = attrs.keys()
         for attrName in self.attrNames:
             setattr(self, attrName, attrs[attrName])
-        self.className = "HASensor"
+        self.className = "Sensor"
 
     # add selected attributes to the dictionary
     def dict(self):
-        attrs = HASensor.dict(self)
+        attrs = Sensor.dict(self)
         try:
             # read current parameter values
             deviceValues = self.interface.read(self.deviceType)
@@ -129,12 +129,12 @@ class OptimizerEnergySensor(OptimizerSensor):
 
 if __name__ == "__main__":
     # Resources
-    resources = HACollection("resources")
+    resources = Collection("resources")
 
     # Interfaces
     stateChangeEvent = threading.Event()
     fileInterface = FileInterface("File", fileName=solarFileName, readOnly=True, event=stateChangeEvent)
-    solarInterface = HASolarInterface("Solar", fileInterface)
+    solarInterface = SolarInterface("Solar", fileInterface)
 
     # Devices
     for inverter in inverters.keys():
@@ -145,16 +145,16 @@ if __name__ == "__main__":
         resources.addRes(OptimizerEnergySensor(optimizer+"-E", fileInterface, group="OptimizersEnergy", type="KWh", label="Optimizer "+optimizer+" energy", location=optimizers[optimizer]))
         
     # Temperature
-    resources.addRes(HASensor("inverterTemp", solarInterface, ("inverters", "avg", "Temp"), group="Temperature", label="Inverter temp", type="tempC"))
-    resources.addRes(HASensor("roofTemp", solarInterface, ("optimizers", "avg", "Temp"), group="Temperature", label="Roof temp", type="tempC"))
+    resources.addRes(Sensor("inverterTemp", solarInterface, ("inverters", "avg", "Temp"), group="Temperature", label="Inverter temp", type="tempC"))
+    resources.addRes(Sensor("roofTemp", solarInterface, ("optimizers", "avg", "Temp"), group="Temperature", label="Roof temp", type="tempC"))
 
     # Solar
-    resources.addRes(HASensor("currentVoltage", solarInterface, ("inverters", "avg", "Vac"), group="Solar", label="Current voltage", type="V"))
-    resources.addRes(HASensor("currentPower", solarInterface, ("inverters", "sum", "Pac"), group="Solar", label="Current power", type="KW"))
-    resources.addRes(HASensor("todaysEnergy", solarInterface, ("inverters", "sum", "Eday"), group="Solar", label="Energy today", type="KWh"))
-#    resources.addRes(HASensor("monthlyEnergy", solarInterface, ("stats", "", "Emonth"), group="Solar", label="Energy this month", type="KWh"))
-#    resources.addRes(HASensor("yearlyEnergy", solarInterface, ("stats", "", "Eyear"), group="Solar", label="Energy this year", type="MWh"))
-    resources.addRes(HASensor("lifetimeEnergy", solarInterface, ("inverters", "sum", "Etot"), group="Solar", label="Lifetime energy", type="MWh"))
+    resources.addRes(Sensor("currentVoltage", solarInterface, ("inverters", "avg", "Vac"), group="Solar", label="Current voltage", type="V"))
+    resources.addRes(Sensor("currentPower", solarInterface, ("inverters", "sum", "Pac"), group="Solar", label="Current power", type="KW"))
+    resources.addRes(Sensor("todaysEnergy", solarInterface, ("inverters", "sum", "Eday"), group="Solar", label="Energy today", type="KWh"))
+#    resources.addRes(Sensor("monthlyEnergy", solarInterface, ("stats", "", "Emonth"), group="Solar", label="Energy this month", type="KWh"))
+#    resources.addRes(Sensor("yearlyEnergy", solarInterface, ("stats", "", "Eyear"), group="Solar", label="Energy this year", type="MWh"))
+    resources.addRes(Sensor("lifetimeEnergy", solarInterface, ("inverters", "sum", "Etot"), group="Solar", label="Lifetime energy", type="MWh"))
 
     # Start interfaces
     fileInterface.start()

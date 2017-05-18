@@ -12,7 +12,7 @@ from ha.restServer import *
 
 if __name__ == "__main__":
     # Resources
-    resources = HACollection("resources")
+    resources = Collection("resources")
 
     # Interfaces
     stateChangeEvent = threading.Event()
@@ -28,7 +28,7 @@ if __name__ == "__main__":
         sys.exit(1)
     
     # Temperature
-    resources.addRes(HASensor("edisonTemp", temp, tempAddr, group="Temperature", label="Edison temp", type="tempF"))
+    resources.addRes(Sensor("edisonTemp", temp, tempAddr, group="Temperature", label="Edison temp", type="tempF"))
     
     # Start interfaces
     temp.start()

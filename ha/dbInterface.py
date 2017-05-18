@@ -3,9 +3,9 @@ import time
 import threading
 from ha import *
 
-class HADbInterface(HAInterface):
+class DbInterface(Interface):
     def __init__(self, theName, dataBase, hostName="localhost", userName="", password=""):
-        HAInterface.__init__(self, theName, None)
+        Interface.__init__(self, theName, None)
         self.dataBase = dataBase
         self.hostName = hostName
         self.userName = userName

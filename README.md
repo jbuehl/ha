@@ -12,13 +12,13 @@ Here is a definition of the terminology used in this project.
 - interface - the connection over which two devices communicate
 
 ##### MODEL
-- resource - the fundamental object
-- sensor - a representation of a physical sensor
-- control - a representation of a physical control
-- interface - a representation of a physical interface
-- collection - an ordered list of resources
-- task - a specification of a control, a state, and a time 
-- schedule - a collection of tasks
+- Resource - the fundamental object
+- Sensor - a representation of a physical sensor
+- Control - a representation of a physical control
+- Interface - a representation of a physical interface
+- Collection - an ordered list of resources
+- Task - a specification of a control, a state, and a time 
+- Schedule - a collection of tasks
 
 ##### DEPLOYMENT
 - application - the implementation of a collection of resources and interfaces that runs on a server
@@ -35,27 +35,33 @@ Every resource has an associated state.
 
 ### Object model
 
-HA uses an object model that is defined by the following classes:
+HA uses an object model that is defined by the following base classes:
 
-	+ class HAResource(object):
-	    - class HAInterface(HAResource):
-	    + class HASensor(HAResource):
-	            - class HAView(object):
-	        + class HAControl(HASensor):
-	            - class HACycle(object):
-	            - class HASequence(HAControl):
-	            - class HAScene(HAControl):
-	    + class HACollection(HAResource, OrderedDict):
-	        + class HASchedule(HACollection):
-	            + class HATask(HAControl):
-	                + class HASchedTime(object):
+	+ class Resource(object):
+	    - class Interface(Resource):
+	    + class Sensor(Resource):
+	            - class View(object):
+	        + class Control(Sensor):
+	    + class Collection(Resource, OrderedDict):
+	        + class Schedule(Collection):
+	            + class Task(Control):
+	                + class SchedTime(object):
+	                
+Other classes are built on the base classes:
 
-##### HAResource
+    - class Cycle(object):
+    - class Sequence(Control):
+    - class SensorGroup(Sensor):
+    - class ControlGroup(SensorGroup, Control):
+    - class CalcSensor(Sensor):
+    - class ResourceStateSensor(Sensor):
+
+##### Resource
 The base class for most HA objects.
 
     - name
         
-##### HAInterface
+##### Interface
 Defines the abstract class for interface implementations.
 
     - interface
@@ -65,9 +71,9 @@ Defines the abstract class for interface implementations.
     - read(addr)
     - write(addr, value)
     - notify()
-    - getStateType(HASensor)
+    - getStateType(Sensor)
         
-##### HASensor
+##### Sensor
 Defines the model for the basic HA sensor.
 
     - interface
@@ -82,19 +88,19 @@ Defines the model for the basic HA sensor.
     - getStateChange()
     - getStateType()
         
-##### HAControl
+##### Control
 Defines the model for a sensor whose state can be changed.
 
     - setState(value)
 
-##### HACycle, HASequence, and HAScene
-Used to define aggregations of HAControls that 
+##### Cycle, Sequence, and HAScene
+Used to define aggregations of Controls that 
 can be set collectively.
 
-##### HACollection
-Defines an ordered list of HAResources.
+##### Collection
+Defines an ordered list of Resources.
 
-##### HASchedule, HATask, and HASchedTime
+##### Schedule, Task, and SchedTime
 Used to manage a list of tasks to be run at 
 specified times.
         
@@ -128,16 +134,16 @@ The HA REST interface allows access to HA objects.
 
 ##### Resource paths 
 Paths are defined by the organization of collections that the implementing program 
-has  passed to the REST server.  A path consists of one of more HACollection names, 
-optionally  followed by a HASensor name, optionally followed by an HASensor 
+has  passed to the REST server.  A path consists of one of more Collection names, 
+optionally  followed by a Sensor name, optionally followed by an Sensor 
 attribute name.
 
-The HASensor attribute "state" returns the current state of the sensor.  The
+The Sensor attribute "state" returns the current state of the sensor.  The
 attribute "stateChange" waits and returns the state of a sensor when the state
 changes.
 
 Each REST service resource collection includes an extra resource named "states" whose "state" attribute
-consists of a dictionary of all the current states of the HASensors in the collection.  It
+consists of a dictionary of all the current states of the Sensors in the collection.  It
 also has an attribute called "stateChange" that waits for at least one of the resource
 states to change and returns the states of all the resources.
 
@@ -162,7 +168,7 @@ and resource collection that is served.
 
         GET hostname:7378/resources
 
-        {"type": "collection", "class": "HACollection", "resources": ["Null", 
+        {"type": "collection", "class": "Collection", "resources": ["Null", 
         "frontLawn", "backLawn", "backBeds", "sideBeds", "gardenSequence", 
         "backLawnSequence", "sideBedSequence", "gardenTask", "backLawnTask", 
         "sideBedTask", "inverterTemp", "currentPower", "todaysEnergy", "lifetimeEnergy", 
@@ -187,7 +193,7 @@ and resource collection that is served.
 
         {"addr": "/resources/sensors/shade1/state", "group": "Doors", "name": "shade1", 
         "location": null, "interface": "rpi04:7378", "type": "shade", "class": 
-        "HAControl", "label": "Shade 1"}
+        "Control", "label": "Shade 1"}
      
     3. Return the current state of the resource "shade1".
 

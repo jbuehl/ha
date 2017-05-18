@@ -3,9 +3,9 @@ import time
 import os
 import datetime
 
-class TimeInterface(HAInterface):
+class TimeInterface(Interface):
     def __init__(self, name, tzOffset=0):
-        HAInterface.__init__(self, name, None)
+        Interface.__init__(self, name, None)
         self.tzOffset = tzOffset
 
     def read(self, addr=None):

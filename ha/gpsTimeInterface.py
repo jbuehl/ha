@@ -3,9 +3,9 @@ import time
 import datetime
 import pytz
 
-class GpsTimeInterface(HAInterface):
+class GpsTimeInterface(Interface):
     def __init__(self, name, interface):
-        HAInterface.__init__(self, name, interface)
+        Interface.__init__(self, name, interface)
 
     def read(self, addr=None):
         # read the gps time from the file

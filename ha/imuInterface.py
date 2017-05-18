@@ -2,9 +2,9 @@ import math
 
 from ha import *
 
-class ImuInterface(HAInterface):
+class ImuInterface(Interface):
     def __init__(self, name, interface=None, event=None):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
 
     def read(self, addr):
         try:

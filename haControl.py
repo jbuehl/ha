@@ -190,19 +190,19 @@ if __name__ == "__main__":
             aliases = json.load(aliasFile)
     except:
         aliases = {}
-    resources = HACollection("resources", aliases=aliases)
+    resources = Collection("resources", aliases=aliases)
 
     # add local resources
     timeInterface = TimeInterface("time")
-    resources.addRes(HASensor("theDayOfWeek", timeInterface, "%A", type="date", group="Time", label="Day of week"))
-    resources.addRes(HASensor("theDateDayOfWeek", timeInterface, "%a %B %-d %Y", type="date", label="Date"))
-    resources.addRes(HASensor("theDate", timeInterface, "%B %-d %Y", type="date", group="Time", label="Date"))
-    resources.addRes(HASensor("theTimeAmPm", timeInterface, "%I:%M %p", type="time", group="Time", label="Time"))
-    resources.addRes(HASensor("sunrise", timeInterface, "sunrise", type="time", group="Time", label="Sunrise"))
-    resources.addRes(HASensor("sunset", timeInterface, "sunset", type="time", group="Time", label="Sunset"))
-    resources.addRes(HASensor("theDay", timeInterface, "%a %b %-d %Y", type="date", label="Day"))
-    resources.addRes(HASensor("theTime", timeInterface, "%I:%M", type="time", label="Time"))
-    resources.addRes(HASensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
+    resources.addRes(Sensor("theDayOfWeek", timeInterface, "%A", type="date", group="Time", label="Day of week"))
+    resources.addRes(Sensor("theDateDayOfWeek", timeInterface, "%a %B %-d %Y", type="date", label="Date"))
+    resources.addRes(Sensor("theDate", timeInterface, "%B %-d %Y", type="date", group="Time", label="Date"))
+    resources.addRes(Sensor("theTimeAmPm", timeInterface, "%I:%M %p", type="time", group="Time", label="Time"))
+    resources.addRes(Sensor("sunrise", timeInterface, "sunrise", type="time", group="Time", label="Sunrise"))
+    resources.addRes(Sensor("sunset", timeInterface, "sunset", type="time", group="Time", label="Sunset"))
+    resources.addRes(Sensor("theDay", timeInterface, "%a %b %-d %Y", type="date", label="Day"))
+    resources.addRes(Sensor("theTime", timeInterface, "%I:%M", type="time", label="Time"))
+    resources.addRes(Sensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
 
     # start the cache to listen for services on other servers
     restIgnore.append(socket.gethostname()+":"+str(restPort))
@@ -210,9 +210,9 @@ if __name__ == "__main__":
     restCache.start()
     
     # Schedules
-    schedule = HASchedule("schedule")
-    resources.addRes(HATask("sundaySpaOn", HASchedTime(year=[2017], month=[1], day=[22], hour=[17], minute=[00]), "spa", 1, resources=resources))
-    resources.addRes(HATask("sundaySpaOff", HASchedTime(year=[2017], month=[1], day=[22], hour=[18], minute=[55]), "spa", 0, resources=resources))
+    schedule = Schedule("schedule")
+    resources.addRes(Task("sundaySpaOn", SchedTime(year=[2017], month=[1], day=[22], hour=[17], minute=[00]), "spa", 1, resources=resources))
+    resources.addRes(Task("sundaySpaOff", SchedTime(year=[2017], month=[1], day=[22], hour=[18], minute=[55]), "spa", 0, resources=resources))
     schedule.addTask(resources["sundaySpaOn"])
     schedule.addTask(resources["sundaySpaOff"])
     schedule.start()

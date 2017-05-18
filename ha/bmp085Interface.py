@@ -4,7 +4,7 @@ from ha import *
 # BMP085 pressure and temp sensor
 # Code lifted from Adafruit_BMP085
 
-class BMP085Interface(HAInterface):
+class BMP085Interface(Interface):
 
     # Operating Modes
     __BMP085_ULTRALOWPOWER     = 0
@@ -44,7 +44,7 @@ class BMP085Interface(HAInterface):
     _cal_MD = 0
 
     def __init__(self, name, interface, addr=0x77, mode=1, height=0):
-        HAInterface.__init__(self, name, interface)
+        Interface.__init__(self, name, interface)
         correctionAlt = (elevation + height) * 0.3048  # correction height in meters
         self.correction = .68    # fuck it - rough approximation of correction in inches
         self.addr = addr

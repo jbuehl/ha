@@ -179,7 +179,7 @@ def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, s
         stateResource = self.resources.getRes("states", dummy=False)
     except:
         debug('debugWeb', "created resource state sensor")
-        stateResource = ResourceStateSensor("states", HAInterface("None"), resources=resources, event=stateChangeEvent)
+        stateResource = ResourceStateSensor("states", Interface("None"), resources=resources, event=stateChangeEvent)
         resources.addRes(stateResource)
         
     root = WebRoot(resources, restCache, stateChangeEvent, resourceLock, pathDict)

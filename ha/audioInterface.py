@@ -5,9 +5,9 @@ import os
 import subprocess
 from ha import *
 
-class AudioInterface(HAInterface):
+class AudioInterface(Interface):
     def __init__(self, name, interface=None, event=None):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
 
     def read(self, addr):
         debug('debugAudio', self.name, "read", addr)

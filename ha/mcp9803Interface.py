@@ -2,9 +2,9 @@ from ha import *
 
 # MCP9803 temp sensor
 
-class MCP9803Interface(HAInterface):
+class MCP9803Interface(Interface):
     def __init__(self, name, interface):
-        HAInterface.__init__(self, name, interface)
+        Interface.__init__(self, name, interface)
 
     def read(self, addr):
         debug('debugTemp', self.name, "read", addr)

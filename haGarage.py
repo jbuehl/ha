@@ -22,7 +22,7 @@ if __name__ == "__main__":
     global stateChangeEvent
 
     # Resources
-    resources = HACollection("resources")
+    resources = Collection("resources")
 
     # Interfaces
     stateChangeEvent = threading.Event()
@@ -34,27 +34,27 @@ if __name__ == "__main__":
     temp = TempInterface("Temp", tc74, sample=10)
     
     # Water
-    resources.addRes(HAControl("recircPump", gpio0, 0, type="hotwater", group="Water", label="Hot water"))
+    resources.addRes(Control("recircPump", gpio0, 0, type="hotwater", group="Water", label="Hot water"))
 
     # Lights
-    resources.addRes(HAControl("sculptureLights", led, 7, type="led", group="Lights", label="Sculpture"))
+    resources.addRes(Control("sculptureLights", led, 7, type="led", group="Lights", label="Sculpture"))
 
     # Doors
-    resources.addRes(HASensor("garageDoor", gpio1, 0, type="door", group="Doors", label="Garage Door"))
-    resources.addRes(HASensor("garageBackDoor", gpio1, 1, type="door", group="Doors", label="Garage Back"))
-    resources.addRes(HASensor("garageHouseDoor", gpio1, 2, type="door", group="Doors", label="Garage House"))
+    resources.addRes(Sensor("garageDoor", gpio1, 0, type="door", group="Doors", label="Garage Door"))
+    resources.addRes(Sensor("garageBackDoor", gpio1, 1, type="door", group="Doors", label="Garage Back"))
+    resources.addRes(Sensor("garageHouseDoor", gpio1, 2, type="door", group="Doors", label="Garage House"))
     resources.addRes(SensorGroup("garageDoors", ["garageDoor", "garageBackDoor", "garageHouseDoor"], resources=resources, type="door", group="Doors", label="Garage doors"))
-    resources.addRes(HASensor("doorbellButton", gpio1, 3, interrupt=dingDong))
+    resources.addRes(Sensor("doorbellButton", gpio1, 3, interrupt=dingDong))
 
     # Temperature
-    resources.addRes(HASensor("garageTemp", temp, 0x4d, group="Temperature", label="Garage temp", type="tempF"))
+    resources.addRes(Sensor("garageTemp", temp, 0x4d, group="Temperature", label="Garage temp", type="tempF"))
     
     # Tasks
-    resources.addRes(HATask("hotWaterRecircOn", HASchedTime(hour=[05], minute=[0]), "recircPump", 1, resources=resources))
-    resources.addRes(HATask("hotWaterRecircOff", HASchedTime(hour=[23], minute=[0]), "recircPump", 0, resources=resources))
+    resources.addRes(Task("hotWaterRecircOn", SchedTime(hour=[05], minute=[0]), "recircPump", 1, resources=resources))
+    resources.addRes(Task("hotWaterRecircOff", SchedTime(hour=[23], minute=[0]), "recircPump", 0, resources=resources))
     
     # Schedule
-    schedule = HASchedule("schedule")
+    schedule = Schedule("schedule")
     schedule.addTask(resources["hotWaterRecircOn"])
     schedule.addTask(resources["hotWaterRecircOff"])
     schedule.start()

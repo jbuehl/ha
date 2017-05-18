@@ -28,9 +28,9 @@ import subprocess
 import threading
 from ha import *
 
-class CameraInterface(HAInterface):
+class CameraInterface(Interface):
     def __init__(self, name, interface=None, event=None, mode=modeStill, imageDir="", rotation=0, enabled=True):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
         self.mode = mode
         self.imageFileName = imageDir+self.name
         self.rotation = rotation

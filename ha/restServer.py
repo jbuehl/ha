@@ -173,7 +173,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
     def getResFromPath(self, resource, path):
         (name, sep, path) = path.partition("/")
         if name == resource.name:   # the path element matches the resource name so far
-            if isinstance(resource, HACollection):
+            if isinstance(resource, Collection):
                 if sep == "":       # no more elements left in path
                     return (resource, None) # path matches collection
                 else:

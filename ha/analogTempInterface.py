@@ -2,9 +2,9 @@ from ha import *
 
 # analog temp sensor
 
-class AnalogTempInterface(HAInterface):
+class AnalogTempInterface(Interface):
     def __init__(self, name, interface):
-        HAInterface.__init__(self, name, interface)
+        Interface.__init__(self, name, interface)
 
     def read(self, addr):
         debug('debugAnalogTemp', self.name, "read", addr)

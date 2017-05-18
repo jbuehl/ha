@@ -10,10 +10,10 @@ from ha import *
 ########################################################################################################
 # state of the pool and equipment
 ########################################################################################################
-class AqualinkInterface(HAInterface):
+class AqualinkInterface(Interface):
     # constructor
     def __init__(self, name, interface=None, event=None):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
         
         self.stateChanged = True
         self.stateFileName = "root/ha/pool.state"   # FIXME
@@ -228,12 +228,12 @@ class AqualinkInterface(HAInterface):
                 msg += start+"%-12s"%(equip.name+":")+equip.printState()+end
         return msg
 
-class Device(HAResource):
+class Device(Resource):
     def __init__(self, theName, theState):
-        HAResource.__init__(self, theName)
+        Resource.__init__(self, theName)
         self.state = theState
             
-class Equipment(HAResource):
+class Equipment(Resource):
     # equipment states
     stateOff = 0
     stateOn = 1
@@ -241,7 +241,7 @@ class Equipment(HAResource):
     stateEnh = 4
 
     def __init__(self, theName, thePool, theAction=None):
-        HAResource.__init__(self, theName)
+        Resource.__init__(self, theName)
         self.pool = thePool
         self.action = theAction
         self.state = Equipment.stateOff
@@ -272,14 +272,14 @@ class Equipment(HAResource):
 # Base Aqualink control panel
 ########################################################################################################
 
-class Panel(HAResource):
+class Panel(Resource):
     """
     Base Aqualink control Panel
     """
     
     # constructor
     def __init__(self, theName, thePool):
-        HAResource.__init__(self, theName)
+        Resource.__init__(self, theName)
         self.pool = thePool
 
         # commands
@@ -603,14 +603,14 @@ ETX = '\x03'
 
 masterAddr = '\x00'          # address of Aqualink controller
 
-class Interface(HAResource):
+class Interface(Resource):
     """ Aqualink serial interface
 
     """
     def __init__(self, theName, thePool):
         """Initialization.
         Open the serial port and find the start of a message."""
-        HAResource.__init__(self, theName)
+        Resource.__init__(self, theName)
         self.pool = thePool
         debug('debugData', self.name, "opening RS485 port", self.pool.interface.name)
         thePool.interface.start()

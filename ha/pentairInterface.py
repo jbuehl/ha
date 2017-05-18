@@ -31,10 +31,10 @@ pc = 75.28
 ########################################################################################################
 # state of the pool pump
 ########################################################################################################
-class PentairInterface(HAInterface):
+class PentairInterface(Interface):
     # constructor
     def __init__(self, name, interface=None, event=None):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
         # in theory there could be multiple pumps on an interface, but assume just one for now
         self.addr = pentairAddr
         

@@ -10,9 +10,9 @@ shadeDown = 1
 shadeRaising = 2
 shadeLowering = 3
 
-class ShadeInterface(HAInterface):
+class ShadeInterface(Interface):
     def __init__(self, name, interface=None, event=None):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
         self.states = {0:0, 1:0, 2:0, 3:0}
         self.travelTime = [15, 15, 12, 12]
         self.timers = [None, None, None, None]

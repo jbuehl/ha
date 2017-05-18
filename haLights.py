@@ -20,8 +20,8 @@ if __name__ == "__main__":
             aliases = json.load(aliasFile)
     except:
         aliases = {}
-    cacheResources = HACollection("cacheResources", aliases=aliases)
-    localResources = HACollection("resources")
+    cacheResources = Collection("cacheResources", aliases=aliases)
+    localResources = Collection("resources")
 
     # start the cache to listen for services on other servers
     restIgnore.append(socket.gethostname()+":"+str(restPort))
@@ -67,19 +67,19 @@ if __name__ == "__main__":
     localResources.addRes(outsideLights)
     
     # Tasks
-    localResources.addRes(HATask("bedroomLightsOnSunset", HASchedTime(event="sunset"), "bedroomLights", 1, resources=localResources))
-    localResources.addRes(HATask("bedroomLightsOffSunrise", HASchedTime(event="sunrise"), "bedroomLights", 0, resources=localResources))
-    localResources.addRes(HATask("porchLightsOnSunset", HASchedTime(event="sunset"), "porchLights", 1, resources=localResources))
-    localResources.addRes(HATask("outsideLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), "outsideLights", 0, resources=localResources))
-    localResources.addRes(HATask("outsideLightsOffSunrise", HASchedTime(event="sunrise"), "outsideLights", 0, resources=localResources))
+    localResources.addRes(Task("bedroomLightsOnSunset", SchedTime(event="sunset"), "bedroomLights", 1, resources=localResources))
+    localResources.addRes(Task("bedroomLightsOffSunrise", SchedTime(event="sunrise"), "bedroomLights", 0, resources=localResources))
+    localResources.addRes(Task("porchLightsOnSunset", SchedTime(event="sunset"), "porchLights", 1, resources=localResources))
+    localResources.addRes(Task("outsideLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "outsideLights", 0, resources=localResources))
+    localResources.addRes(Task("outsideLightsOffSunrise", SchedTime(event="sunrise"), "outsideLights", 0, resources=localResources))
     if xmas:
-        localResources.addRes(HATask("xmasLightsOnSunset", HASchedTime(event="sunset"), "xmasLights", 1, resources=localResources))
-        localResources.addRes(HATask("xmasLightsOffMidnight", HASchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, resources=localResources))
-        localResources.addRes(HATask("xmasLightsOffSunrise", HASchedTime(event="sunrise"), "xmasLights", 0, resources=localResources))
-        localResources.addRes(HATask("xmasTreeOnXmas", HASchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1, resources=localResources))
+        localResources.addRes(Task("xmasLightsOnSunset", SchedTime(event="sunset"), "xmasLights", 1, resources=localResources))
+        localResources.addRes(Task("xmasLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, resources=localResources))
+        localResources.addRes(Task("xmasLightsOffSunrise", SchedTime(event="sunrise"), "xmasLights", 0, resources=localResources))
+        localResources.addRes(Task("xmasTreeOnXmas", SchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1, resources=localResources))
     
     # Schedule
-    schedule = HASchedule("schedule")
+    schedule = Schedule("schedule")
     schedule.addTask(localResources["bedroomLightsOnSunset"])
     schedule.addTask(localResources["bedroomLightsOffSunrise"])
     schedule.addTask(localResources["porchLightsOnSunset"])

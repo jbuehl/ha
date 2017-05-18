@@ -5,9 +5,9 @@ import time
 import threading
 from ha import *
 
-class LedInterface(HAInterface):
+class LedInterface(Interface):
     def __init__(self, name, interface=None, event=None):
-        HAInterface.__init__(self, name, interface=interface, event=event)
+        Interface.__init__(self, name, interface=interface, event=event)
         self.running = False
         self.states = {}
 
