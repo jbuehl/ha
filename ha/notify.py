@@ -8,7 +8,6 @@ from ha import *
 
 smsSid = keyDir+"twilio.sid"
 smsToken = keyDir+"twilio.tkn"
-notifyFromNumber = keyDir+"notifyFromNumber"
 
 # get the value of a variable from a file
 def getValue(fileName):
