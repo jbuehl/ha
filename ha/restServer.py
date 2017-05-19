@@ -65,6 +65,7 @@ class RestServer(object):
                     # send the broadcast message
                     self.heartbeatSocket.sendto(json.dumps({"state": states, "hostname": self.hostname, "port": self.port}), ("<broadcast>", restStatePort))
                     # set the state event so the stateChange request returns
+                    debug('debugInterrupt', "heartbeat", "set", self.event)
                     self.event.set()
                     time.sleep(restHeartbeatInterval)
             heartbeatThread = threading.Thread(target=heartbeat)
