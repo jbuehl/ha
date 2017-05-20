@@ -1,7 +1,7 @@
 from ha import *
 from ha.interfaces.fileInterface import *
 from ha.interfaces.solarInterface import *
-from ha.restServer import *
+from ha.rest.restServer import *
 
 inverters = {
 "7F104A16": (868, 310),

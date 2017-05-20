@@ -14,8 +14,8 @@ import time
 from jinja2 import Environment, FileSystemLoader
 from ha import *
 from ha.interfaces.restInterface import *
-from ha.restServer import *
-from ha.restProxy import *
+from ha.rest.restServer import *
+from ha.rest.restProxy import *
 from ha.interfaces.timeInterface import *
 from ha.haWeb import *
 

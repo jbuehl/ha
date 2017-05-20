@@ -1,7 +1,7 @@
 from ha import *
 from ha.interfaces.gpioInterface import *
 from ha.interfaces.i2cInterface import *
-from ha.restServer import *
+from ha.rest.restServer import *
 from ha.interfaces.restInterface import *
 
 if __name__ == "__main__":

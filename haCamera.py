@@ -1,7 +1,7 @@
 import socket
 from ha import *
 from ha.interfaces.cameraInterface import *
-from ha.restServer import *
+from ha.rest.restServer import *
 
 if __name__ == "__main__":
     # Environment

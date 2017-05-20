@@ -10,8 +10,8 @@ from ha.interfaces.i2cInterface import *
 from ha.interfaces.owfsInterface import *
 from ha.interfaces.fileInterface import *
 from ha.interfaces.tempInterface import *
-from ha.tempControl import *
-from ha.restServer import *
+from ha.controls.tempControl import *
+from ha.rest.restServer import *
 
 if __name__ == "__main__":
     # Resources

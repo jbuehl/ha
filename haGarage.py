@@ -8,7 +8,7 @@ from ha.interfaces.i2cInterface import *
 from ha.interfaces.tc74Interface import *
 from ha.interfaces.tempInterface import *
 from ha.interfaces.ledInterface import *
-from ha.restServer import *
+from ha.rest.restServer import *
 from ha.interfaces.restInterface import *
 from ha.notify import *
 

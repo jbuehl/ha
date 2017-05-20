@@ -13,11 +13,11 @@ from ha.interfaces.gpioInterface import *
 from ha.interfaces.i2cInterface import *
 from ha.interfaces.pentairInterface import *
 from ha.interfaces.powerInterface import *
-from ha.restServer import *
+from ha.rest.restServer import *
 from ha.interfaces.ads1015Interface import *
 from ha.interfaces.analogTempInterface import *
 from ha.interfaces.valveInterface import *
-from ha.tempControl import *
+from ha.controls.tempControl import *
 from ha.interfaces.timeInterface import *
 from ha.notify import *
 

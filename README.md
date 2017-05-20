@@ -131,7 +131,7 @@ A service that aggregates all the servers and provides a web interface is implem
 haWeb.py.
 
 Services expose their HA objects in a REST interface that is implemented in 
-ha/restServer.py.
+ha.rest.restServer.py.
 
 ### Access
 

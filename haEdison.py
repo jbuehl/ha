@@ -8,7 +8,7 @@ from ha.interfaces.i2cCmdInterface import *
 from ha.interfaces.tc74Interface import *
 from ha.interfaces.mcp9803Interface import *
 from ha.interfaces.tempInterface import *
-from ha.restServer import *
+from ha.rest.restServer import *
 
 if __name__ == "__main__":
     # Resources

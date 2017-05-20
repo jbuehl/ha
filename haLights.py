@@ -7,8 +7,8 @@ import time
 import copy
 from ha import *
 from ha.interfaces.restInterface import *
-from ha.restServer import *
-from ha.restProxy import *
+from ha.rest.restServer import *
+from ha.rest.restProxy import *
 
 stateChangeEvent = threading.Event()
 resourceLock = threading.Lock()
