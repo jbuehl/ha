@@ -7,7 +7,7 @@ doorbellRepeat = 1
 doorbellDir = "/root/doorbell/"
 
 from ha import *
-from ha.restInterface import *
+from ha.interfaces.restInterface import *
 
 if __name__ == "__main__":
     # Resources

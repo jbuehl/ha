@@ -1,6 +1,6 @@
 from ha import *
-from ha.fileInterface import *
-from ha.solarInterface import *
+from ha.interfaces.fileInterface import *
+from ha.interfaces.solarInterface import *
 from ha.restServer import *
 
 inverters = {

@@ -1,10 +1,10 @@
 import threading
 
 from ha import *
-from ha.i2cInterface import *
-from ha.bmp085Interface import *
-from ha.hih6130Interface import *
-from ha.tempInterface import *
+from ha.interfaces.i2cInterface import *
+from ha.interfaces.bmp085Interface import *
+from ha.interfaces.hih6130Interface import *
+from ha.interfaces.tempInterface import *
 from ha.restServer import *
 
 if __name__ == "__main__":

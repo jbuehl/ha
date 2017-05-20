@@ -2,7 +2,7 @@
 # Print the resources and their attributes that are published in a REST service
 
 import sys
-from ha.restInterface import *
+from ha.interfaces.restInterface import *
 
 # print out the resources in a branch of the tree
 def resBranch(path, level):

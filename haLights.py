@@ -6,7 +6,7 @@ xmas = False
 import time
 import copy
 from ha import *
-from ha.restInterface import *
+from ha.interfaces.restInterface import *
 from ha.restServer import *
 from ha.restProxy import *
 

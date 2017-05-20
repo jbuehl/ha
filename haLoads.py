@@ -1,6 +1,6 @@
 from ha import *
-from ha.fileInterface import *
-from ha.loadInterface import *
+from ha.interfaces.fileInterface import *
+from ha.interfaces.loadInterface import *
 from ha.restServer import *
 
 if __name__ == "__main__":

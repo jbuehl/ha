@@ -1,5 +1,5 @@
 from ha import *
-from ha.fileInterface import *
+from ha.interfaces.fileInterface import *
 
 class ConfigInterface(Interface):
     def __init__(self, name, interface=None, event=None, fileName="ha.conf"):

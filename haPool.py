@@ -8,17 +8,17 @@ import threading
 import time
 import json
 from ha import *
-from ha.serialInterface import *
-from ha.gpioInterface import *
-from ha.i2cInterface import *
-from ha.pentairInterface import *
-from ha.powerInterface import *
+from ha.interfaces.serialInterface import *
+from ha.interfaces.gpioInterface import *
+from ha.interfaces.i2cInterface import *
+from ha.interfaces.pentairInterface import *
+from ha.interfaces.powerInterface import *
 from ha.restServer import *
-from ha.ads1015Interface import *
-from ha.analogTempInterface import *
-from ha.valveInterface import *
+from ha.interfaces.ads1015Interface import *
+from ha.interfaces.analogTempInterface import *
+from ha.interfaces.valveInterface import *
 from ha.tempControl import *
-from ha.timeInterface import *
+from ha.interfaces.timeInterface import *
 from ha.notify import *
 
 serial1Config = {"baudrate": 9600, 

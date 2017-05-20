@@ -3,13 +3,13 @@ notifyFromNumber = ""
 doorbellNotifyNumbers = []
 
 from ha import *
-from ha.gpioInterface import *
-from ha.i2cInterface import *
-from ha.tc74Interface import *
-from ha.tempInterface import *
-from ha.ledInterface import *
+from ha.interfaces.gpioInterface import *
+from ha.interfaces.i2cInterface import *
+from ha.interfaces.tc74Interface import *
+from ha.interfaces.tempInterface import *
+from ha.interfaces.ledInterface import *
 from ha.restServer import *
-from ha.restInterface import *
+from ha.interfaces.restInterface import *
 from ha.notify import *
 
 def dingDong(sensor, state):

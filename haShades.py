@@ -1,8 +1,8 @@
 import threading
 
 from ha import *
-from ha.gpioInterface import *
-from ha.shadeInterface import *
+from ha.interfaces.gpioInterface import *
+from ha.interfaces.shadeInterface import *
 from ha.restServer import *
 
 if __name__ == "__main__":

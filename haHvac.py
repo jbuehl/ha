@@ -5,11 +5,11 @@ southCoolTempTargetDefault = 75
 
 import threading
 from ha import *
-from ha.gpioInterface import *
-from ha.i2cInterface import *
-from ha.owfsInterface import *
-from ha.fileInterface import *
-from ha.tempInterface import *
+from ha.interfaces.gpioInterface import *
+from ha.interfaces.i2cInterface import *
+from ha.interfaces.owfsInterface import *
+from ha.interfaces.fileInterface import *
+from ha.interfaces.tempInterface import *
 from ha.tempControl import *
 from ha.restServer import *
 

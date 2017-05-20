@@ -4,10 +4,10 @@ tempAddr = 0x4b
 
 import sys
 from ha import *
-from ha.i2cCmdInterface import *
-from ha.tc74Interface import *
-from ha.mcp9803Interface import *
-from ha.tempInterface import *
+from ha.interfaces.i2cCmdInterface import *
+from ha.interfaces.tc74Interface import *
+from ha.interfaces.mcp9803Interface import *
+from ha.interfaces.tempInterface import *
 from ha.restServer import *
 
 if __name__ == "__main__":

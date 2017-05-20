@@ -1,6 +1,6 @@
 
 from ha import *
-from ha.restInterface import *
+from ha.interfaces.restInterface import *
 import json
 import threading
 import socket

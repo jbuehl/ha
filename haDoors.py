@@ -1,8 +1,8 @@
 from ha import *
-from ha.gpioInterface import *
-from ha.i2cInterface import *
+from ha.interfaces.gpioInterface import *
+from ha.interfaces.i2cInterface import *
 from ha.restServer import *
-from ha.restInterface import *
+from ha.interfaces.restInterface import *
 
 if __name__ == "__main__":
     global stateChangeEvent

@@ -1,5 +1,5 @@
 import json
-from ha.gpioInterface import *
+from ha.interfaces.gpioInterface import *
 from ha import *
 
 class ApplianceInterface(Interface):

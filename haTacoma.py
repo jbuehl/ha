@@ -19,12 +19,12 @@ import threading
 from ha import *
 from ha.displayUI import *
 from ha.haWebViews import *
-from ha.fileInterface import *
-from ha.gpsTimeInterface import *
-from ha.i2cInterface import *
-from ha.tc74Interface import *
-from ha.tempInterface import *
-from ha.audioInterface import *
+from ha.interfaces.fileInterface import *
+from ha.interfaces.gpsTimeInterface import *
+from ha.interfaces.i2cInterface import *
+from ha.interfaces.tc74Interface import *
+from ha.interfaces.tempInterface import *
+from ha.interfaces.audioInterface import *
 
 # global variables
 resources = None
