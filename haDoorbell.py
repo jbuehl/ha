@@ -4,16 +4,6 @@ doorbellState = 1
 doorbellSound = "doorbell2.wav"
 doorbellRepeat = 1
 
-#doorbellService = "192.168.1.59:7378"
-#doorbellSensor = "spa"
-#doorbellState = 1
-#doorbellSound = "the\ spa\ is\ ready.wav"
-
-#doorbellService = "192.168.1.50:7378"
-#doorbellSensor = "familyRoomDoor"
-#doorbellState = 1
-#doorbellSound = "the\ spa\ is\ ready.wav"
-
 doorbellDir = "/root/doorbell/"
 
 from ha import *
