@@ -17,8 +17,8 @@ imageDir = "/root/images/"
 import time
 import threading
 from ha import *
-from ha.displayUI import *
-from ha.haWebViews import *
+from ha.ui.displayUI import *
+from ha.ui.webUIViews import *
 from ha.interfaces.fileInterface import *
 from ha.interfaces.gpsTimeInterface import *
 from ha.interfaces.i2cInterface import *

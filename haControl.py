@@ -17,7 +17,7 @@ from ha.interfaces.restInterface import *
 from ha.rest.restServer import *
 from ha.rest.restProxy import *
 from ha.interfaces.timeInterface import *
-from ha.haWeb import *
+from ha.ui.webUI import *
 
 # global variables
 templates = None

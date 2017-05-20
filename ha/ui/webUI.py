@@ -6,7 +6,7 @@ import json
 import cherrypy
 from cherrypy.lib import auth_basic
 from ha import *
-from ha.haWebViews import *
+from ha.ui.webViews import *
 
 # https://cherrypy.readthedocs.io/en/3.2.6/progguide/extending/customtools.html
 # https://bitbucket.org/cherrypy/cherrypy/src/ea210e8ef58a3a6ca289a8564c389e38de13d3d5/cherrypy/lib/auth_basic.py?at=default&fileviewer=file-view-default

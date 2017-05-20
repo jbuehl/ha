@@ -21,7 +21,7 @@ import copy
 import webcolors
 import png
 from ha import *
-from ha.haWebViews import *
+from ha.ui.webUIViews import *
 
 def png2fb(pngImage):
     fbPixMap = ""
