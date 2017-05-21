@@ -161,11 +161,13 @@ class Interface(Resource):
 # - lock
        
 class Collection(Resource, OrderedDict):
-    def __init__(self, name, aliases={}):
+    def __init__(self, name, resources=[], aliases={}):
         Resource.__init__(self, name)
         OrderedDict.__init__(self)
         self.type = "collection"
         self.lock = threading.Lock()
+        for resource in resources:
+            self.addRes(resource)
         self.aliases = aliases
         debug('debugCollection', self.name, "aliases:", self.aliases)
 
@@ -589,9 +591,9 @@ class SensorGroup(Sensor):
 
 # A set of Controls whose state can be changed together
 class ControlGroup(SensorGroup, Control):
-    def __init__(self, name, sensorList, stateList=[], resources=None, stateMode=False, interface=None, addr=None, 
+    def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False, interface=None, addr=None, 
                  group="", type="controlGroup", view=None, label=""):
-        SensorGroup.__init__(self, name, sensorList, resources, interface, addr, group=group, type=type, view=view, label=label)
+        SensorGroup.__init__(self, name, controlList, resources, interface, addr, group=group, type=type, view=view, label=label)
         Control.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.stateMode = stateMode  # which state to return: False = SensorGroup, True = groupState
         self.groupState = 0
@@ -722,8 +724,8 @@ def listize(x):
                                
 # the Scheduler manages a list of Tasks and runs them at the times specified
 class Schedule(Collection):
-    def __init__(self, name):
-        Collection.__init__(self, name)
+    def __init__(self, name, tasks=[]):
+        Collection.__init__(self, name, resources=tasks)
         self.type = "schedule"
         self.schedThread = threading.Thread(target=self.doSchedule)
 
