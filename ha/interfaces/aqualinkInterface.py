@@ -229,8 +229,8 @@ class AqualinkInterface(Interface):
         return msg
 
 class Device(Resource):
-    def __init__(self, theName, theState):
-        Resource.__init__(self, theName)
+    def __init__(self, name, theState):
+        Resource.__init__(self, name)
         self.state = theState
             
 class Equipment(Resource):
@@ -240,8 +240,8 @@ class Equipment(Resource):
     stateEna = 2
     stateEnh = 4
 
-    def __init__(self, theName, thePool, theAction=None):
-        Resource.__init__(self, theName)
+    def __init__(self, name, thePool, theAction=None):
+        Resource.__init__(self, name)
         self.pool = thePool
         self.action = theAction
         self.state = Equipment.stateOff
@@ -278,8 +278,8 @@ class Panel(Resource):
     """
     
     # constructor
-    def __init__(self, theName, thePool):
-        Resource.__init__(self, theName)
+    def __init__(self, name, thePool):
+        Resource.__init__(self, name)
         self.pool = thePool
 
         # commands
@@ -349,13 +349,13 @@ class Panel(Resource):
         debug('debugMsg', self.name, cmd.name, args.encode("hex"))
         
 class Button(object):
-    def __init__(self, theName, theCode):
-        self.name = theName
+    def __init__(self, name, theCode):
+        self.name = name
         self.code = theCode
         
 class Command(object):
-    def __init__(self, theName, theCode, theArgLen):
-        self.name = theName
+    def __init__(self, name, theCode, theArgLen):
+        self.name = name
         self.code = theCode
         self.argLen = theArgLen
 
@@ -364,9 +364,9 @@ class Command(object):
 ########################################################################################################
 class ActionThread(threading.Thread):
     # An ActionThread executes a sequence of actions
-    def __init__(self, theName, theSequence, thePanel):
+    def __init__(self, name, theSequence, thePanel):
         threading.Thread.__init__(self, target=self.doAction)
-        self.name = theName
+        self.name = name
         self.sequence = theSequence
         self.panel = thePanel
         # Clear all the events before starting.
@@ -396,8 +396,8 @@ class Action(object):
 ########################################################################################################
 
 class AllButtonPanel(Panel):
-    def __init__(self, theName, thePool):
-        Panel.__init__(self, theName, thePool)
+    def __init__(self, name, thePool):
+        Panel.__init__(self, name, thePool)
 
         # addressing
         self.baseAddr = 0x08
@@ -607,10 +607,10 @@ class Interface(Resource):
     """ Aqualink serial interface
 
     """
-    def __init__(self, theName, thePool):
+    def __init__(self, name, thePool):
         """Initialization.
         Open the serial port and find the start of a message."""
-        Resource.__init__(self, theName)
+        Resource.__init__(self, name)
         self.pool = thePool
         debug('debugData', self.name, "opening RS485 port", self.pool.interface.name)
         thePool.interface.start()
@@ -706,10 +706,10 @@ class ReadThread(threading.Thread):
     """ Message reading thread.
 
     """
-    def __init__(self, theName, thePool):
+    def __init__(self, name, thePool):
         """ Initialize the thread."""        
         threading.Thread.__init__(self, target=self.readData)
-        self.name = theName
+        self.name = name
         self.pool = thePool
         self.lastDest = 0xff
         

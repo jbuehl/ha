@@ -2,8 +2,8 @@
 from HCClasses import *
 
 class CommandUI(HCUI):
-    def __init__(self, theName, theApp, theInterface, theResources):
-        HCUI.__init__(self, theName, theApp, theInterface, theResources)
+    def __init__(self, name, app, interface=None, resources):
+        HCUI.__init__(self, name, app, interface, resources)
 
     def start(self):
         self.interface.start()

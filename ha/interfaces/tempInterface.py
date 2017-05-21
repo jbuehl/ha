@@ -3,8 +3,8 @@ import time
 from ha import *
 
 class TempInterface(Interface):
-    def __init__(self, theName, theInterface, sample=1):
-        Interface.__init__(self, theName, theInterface)
+    def __init__(self, name, interface=None, sample=1):
+        Interface.__init__(self, name, interface)
         self.sample = sample
 
     def start(self):

@@ -156,11 +156,11 @@ class PentairMsgThread(threading.Thread):
     """ Message handling thread.
 
     """
-    def __init__(self, theName, theInterface):
+    def __init__(self, name, interface=None):
         """ Initialize the thread."""        
         threading.Thread.__init__(self, target=self.doMsg)
-        self.name = theName
-        self.interface = theInterface
+        self.name = name
+        self.interface = interface
         
     def doMsg(self):
         """ Message handling loop.
