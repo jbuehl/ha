@@ -874,7 +874,7 @@ class Task(Control):
 # If an event and a time (hours, minutes) are specified, the time is considered to be a delta from the event
 # and may contain negative values.
 class SchedTime(object):
-    def __init__(self, year=[], month=[], day=[], hour=[], minute=[], weekday=[], date="", event=""):
+    def __init__(self, name="", year=[], month=[], day=[], hour=[], minute=[], weekday=[], date="", event=""):
         self.year = listize(year)
         self.month = listize(month)
         self.day = listize(day)
