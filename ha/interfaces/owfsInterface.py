@@ -3,6 +3,7 @@ from ha import *
 # One Wire File System interface
 
 class OWFSInterface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, home="/mnt/1wire/", event=None):
         Interface.__init__(self, name, interface, event=event)
         self.home = home

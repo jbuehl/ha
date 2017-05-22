@@ -5,6 +5,7 @@ from ha import *
 # Code lifted from Adafruit_BMP085
 
 class BMP085Interface(Interface):
+    objectArgs = ["interface", "event"]
 
     # Operating Modes
     __BMP085_ULTRALOWPOWER     = 0

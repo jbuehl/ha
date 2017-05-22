@@ -11,6 +11,7 @@ shadeRaising = 2
 shadeLowering = 3
 
 class ShadeInterface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None):
         Interface.__init__(self, name, interface=interface, event=event)
         self.states = {0:0, 1:0, 2:0, 3:0}

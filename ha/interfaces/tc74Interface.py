@@ -3,6 +3,7 @@ from ha import *
 # TC74 temp sensor
 
 class TC74Interface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface):
         Interface.__init__(self, name, interface)
 

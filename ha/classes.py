@@ -101,6 +101,7 @@ class Resource(object):
 
 # Base class for Interfaces 
 class Interface(Resource):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None, persistence=None):
         Resource.__init__(self, name)
         self.interface = interface
@@ -161,6 +162,7 @@ class Interface(Resource):
 # - lock
        
 class Collection(Resource, OrderedDict):
+    objectArgs = ["resources"]
     def __init__(self, name, resources=[], aliases={}):
         Resource.__init__(self, name)
         OrderedDict.__init__(self)
@@ -302,6 +304,7 @@ class Collection(Resource, OrderedDict):
 # The state is associated with a unique address on an interface.
 # Sensors can also optionally be associated with a group and a physical location.
 class Sensor(Resource):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, addr=None, group="", type="sensor", location=None, label="", view=None, interrupt=None, event=None):
         Resource.__init__(self, name)
         try:
@@ -447,6 +450,7 @@ class View(object):
 
 # A Control is a Sensor whose state can be set        
 class Control(Sensor):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt, event=event)
         self.running = False
@@ -469,8 +473,8 @@ class Control(Sensor):
 # and setting the Control to another state.  This may be preceded by an optional delay.
 # If the duration is zero, then the end state is not set and the Control is left in the start state.
 class Cycle(object):
-    def __init__(self, theControl, duration, delay=0, startState=1, endState=0):
-        self.control = theControl
+    def __init__(self, control, duration, delay=0, startState=1, endState=0):
+        self.control = control
         self.duration = duration
         self.delay = delay
         self.startState = normalState(startState)
@@ -481,6 +485,7 @@ class Cycle(object):
                             
 # a Sequence is a Control that consists of a list of Cycles that are run in the specified order
 class Sequence(Control):
+    objectArgs = ["interface", "event", "cycleList"]
     def __init__(self, name, cycleList, addr=None, interface=None, event=None, group="", type="sequence", view=None, label=""):
         Control.__init__(self, name, addr=addr, interface=interface, event=event, group=group, type=type, view=view, label=label)
         self.cycleList = cycleList
@@ -567,6 +572,7 @@ class Sequence(Control):
             
 # A collection of sensors whose state is on if any one of them is on
 class SensorGroup(Sensor):
+    objectArgs = ["interface", "event", "sensorList", "resources"]
     def __init__(self, name, sensorList, resources=None, interface=None, addr=None, group="", type="sensor", view=None, label=""):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.sensorList = sensorList
@@ -591,6 +597,7 @@ class SensorGroup(Sensor):
 
 # A set of Controls whose state can be changed together
 class ControlGroup(SensorGroup, Control):
+    objectArgs = ["interface", "event", "controlList", "resources"]
     def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False, interface=None, addr=None, 
                  group="", type="controlGroup", view=None, label=""):
         SensorGroup.__init__(self, name, controlList, resources, interface, addr, group=group, type=type, view=view, label=label)
@@ -637,6 +644,7 @@ class ControlGroup(SensorGroup, Control):
 
 # Calculate a function of a list of sensor states
 class CalcSensor(Sensor):
+    objectArgs = ["interface", "event", "sensors"]
     def __init__(self, name, sensors, function, interface=None, addr=None, group="", type="sensor", view=None, label="", location=None):
         Sensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
         self.sensors = sensors
@@ -654,6 +662,7 @@ class CalcSensor(Sensor):
         
 # Sensor that returns the states of all sensors in a list of resources
 class ResourceStateSensor(Sensor):
+    objectArgs = ["interface", "event", "resources"]
     def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, view=None, label="", interrupt=None):
         Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.resources = resources
@@ -724,6 +733,7 @@ def listize(x):
                                
 # the Scheduler manages a list of Tasks and runs them at the times specified
 class Schedule(Collection):
+    objectArgs = ["tasks"]
     def __init__(self, name, tasks=[]):
         Collection.__init__(self, name, resources=tasks)
         self.type = "schedule"
@@ -804,6 +814,7 @@ class Schedule(Collection):
 
 # a Task specifies a control to be set to a specified state at a specified time
 class Task(Control):
+    objectArgs =["interface", "event", "schedTime", "control"]
     def __init__(self, name, schedTime, control, state, resources=None, parent=None, enabled=True, interface=None, addr=None, 
                  type="task", group="Tasks", view=None, label=""):
         Control.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)

@@ -3,6 +3,7 @@ import smbus
 from ha import *
 
 class I2CInterface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None, bus=0):
         Interface.__init__(self, name, interface=interface, event=event)
         self.bus = smbus.SMBus(bus)

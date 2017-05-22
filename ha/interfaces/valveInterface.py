@@ -9,6 +9,7 @@ from ha import *
 valveMoving = 4
 
 class ValveInterface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None):
         Interface.__init__(self, name, interface=interface, event=event)
         self.travelTime = poolValveTravelTime

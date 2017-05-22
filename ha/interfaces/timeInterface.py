@@ -4,6 +4,7 @@ import os
 import datetime
 
 class TimeInterface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, tzOffset=0):
         Interface.__init__(self, name, None)
         self.tzOffset = tzOffset

@@ -7,6 +7,7 @@ import threading
 import time
 
 class FileInterface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None, fileName="", readOnly=False, changeMonitor=True):
         Interface.__init__(self, name, interface=interface, event=event)
         self.fileName = fileName

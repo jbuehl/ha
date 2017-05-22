@@ -6,6 +6,7 @@ from ha import *
 # ADS1015 analog digital converter
 
 class ADS1015Interface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, addr=0x48, gain=4096, sps=250, event=None):
         Interface.__init__(self, name, interface)
         self.addr = addr
