@@ -16,6 +16,7 @@ from ha import *
 
 # thermostat control for heating and cooling
 class ThermostatControl(Control):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface, heatControl, coolControl, fanControl, tempSensor, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.className = "Control"
