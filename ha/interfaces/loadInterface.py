@@ -1,6 +1,7 @@
 from ha import *
 
 class LoadInterface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None):
         Interface.__init__(self, name, interface=interface, event=event)
 #        self.sql = """select loads.%s from loads,

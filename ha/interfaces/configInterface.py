@@ -2,6 +2,7 @@ from ha import *
 from ha.interfaces.fileInterface import *
 
 class ConfigInterface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None, fileName="ha.conf"):
         Interface.__init__(self, name, interface=interface, event=event)
         try:

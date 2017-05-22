@@ -4,6 +4,7 @@ import threading
 from ha import *
 
 class DbInterface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, dataBase, hostName="localhost", userName="", password=""):
         Interface.__init__(self, name, None)
         self.dataBase = dataBase

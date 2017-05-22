@@ -29,6 +29,7 @@ import threading
 from ha import *
 
 class CameraInterface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None, mode=modeStill, imageDir="", rotation=0, enabled=True):
         Interface.__init__(self, name, interface=interface, event=event)
         self.mode = mode

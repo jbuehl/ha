@@ -4,6 +4,7 @@ import datetime
 import pytz
 
 class GpsTimeInterface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface):
         Interface.__init__(self, name, interface)
 

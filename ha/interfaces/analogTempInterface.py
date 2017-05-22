@@ -3,6 +3,7 @@ from ha import *
 # analog temp sensor
 
 class AnalogTempInterface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface):
         Interface.__init__(self, name, interface)
 

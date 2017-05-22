@@ -3,6 +3,7 @@ from ha import *
 # MCP9803 temp sensor
 
 class MCP9803Interface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface):
         Interface.__init__(self, name, interface)
 

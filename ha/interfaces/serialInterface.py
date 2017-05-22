@@ -3,6 +3,7 @@ import sys
 from ha import *
 
 class SerialInterface(Interface):
+    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None, device="", config={}):
         Interface.__init__(self, name, interface=interface, event=event)
         self.device = device
