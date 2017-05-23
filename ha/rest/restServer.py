@@ -18,7 +18,7 @@ import time
 # RESTful web services server interface
 class RestServer(object):
     objectArgs = ["resources", "event"]
-    def __init__(self, name=None, resources=None, port=7378, beacon=True, heartbeat=True, event=None, label=""):
+    def __init__(self, resources=None, port=7378, beacon=True, heartbeat=True, event=None, label="", name=None):
         self.label = label
         self.resources = resources
         self.event = event
