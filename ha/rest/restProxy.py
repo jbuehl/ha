@@ -13,17 +13,19 @@ import time
 # Remove resources on services that don't respond
 
 class RestProxy(threading.Thread):
-    def __init__(self, name, resources, selfRest, stateChangeEvent, resourceLock):
+    def __init__(self, name, resources, watch=[], ignore=[], event=None, lock=None):
         debug('debugRestProxy', name, "starting", name)
-        debug('debugRestProxy', name, "ignoring", selfRest)
+        debug('debugRestProxy', name, "watching", watch)
+        debug('debugRestProxy', name, "ignoring", ignore)
         threading.Thread.__init__(self, target=self.doRest)
         self.name = name
         self.services = {}
         self.resources = resources
-        self.resourceLock = resourceLock
-        self.stateChangeEvent = stateChangeEvent
+        self.lock = lock
+        self.event = event
         self.cacheTime = 0
-        self.selfRest = selfRest
+        self.watch = watch
+        self.ignore = ignore
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(("", 4242))
@@ -44,15 +46,15 @@ class RestProxy(threading.Thread):
                 serviceTimeStamp = 0
                 serviceLabel = serviceName
             timeStamp = time.time()
-            if serviceName not in self.selfRest:   # ignore the beacon from this service
+            if ((self.watch != []) and (serviceName  in self.watch)) or ((self.watch == []) and (serviceName not in self.ignore)):
                 if serviceName not in self.services.keys():   # new service
                     debug('debugRestProxy', self.name, timeStamp, "adding", serviceName, serviceAddr, serviceTimeStamp, serviceLabel)
                     self.services[serviceName] = RestServiceProxy(serviceName, serviceAddr, serviceTimeStamp, 
-                                                               RestInterface(serviceName, service=serviceAddr, event=self.stateChangeEvent, secure=False),
+                                                               RestInterface(serviceName, service=serviceAddr, event=self.event, secure=False),
                                                                label=serviceLabel, group="Services")
                     self.getResources(self.services[serviceName], serviceResources, serviceTimeStamp)
                     self.cacheTime = timeStamp
-                    self.stateChangeEvent.set()
+                    self.event.set()
                     debug('debugInterrupt', self.name, "event set")
                 else:
                     if serviceTimeStamp > self.services[serviceName].timeStamp: # service resources changed
@@ -61,7 +63,7 @@ class RestProxy(threading.Thread):
                             self.delResources(self.services[serviceName])
                         self.getResources(self.services[serviceName], serviceResources, serviceTimeStamp)
                         self.cacheTime = timeStamp
-                        self.stateChangeEvent.set()
+                        self.event.set()
                         debug('debugInterrupt', self.name, "event set")
             for serviceName in self.services.keys():
                 service = self.services[serviceName]
@@ -72,7 +74,7 @@ class RestProxy(threading.Thread):
                         del(self.services[service.name])
                         del(service)
                         self.cacheTime = timeStamp
-                        self.stateChangeEvent.set()
+                        self.event.set()
                         debug('debugInterrupt', self.name, "event set")
         debug('debugThread', self.name, "terminated")
 
@@ -85,7 +87,7 @@ class RestProxy(threading.Thread):
         service.resourceNames = resources.keys()
         service.timeStamp = timeStamp
         service.interface.readStates()          # fill the cache for these resources
-        with self.resourceLock:
+        with self.lock:
             self.resources.addRes(service)
             self.resources.update(resources)
             del(resources)
@@ -94,7 +96,7 @@ class RestProxy(threading.Thread):
     # delete all the resources from the specified service from the cache
     def delResources(self, service):
         service.enabled = False
-        with self.resourceLock:
+        with self.lock:
             for resourceName in service.resourceNames:
                 self.resources.delRes(resourceName)
             self.resources.delRes(service.name)

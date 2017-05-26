@@ -13,7 +13,7 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
     resourceLock = threading.Lock()
     resources = Collection("resources")
-    restCache = RestProxy("restProxy", resources, [], stateChangeEvent, resourceLock, watch=[doorbellService])
+    restCache = RestProxy("restProxy", resources, watch=[doorbellService], event=stateChangeEvent, lock=resourceLock)
     restCache.start()
     # Wait for events
     lastState = 0

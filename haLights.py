@@ -26,7 +26,7 @@ if __name__ == "__main__":
     # start the cache to listen for services on other servers
     restIgnore.append(socket.gethostname()+":"+str(restPort))
     restIgnore.append(socket.gethostname()+":"+str(restPortControl))
-    restCache = RestProxy("restProxy", cacheResources, restIgnore, stateChangeEvent, resourceLock)
+    restCache = RestProxy("restProxy", cacheResources, ignore=restIgnore, event=stateChangeEvent, lock=resourceLock)
     restCache.start()
     
     # scenes and groups
