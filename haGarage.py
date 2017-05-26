@@ -1,7 +1,3 @@
-doorbellNotifyMsg = "Ding dong!"
-notifyFromNumber = ""
-doorbellNotifyNumbers = []
-
 from ha import *
 from ha.interfaces.gpioInterface import *
 from ha.interfaces.i2cInterface import *
@@ -10,14 +6,7 @@ from ha.interfaces.tempInterface import *
 from ha.interfaces.ledInterface import *
 from ha.rest.restServer import *
 from ha.interfaces.restInterface import *
-from ha.notify import *
 
-def dingDong(sensor, state):
-    sensorState = sensor.getState()
-    debug('debugDoorbell', sensor.name, sensorState)
-    if sensorState == 1:
-        smsNotify(doorbellNotifyNumbers, doorbellNotifyMsg)
-        
 if __name__ == "__main__":
     global stateChangeEvent
 
@@ -44,7 +33,7 @@ if __name__ == "__main__":
     resources.addRes(Sensor("garageBackDoor", gpio1, 1, type="door", group="Doors", label="Garage Back"))
     resources.addRes(Sensor("garageHouseDoor", gpio1, 2, type="door", group="Doors", label="Garage House"))
     resources.addRes(SensorGroup("garageDoors", ["garageDoor", "garageBackDoor", "garageHouseDoor"], resources=resources, type="door", group="Doors", label="Garage doors"))
-    resources.addRes(Sensor("doorbellButton", gpio1, 3, interrupt=dingDong))
+    resources.addRes(Sensor("doorbellButton", gpio1, 3))
 
     # Temperature
     resources.addRes(Sensor("garageTemp", temp, 0x4d, group="Temperature", label="Garage temp", type="tempF"))
