@@ -1,10 +1,12 @@
 # Environment
 import os
-rootDir = os.path.dirname(os.path.realpath(__file__))+"/../../"
+libDir = os.path.dirname(os.path.realpath(__file__))    # directory this module is in
+appDir = os.path.abspath(libDir+"/../")+"/"            # directory containing the project
+rootDir = os.path.abspath(appDir+"/../")+"/"           # root directory
 configDir = rootDir+"conf/"
 keyDir = rootDir+"keys/"
 stateDir = rootDir+"state/"
-dataLogDir = "data/"
+dataLogDir = rootDir+"data/"
 dataLogFileName = ""
 
 sysLogging = True
