@@ -1,0 +1,8 @@
+[Unit]
+Description=Home Automation control app
+After=syslog.target
+[Service]
+ExecStart=/usr/bin/python /root/ha/controlApp.py
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
