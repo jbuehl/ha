@@ -475,6 +475,7 @@ class Control(Sensor):
 # and setting the Control to another state.  This may be preceded by an optional delay.
 # If the duration is zero, then the end state is not set and the Control is left in the start state.
 class Cycle(object):
+    objectArgs = ["control"]
     def __init__(self, control=None, duration=0, delay=0, startState=1, endState=0, name=None):
         self.control = control
         self.duration = duration
