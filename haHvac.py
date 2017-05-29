@@ -23,9 +23,8 @@ if __name__ == "__main__":
     owfs = OWFSInterface("owfs", event=stateChangeEvent)
     configData = FileInterface("configData", fileName=stateDir+"hvac.conf", event=stateChangeEvent)
     i2c1 = I2CInterface("I2C1", bus=1, event=stateChangeEvent)
-    gpio00 = GPIOInterface("GPIO00", i2c1, addr=0x20, bank=0)
-    gpio10 = GPIOInterface("GPIO10", i2c1, addr=0x21, bank=0, inOut=0xff, config=[(GPIOInterface.IPOL, 0x00)])
-    gpio11 = GPIOInterface("GPIO11", i2c1, addr=0x21, bank=1, inOut=0xff, config=[(GPIOInterface.IPOL, 0x00)])
+    gpio10 = GPIOInterface("GPIO10", i2c1, addr=0x20, bank=0, inOut=0xff, config=[(GPIOInterface.IPOL, 0x00)])
+    gpio11 = GPIOInterface("GPIO11", i2c1, addr=0x20, bank=1, inOut=0x00)
 
     # Doors
 #    resources.addRes(Sensor("door00", gpio10, 0, type="door", group="Doors", label="door00"))
@@ -41,9 +40,9 @@ if __name__ == "__main__":
 #    resources.addRes(Sensor("door12", gpio11, 2, type="door", group="Doors", label="door12"))
 #    resources.addRes(Sensor("door13", gpio11, 3, type="door", group="Doors", label="door13"))
 #    resources.addRes(Sensor("door14", gpio11, 4, type="door", group="Doors", label="door14"))
-    frontDoor = Sensor("frontDoor", gpio11, 5, type="door", group="Doors", label="Front")
-    familyRoomDoor = Sensor("familyRoomDoor", gpio11, 6, type="door", group="Doors", label="Family room")
-    masterBedroomDoor = Sensor("masterBedroomDoor", gpio11, 7, type="door", group="Doors", label="Master bedroom")
+    frontDoor = Sensor("frontDoor", gpio10, 5, type="door", group="Doors", label="Front")
+    familyRoomDoor = Sensor("familyRoomDoor", gpio10, 6, type="door", group="Doors", label="Family room")
+    masterBedroomDoor = Sensor("masterBedroomDoor", gpio10, 7, type="door", group="Doors", label="Master bedroom")
     houseDoors = SensorGroup("houseDoors", ["frontDoor", "familyRoomDoor", "masterBedroomDoor"], resources=resources, type="door", group="Doors", label="House doors")
     resources.addRes(frontDoor)
     resources.addRes(familyRoomDoor)
@@ -58,7 +57,7 @@ if __name__ == "__main__":
    
     # Temperature sensors
     masterBedroomTemp = Sensor("masterBedroomTemp", owfs, "28.175CDC060000", group="Temperature", label="Master bedroom temp", type="tempF")
-    kitchenTemp = Sensor("kitchenTemp", owfs, "28.E4F6DB060000", group="Temperature", label="Kitchen temp", type="tempF")
+    kitchenTemp = Sensor("kitchenTemp", owfs, "28.E4F6DB060000", group="Temperature", label="Dining room temp", type="tempF")
     hallTemp = Sensor("hallTemp", owfs, "28.FA78DB060000", group="Temperature", label="Hall temp", type="tempF")
     atticTemp = Sensor("atticTemp", owfs, "28.CC02DC060000", group="Temperature", label="Attic temp", type="tempF")
 #    officeTemp = Sensor("officeTemp", owfs, "", group="Temperature", label="Office temp", type="tempF")
@@ -73,12 +72,12 @@ if __name__ == "__main__":
     resources.addRes(kitchenTemp)
     
     # HVAC equipment
-    northHeat = Control("northHeat", gpio00, 4, group="Hvac", label="North heat")
-    southHeat = Control("southHeat", gpio00, 0, group="Hvac", label="South heat")
-    northCool = Control("northCool", gpio00, 5, group="Hvac", label="North cool")
-    southCool = Control("southCool", gpio00, 1, group="Hvac", label="South cool")
-    northFan  = Control("northFan",  gpio00, 6, group="Hvac", label="North fan")
-    southFan  = Control("southFan",  gpio00, 2, group="Hvac", label="South fan")
+    northHeat = Control("northHeat", gpio11, 4, group="Hvac", label="North heat")
+    southHeat = Control("southHeat", gpio11, 0, group="Hvac", label="South heat")
+    northCool = Control("northCool", gpio11, 5, group="Hvac", label="North cool")
+    southCool = Control("southCool", gpio11, 1, group="Hvac", label="South cool")
+    northFan  = Control("northFan",  gpio11, 6, group="Hvac", label="North fan")
+    southFan  = Control("southFan",  gpio11, 2, group="Hvac", label="South fan")
 
     # Temp controls
     northHeatControl = TempControl("northHeatControl", nullInterface, 
@@ -145,7 +144,7 @@ if __name__ == "__main__":
 #    northCool.setState(1)
 #    southCool.setState(1)
 
-    gpio00.start()
+#    gpio00.start()
     gpio10.start()
     gpio11.start()
     restServer = RestServer(resources, port=7378, event=stateChangeEvent, label="Hvac")

@@ -1,4 +1,4 @@
-appConfigFileName = "appConfig.yaml"
+appConfig = "appConfig.yaml"
 
 import yaml
 import threading
@@ -15,8 +15,7 @@ def findClassDef(className):
     return classDef
     
 # Define an object of the specified class
-def defObject(className, objName, args):
-    print "class:", className, "object:", objName, "args:", str(args)
+def defObject(objName, className, args):
     # get the list of class arguments that are object references
     try: exec("objArgs = "+className+".objectArgs")
     except AttributeError: objArgs = []
@@ -36,10 +35,11 @@ def defObject(className, objName, args):
         else:                                               # arg is numeric or other
             argStr += arg+"="+str(args[arg])+", "
     exec("objects['"+objName+"'] = "+className+"(name='"+objName+"', "+argStr[:-2]+")")
+    debug("debugAppConfig", objName, className, "("+argStr[:-2]+")")
 
 if __name__ == "__main__":
     # load app config data
-    config = yaml.load(file(configDir+appConfigFileName))
+    config = yaml.load(file(configDir+appConfig))
 
     # define global config variables
     for conf in config["config"].keys():
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     
     # create ha objects
     for obj in config["objects"]:
-        exec("from "+findClassDef(obj[0])+" import *")
+        exec("from "+findClassDef(obj[1])+" import *")
         defObject(obj[0], obj[1], obj[2])
 
     # start interfaces and servers
