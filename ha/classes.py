@@ -475,7 +475,7 @@ class Control(Sensor):
 # and setting the Control to another state.  This may be preceded by an optional delay.
 # If the duration is zero, then the end state is not set and the Control is left in the start state.
 class Cycle(object):
-    def __init__(self, control, duration, delay=0, startState=1, endState=0):
+    def __init__(self, control=None, duration=0, delay=0, startState=1, endState=0, name=None):
         self.control = control
         self.duration = duration
         self.delay = delay
@@ -488,7 +488,7 @@ class Cycle(object):
 # a Sequence is a Control that consists of a list of Cycles that are run in the specified order
 class Sequence(Control):
     objectArgs = ["interface", "event", "cycleList"]
-    def __init__(self, name, cycleList, addr=None, interface=None, event=None, group="", type="sequence", view=None, label=""):
+    def __init__(self, name, cycleList=[], addr=None, interface=None, event=None, group="", type="sequence", view=None, label=""):
         Control.__init__(self, name, addr=addr, interface=interface, event=event, group=group, type=type, view=view, label=label)
         self.cycleList = cycleList
         self.running = False
@@ -817,7 +817,7 @@ class Schedule(Collection):
 # a Task specifies a control to be set to a specified state at a specified time
 class Task(Control):
     objectArgs =["interface", "event", "schedTime", "control"]
-    def __init__(self, name, schedTime, control, state, resources=None, parent=None, enabled=True, interface=None, addr=None, 
+    def __init__(self, name, schedTime=None, control=None, state=0, resources=None, parent=None, enabled=True, interface=None, addr=None, 
                  type="task", group="Tasks", view=None, label=""):
         Control.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.schedTime = schedTime
