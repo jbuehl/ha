@@ -5,4 +5,4 @@ After=syslog.target
 ExecStart=/usr/bin/python /root/ha/haLights.py
 Restart=on-abort
 [Install]
-WantedBy=network-online.target
+WantedBy=multi-user.target
