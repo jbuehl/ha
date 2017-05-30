@@ -57,7 +57,7 @@ if __name__ == "__main__":
    
     # Temperature sensors
     masterBedroomTemp = Sensor("masterBedroomTemp", owfs, "28.175CDC060000", group="Temperature", label="Master bedroom temp", type="tempF")
-    kitchenTemp = Sensor("kitchenTemp", owfs, "28.E4F6DB060000", group="Temperature", label="Dining room temp", type="tempF")
+    kitchenTemp = Sensor("diningRoomTemp", owfs, "28.E4F6DB060000", group="Temperature", label="Dining room temp", type="tempF")
     hallTemp = Sensor("hallTemp", owfs, "28.FA78DB060000", group="Temperature", label="Hall temp", type="tempF")
     atticTemp = Sensor("atticTemp", owfs, "28.CC02DC060000", group="Temperature", label="Attic temp", type="tempF")
 #    officeTemp = Sensor("officeTemp", owfs, "", group="Temperature", label="Office temp", type="tempF")
