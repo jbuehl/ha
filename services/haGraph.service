@@ -1,8 +1,0 @@
-[Unit]
-Description=Home Automation Graphing
-After=syslog.target
-[Service]
-ExecStart=/usr/bin/python /root/ha/haGraph.py
-Restart=on-abort
-[Install]
-WantedBy=multi-user.target
