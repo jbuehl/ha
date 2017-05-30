@@ -648,7 +648,7 @@ class ControlGroup(SensorGroup, Control):
 # Calculate a function of a list of sensor states
 class CalcSensor(Sensor):
     objectArgs = ["interface", "event", "sensors"]
-    def __init__(self, name, sensors, function, interface=None, addr=None, group="", type="sensor", view=None, label="", location=None):
+    def __init__(self, name, sensors=[], function="", interface=None, addr=None, group="", type="sensor", view=None, label="", location=None):
         Sensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
         self.sensors = sensors
         self.function = function.lower()
