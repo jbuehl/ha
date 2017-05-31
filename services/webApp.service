@@ -1,0 +1,8 @@
+[Unit]
+Description=Home Automation Web Application
+After=syslog.target
+[Service]
+ExecStart=/usr/bin/python /root/ha/webApp.py
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
