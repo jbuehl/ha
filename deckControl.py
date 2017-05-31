@@ -32,8 +32,8 @@ if __name__ == "__main__":
     humidity = Sensor("humidity", humidityCache, "humidity", group="Temperature", label="Humidity", type="humidity")
 
     # Schedules
-    shadesDown = Task("shadesDown", SchedTime(hour=[13], minute=[00], month=[Apr, May, Jun, Jul, Aug, Sep]), resources["allShades"], 1, enabled=True)
-    shadesUp = Task("shadesUp", SchedTime(minute=-30, event="sunset", month=[Apr, May, Jun, Jul, Aug, Sep]), resources["allShades"], 0, enabled=True)
+    shadesDown = Task("shadesDown", SchedTime(hour=[13], minute=[00], month=[Apr, May, Jun, Jul, Aug, Sep]), allShades, 1, enabled=True)
+    shadesUp = Task("shadesUp", SchedTime(minute=-30, event="sunset", month=[Apr, May, Jun, Jul, Aug, Sep]), allShades, 0, enabled=True)
     schedule = Schedule("schedule", tasks=[shadesDown, shadesUp])
 
     # Resources

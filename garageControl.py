@@ -34,8 +34,8 @@ if __name__ == "__main__":
     garageTemp = Sensor("garageTemp", temp, 0x4d, group="Temperature", label="Garage temp", type="tempF")
     
     # Tasks
-    hotWaterRecircOn = Task("hotWaterRecircOn", SchedTime(hour=[05], minute=[0]), "recircPump", 1, resources=resources)
-    hotWaterRecircOff = Task("hotWaterRecircOff", SchedTime(hour=[23], minute=[0]), "recircPump", 0, resources=resources)
+    hotWaterRecircOn = Task("hotWaterRecircOn", SchedTime(hour=[05], minute=[0]), recircPump, 1)
+    hotWaterRecircOff = Task("hotWaterRecircOff", SchedTime(hour=[23], minute=[0]), recircPump, 0)
     
     # Schedule
     schedule = Schedule("schedule", tasks=[hotWaterRecircOn, hotWaterRecircOff])
