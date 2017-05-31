@@ -2,7 +2,7 @@
 Description=Home Automation Camera
 After=syslog.target
 [Service]
-ExecStart=/usr/bin/python /root/ha/haCamera.py
+ExecStart=/usr/bin/python /root/ha/cameraControl.py
 Restart=on-abort
 [Install]
 WantedBy=multi-user.target
