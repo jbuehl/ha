@@ -1,3 +1,5 @@
+# Classes related to schedules
+
 from basic import *
 from sunriseset import *
 

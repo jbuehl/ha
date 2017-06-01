@@ -1,16 +1,8 @@
+# Logging and debug functions
+
 import syslog
 import os
-
-# Environment
-rootDir = os.path.dirname(os.path.realpath(__file__))+"/../../"
-configDir = rootDir+"conf/"
-keyDir = rootDir+"keys/"
-stateDir = rootDir+"state/"
-dataLogDir = "data/"
-dataLogFileName = ""
-
-sysLogging = True
-debugEnable = False
+from environment import *
 
 # standard timestamp
 def timeStamp(fmt):
@@ -43,23 +35,4 @@ def logData(name, value):
                 dataLogFile.write(timestamp("%Y %m %d %H:%M:%S")+","+name+","+value)
     except:
         pass
-
-# read configuration files
-try:
-    for configFileName in ['ha.conf']: #os.listdir(configDir):
-        debug('debugConf', "config open", configFileName)
-        try:
-            with open(configDir+configFileName) as configFile:
-                configLines = [configLine.rstrip('\n') for configLine in configFile]
-            for configLine in configLines:
-                if (len(configLine) > 0) and (configLine[0] != "#"):
-                    try:
-                        exec(configLine)
-                        debug('debugConf', "config read", configLine)
-                    except:
-                        log("config", "error evaluating", configLine)
-        except:
-            log("config", "error reading", configDir+configFileName)
-except:
-    log("config", "no config directory", configDir)
 

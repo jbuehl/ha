@@ -1,6 +1,9 @@
+# Read configuration files and set global variables
+
+import os
+from environment import *
 from logging import *
 
-# read configuration files
 try:
     for configFileName in ['ha.conf']: #os.listdir(configDir):
         debug('debugConf', "config open", configFileName)
@@ -10,8 +13,8 @@ try:
             for configLine in configLines:
                 if (len(configLine) > 0) and (configLine[0] != "#"):
                     try:
-                        exec(configLine)
                         debug('debugConf', "config read", configLine)
+                        exec(configLine)
                     except:
                         log("config", "error evaluating", configLine)
         except:

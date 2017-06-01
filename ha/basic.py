@@ -1,17 +1,14 @@
+# Basic class definitions
+
 stateChangeInterval = 10
 running = True  # FIXME - get rid of this
-
-# Localization - FIXME - put in a config file
-latLong = (34.149044, -118.401994)
-elevation = 620 # elevation in feet
-tempScale = "F"
 
 import time
 import threading
 import copy
 import sys
 from collections import OrderedDict
-from logging import *
+from config import *
         
 # normalize state values from boolean to integers
 def normalState(value):

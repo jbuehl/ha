@@ -1,3 +1,5 @@
+# Extra class definitions derived from basic classes
+
 from basic import *
 
 # A Cycle describes the process of setting a Control to a specified state, waiting a specified length of time,
