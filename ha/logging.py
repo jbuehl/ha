@@ -1,4 +1,4 @@
-# Logging and debug functions
+# Logging functions
 
 import syslog
 import os
@@ -17,15 +17,6 @@ def log(*args):
         syslog.syslog(message)
     else:
         print timeStamp("%b %d %H:%M:%S")+" "+message
-
-# log a debug message conditioned on a specified global variable
-def debug(*args):
-    try:
-        if debugEnable:   # global debug flag enables debugging
-            if globals()[args[0]]:  # only log if the specified debug variable is True
-                log(*args[1:])
-    except:
-        pass
 
 # log a data point
 def logData(name, value):

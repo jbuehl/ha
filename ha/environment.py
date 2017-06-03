@@ -1,4 +1,4 @@
-# Environment
+# Global variables that define the environment
 
 import os
 
@@ -17,6 +17,4 @@ tempScale = "F"
 
 # global variables that must be set here
 sysLogging = True
-debugEnable = True
-debugConf = True
 
