@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     # Schedules
     frontLawnTask = Task("frontLawnTask", SchedTime(hour=[21], minute=[00], weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), frontLawnSequence, 1, enabled=True)
-    gardenTask = Task("gardenTask", SchedTime(hour=[21], minute=[20], month=[May, Jun, Jul, Aug, Sep]), gardenSequence, 1, enabled=False)
+    gardenTask = Task("gardenTask", SchedTime(hour=[21], minute=[20], month=[May, Jun, Jul, Aug, Sep]), gardenSequence, 1, enabled=True)
     backLawnTask = Task("backLawnTask", SchedTime(hour=[21], minute=[30], weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), backLawnSequence, 1, enabled=False)
     sideBedTask = Task("sideBedTask", SchedTime(hour=[21], minute=[50], weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), sideBedSequence, 1, enabled=True)
     backBedTask = Task("backBedTask", SchedTime(hour=[22], minute=[00], weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), backBedSequence, 1, enabled=False)
