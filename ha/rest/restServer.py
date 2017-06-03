@@ -15,14 +15,10 @@ import socket
 import ssl
 import time
 
-def dp():
-    return globals()
-        
 # RESTful web services server interface
 class RestServer(object):
     objectArgs = ["resources", "event"]
     def __init__(self, resources=None, port=7378, beacon=True, heartbeat=True, event=None, label="", name=None):
-        self.label = label
         self.resources = resources
         self.event = event
         self.hostname = socket.gethostname()
@@ -30,11 +26,15 @@ class RestServer(object):
         self.beacon = beacon
         self.heartbeat = heartbeat
         self.event = event
+        if label == "":
+            self.label = self.hostname+":"+str(self.port)
+        else:
+            self.label = label
         debug('debugInterrupt', self.label, "event", self.event)
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
 
     def start(self):
-        # start the beacon
+        # start the beacon to advertise this service
         if self.beacon:
             self.beaconSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -49,7 +49,7 @@ class RestServer(object):
             beaconThread = threading.Thread(target=beacon)
             beaconThread.start()
             
-        # start the heartbeat
+        # start the heartbeat to periodically send the state of all resources
         if self.heartbeat:
             debug('debugRestHeartbeat', "REST heartbeat started")
             # thread to periodically send states as keepalive message
@@ -68,43 +68,16 @@ class RestServer(object):
                     states = stateResource.states
                     # send the broadcast message
                     self.heartbeatSocket.sendto(json.dumps({"state": states, "hostname": self.hostname, "port": self.port}), ("<broadcast>", restStatePort))
-                    # set the state event so the stateChange request returns
-                    debug('debugInterrupt', "heartbeat", "set", self.event)
-                    self.event.set()
+                    if self.event:
+                        # set the state event so the stateChange request returns
+                        debug('debugInterrupt', "heartbeat", "set", self.event)
+                        self.event.set()
                     time.sleep(restHeartbeatInterval)
             heartbeatThread = threading.Thread(target=heartbeat)
             heartbeatThread.start()
             
         # start the HTTP server
         self.server.serve_forever()
-
-# Beacon that advertises this service        
-class BeaconThread(threading.Thread):
-    def __init__(self, name, port, resources, label):
-        threading.Thread.__init__(self, target=self.doBeacon)
-        self.name = name
-        self.port = port
-        self.hostname = socket.gethostname()
-        self.resources = resources
-        self.label = label
-        self.beaconSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        self.beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.timeStamp = time.time()
-        
-    def doBeacon(self):
-        debug('debugThread', self.name, "started")
-        loopCount = 0
-        # wake up every second
-        while running:
-            # loop until the program state changes to not running
-            if not running: break
-            if loopCount == restBeaconInterval:
-                self.beaconSocket.sendto(json.dumps((self.hostname, self.port, self.resources.dict(), self.timeStamp, self.label)), ("<broadcast>", restBeaconPort))
-                loopCount = 0
-            loopCount += 1
-            time.sleep(1)
-        debug('debugThread', self.name, "terminated")
 
 class RestHTTPServer(ThreadingMixIn, HTTPServer):
     def __init__(self, server_address, RequestHandlerClass, resources):
