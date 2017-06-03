@@ -15,6 +15,9 @@ import socket
 import ssl
 import time
 
+def dp():
+    return globals()
+        
 # RESTful web services server interface
 class RestServer(object):
     objectArgs = ["resources", "event"]
@@ -115,35 +118,43 @@ class RestRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         debug('debugRestGet', "path:", self.path)
         debug('debugRestGet', "headers:", self.headers.__str__())
-        (resource, attr) = self.getResFromPath(self.server.resources, urllib.unquote(self.path).lstrip("/"))
-        if resource:
+        if self.path == "/":    # no resource was specified
             self.send_response(200)     # success
-            if attr:    # determine the content type of the attribute of the resource
-                data = resource.__getattribute__(attr)
-                try:                    # see if the content type is specified
-                    contentType = data["contentType"]
-                    data = data["data"]
-                except:                 # return a jsonised dictionary
-                    contentType = "application/json"
-                    data = json.dumps({attr:data})
-            else:
-                contentType = "application/json"
-                try:
-                    data = json.dumps(resource.dict())
-                except:
-                    data = ""
-                    self.send_error(500)
-            self.send_header("Content-type", contentType)
+            self.send_header("Content-type", "application/json")
             self.end_headers()
-            self.wfile.write(data)
-        else:
-            self.send_error(404)     # resource not found
+            self.wfile.write(json.dumps({"resources": self.server.resources.name}))
+        else:                   # find the specified resource or attribute
+            (resource, attr) = self.getResFromPath(self.server.resources, urllib.unquote(self.path).lstrip("/"))
+            debug('debugRestGet', "resource:", resource, "attr:", attr)
+            if resource:
+                self.send_response(200)     # success
+                if attr:    # determine the content type of the attribute of the resource
+                    data = resource.__getattribute__(attr)
+                    try:                    # see if the content type is specified
+                        contentType = data["contentType"]
+                        data = data["data"]
+                    except:                 # return a jsonised dictionary
+                        contentType = "application/json"
+                        data = json.dumps({attr:data})
+                else:
+                    contentType = "application/json"
+                    try:
+                        data = json.dumps(resource.dict())
+                    except:
+                        data = ""
+                        self.send_error(500)
+                self.send_header("Content-type", contentType)
+                self.end_headers()
+                self.wfile.write(data)
+            else:
+                self.send_error(404)     # resource not found
 
     # set the attribute of the resource specified in the path to the value specified in the data
     def do_PUT(self):
         debug('debugRestPut', "path:", self.path)
         debug('debugRestPut', "headers:", self.headers.__str__())
         (resource, attr) = self.getResFromPath(self.server.resources, urllib.unquote(self.path).lstrip("/"))
+        debug('debugRestPut', "resource:", resource, "attr:", attr)
         if resource:
             try:
                 data = self.rfile.read(int(self.headers['Content-Length']))
