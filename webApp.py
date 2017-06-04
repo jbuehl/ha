@@ -68,7 +68,7 @@ def details(group=None):
                   "Services", "Tasks"]
         details = True
     with resourceLock:
-        widths = [1280, [180, 200, 260, 120, 100, 120, 240, 60]]
+        widths = [1280, [200, 180, 260, 120, 100, 120, 240, 60]]
         reply = templates.get_template("details.html").render(title=webPageTitle, script="", 
                             groupTemplate=templates.get_template("group.html"),
                             resourceTemplate=templates.get_template("resource.html"),
@@ -209,13 +209,13 @@ if __name__ == "__main__":
     restCache = RestProxy("restProxy", resources, ignore=restIgnore, event=stateChangeEvent, lock=resourceLock)
     restCache.start()
     
-    # Schedules
-    schedule = Schedule("schedule")
-    resources.addRes(Task("sundaySpaOn", SchedTime(year=[2017], month=[1], day=[22], hour=[17], minute=[00]), "spa", 1, resources=resources))
-    resources.addRes(Task("sundaySpaOff", SchedTime(year=[2017], month=[1], day=[22], hour=[18], minute=[55]), "spa", 0, resources=resources))
-    schedule.addTask(resources["sundaySpaOn"])
-    schedule.addTask(resources["sundaySpaOff"])
-    schedule.start()
+#    # Schedules
+#    schedule = Schedule("schedule")
+#    resources.addRes(Task("sundaySpaOn", SchedTime(year=[2017], month=[1], day=[22], hour=[17], minute=[00]), "spa", 1, resources=resources))
+#    resources.addRes(Task("sundaySpaOff", SchedTime(year=[2017], month=[1], day=[22], hour=[18], minute=[55]), "spa", 0, resources=resources))
+#    schedule.addTask(resources["sundaySpaOn"])
+#    schedule.addTask(resources["sundaySpaOff"])
+#    schedule.start()
     
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
