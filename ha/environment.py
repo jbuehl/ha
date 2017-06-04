@@ -7,6 +7,7 @@ rootDir = os.path.dirname(os.path.realpath(__file__))+"/../../"
 configDir = rootDir+"conf/"
 keyDir = rootDir+"keys/"
 stateDir = rootDir+"state/"
+soundDir = rootDir+"sounds/"
 dataLogDir = "data/"
 dataLogFileName = ""
 
