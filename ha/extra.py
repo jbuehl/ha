@@ -20,8 +20,8 @@ class Cycle(object):
 # a Sequence is a Control that consists of a list of Cycles that are run in the specified order
 class Sequence(Control):
     objectArgs = ["interface", "event", "cycleList"]
-    def __init__(self, name, cycleList=[], addr=None, interface=None, event=None, group="", type="sequence", view=None, label=""):
-        Control.__init__(self, name, addr=addr, interface=interface, event=event, group=group, type=type, view=view, label=label)
+    def __init__(self, name, cycleList=[], addr=None, interface=None, event=None, group="", type="sequence", view=None, label="", location=None):
+        Control.__init__(self, name, addr=addr, interface=interface, event=event, group=group, type=type, view=view, label=label, location=location)
         self.cycleList = cycleList
         self.running = False
 

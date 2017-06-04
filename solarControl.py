@@ -55,17 +55,17 @@ class SolarSensor(Sensor):
             setattr(self, attrName, attrs[attrName])
         self.className = "Sensor"
 
-    # add selected attributes to the dictionary
-    def dict(self):
-        attrs = Sensor.dict(self)
-        try:
-            # read current parameter values
-            deviceValues = self.interface.read(self.deviceType)
-            # add values to the dictionary
-            attrs.update(dict((attrName, deviceValues[self.name][attrName]) for attrName in self.attrNames))
-        except:
-            pass
-        return attrs
+#    # add selected attributes to the dictionary
+#    def dict(self):
+#        attrs = Sensor.dict(self)
+#        try:
+#            # read current parameter values
+#            deviceValues = self.interface.read(self.deviceType)
+#            # add values to the dictionary
+#            attrs.update(dict((attrName, deviceValues[self.name][attrName]) for attrName in self.attrNames))
+#        except:
+#            pass
+#        return attrs
                     
 class InverterSensor(SolarSensor):
     def __init__(self, name, interface, addr=None, group="", type="sensor", view=None, label="", location=None):

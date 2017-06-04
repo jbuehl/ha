@@ -122,12 +122,12 @@ class Schedule(Collection):
 # a Task specifies a control to be set to a specified state at a specified time
 class Task(Control):
     objectArgs =["interface", "event", "schedTime", "control"]
-    def __init__(self, name, schedTime=None, control=None, state=0, resources=None, parent=None, enabled=True, interface=None, addr=None, 
+    def __init__(self, name, schedTime=None, control=None, controlState=0, resources=None, parent=None, enabled=True, interface=None, addr=None, 
                  type="task", group="Tasks", view=None, label=""):
         Control.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
         self.schedTime = schedTime
         self.control = control
-        self.controlState = state
+        self.controlState = controlState
         self.resources = resources
         self.parent = parent
         self.enabled = normalState(enabled)
@@ -170,18 +170,21 @@ class Task(Control):
                 "schedTime": self.schedTime.dict()}
                     
     def __str__(self, views=None):
-        if self.resources:      # control is resource name - FIXME - test list element type
-            try:
+        try:
+            if self.resources:      # control is resource name - FIXME - test list element type
                 control = self.resources[self.control]
-            except KeyError:    # can't resolve so ignore it
-                return ""
-        else:                   # control is resource reference
-            control = self.control
+                controlName = control.name
+            else:                   # control is resource reference
+                control = self.control
+                controlName = control.name
+        except (AttributeError, KeyError):    # can't resolve so use the name
+            control = None
+            controlName = self.control
         try:                    # try to translate state value
             value = control.setValues(views)[self.controlState]
-        except:                 # use the value
+        except AttributeError:                 # use the value
             value = str(self.controlState)
-        return control.name+": "+value+","+self.schedTime.__str__()
+        return controlName+": "+value+","+self.schedTime.__str__()
 
     def __del__(self):
         del(self.schedTime)

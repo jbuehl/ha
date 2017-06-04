@@ -81,9 +81,9 @@ class RestProxy(threading.Thread):
     # get all the resources on the specified service and add them to the cache
     def getResources(self, service, serviceResources, timeStamp):
         debug('debugRestProxy', self.name, "getting", service.name)
-        resources = Collection(service.name+"Resources", aliases=self.resources.aliases)
+        resources = Collection(service.name+"/Resources", aliases=self.resources.aliases)
         service.interface.enabled = True
-        resources.load(service.interface, "/"+serviceResources["name"])
+        self.load(resources, service.interface, "/"+serviceResources["name"])
         service.resourceNames = resources.keys()
         service.timeStamp = timeStamp
         service.interface.readStates()          # fill the cache for these resources
@@ -93,6 +93,59 @@ class RestProxy(threading.Thread):
             del(resources)
         service.enabled = True
 
+    # load resources from the specified interface
+    # this does not replicate the collection hierarchy being read
+    def load(self, resources, interface, path):
+        node = interface.read(path)
+        self.loadResource(resources, interface, node, path)
+        if "resources" in node.keys():
+            # the node is a collection
+            for resource in node["resources"]:
+                self.load(resources, interface, path+"/"+resource)
+
+    # instantiate the resource from the specified node            
+    def loadResource(self, resources, interface, node, path):
+        if node["class"] not in ["Collection", "HACollection", "Schedule", "ResourceStateSensor", "RestServiceProxy"]:
+            # override attributes with alias attributes if specified for the resource
+            try:
+                aliasAttrs = resources.aliases[node["name"]]
+                debug('debugCollection', self.name, "loadResource", node["name"], "found alias")
+                for attr in aliasAttrs.keys():
+                    node[attr] = aliasAttrs[attr]
+                    debug('debugCollection', self.name, "loadResource", node["name"], "attr:", attr, "value:", aliasAttrs[attr])
+            except KeyError:
+                debug('debugCollection', self.name, "loadResource", node["name"], "no alias")
+                pass
+            # create the specified resource type
+            try:
+                # assemble the argument string
+                argStr = ""
+                for arg in node.keys():
+                    if arg == "class":
+                        className = node[arg]
+                        if className == "HAControl":        # FIXME - temp until ESPs are changed
+                            className = "Control"
+                    elif arg == "interface":                # use the REST interface
+                        argStr += "interface=interface, "
+                    elif arg == "addr":                     # addr is REST path
+                        argStr += "addr=path+'/state', "
+                    elif arg == "schedTime":                # FIXME - need to generalize this for any class
+                        argStr += "schedTime=SchedTime(**"+str(node["schedTime"])+"), "
+                    elif isinstance(node[arg], str) or isinstance(node[arg], unicode):  # arg is a string
+                        argStr += arg+"='"+node[arg]+"', "
+                    else:                                   # arg is numeric or other
+                        argStr += arg+"="+str(node[arg])+", "
+                debug("debugCollection", "creating", className+"("+argStr[:-2]+")")
+                exec("resource = "+className+"("+argStr[:-2]+")")
+                resources.addRes(resource)
+            except:
+                log(self.name, "loadResource", interface.name, str(node), path, "exception")
+                try:
+                    if debugExceptions:
+                        raise
+                except NameError:
+                    pass
+            
     # delete all the resources from the specified service from the cache
     def delResources(self, service):
         service.enabled = False
