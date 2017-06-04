@@ -16,7 +16,8 @@ from ha import *
 # a temperature controlled heating or cooling unit
 class TempControl(Control):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface, unitControl, tempSensor, tempTargetControl=None, inhibitSensor=None, unitType=0, hysteresis=1, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
+    def __init__(self, name, interface, unitControl, tempSensor, tempTargetControl=None, inhibitSensor=None, unitType=0, hysteresis=1, 
+                addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.className = "Control"
         self.unitControl = unitControl              # the control for the heating or cooling unit
@@ -24,7 +25,7 @@ class TempControl(Control):
         self.tempTargetControl = tempTargetControl  # the control that sets the temp target
         self.tempTarget = 0                         # current temp target value
         self.inhibitSensor = inhibitSensor          # sensor that inhibits tempControl operation if it is on
-        self.unitType = unitType                    # type of unit
+        self.unitType = unitType                    # type of unit: 0=heater, 1=cooler
         self.hysteresis = hysteresis
         self.controlState = controlOff
         # inhibit the tempControl after a delay
@@ -71,6 +72,7 @@ class TempControl(Control):
                 if currentTemp > 0:                 # don't do anything if no temp reading
                     if self.tempTargetControl:
                         self.tempTarget = self.tempTargetControl.getState()
+                    debug('debugTempControlTemp', self.name, "currentTemp:", currentTemp, "targetTemp:", self.tempTarget)
                     if self.controlState == controlOff:
                         debug('debugTempControl', self.name, "unit off")
                         self.unitControl.setState(unitOff)

@@ -2,7 +2,7 @@
 Description=Home Automation HVAC
 After=syslog.target
 [Service]
-ExecStart=/usr/bin/python /root/ha/haHvac.py
+ExecStart=/usr/bin/python /root/ha/hvacControl.py
 Restart=on-abort
 [Install]
 WantedBy=multi-user.target

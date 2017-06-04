@@ -28,7 +28,7 @@ if __name__ == "__main__":
     frontDoor = Sensor("frontDoor", gpio0, 5, type="door", group="Doors", label="Front")
     familyRoomDoor = Sensor("familyRoomDoor", gpio0, 6, type="door", group="Doors", label="Family room")
     masterBedroomDoor = Sensor("masterBedroomDoor", gpio0, 7, type="door", group="Doors", label="Master bedroom")
-    houseDoors = SensorGroup("houseDoors", ["frontDoor", "familyRoomDoor", "masterBedroomDoor"], resources=resources, type="door", group="Doors", label="House doors")
+    houseDoors = SensorGroup("houseDoors", [frontDoor, familyRoomDoor, masterBedroomDoor], type="door", group="Doors", label="House doors")
     
     # persistent config data
     northHeatTempTarget = Control("northHeatTempTarget", configData, "northHeatTempTarget", group="Hvac", label="North heat set", type="tempFControl")
@@ -38,13 +38,13 @@ if __name__ == "__main__":
    
     # Temperature sensors
     masterBedroomTemp = Sensor("masterBedroomTemp", owfs, "28.175CDC060000", group="Temperature", label="Master bedroom temp", type="tempF")
-    kitchenTemp = Sensor("diningRoomTemp", owfs, "28.E4F6DB060000", group="Temperature", label="Dining room temp", type="tempF")
+    diningRoomTemp = Sensor("diningRoomTemp", owfs, "28.E4F6DB060000", group="Temperature", label="Dining room temp", type="tempF")
     hallTemp = Sensor("hallTemp", owfs, "28.FA78DB060000", group="Temperature", label="Hall temp", type="tempF")
     atticTemp = Sensor("atticTemp", owfs, "28.CC02DC060000", group="Temperature", label="Attic temp", type="tempF")
     livingRoomTemp = Sensor("livingRoomTemp", owfs, "28.B9CA5F070000", group="Temperature", label="Living room temp", type="tempF")
     familyRoomTemp = Sensor("familyRoomTemp", owfs, "28.7202DC060000", group="Temperature", label="Family room temp", type="tempF")
     
-    # HVAC equipment
+    # HVAC equipment controls
     northHeat = Control("northHeat", gpio1, 4, group="Hvac", label="North heat")
     southHeat = Control("southHeat", gpio1, 0, group="Hvac", label="South heat")
     northCool = Control("northCool", gpio1, 5, group="Hvac", label="North cool")
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     # Tasks
     northHeatTempUpMorning = Task("northHeatTempUpMorning", SchedTime(hour=[6], minute=[0]), northHeatTempTarget, 69)
     southHeatTempUpMorning = Task("southHeatTempUpMorning", SchedTime(hour=[6], minute=[0]), southHeatTempTarget, 70)
-    northHeatTempDownMorning = Task("northHeatTempDownMorning", SchedTime(hour=[8], minute=[0]), northHeatTempTarget, 66
+    northHeatTempDownMorning = Task("northHeatTempDownMorning", SchedTime(hour=[8], minute=[0]), northHeatTempTarget, 66)
     southHeatTempDownMorning = Task("southHeatTempDownMorning", SchedTime(hour=[8], minute=[0]), southHeatTempTarget, 67)
     northHeatTempDownEvening = Task("northHeatTempDownEvening", SchedTime(hour=[21], minute=[0]), northHeatTempTarget, 66)
     southHeatTempDownEvening = Task("southHeatTempDownEvening", SchedTime(hour=[21], minute=[0]), southHeatTempTarget, 67)
@@ -80,11 +80,12 @@ if __name__ == "__main__":
 
     # Resources
     resources = Collection("resources", resources=[frontDoor, familyRoomDoor, masterBedroomDoor, houseDoors,
-                                                   atticTemp, hallTemp, masterBedroomTemp, livingRoomTemp, familyRoomTemp, kitchenTemp,
+                                                   atticTemp, hallTemp, masterBedroomTemp, livingRoomTemp, familyRoomTemp, diningRoomTemp,
                                                    northHeat, northCool, northFan, northHeatTempTarget, northCoolTempTarget, northHeatControl, northCoolControl, 
                                                    southHeat, southCool, southFan, southHeatTempTarget, southCoolTempTarget, southHeatControl, southCoolControl,
                                                    northHeatTempUpMorning, northHeatTempDownMorning, northHeatTempDownEvening,
-                                                   southHeatTempUpMorning, southHeatTempDownMorning, southHeatTempDownEvening])
+                                                   southHeatTempUpMorning, southHeatTempDownMorning, southHeatTempDownEvening
+                                                   ])
     restServer = RestServer(resources, event=stateChangeEvent, label="Hvac")
 
     # Start interfaces
