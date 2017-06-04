@@ -184,13 +184,15 @@ class Collection(Resource, OrderedDict):
             elif (node["class"] == "Control") or (node["class"] == "HAControl"):        # FIXME - temp until ESPs are changed
                 resource = Control(node["name"], interface=interface, addr=path+"/state")
             elif node["class"] == "Sequence":
-                resource = Sequence(node["name"], [], interface=interface, addr=path+"/state")
+#                resource = Sequence(node["name"], [], interface=interface, addr=path+"/state")
+                resource = Control(node["name"], interface=interface, addr=path+"/state")
             elif node["class"] == "ControlGroup":
-                resource = ControlGroup(node["name"], [], interface=interface, addr=path+"/state")
-            elif node["class"] == "Task":
-                resource = Task(node["name"], control=self[node["control"]], state=node["controlState"], 
-                    schedTime=SchedTime(**node["schedTime"]), 
-                    interface=interface, addr=path+"/state",)
+#                resource = ControlGroup(node["name"], [], interface=interface, addr=path+"/state")
+                resource = Control(node["name"], interface=interface, addr=path+"/state")
+#            elif node["class"] == "Task":
+#                resource = Task(node["name"], control=self[node["control"]], state=node["controlState"], 
+#                    schedTime=SchedTime(**node["schedTime"]), 
+#                    interface=interface, addr=path+"/state",)
             else:
                 debug('debugCollection', self.name, "loadResource", node["name"], "class:", node["class"], "not created")
                 resource = None
@@ -206,7 +208,8 @@ class Collection(Resource, OrderedDict):
                 # add it to the collection
                 self.addRes(resource)
         except:
-            debug('debug', self.name, "loadResource", str(node), "exception")
+            debug('debug', self.name, "loadResource", interface.name, str(node), path, "exception")
+            raise
             try:
                 if debugExceptions:
                     raise
