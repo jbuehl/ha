@@ -4,7 +4,6 @@ doorbellSensor = "doorbellButton"
 doorbellState = 1
 
 # audio alert
-soundDir = "/root/sounds/"
 doorbellSound = "doorbell.wav"
 doorbellRepeat = 1
 
@@ -20,6 +19,7 @@ from ha.notify import *
 if __name__ == "__main__":
     stateChangeEvent = threading.Event()
     resourceLock = threading.Lock()
+    debug('debugDoorbell', "watching", doorbellService+"/"+doorbellSensor)
     resources = Collection("resources")
     restCache = RestProxy("restProxy", resources, watch=[doorbellService], event=stateChangeEvent, lock=resourceLock)
     restCache.start()
@@ -30,9 +30,11 @@ if __name__ == "__main__":
             state = resources[doorbellSensor].getStateChange()
             debug('debugDoorbell', "state:", state, "lastState", lastState)
             if (state != lastState) and (state == doorbellState):
+                debug('debugDoorbell', "notifying", str(doorbellNotifyNumbers))
                 smsNotify(doorbellNotifyNumbers, doorbellNotifyMsg)
                 for i in range(doorbellRepeat):
-                    os.system("aplay "+doorbellDir+doorbellSound)
+                    debug('debugDoorbell', "playing", soundDir+doorbellSound)
+                    os.system("aplay "+soundDir+doorbellSound)
                 state = 0
             lastState = state
         except KeyError:
