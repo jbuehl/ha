@@ -44,7 +44,7 @@ if __name__ == "__main__":
     diningRoomTemp = Sensor("diningRoomTemp", owfs, "28.E4F6DB060000", group="Temperature", label="Dining room temp", type="tempF")
     hallTemp = Sensor("hallTemp", owfs, "28.FA78DB060000", group="Temperature", label="Hall temp", type="tempF")
     atticTemp = Sensor("atticTemp", owfs, "28.CC02DC060000", group="Temperature", label="Attic temp", type="tempF")
-    livingRoomTemp = Sensor("livingRoomTemp", owfs, "28.B9CA5F070000", group="Temperature", label="Living room temp", type="tempF")
+    livingRoomTemp = Sensor("livingRoomTemp", owfs, "28.11B2DB060000", group="Temperature", label="Living room temp", type="tempF")
     familyRoomTemp = Sensor("familyRoomTemp", owfs, "28.7202DC060000", group="Temperature", label="Family room temp", type="tempF")
     
     # HVAC equipment controls
@@ -57,16 +57,16 @@ if __name__ == "__main__":
 
     # Temp controls
     northHeatControl = TempControl("northHeatControl", nullInterface, 
-                                    northHeat, masterBedroomTemp, northHeatTempTarget, masterBedroomDoor, unitType=unitTypeHeater, 
+                                    northHeat, masterBedroomTemp, northHeatTempTarget, unitType=unitTypeHeater, 
                                     group="Hvac", label="North heat control", type="tempControl")
     northCoolControl = TempControl("northCoolControl", nullInterface, 
-                                    northCool, masterBedroomTemp, northCoolTempTarget, masterBedroomDoor, unitType=unitTypeAc, 
+                                    northCool, masterBedroomTemp, northCoolTempTarget, unitType=unitTypeAc, 
                                     group="Hvac", label="North cool control", type="tempControl")
     southHeatControl = TempControl("southHeatControl", nullInterface, 
-                                    southHeat, diningRoomTemp, southHeatTempTarget, familyRoomDoor, unitType=unitTypeHeater, 
+                                    southHeat, diningRoomTemp, southHeatTempTarget, unitType=unitTypeHeater, 
                                     group="Hvac", label="South heat control", type="tempControl")
     southCoolControl = TempControl("southCoolControl", nullInterface, 
-                                    southCool, diningRoomTemp, southCoolTempTarget, familyRoomDoor, unitType=unitTypeAc, 
+                                    southCool, diningRoomTemp, southCoolTempTarget, unitType=unitTypeAc, 
                                     group="Hvac", label="South cool control", type="tempControl")
 
     # Thermostats

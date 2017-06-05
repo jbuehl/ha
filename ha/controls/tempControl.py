@@ -13,7 +13,7 @@ from ha import *
 class TempControl(Control):
     objectArgs = ["interface", "event"]
     def __init__(self, name, interface, unitControl, tempSensor, 
-                tempTargetControl=None, inhibitSensor=None, unitType=0, hysteresis=1, 
+                tempTargetControl=None, unitType=0, hysteresis=1, 
                 addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.className = "Control"
@@ -45,13 +45,22 @@ class TempControl(Control):
                     if self.inhibited or \
                         ((self.unitType == unitTypeHeater) and (currentTemp >= self.tempTarget + self.hysteresis)) or \
                         ((self.unitType == unitTypeAc) and (currentTemp <= self.tempTarget - self.hysteresis)):
+                        # unit is inhibited or the target temp has been reached
                         if self.unitControl.getState() != off:
+                            # turn the unit off
                             self.unitControl.setState(off)
                             debug('debugTempControl', self.name, "unit off")
+                    elif not self.inhibited and \
+                        (((self.unitType == unitTypeHeater) and (currentTemp <= self.tempTarget - self.hysteresis)) or \
+                        ((self.unitType == unitTypeAc) and (currentTemp >= self.tempTarget + self.hysteresis))):
+                        # unit is not inhibited and the temp is sufficiently off target
+                        if self.unitControl.getState() != on:
+                            # turn the unit on
+                            self.unitControl.setState(on)
+                            debug('debugTempControl', self.name, "unit on")
                     else:
-                        if self.unitControl.getState() != enabled:
-                            self.unitControl.setState(enabled)
-                            debug('debugTempControl', self.name, "unit enabled")
+                        # do nothing
+                        pass
             debug('debugTempControl', self.name, "tempWatch terminated")
         self.controlState = state
         if self.controlState == enabled:      # start the monitor thread when state set to enabled
