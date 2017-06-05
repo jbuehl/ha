@@ -244,15 +244,15 @@ td {
 	color: OrangeRed;
     }
 
-.heater_Off {
+.tempControl_Off {
 	color: SlateGray;
     }
 
-.heater_On {
-	color: Lime;
+.tempControl_On {
+	color: Orange;
     }
 
-.heater_Ena {
+.tempControl_Ena {
 	color: Orange;
     }
 
@@ -269,11 +269,11 @@ td {
     }
 
 .thermostat_Fan {
-	color: Lime;
+	color: Blue;
     }
 
 .thermostat_Auto {
-	color: Blue;
+	color: Magenta;
     }
 
 .spa_Off {

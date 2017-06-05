@@ -11,6 +11,7 @@ from ha.interfaces.owfsInterface import *
 from ha.interfaces.fileInterface import *
 from ha.interfaces.tempInterface import *
 from ha.controls.tempControl import *
+from ha.controls.thermostatControl import *
 from ha.rest.restServer import *
 
 if __name__ == "__main__":
@@ -33,8 +34,10 @@ if __name__ == "__main__":
     # persistent config data
     northHeatTempTarget = Control("northHeatTempTarget", configData, "northHeatTempTarget", group="Hvac", label="North heat set", type="tempFControl")
     northCoolTempTarget = Control("northCoolTempTarget", configData, "northCoolTempTarget", group="Hvac", label="North cool set", type="tempFControl")
+    northThermostatMode = Control("northThermostatMode", configData, "northThermostatMode")
     southHeatTempTarget = Control("southHeatTempTarget", configData, "southHeatTempTarget", group="Hvac", label="South heat set", type="tempFControl")
     southCoolTempTarget = Control("southCoolTempTarget", configData, "southCoolTempTarget", group="Hvac", label="South cool set", type="tempFControl")
+    southThermostatMode = Control("southThermostatMode", configData, "southThermostatMode")
    
     # Temperature sensors
     masterBedroomTemp = Sensor("masterBedroomTemp", owfs, "28.175CDC060000", group="Temperature", label="Master bedroom temp", type="tempF")
@@ -54,18 +57,26 @@ if __name__ == "__main__":
 
     # Temp controls
     northHeatControl = TempControl("northHeatControl", nullInterface, 
-                                    northHeat, masterBedroomTemp, northHeatTempTarget, masterBedroomDoor, unitType=0, 
-                                    group="Hvac", label="North heat control", type="heater")
+                                    northHeat, masterBedroomTemp, northHeatTempTarget, masterBedroomDoor, unitType=unitTypeHeater, 
+                                    group="Hvac", label="North heat control", type="tempControl")
     northCoolControl = TempControl("northCoolControl", nullInterface, 
-                                    northCool, masterBedroomTemp, northCoolTempTarget, masterBedroomDoor, unitType=1, 
-                                    group="Hvac", label="North cool control", type="heater")
+                                    northCool, masterBedroomTemp, northCoolTempTarget, masterBedroomDoor, unitType=unitTypeAc, 
+                                    group="Hvac", label="North cool control", type="tempControl")
     southHeatControl = TempControl("southHeatControl", nullInterface, 
-                                    southHeat, diningRoomTemp, southHeatTempTarget, familyRoomDoor, unitType=0, 
-                                    group="Hvac", label="South heat control", type="heater")
+                                    southHeat, diningRoomTemp, southHeatTempTarget, familyRoomDoor, unitType=unitTypeHeater, 
+                                    group="Hvac", label="South heat control", type="tempControl")
     southCoolControl = TempControl("southCoolControl", nullInterface, 
-                                    southCool, diningRoomTemp, southCoolTempTarget, familyRoomDoor, unitType=1, 
-                                    group="Hvac", label="South cool control", type="heater")
-    
+                                    southCool, diningRoomTemp, southCoolTempTarget, familyRoomDoor, unitType=unitTypeAc, 
+                                    group="Hvac", label="South cool control", type="tempControl")
+
+    # Thermostats
+    northThermostat = ThermostatControl("northThermostat", nullInterface, 
+                                    northHeatControl, northCoolControl, northFan, masterBedroomDoor, northThermostatMode,
+                                    group="Hvac", label="North thermostat", type="thermostat")
+    southThermostat = ThermostatControl("southThermostat", nullInterface, 
+                                    southHeatControl, southCoolControl, southFan, familyRoomDoor, southThermostatMode,
+                                    group="Hvac", label="South thermostat", type="thermostat")
+
     # Tasks
     northHeatTempUpMorning = Task("northHeatTempUpMorning", SchedTime(hour=[6], minute=[0]), northHeatTempTarget, 69)
     southHeatTempUpMorning = Task("southHeatTempUpMorning", SchedTime(hour=[6], minute=[0]), southHeatTempTarget, 70)
@@ -81,8 +92,10 @@ if __name__ == "__main__":
     # Resources
     resources = Collection("resources", resources=[frontDoor, familyRoomDoor, masterBedroomDoor, houseDoors,
                                                    atticTemp, hallTemp, masterBedroomTemp, livingRoomTemp, familyRoomTemp, diningRoomTemp,
-                                                   northHeat, northCool, northFan, northHeatTempTarget, northCoolTempTarget, northHeatControl, northCoolControl, 
-                                                   southHeat, southCool, southFan, southHeatTempTarget, southCoolTempTarget, southHeatControl, southCoolControl,
+                                                   northHeat, northCool, northFan, northHeatTempTarget, northCoolTempTarget, 
+                                                   northHeatControl, northCoolControl, northThermostat,
+                                                   southHeat, southCool, southFan, southHeatTempTarget, southCoolTempTarget, 
+                                                   southHeatControl, southCoolControl, southThermostat,
                                                    northHeatTempUpMorning, northHeatTempDownMorning, northHeatTempDownEvening,
                                                    southHeatTempUpMorning, southHeatTempDownMorning, southHeatTempDownEvening
                                                    ])
@@ -98,16 +111,17 @@ if __name__ == "__main__":
         southHeatTempTarget.setState(southHeatTempTargetDefault)
     if not southCoolTempTarget.getState():
         southCoolTempTarget.setState(southCoolTempTargetDefault)
-    # temporary
-    northHeatControl.setState(1)
-    southHeatControl.setState(1)
-    northCoolControl.setState(1)
-    southCoolControl.setState(1)
-#    northCool.setState(1)
-#    southCool.setState(1)
-
+#    # temporary
+#    northHeatControl.setState(1)
+#    southHeatControl.setState(1)
+#    northCoolControl.setState(1)
+#    southCoolControl.setState(1)
+##    northCool.setState(1)
+##    southCool.setState(1)
     gpio0.start()
     gpio1.start()
+    northThermostat.start()
+    southThermostat.start()
     schedule.start()
     restServer.start()
 

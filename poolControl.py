@@ -1,4 +1,4 @@
-spaTempTarget = 100
+spaTempTargetDefault = 100
 spaNotifyMsg = "Spa is ready"
 notifyFromNumber = ""
 spaReadyNotifyNumbers = []
@@ -17,6 +17,7 @@ from ha.rest.restServer import *
 from ha.interfaces.ads1015Interface import *
 from ha.interfaces.analogTempInterface import *
 from ha.interfaces.valveInterface import *
+from ha.interfaces.fileInterface import *
 from ha.controls.tempControl import *
 from ha.interfaces.timeInterface import *
 from ha.notify import *
@@ -230,6 +231,10 @@ if __name__ == "__main__":
     analogTempInterface = AnalogTempInterface("AnalogTemp", ads1015Interface)
     valveInterface = ValveInterface("Valves", gpio1)
     timeInterface = TimeInterface("Time")
+    configData = FileInterface("configData", fileName=stateDir+"pool.state", event=stateChangeEvent)
+    
+    # persistent config data
+    spaTempTarget = Control("spaTempTarget", configData, "spaTempTarget", group="Pool", label="Spa temp target", type="tempFControl")
     
     # Lights
     poolLight = Control("poolLight", gpio0, 2, type="light", group="Lights", label="Pool light")
@@ -256,8 +261,7 @@ if __name__ == "__main__":
     spaDrain = ControlGroup("spaDrain", [intakeValve, returnValve, poolPump], stateList=[[0, 1], [0, 0], [0, 4]], stateMode=True, group="Pool", label="Spa drain")
     poolClean = ControlGroup("poolClean", [poolCleaner, poolPump], stateList=[[0, 1], [0, 3]], stateMode=True, group="Pool", label="Pool clean")
     heater = Control("heater", gpio1, 2, group="Pool", label="Heater", type="heater")
-    spaHeater = TempControl("spaHeater", nullInterface, heater, waterTemp, group="Pool", label="Heater", type="heater")
-    spaHeater.setTarget(spaTempTarget)
+    spaHeater = TempControl("spaHeater", nullInterface, heater, waterTemp, spaTempTarget, group="Pool", label="Heater", type="heater")
     spaBlower = Control("spaBlower", gpio0, 1, group="Pool", label="Blower")
     
     resources.addRes(poolPump)
@@ -284,6 +288,7 @@ if __name__ == "__main__":
     spaLightNightSpa = DependentControl("spaLightNightSpa", nullInterface, spaLightNight, [(spa, 1)])
     resources.addRes(spa)
     resources.addRes(spaTemp)
+    resources.addRes(spaTempTarget)
     
     resources.addRes(Sequence("filter", [Cycle(poolPump, duration=39600, startState=1),  # filter 11 hr
                                               ], group="Pool", label="Filter daily"))
@@ -309,6 +314,9 @@ if __name__ == "__main__":
     schedule.addTask(Task("Spa light on sunset", SchedTime(event="sunset"), spaLightNightSpa, 1))
 
     # Start interfaces
+    configData.start()
+    if not spaTempTarget.getState():
+        spaTempTarget.setState(spaTempTargetDefault)
     gpio0.start()
     gpio1.start()
     pentairInterface.start()

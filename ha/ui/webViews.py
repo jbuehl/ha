@@ -48,46 +48,6 @@ def hdgFormat(value):
     direction = dirs[int((value+11.25)%360/22.5)]
     return "%03d %s" % (int(value), direction)
         
-# set temp color based on temp value
-#def tempColor(tempString):
-#    try:
-#        temp = int(tempString.split(" ")[0])
-#    except:
-#        temp = 0       
-#    if temp > 120:                 # magenta
-#        red = 252
-#        green = 0
-#        blue = 252
-#    elif temp > 102:               # red
-#        red = 252
-#        green = 0
-#        blue = (temp-102)*14
-#    elif temp > 84:                # yellow
-#        red = 252
-#        green = (102-temp)*14
-#        blue = 0
-#    elif temp > 66:                # green
-#        red = (temp-66)*14
-#        green = 252
-#        blue = 0
-#    elif temp > 48:                # cyan
-#        red = 0
-#        green = 252
-#        blue = (66-temp)*14
-#    elif temp > 30:                # blue
-#        red = 0
-#        green = (temp-30)*14
-#        blue = 252
-#    elif temp > 0:
-#        red = 0
-#        green = 0
-#        blue = 252
-#    else:
-#        red = 112
-#        green = 128
-#        blue = 144
-#    return 'rgb('+str(red)+','+str(green)+','+str(blue)+')'
-
 # view definitions    
 views = {"power": View({}, "%d W"),
 #         "tempC": View({}, "%d °", ctofFormat),
@@ -116,7 +76,7 @@ views = {"power": View({}, "%d W"),
          "pumpSpeed": View({}, "%d RPM"),
          "pumpFlow": View({}, "%d GPM"),
          "cleaner": View({0:"Off", 1:"On", 2:"Ena"}, "%s", None, {0:"Off", 1:"On"}),
-         "heater": View({0:"Off", 1:"On", 4:"Ena"}, "%s", None, {0:"Off", 1:"On"}),
+         "tempControl": View({0:"Off", 1:"Ena"}, "%s", None, {0:"Off", 1:"Ena"}),
          "thermostat": View({0:"Off", 1:"Heat", 2:"Cool", 3:"Fan", 4:"Auto"}, "%s", None, {0:"Off", 1:"Heat", 2:"Cool", 3:"Fan", 4:"Auto"}),
          "cameraMode": View({0:"Still", 1:"Time", 2:"Video", 3:"Motion"}, "%s", None, {0:"Still", 1:"Time", 2:"Video", 3:"Motion"}),
          "cameraEnable": View({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"}),

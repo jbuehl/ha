@@ -13,10 +13,16 @@ from environment import *
 from logging import *
 from debugging import *
 
+# states
+off = 0
+Off = 0
+on = 1
+On = 1
+
 # normalize state values from boolean to integers
 def normalState(value):
-    if value == True: return 1
-    elif value == False: return 0
+    if value == True: return On
+    elif value == False: return Off
     else: return value
     
 # Base class for Resources
