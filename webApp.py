@@ -37,8 +37,8 @@ def index():
 #                                                       "xmasLights", "xmasTree",
                                                        "poolLight", "spaLight"])]
         shadesGroup = ["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])]
-        hvacGroup = ["Hvac", resources.getResList(["diningRoomTemp", "southHeatTempTarget", "southHeatControl", "southCoolTempTarget", "southCoolControl",
-                                                   "masterBedroomTemp", "northHeatTempTarget", "northHeatControl", "northCoolTempTarget", "northCoolControl"])]
+        hvacGroup = ["Hvac", resources.getResList(["diningRoomTemp", "southHeatTempTarget", "southCoolTempTarget", "southThermostat",
+                                                   "masterBedroomTemp", "northHeatTempTarget", "northCoolTempTarget", "northThermostat"])]
         sprinklersGroup = ["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "backBedSequence", "frontLawnSequence"])]
         powerGroup = ["Power", resources.getResList(["currentVoltage", "currentLoad", "currentPower", "todaysEnergy"])]
         reply = templates.get_template("dashboard.html").render(script="",
