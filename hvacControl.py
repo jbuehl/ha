@@ -111,13 +111,6 @@ if __name__ == "__main__":
         southHeatTempTarget.setState(southHeatTempTargetDefault)
     if not southCoolTempTarget.getState():
         southCoolTempTarget.setState(southCoolTempTargetDefault)
-#    # temporary
-#    northHeatControl.setState(1)
-#    southHeatControl.setState(1)
-#    northCoolControl.setState(1)
-#    southCoolControl.setState(1)
-##    northCool.setState(1)
-##    southCool.setState(1)
     gpio0.start()
     gpio1.start()
     northThermostat.start()
