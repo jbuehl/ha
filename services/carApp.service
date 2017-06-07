@@ -2,7 +2,7 @@
 Description=UI service
 After=multi-user.target
 [Service]
-ExecStart=/usr/bin/python /root/ha/carControl.py
+ExecStart=/usr/bin/python /root/ha/carApp.py
 Restart=on-abort
 [Install]
 WantedBy=multi-user.target
