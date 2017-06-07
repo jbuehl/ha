@@ -231,3 +231,19 @@ class ResourceStateSensor(Sensor):
             time.sleep(stateChangeInterval)
         return self.getState()
 
+# control that can only be turned on if all the specified resources are in the specified states
+class DependentControl(Control):
+    def __init__(self, name, interface, control, resources, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+        self.className = "Control"
+        self.control = control
+        self.resources = resources
+
+    def setState(self, state, wait=False):
+        debug('debugState', self.name, "setState ", state)
+        for sensor in self.resources:
+            debug('debugSpaLight', self.name, sensor[0].name, sensor[0].getState())
+            if sensor[0].getState() != sensor[1]:
+                return
+        self.control.setState(state)
+
