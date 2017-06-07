@@ -1,0 +1,8 @@
+[Unit]
+Description=UI service
+After=multi-user.target
+[Service]
+ExecStart=/usr/bin/python /root/ha/carControl.py
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
