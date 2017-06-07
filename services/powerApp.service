@@ -2,7 +2,7 @@
 Description=Home Automation power loads
 After=syslog.target
 [Service]
-ExecStart=/usr/bin/python /root/ha/powerControl.py
+ExecStart=/usr/bin/python /root/ha/powerApp.py
 Restart=on-abort
 [Install]
 WantedBy=multi-user.target
