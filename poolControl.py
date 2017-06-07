@@ -155,12 +155,12 @@ class SpaControl(Control):
         if self.eventThread:
             self.eventThread.cancel()
             self.eventThread = None
-        self.eventThread = EventThread(name, checkFunction, checkValue, actionFunction, actionValue)
+        self.eventThread = SpaEventThread(name, checkFunction, checkValue, actionFunction, actionValue)
         self.eventThread.start()
             
-# start a thread to wait for the state of the specified sensor to reach the specified value
+# A thread to wait for the state of the specified sensor to reach the specified value
 # then call the specified action function with the specified action value
-class EventThread(threading.Thread):
+class SpaEventThread(threading.Thread):
     def __init__(self, name, checkFunction, checkValue, actionFunction, actionValue):
         threading.Thread.__init__(self, target=self.asyncEvent)
         self.name = name
@@ -214,9 +214,6 @@ class DependentControl(Control):
         self.control.setState(state)
 
 if __name__ == "__main__":
-    # Resources
-    resources = Collection("resources")
-    schedule = Schedule("schedule")
 
     # Interfaces
     stateChangeEvent = threading.Event()
@@ -239,15 +236,11 @@ if __name__ == "__main__":
     # Lights
     poolLight = Control("poolLight", gpio0, 2, type="light", group="Lights", label="Pool light")
     spaLight = Control("spaLight", gpio0, 3, type="light", group="Lights", label="Spa light")
-    resources.addRes(poolLight)
-    resources.addRes(spaLight)
-    resources.addRes(ControlGroup("poolLights", [poolLight, spaLight], type="light", group="Lights", label="Pool and spa"))
+    poolLights = ControlGroup("poolLights", [poolLight, spaLight], type="light", group="Lights", label="Pool and spa")
 
     # Temperature
     waterTemp = Sensor("waterTemp", analogTempInterface, 0, "Temperature",label="Water temp", type="tempF")
     poolEquipTemp = Sensor("poolEquipTemp", analogTempInterface, 1, "Temperature",label="Pool equipment temp", type="tempF")
-    resources.addRes(waterTemp)
-    resources.addRes(poolEquipTemp)
 
     # Pool
     poolPump = Control("poolPump", pentairInterface, 0, group="Pool", label="Pump", type="pump")
@@ -261,57 +254,55 @@ if __name__ == "__main__":
     spaDrain = ControlGroup("spaDrain", [intakeValve, returnValve, poolPump], stateList=[[0, 1], [0, 0], [0, 4]], stateMode=True, group="Pool", label="Spa drain")
     poolClean = ControlGroup("poolClean", [poolCleaner, poolPump], stateList=[[0, 1], [0, 3]], stateMode=True, group="Pool", label="Pool clean")
     heater = Control("heater", gpio1, 2, group="Pool", label="Heater", type="heater")
-    spaHeater = TempControl("spaHeater", nullInterface, heater, waterTemp, spaTempTarget, group="Pool", label="Heater", type="heater")
+    spaHeater = TempControl("spaHeater", nullInterface, heater, waterTemp, spaTempTarget, group="Pool", label="Heater", type="tempControl")
     spaBlower = Control("spaBlower", gpio0, 1, group="Pool", label="Blower")
     
-    resources.addRes(poolPump)
-    resources.addRes(Sensor("poolPumpSpeed", pentairInterface, 1, group="Pool", label="Pump speed", type="pumpSpeed"))
-    resources.addRes(Sensor("poolPumpFlow", pentairInterface, 3, group="Pool", label="Pump flow", type="pumpFlow"))
-    resources.addRes(poolCleaner)
-    resources.addRes(poolClean)
-    resources.addRes(intakeValve)
-    resources.addRes(returnValve)
-    resources.addRes(valveMode)
-    resources.addRes(spaFill)
-    resources.addRes(spaFlush)
-    resources.addRes(spaDrain)
-    resources.addRes(spaHeater)
-    resources.addRes(spaBlower)
+    poolPumpSpeed = Sensor("poolPumpSpeed", pentairInterface, 1, group="Pool", label="Pump speed", type="pumpSpeed")
+    poolPumpFlow = Sensor("poolPumpFlow", pentairInterface, 3, group="Pool", label="Pump flow", type="pumpFlow")
 
     # Spa
     sunUp = Sensor("sunUp", timeInterface, "sunUp")
     # spa light control that will only turn on if the sun is down
     spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(sunUp, 0)])
     spa = SpaControl("spa", nullInterface, valveMode, poolPump, spaHeater, spaLightNight, waterTemp, group="Pool", label="Spa", type="spa")
-    spaTemp = SpaTempControl("spaTemp", nullInterface, spa, waterTemp, group="Pool", label="Spa", type="spaTemp")
+    spaTempState = SpaTempControl("spaTempState", nullInterface, spa, waterTemp, group="Pool", label="Spa", type="spaTemp")
     # spa light control that will only turn on if the sun is down and the spa is on
     spaLightNightSpa = DependentControl("spaLightNightSpa", nullInterface, spaLightNight, [(spa, 1)])
-    resources.addRes(spa)
-    resources.addRes(spaTemp)
-    resources.addRes(spaTempTarget)
     
-    resources.addRes(Sequence("filter", [Cycle(poolPump, duration=39600, startState=1),  # filter 11 hr
-                                              ], group="Pool", label="Filter daily"))
-    resources.addRes(Sequence("clean", [Cycle(poolClean, duration=3600, startState=1), 
-                                              ], group="Pool", label="Clean 1 hr"))
-    resources.addRes(Sequence("flush", [Cycle(spaFlush, duration=900, startState=1), 
-                                              ], group="Pool", label="Flush spa 15 min"))
+    filterSequence = Sequence("filterSequence", [Cycle(poolPump, duration=39600, startState=1),  # filter 11 hr
+                                              ], group="Pool", label="Filter daily")
+    cleanSequence = Sequence("cleanSequence", [Cycle(poolClean, duration=3600, startState=1), 
+                                              ], group="Pool", label="Clean 1 hr")
+    flushSequence = Sequence("flushSequence", [Cycle(spaFlush, duration=900, startState=1), 
+                                              ], group="Pool", label="Flush spa 15 min")
 
     # Power
-    resources.addRes(Sensor("poolPumpPower", pentairInterface, 2, type="power", group="Power", label="Pool pump"))
-    resources.addRes(Sensor("poolCleanerPower", powerInterface, poolCleaner, type="power", group="Power", label="Pool cleaner"))
-    resources.addRes(Sensor("spaBlowerPower", powerInterface, spaBlower, type="power", group="Power", label="Spa blower"))
-    resources.addRes(Sensor("poolLightPower", powerInterface, poolLight, type="power", group="Power", label="Pool light"))
-    resources.addRes(Sensor("spaLightPower", powerInterface, spaLight, type="power", group="Power", label="Spa light"))
+    poolPumpPower = Sensor("poolPumpPower", pentairInterface, 2, type="power", group="Power", label="Pool pump")
+    poolCleanerPower = Sensor("poolCleanerPower", powerInterface, poolCleaner, type="power", group="Power", label="Pool cleaner")
+    spaBlowerPower = Sensor("spaBlowerPower", powerInterface, spaBlower, type="power", group="Power", label="Spa blower")
+    poolLightPower = Sensor("poolLightPower", powerInterface, poolLight, type="power", group="Power", label="Pool light")
+    spaLightPower = Sensor("spaLightPower", powerInterface, spaLight, type="power", group="Power", label="Spa light")
 
     # Schedules
-    resources.addRes(schedule)
+    schedule = Schedule("schedule")
     schedule.addTask(Task("Sunday spa on", SchedTime(year=[2016], month=[8], day=[14], hour=[16], minute=[30]), resources["spa"], 1))
     schedule.addTask(Task("Sunday spa off", SchedTime(year=[2016], month=[8], day=[14], hour=[18], minute=[30]), resources["spa"], 0))
-    schedule.addTask(Task("Pool filter", SchedTime(hour=[21], minute=[0]), resources["filter"], 1))
-    schedule.addTask(Task("Pool cleaner", SchedTime(hour=[8], minute=[1]), resources["clean"], 1))
-    schedule.addTask(Task("Flush spa", SchedTime(hour=[9], minute=[2]), resources["flush"], 1))
+    schedule.addTask(Task("Pool filter", SchedTime(hour=[21], minute=[0]), filterSequence, 1))
+    schedule.addTask(Task("Pool cleaner", SchedTime(hour=[8], minute=[1]), cleanSequence, 1))
+    schedule.addTask(Task("Flush spa", SchedTime(hour=[9], minute=[2]), flushSequence, 1))
     schedule.addTask(Task("Spa light on sunset", SchedTime(event="sunset"), spaLightNightSpa, 1))
+
+    # Resources
+    resources = Collection("resources", [poolLight, spaLight, poolLights,
+                                        waterTemp, poolEquipTemp, 
+                                        poolPump, poolCleaner, poolClean, intakeValve, returnValve, 
+                                        valveMode, spaFill, spaFlush, spaDrain, spaHeater, spaBlower, 
+                                        poolPumpSpeed, poolPumpFlow,
+                                        spa, spaTempState, spaTempTarget,
+                                        filterSequence, cleanSequence, flushSequence,
+                                        poolPumpPower, poolCleanerPower, spaBlowerPower, poolLightPower, spaLightPower,
+                                        ])
+    restServer = RestServer(resources, event=stateChangeEvent, label="Pool")
 
     # Start interfaces
     configData.start()
@@ -321,6 +312,5 @@ if __name__ == "__main__":
     gpio1.start()
     pentairInterface.start()
     schedule.start()
-    restServer = RestServer(resources, event=stateChangeEvent, label="Pool")
     restServer.start()
 
