@@ -2,7 +2,7 @@
 Description=Home Automation sprinklers
 After=syslog.target
 [Service]
-ExecStart=/usr/bin/python /root/ha/sprinklerControl.py
+ExecStart=/usr/bin/python /root/ha/sprinklerApp.py
 Restart=on-abort
 [Install]
 WantedBy=multi-user.target
