@@ -25,7 +25,7 @@ valveSpa = 1
 valveMoving = 4
 
 class SpaControl(Control):
-    def __init__(self, name, interface, valveControl, pumpControl, heaterControl, lightControl, tempSensor, addr=None, 
+    def __init__(self, name, interface, valveControl, pumpControl, heaterControl, lightApp, tempSensor, addr=None, 
             group="", type="control", location=None, view=None, label="", interrupt=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.className = "Control"
@@ -33,7 +33,7 @@ class SpaControl(Control):
         self.valveControl = valveControl
         self.pumpControl = pumpControl
         self.heaterControl = heaterControl
-        self.lightControl = lightControl
+        self.lightApp = lightApp
         self.tempSensor = tempSensor
         self.eventThread = None
         
@@ -45,18 +45,18 @@ class SpaControl(Control):
                               ])
         self.onSequence = Sequence("spaOn", 
                              [Cycle(self.pumpControl, duration=0, startState=pumpMax),
-                              Cycle(self.lightControl, duration=0, startState=on),
+                              Cycle(self.lightApp, duration=0, startState=on),
                               ])
         self.standbySequence = Sequence("spaStandby", 
                              [Cycle(self.pumpControl, duration=0, startState=pumpMed),
-                              Cycle(self.lightControl, duration=0, startState=off),
+                              Cycle(self.lightApp, duration=0, startState=off),
                               ])
         self.shutdownSequence = Sequence("spaShutdown", 
                              [Cycle(self.pumpControl, duration=0, startState=pumpMed),
                               Cycle(self.heaterControl, duration=0, startState=off),
                               Cycle(self.pumpControl, duration=0, startState=off, delay=60),
                               Cycle(self.valveControl, duration=0, startState=valvePool),
-                              Cycle(self.lightControl, duration=0, startState=off, delay=30)
+                              Cycle(self.lightApp, duration=0, startState=off, delay=30)
                               ])
 
     def getState(self):

@@ -2,7 +2,7 @@
 Description=Home Automation pool
 After=syslog.target
 [Service]
-ExecStart=/usr/bin/python /root/ha/poolControl.py
+ExecStart=/usr/bin/python /root/ha/poolApp.py
 Restart=on-abort
 [Install]
 WantedBy=multi-user.target
