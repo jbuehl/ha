@@ -18,10 +18,9 @@ from ha.notify import *
 
 if __name__ == "__main__":
     stateChangeEvent = threading.Event()
-    resourceLock = threading.Lock()
     debug('debugDoorbell', "watching", doorbellService+"/"+doorbellSensor)
     resources = Collection("resources")
-    restCache = RestProxy("restProxy", resources, watch=[doorbellService], event=stateChangeEvent, lock=resourceLock)
+    restCache = RestProxy("restProxy", resources, watch=[doorbellService], event=stateChangeEvent)
     restCache.start()
     # Wait for events
     lastState = 0

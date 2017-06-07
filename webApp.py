@@ -23,12 +23,11 @@ from ha.ui.webUI import *
 templates = None
 resources = None
 stateChangeEvent = threading.Event()
-resourceLock = threading.Lock()
 
 # default - dashboard                
 def index():
     debug('debugWeb', "/")
-    with resourceLock:
+    with resources.lock:
         widths = [1280, [[640, [180, 200, 260]], [640, [180, 200, 260]]]]
         timeGroup = ["Time", resources.getResList(["theDateDayOfWeek", "theTimeAmPm", "sunrise", "sunset"])]
         weatherGroup = ["Weather", resources.getResList(["deckTemp", "humidity", "barometer"])]
@@ -67,7 +66,7 @@ def details(group=None):
                   "Water", "Power", "Solar", "Inverters", "Optimizers", "Cameras", 
                   "Services", "Tasks"]
         details = True
-    with resourceLock:
+    with resources.lock:
         widths = [1280, [220, 160, 260, 120, 100, 120, 240, 60]]
         reply = templates.get_template("details.html").render(title=webPageTitle, script="", 
                             groupTemplate=templates.get_template("group.html"),
@@ -82,7 +81,7 @@ def details(group=None):
 # Solar   
 def solar():
     debug('debugWeb', "/solar", cherrypy.request.method)
-    with resourceLock:
+    with resources.lock:
         reply = templates.get_template("solar.html").render(script="",
                             dayOfWeek=resources.getRes("theDayOfWeek"),
                             date=resources.getRes("theDate"),
@@ -111,7 +110,7 @@ def solar():
 # iPad - 1024x768   
 def ipad():
     debug('debugWeb', "/ipad", cherrypy.request.method)
-    with resourceLock:
+    with resources.lock:
         widths = [[1024, [62, 58, 292, 200, 200, 200]], [1024, [[512, [180, 140, 192]], [512, [180, 140, 192]]]]]
         reply = templates.get_template("ipad.html").render(script="", 
                             groupTemplate=templates.get_template("group.html"),
@@ -137,7 +136,7 @@ def ipad():
 # iPhone 5 - 320x568    
 def iphone5():
     debug('debugWeb', "/iphone5", cherrypy.request.method)
-    with resourceLock:
+    with resources.lock:
         widths = [[320, [60, 100, 60]], [320, [120, 72, 128]]]
         reply = templates.get_template("iphone5.html").render(script="", 
                             groupTemplate=templates.get_template("group.html"),
@@ -158,7 +157,7 @@ def iphone5():
 # iPhone 3GS - 320x480    
 def iphone3gs():
     debug('debugWeb', "/iphone3gs", cherrypy.request.method)
-    with resourceLock:
+    with resources.lock:
         widths = [[320, [296, 24]], [320, [240, 80]], [320, [152, 168]]]
         reply = templates.get_template("iphone3gs.html").render(script="", 
                             groupTemplate=templates.get_template("group.html"),
@@ -206,13 +205,13 @@ if __name__ == "__main__":
 
     # start the cache to listen for services on other servers
     restIgnore.append(socket.gethostname()+":"+str(restPort))
-    restCache = RestProxy("restProxy", resources, ignore=restIgnore, event=stateChangeEvent, lock=resourceLock)
+    restCache = RestProxy("restProxy", resources, ignore=restIgnore, event=stateChangeEvent)
     restCache.start()
     
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
     templates = Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates')))
-    webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=webPort, 
+    webInit(resources, restCache, stateChangeEvent, httpPort=webPort, 
 #            ssl=True, httpsPort=webSSLPort, domain=webSSLDomain, 
             pathDict=pathDict, baseDir=baseDir, block=not runRestServer)
 

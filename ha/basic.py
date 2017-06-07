@@ -99,7 +99,6 @@ class Interface(Resource):
 # - load tree
 # - gets traverse tree
 # - delete collection
-# - lock
        
 class Collection(Resource, OrderedDict):
     objectArgs = ["resources"]

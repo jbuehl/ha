@@ -29,11 +29,10 @@ def validatePassword(realm, username, password):
     return False
         
 class WebRoot(object):
-    def __init__(self, resources, cache, stateChangeEvent, resourceLock, pathDict):
+    def __init__(self, resources, cache, stateChangeEvent, pathDict):
         self.resources = resources
         self.cache = cache
         self.stateChangeEvent = stateChangeEvent
-        self.resourceLock = resourceLock
         self.pathDict = pathDict
 
     # convert the path into a request parameter
@@ -143,7 +142,7 @@ class WebRoot(object):
         reply = ""
         return reply
 
-def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, ssl=False, httpsPort=443, domain="", pathDict=None, baseDir="/", block=False):
+def webInit(resources, restCache, stateChangeEvent, httpPort=80, ssl=False, httpsPort=443, domain="", pathDict=None, baseDir="/", block=False):
     # set up the web server
     appConfig = {
         '/css': {
@@ -182,7 +181,7 @@ def webInit(resources, restCache, stateChangeEvent, resourceLock, httpPort=80, s
         stateResource = ResourceStateSensor("states", Interface("None"), resources=resources, event=stateChangeEvent)
         resources.addRes(stateResource)
         
-    root = WebRoot(resources, restCache, stateChangeEvent, resourceLock, pathDict)
+    root = WebRoot(resources, restCache, stateChangeEvent, pathDict)
     cherrypy.tree.mount(root, "/", appConfig)
     cherrypy.server.unsubscribe()
     # http server for LAN access

@@ -21,7 +21,6 @@ class RestProxy(threading.Thread):
         self.name = name
         self.services = {}
         self.resources = resources
-        self.lock = lock
         self.event = event
         self.cacheTime = 0
         self.watch = watch
@@ -87,7 +86,7 @@ class RestProxy(threading.Thread):
         service.resourceNames = resources.keys()
         service.timeStamp = timeStamp
         service.interface.readStates()          # fill the cache for these resources
-        with self.lock:
+        with self.resources.lock:
             self.resources.addRes(service)
             self.resources.update(resources)
             del(resources)
@@ -149,7 +148,7 @@ class RestProxy(threading.Thread):
     # delete all the resources from the specified service from the cache
     def delResources(self, service):
         service.enabled = False
-        with self.lock:
+        with self.resources.lock:
             for resourceName in service.resourceNames:
                 self.resources.delRes(resourceName)
             self.resources.delRes(service.name)
