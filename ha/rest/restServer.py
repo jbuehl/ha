@@ -102,7 +102,8 @@ class RestRequestHandler(BaseHTTPRequestHandler):
             if resource:
                 self.send_response(200)     # success
                 if attr:    # determine the content type of the attribute of the resource
-                    data = resource.__getattribute__(attr)
+                    with self.server.resources.lock:
+                        data = resource.__getattribute__(attr)
                     try:                    # see if the content type is specified
                         contentType = data["contentType"]
                         data = data["data"]
