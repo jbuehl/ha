@@ -1,4 +1,6 @@
 spaTempTargetDefault = 100
+spaTempTargetMin = 85
+spaTempTargetMax = 102
 spaNotifyMsg = "Spa is ready"
 notifyFromNumber = ""
 spaReadyNotifyNumbers = []
@@ -45,7 +47,8 @@ if __name__ == "__main__":
     configInterface = FileInterface("configInterface", fileName=stateDir+"pool.state", event=stateChangeEvent)
     
     # persistent config data
-    spaTempTarget = Control("spaTempTarget", configInterface, "spaTempTarget", group="Pool", label="Spa temp set", type="tempFControl")
+    spaTempTarget = MinMaxControl("spaTempTarget", configInterface, "spaTempTarget", spaTempTargetMin, spaTempTargetMax, 
+                                group="Pool", label="Spa temp set", type="tempFControl")
     
     # Lights
     poolLight = Control("poolLight", gpioInterface0, 2, type="light", group="Lights", label="Pool light")

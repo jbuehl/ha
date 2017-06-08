@@ -231,7 +231,7 @@ class ResourceStateSensor(Sensor):
             time.sleep(stateChangeInterval)
         return self.getState()
 
-# control that can only be turned on if all the specified resources are in the specified states
+# Control that can only be turned on if all the specified resources are in the specified states
 class DependentControl(Control):
     def __init__(self, name, interface, control, resources, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
@@ -246,4 +246,24 @@ class DependentControl(Control):
             if sensor[0].getState() != sensor[1]:
                 return
         self.control.setState(state)
+
+# Control that has specified numeric limits on the values it can be set to
+class MinMaxControl(Control):
+    def __init__(self, name, interface, addr=None, minValue=0, maxValue=1, group="", type="control", location=None, view=None, label="", interrupt=None):
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+        self.className = "Control"
+        self.setMinMax(minValue, maxValue)
+
+    def setState(self, state, wait=False):
+        if state < self.minValue:
+            value = self.minValue
+        elif state > self.maxValue:
+            value = self.maxValue
+        else:
+            value = state
+        Control.setState(self, value)
+
+    def setMinMax(self, minValue, maxValue):
+        self.minValue = minValue
+        self.maxValue = maxValue    
 
