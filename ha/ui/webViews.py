@@ -32,17 +32,6 @@ def latFormat(value):
 def longFormat(value):
     return "%7.3f %s" % (abs(value), "E" if value > 0.0 else "W")
             
-def spaTempFormat(value):
-    temp = int(str(value).split(" ")[0])
-    try:
-        state = int(str(value).split(" ")[1])
-    except:
-        state = 0
-    if state == 0:
-        return "Off"
-    else:
-        return "%d F %s" % (temp, {0:"Off", 1:"Ready", 2:"Starting", 3:"Warming", 4:"Standby", 5:"Stopping"}[state])
-
 def hdgFormat(value):
     dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
     direction = dirs[int((value+11.25)%360/22.5)]
@@ -69,7 +58,6 @@ views = {"power": View({}, "%d W"),
          "door": View({0:"Closed", 1:"Open"}, "%s"),
          "shade": View({None:"", 0:"Up", 1:"Down", 2:"Raising", 3:"Lowering"}, "%s", None, {0:"Up", 1:"Down"}),
          "spa": View({0:"Off", 1:"On", 2:"Starting", 3:"Warming", 4:"Standby", 5:"Stopping"}, "%s", None, {0:"Off", 1:"On", 4:"Stby"}),
-         "spaTemp": View({}, "%s", spaTempFormat, {0:"Off", 1:"On"}),
          "poolValve": View({0:"Pool", 1:"Spa", 4:"Moving"}, "%s", None, {0:"Pool", 1:"Spa"}),
          "valveMode": View({0:"Pool", 1:"Spa", 2:"Drain", 3:"Fill", 4:"Moving"}, "%s", None, OrderedDict([(0,"Pool"), (1,"Spa"), (2,"Drain"), (3,"Fill")])),
          "pump": View({0:"Off", 1:"Lo", 2:"Med", 3:"Hi", 4:"Max"}, "%s", None, {0:"Off", 1:"Lo", 2:"Med", 3:"Hi", 4:"Max"}),

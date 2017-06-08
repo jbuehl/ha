@@ -8,15 +8,15 @@ restIgnore = []
 restPort = 7378
 insideTemp = "diningRoomTemp"
 outsideTemp = "deckTemp"
-poolTemp = "waterTemp"
+poolTemp = "poolTemp"
 
 import time
 from jinja2 import Environment, FileSystemLoader
 from ha import *
 from ha.interfaces.restInterface import *
+from ha.interfaces.timeInterface import *
 from ha.rest.restServer import *
 from ha.rest.restProxy import *
-from ha.interfaces.timeInterface import *
 from ha.ui.webUI import *
 
 # global variables
@@ -31,7 +31,8 @@ def index():
         widths = [1280, [[640, [180, 200, 260]], [640, [180, 200, 260]]]]
         timeGroup = ["Time", resources.getResList(["theDateDayOfWeek", "theTimeAmPm", "sunrise", "sunset"])]
         weatherGroup = ["Weather", resources.getResList(["deckTemp", "humidity", "barometer"])]
-        poolGroup = ["Pool", resources.getResList(["spaTemp", "poolPump", "poolPumpFlow", "spaFill", "spaFlush", "spaDrain", "filter", "clean", "flush"])]
+        poolGroup = ["Pool", resources.getResList(["poolPump", "poolPumpFlow", "spaFill", "spaFlush", "spaDrain", 
+                                                    "filterSequence", "cleanSequence", "flushSequence"])]
         lightsGroup = ["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLights", 
 #                                                       "xmasLights", "xmasTree",
                                                        "poolLight", "spaLight"])]
@@ -43,7 +44,11 @@ def index():
         reply = templates.get_template("dashboard.html").render(script="",
                             groupTemplate=templates.get_template("group.html"),
                             resourceTemplate=templates.get_template("resource.html"),
+                            spaTempTemplate=templates.get_template("spaTemp.html"),
                             widths=widths,
+                            spa=resources.getRes("spa"),
+                            spaTemp=resources.getRes("spaTemp"),
+                            spaTempTarget=resources.getRes("spaTempTarget"),
                             timeGroup=timeGroup,
                             weatherGroup=weatherGroup,
                             poolGroup=poolGroup,
@@ -115,6 +120,7 @@ def ipad():
         reply = templates.get_template("ipad.html").render(script="", 
                             groupTemplate=templates.get_template("group.html"),
                             resourceTemplate=templates.get_template("resource.html"),
+                            spaTempTemplate=templates.get_template("spaTemp.html"),
                             widths=widths,
                             time=resources.getRes("theTime"),
                             ampm=resources.getRes("theAmPm"),
@@ -122,7 +128,9 @@ def ipad():
                             pooltemp=resources.getRes(poolTemp),
                             intemp=resources.getRes(insideTemp),
                             outtemp=resources.getRes(outsideTemp),
-                            poolGroup=["Pool", resources.getResList(["spaTemp"])], 
+                            spa=resources.getRes("spa"),
+                            spaTemp=resources.getRes("spaTemp"),
+                            spaTempTarget=resources.getRes("spaTempTarget"),
                             lightsGroup=["Lights", resources.getResList(["porchLights", "poolLight", "spaLight"])], 
 #                           xmasGroup=["Lights", resources.getResList(["porchLights", "xmasLights", "xmasTree"])], 
 #                                      ["Lights", resources.getResList(["bbqLights", "backYardLights"])], 
@@ -141,12 +149,15 @@ def iphone5():
         reply = templates.get_template("iphone5.html").render(script="", 
                             groupTemplate=templates.get_template("group.html"),
                             resourceTemplate=templates.get_template("resource.html"),
+                            spaTempTemplate=templates.get_template("spaTemp.html"),
                             widths=widths,
                             time=resources.getRes("theTime"),
                             ampm=resources.getRes("theAmPm"),
                             temp=resources.getRes(outsideTemp),
-                            resources=resources.getResList(["spaTemp",
-                                                            "porchLights", 
+                            spa=resources.getRes("spa"),
+                            spaTemp=resources.getRes("spaTemp"),
+                            spaTempTarget=resources.getRes("spaTempTarget"),
+                            resources=resources.getResList(["porchLights", 
 #                                                            "xmasLights", "xmasTree",
                                                             "shade1", "shade2", "shade3", "shade4", 
                                                             "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence",

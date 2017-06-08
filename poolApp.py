@@ -45,7 +45,7 @@ if __name__ == "__main__":
     configInterface = FileInterface("configInterface", fileName=stateDir+"pool.state", event=stateChangeEvent)
     
     # persistent config data
-    spaTempTarget = Control("spaTempTarget", configInterface, "spaTempTarget", group="Pool", label="Spa temp target", type="tempFControl")
+    spaTempTarget = Control("spaTempTarget", configInterface, "spaTempTarget", group="Pool", label="Spa temp set", type="tempFControl")
     
     # Lights
     poolLight = Control("poolLight", gpioInterface0, 2, type="light", group="Lights", label="Pool light")
@@ -54,6 +54,8 @@ if __name__ == "__main__":
 
     # Temperature
     waterTemp = Sensor("waterTemp", analogTempInterface, 0, "Temperature",label="Water temp", type="tempF")
+    poolTemp = Sensor("poolTemp", analogTempInterface, 0, "Temperature",label="Pool temp", type="tempF")
+    spaTemp = Sensor("spaTemp", analogTempInterface, 0, "Temperature",label="Spa temp", type="tempF")
     poolEquipTemp = Sensor("poolEquipTemp", analogTempInterface, 1, "Temperature",label="Pool equipment temp", type="tempF")
 
     # Pool
@@ -67,8 +69,8 @@ if __name__ == "__main__":
     spaFlush = ControlGroup("spaFlush", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 3]], stateMode=True, group="Pool", label="Spa flush")
     spaDrain = ControlGroup("spaDrain", [intakeValve, returnValve, poolPump], stateList=[[0, 1], [0, 0], [0, 4]], stateMode=True, group="Pool", label="Spa drain")
     poolClean = ControlGroup("poolClean", [poolCleaner, poolPump], stateList=[[0, 1], [0, 3]], stateMode=True, group="Pool", label="Pool clean")
-    heater = Control("heater", gpioInterface1, 2, group="Pool", label="Heater", type="heater")
-    spaHeater = TempControl("spaHeater", nullInterface, heater, waterTemp, spaTempTarget, group="Pool", label="Heater", type="tempControl")
+    poolHeater = Control("poolHeater", gpioInterface1, 2, group="Pool", label="Pool heater")
+    heaterControl = TempControl("heaterControl", nullInterface, poolHeater, spaTemp, spaTempTarget, group="Pool", label="Heater control", type="tempControl")
     spaBlower = Control("spaBlower", gpioInterface0, 1, group="Pool", label="Blower")
     
     poolPumpSpeed = Sensor("poolPumpSpeed", pentairInterface, 1, group="Pool", label="Pump speed", type="pumpSpeed")
@@ -78,8 +80,7 @@ if __name__ == "__main__":
     sunUp = Sensor("sunUp", timeInterface, "sunUp")
     # spa light control that will only turn on if the sun is down
     spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(sunUp, 0)])
-    spa = SpaControl("spa", nullInterface, valveMode, poolPump, spaHeater, spaLightNight, waterTemp, group="Pool", label="Spa", type="spa")
-    spaTempState = SpaTempControl("spaTempState", nullInterface, spa, waterTemp, group="Pool", label="Spa", type="spaTemp")
+    spa = SpaControl("spa", nullInterface, valveMode, poolPump, heaterControl, spaLightNight, waterTemp, group="Pool", label="Spa", type="spa")
     # spa light control that will only turn on if the sun is down and the spa is on
     spaLightNightSpa = DependentControl("spaLightNightSpa", nullInterface, spaLightNight, [(spa, 1)])
     
@@ -108,11 +109,11 @@ if __name__ == "__main__":
 
     # Resources
     resources = Collection("resources", [poolLight, spaLight, poolLights,
-                                        waterTemp, poolEquipTemp, 
+                                        waterTemp, poolTemp, spaTemp, poolEquipTemp, 
                                         poolPump, poolCleaner, poolClean, intakeValve, returnValve, 
-                                        valveMode, spaFill, spaFlush, spaDrain, spaHeater, spaBlower, 
+                                        valveMode, spaFill, spaFlush, spaDrain, poolHeater, spaBlower, 
                                         poolPumpSpeed, poolPumpFlow,
-                                        spa, spaTempState, spaTempTarget,
+                                        spa, spaTempTarget, heaterControl,
                                         filterSequence, cleanSequence, flushSequence,
                                         poolPumpPower, poolCleanerPower, spaBlowerPower, poolLightPower, spaLightPower,
                                         ])

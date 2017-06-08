@@ -1,0 +1,34 @@
+    <!-- spa - the spa control -->
+    <!-- spaTemp - the spa temp sensor -->
+
+    <br>
+    <table border=0 width={{ widths[0] }} style='table-layout:fixed'>
+        <col width={{ widths[1][0]/2 }}><col width={{ widths[1][0]/2 }}>
+        {% for w in widths[1][1:] %}
+        <col width={{ w }}>
+        {% endfor %}
+        <tr>
+        <td><div class=label>{{ spa.label }}</div></td>
+        <td><div id="{{ spaTemp.name }}" class="{{ spaTemp.type+'_'+spaTemp.getViewState(views) }}">{{ spaTemp.getViewState(views) }}</div></td>
+        <td><div id="{{ spa.name }}" class="{{ spa.type+'_'+spa.getViewState(views) }}">{{ spa.getViewState(views) }}</div></td>
+        <td>
+            <div class=control>
+            <form name='control' action='' method='get'>
+                <input type='hidden' name='resource' value='{{ spa.name }}' />
+                {% for value in spa.setValues(views).values()[:-1] %}
+                <input type='submit' class='button' name='action' value='{{ value }}' />
+                {% endfor %}
+            </form>
+            </div>
+        </td>
+        </tr>
+    </table>
+    <table border=0 width={{ widths[0] }} style='table-layout:fixed'>
+        {% for w in widths[1] %}
+        <col width={{ w }}>
+        {% endfor %}
+        <tr>
+            {{ resourceTemplate.render(resource=spaTempTarget, views=views, details=False, label=True) }}
+        </tr>
+    </table>
+

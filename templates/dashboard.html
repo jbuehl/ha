@@ -19,6 +19,7 @@
                 {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=weatherGroup, details=False, name=True, link=True, label=True, views=views) }}
                 {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=lightsGroup, details=False, name=True, link=True, label=True, views=views) }}
                 {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=poolGroup, details=False, name=True, link=True, label=True, views=views) }}
+                {{ spaTempTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, views=views) }}
             </td>
             <td>
                 {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1], group=shadesGroup, details=False, name=True, link=True, label=True, views=views) }}

@@ -154,18 +154,4 @@ class SpaEventThread(threading.Thread):
                 return
         self.actionFunction(self.actionValue)
         debug('debugThread', self.name, "finished")
-
-# spa control whose state value includes the temperature
-class SpaTempControl(Control):
-    def __init__(self, name, interface, spaControl, tempSensor, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
-        self.className = "Control"
-        self.spaControl = spaControl
-        self.tempSensor = tempSensor
-
-    def getState(self):
-        return "%d %d"%(self.tempSensor.getState(), self.spaControl.getState())
-
-    def setState(self, state):
-        self.spaControl.setState(state)
         

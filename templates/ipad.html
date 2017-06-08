@@ -34,7 +34,7 @@
                 {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][0], group=hvacGroup, details=False, name=False, label=True, views=views) }}
             </td>
             <td>
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][1], group=poolGroup, details=False, name=False, label=True, views=views) }}
+                {{ spaTempTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][1], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, views=views) }}
                 {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][1], group=sprinklersGroup, details=False, name=False, label=True, views=views) }}
             </td>
         </tr>
