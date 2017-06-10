@@ -1,0 +1,26 @@
+    <!-- poolPumpControl - the pool pump control -->
+    <!-- poolPumpFlowSensor - the pool pump flow sensor -->
+    <!-- nSetValues - number of setValues to display -->
+
+    <table border=0 width={{ widths[0] }} style='table-layout:fixed'>
+        <col width={{ (widths[1][0]/2)-2 }}><col width={{ widths[1][0]/2 }}>
+        {% for w in widths[1][1:] %}
+        <col width={{ w }}>
+        {% endfor %}
+        <tr>
+        <td><div class=label>{{ poolPumpControl.label }}</div></td>
+        <td><div id="{{ poolPumpFlowSensor.name }}" class="{{ poolPumpFlowSensor.type+'_'+poolPumpFlowSensor.getViewState(views) }}">{{ poolPumpFlowSensor.getViewState(views) }}</div></td>
+        <td><div id="{{ poolPumpControl.name }}" class="{{ poolPumpControl.type+'_'+poolPumpControl.getViewState(views) }}">{{ poolPumpControl.getViewState(views) }}</div></td>
+        <td>
+            <div class=control>
+            <form name='control' action='' method='get'>
+                <input type='hidden' name='resource' value='{{ poolPumpControl.name }}' />
+                {% for value in poolPumpControl.setValues(views).values()[:nSetValues] %}
+                <input type='submit' class='button' name='action' value='{{ value }}' />
+                {% endfor %}
+            </form>
+            </div>
+        </td>
+        </tr>
+    </table>
+

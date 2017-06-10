@@ -31,7 +31,7 @@ def index():
         widths = [1280, [[640, [180, 200, 260]], [640, [180, 200, 260]]]]
         timeGroup = ["Time", resources.getResList(["theDateDayOfWeek", "theTimeAmPm", "sunrise", "sunset"])]
         weatherGroup = ["Weather", resources.getResList(["deckTemp", "humidity", "barometer"])]
-        poolGroup = ["Pool", resources.getResList(["poolPump", "poolPumpFlow", "spaFill", "spaFlush", "spaDrain", 
+        poolGroup = ["Pool", resources.getResList(["spaFill", "spaFlush", "spaDrain", 
                                                     "filterSequence", "cleanSequence", "flushSequence"])]
         lightsGroup = ["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLights", 
 #                                                       "xmasLights", "xmasTree",
@@ -45,10 +45,13 @@ def index():
                             groupTemplate=templates.get_template("group.html"),
                             resourceTemplate=templates.get_template("resource.html"),
                             spaTempTemplate=templates.get_template("spaTemp.html"),
+                            poolPumpControlTemplate=templates.get_template("poolPumpControl.html"),
                             widths=widths,
                             spa=resources.getRes("spa"),
                             spaTemp=resources.getRes("spaTemp"),
                             spaTempTarget=resources.getRes("spaTempTarget"),
+                            poolPumpControl=resources.getRes("poolPump"),
+                            poolPumpFlowSensor=resources.getRes("poolPumpFlow"),
                             timeGroup=timeGroup,
                             weatherGroup=weatherGroup,
                             poolGroup=poolGroup,
@@ -150,6 +153,7 @@ def iphone5():
                             groupTemplate=templates.get_template("group.html"),
                             resourceTemplate=templates.get_template("resource.html"),
                             spaTempTemplate=templates.get_template("spaTemp.html"),
+                            poolPumpControlTemplate=templates.get_template("poolPumpControl.html"),
                             widths=widths,
                             time=resources.getRes("theTime"),
                             ampm=resources.getRes("theAmPm"),
@@ -157,11 +161,13 @@ def iphone5():
                             spa=resources.getRes("spa"),
                             spaTemp=resources.getRes("spaTemp"),
                             spaTempTarget=resources.getRes("spaTempTarget"),
+                            poolPumpControl=resources.getRes("poolPump"),
+                            poolPumpFlowSensor=resources.getRes("poolPumpFlow"),
                             resources=resources.getResList(["porchLights", 
 #                                                            "xmasLights", "xmasTree",
                                                             "shade1", "shade2", "shade3", "shade4", 
-                                                            "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence",
-                                                            "poolPump"]),
+                                                            "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"
+                                                            ]),
                             views=views)
     return reply
 
