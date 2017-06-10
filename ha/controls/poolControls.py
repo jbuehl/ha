@@ -6,20 +6,21 @@ spaReadyNotifyApp = ""
 from ha import *
 from ha.notify import *
 
-# state values
-
+# pump speed
 pumpLo = 1
 pumpMed = 2
 pumpHi = 3
 pumpMax = 4
 
+# spa states
 spaOff = 0
-spaOn = 1
-spaStarting = 2
-spaWarming = 3
-spaStandby = 4
-spaStopping = 5
+spaOn = 1           # pump max, heater enabled, light on
+spaStarting = 2     # valves moving, pump starting, heater starting
+spaWarming = 3      # pump reduced speed, heater on
+spaStandby = 4      # pump reduced speed, heater enabled, light off
+spaStopping = 5     # pump reduced speed, heater off
 
+# valve positions
 valvePool = 0
 valveSpa = 1
 valveMoving = 4
