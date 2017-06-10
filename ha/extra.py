@@ -18,6 +18,12 @@ class Cycle(object):
         return self.control.name+" "+self.duration.__str__()+" "+self.delay.__str__()+" "+self.startState.__str__()+" "+self.endState.__str__()
                             
 # a Sequence is a Control that consists of a list of Cycles that are run in the specified order
+
+sequenceStop = 0
+sequenceStart = 1
+sequenceStopped = 0
+sequenceRunning = 1
+
 class Sequence(Control):
     objectArgs = ["interface", "event", "cycleList"]
     def __init__(self, name, cycleList=[], addr=None, interface=None, event=None, group="", type="sequence", view=None, label="", location=None):

@@ -20,11 +20,6 @@ spaWarming = 3
 spaStandby = 4
 spaStopping = 5
 
-seqStop = 0
-seqStart = 1
-seqStopped = 0
-seqRunning = 1
-
 valvePool = 0
 valveSpa = 1
 valveMoving = 4
@@ -104,54 +99,66 @@ class SpaControl(Control):
     def stateTransition(self, state, endState=None):
         debug('debugState', self.name, "stateTransition ", state, endState)
         if state == spaOn:
-            self.onSequence.setState(seqStart, wait=True)
+            self.onSequence.setState(sequenceStart, wait=True)
         elif state == spaStandby:
-            self.standbySequence.setState(seqStart, wait=True)
+            self.standbySequence.setState(sequenceStart, wait=True)
         elif state == spaStarting:
-            self.startupSequence.setState(seqStart, wait=False)
-            self.startEventThread("spaStarting", self.startupSequence.getState, seqStopped, self.spaStarted, endState)
+            self.startupSequence.setState(sequenceStart, wait=False)
+            self.startEventThread("spaStarting", self.startupSequence.getState, sequenceStopped, self.spaStarted, endState)
         elif state == spaStopping:
-            self.shutdownSequence.setState(seqStart, wait=False)
-            self.startEventThread("spaStopping", self.shutdownSequence.getState, seqStopped, self.stateTransition, spaOff)
+            self.shutdownSequence.setState(sequenceStart, wait=False)
+            self.startEventThread("spaStopping", self.shutdownSequence.getState, sequenceStopped, self.stateTransition, spaOff)
         self.currentState = state
 
     # called when startup sequence is complete
     def spaStarted(self, endState):
         debug('debugState', self.name, "spaStarted ", endState)
         self.stateTransition(spaWarming)
-        self.startEventThread("spaWarming", self.tempSensor.getState, self.tempTargetControl.getState(), self.spaReady, endState)
+        self.startEventThread("spaWarming", self.heaterControl.unitControl.getState, Off, self.spaReady, endState, self.heaterControl.unitControl.getState, On)
 
     # called when target temperature is reached        
     def spaReady(self, state):
         debug('debugState', self.name, "spaReady ", state)
         self.stateTransition(state)
-        smsNotify(spaReadyNotifyNumbers, spaNotifyMsg)
-        iosNotify(spaReadyNotifyApp, spaNotifyMsg)
+        if spaReadyNotifyNumbers != []:
+            smsNotify(spaReadyNotifyNumbers, spaNotifyMsg)
+        if spaReadyNotifyApp != "":
+            iosNotify(spaReadyNotifyApp, spaNotifyMsg)
 
     # start an event thread
-    def startEventThread(self, name, checkFunction, checkValue, actionFunction, actionValue):
+    def startEventThread(self, name, checkFunction, checkValue, actionFunction, actionValue, waitFunction=None, waitValue=0):
         if self.eventThread:
             self.eventThread.cancel()
             self.eventThread = None
-        self.eventThread = SpaEventThread(name, checkFunction, checkValue, actionFunction, actionValue)
+        self.eventThread = SpaEventThread(name, checkFunction, checkValue, actionFunction, actionValue, waitFunction, waitValue)
         self.eventThread.start()
             
 # A thread to wait for the state of the specified sensor to reach the specified value
-# then call the specified action function with the specified action value
+# then call the specified action function with the specified action value.
+# Optionally, first wait for the state of a third function to reach a specified value.
 class SpaEventThread(threading.Thread):
-    def __init__(self, name, checkFunction, checkValue, actionFunction, actionValue):
+    def __init__(self, name, checkFunction, checkValue, actionFunction, actionValue, waitFunction=None, waitValue=0):
         threading.Thread.__init__(self, target=self.asyncEvent)
         self.name = name
         self.checkFunction = checkFunction
         self.checkValue = checkValue
         self.actionFunction = actionFunction
         self.actionValue = actionValue
+        self.waitFunction = waitFunction
+        self.waitValue = waitValue
         self.cancelled = False
 
     def cancel(self):
         self.cancelled = True
         
     def asyncEvent(self):
+        if self.waitFunction:
+            debug('debugThread', self.name, "waiting")
+            while self.waitFunction() != self.waitValue:
+                time.sleep(1)
+                if self.cancelled:
+                    debug('debugThread', self.name, "cancelled")
+                    return
         debug('debugThread', self.name, "started")
         while self.checkFunction() != self.checkValue:
             time.sleep(1)
