@@ -13,7 +13,7 @@ from ha import *
 class TempControl(Control):
     objectArgs = ["interface", "event"]
     def __init__(self, name, interface, unitControl, tempSensor, 
-                tempTargetControl=None, unitType=0, hysteresis=1, 
+                tempTargetControl=None, unitType=0, hysteresis=[1, 1], 
                 addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.className = "Control"
@@ -22,7 +22,7 @@ class TempControl(Control):
         self.tempTargetControl = tempTargetControl  # the control that sets the temp target
         self.tempTarget = 0                         # current temp target value
         self.unitType = unitType                    # type of unit: 0=heater, 1=cooler
-        self.hysteresis = hysteresis                # how much to overshoot or undershoot the temp target
+        self.hysteresis = hysteresis                # how much to overshoot or undershoot the temp target [-low, +high]
         self.controlState = off                     # state of this control
         self.inhibited = False                      # this control is inhibited
         
@@ -43,16 +43,16 @@ class TempControl(Control):
                         self.tempTarget = self.tempTargetControl.getState()
                     debug('debugTempControlTemp', self.name, "currentTemp:", currentTemp, "targetTemp:", self.tempTarget, "inhibit:", self.inhibited)
                     if self.inhibited or \
-                        ((self.unitType == unitTypeHeater) and (currentTemp >= self.tempTarget + self.hysteresis)) or \
-                        ((self.unitType == unitTypeAc) and (currentTemp <= self.tempTarget - self.hysteresis)):
+                        ((self.unitType == unitTypeHeater) and (currentTemp >= self.tempTarget + self.hysteresis[1])) or \
+                        ((self.unitType == unitTypeAc) and (currentTemp <= self.tempTarget - self.hysteresis[0])):
                         # unit is inhibited or the target temp has been reached
                         if self.unitControl.getState() != off:
                             # turn the unit off
                             self.unitControl.setState(off)
                             debug('debugTempControl', self.name, "unit off")
                     elif not self.inhibited and \
-                        (((self.unitType == unitTypeHeater) and (currentTemp <= self.tempTarget - self.hysteresis)) or \
-                        ((self.unitType == unitTypeAc) and (currentTemp >= self.tempTarget + self.hysteresis))):
+                        (((self.unitType == unitTypeHeater) and (currentTemp <= self.tempTarget - self.hysteresis[0])) or \
+                        ((self.unitType == unitTypeAc) and (currentTemp >= self.tempTarget + self.hysteresis[1]))):
                         # unit is not inhibited and the temp is sufficiently off target
                         if self.unitControl.getState() != on:
                             # turn the unit on
@@ -61,6 +61,10 @@ class TempControl(Control):
                     else:
                         # do nothing
                         pass
+            if self.unitControl.getState() != off:
+                # turn the unit off
+                self.unitControl.setState(off)
+                debug('debugTempControl', self.name, "unit off")
             debug('debugTempControl', self.name, "tempWatch terminated")
         self.controlState = state
         if self.controlState == enabled:      # start the monitor thread when state set to enabled
@@ -68,7 +72,7 @@ class TempControl(Control):
             tempWatchThread.start()
         self.notify()
 
-    def setTarget(self, tempTarget, hysteresis=1, wait=False):
+    def setTarget(self, tempTarget, hysteresis=[1, 1], wait=False):
         debug('debugTempControl', self.name, "setTarget ", tempTarget, hysteresis)
         self.tempTarget = tempTarget
         self.hysteresis = hysteresis

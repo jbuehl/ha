@@ -43,7 +43,7 @@ class SpaControl(Control):
         self.startupSequence = Sequence("spaStartup", 
                              [Cycle(self.valveControl, duration=0, startState=valveSpa),
                               Cycle(self.pumpControl, duration=0, startState=pumpMed, delay=30),
-                              Cycle(self.heaterControl, duration=0, startState=on, delay=30)
+                              Cycle(self.heaterControl, duration=0, startState=on, delay=10)
                               ])
         self.onSequence = Sequence("spaOn", 
                              [Cycle(self.pumpControl, duration=0, startState=pumpMax),

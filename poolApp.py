@@ -73,7 +73,7 @@ if __name__ == "__main__":
     spaDrain = ControlGroup("spaDrain", [intakeValve, returnValve, poolPump], stateList=[[0, 1], [0, 0], [0, 4]], stateMode=True, group="Pool", label="Spa drain")
     poolClean = ControlGroup("poolClean", [poolCleaner, poolPump], stateList=[[0, 1], [0, 3]], stateMode=True, group="Pool", label="Pool clean")
     poolHeater = Control("poolHeater", gpioInterface1, 2, group="Pool", label="Pool heater")
-    heaterControl = TempControl("heaterControl", nullInterface, poolHeater, spaTemp, spaTempTarget, group="Pool", label="Heater control", type="tempControl")
+    heaterControl = TempControl("heaterControl", nullInterface, poolHeater, spaTemp, spaTempTarget, hysteresis=[1, 0], group="Pool", label="Heater control", type="tempControl")
     spaBlower = Control("spaBlower", gpioInterface0, 1, group="Pool", label="Spa blower")
     
     poolPumpSpeed = Sensor("poolPumpSpeed", pentairInterface, 1, group="Pool", label="Pump speed", type="pumpSpeed")
