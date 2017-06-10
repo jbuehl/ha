@@ -138,23 +138,23 @@ if __name__ == "__main__":
 
     # Devices
     for inverter in inverters.keys():
-        resources.addRes(InverterPowerSensor(inverter, fileInterface, group="Inverters", type="KW", label="Inverter "+inverter, location=inverters[inverter]))
-        resources.addRes(InverterEnergySensor(inverter+"-E", fileInterface, group="InvertersEnergy", type="KWh", label="Inverter "+inverter+" energy", location=inverters[inverter]))
+        resources.addRes(InverterPowerSensor(inverter, fileInterface, group=["Solar", "Inverters"], type="KW", label="Inverter "+inverter, location=inverters[inverter]))
+        resources.addRes(InverterEnergySensor(inverter+"-E", fileInterface, group=["Solar", "InvertersEnergy"], type="KWh", label="Inverter "+inverter+" energy", location=inverters[inverter]))
     for optimizer in optimizers.keys():
-        resources.addRes(OptimizerPowerSensor(optimizer, fileInterface, group="Optimizers", type="W", label="Optimizer "+optimizer, location=optimizers[optimizer]))
-        resources.addRes(OptimizerEnergySensor(optimizer+"-E", fileInterface, group="OptimizersEnergy", type="KWh", label="Optimizer "+optimizer+" energy", location=optimizers[optimizer]))
+        resources.addRes(OptimizerPowerSensor(optimizer, fileInterface, group=["Solar", "Optimizers"], type="W", label="Optimizer "+optimizer, location=optimizers[optimizer]))
+        resources.addRes(OptimizerEnergySensor(optimizer+"-E", fileInterface, group=["Solar", "OptimizersEnergy"], type="KWh", label="Optimizer "+optimizer+" energy", location=optimizers[optimizer]))
         
     # Temperature
-    resources.addRes(Sensor("inverterTemp", solarInterface, ("inverters", "avg", "Temp"), group="Temperature", label="Inverter temp", type="tempC"))
-    resources.addRes(Sensor("roofTemp", solarInterface, ("optimizers", "avg", "Temp"), group="Temperature", label="Roof temp", type="tempC"))
+    resources.addRes(Sensor("inverterTemp", solarInterface, ("inverters", "avg", "Temp"), group=["Solar", "Temperature"], label="Inverter temp", type="tempC"))
+    resources.addRes(Sensor("roofTemp", solarInterface, ("optimizers", "avg", "Temp"), group=["Solar", "Temperature"], label="Roof temp", type="tempC"))
 
     # Solar
-    resources.addRes(Sensor("currentVoltage", solarInterface, ("inverters", "avg", "Vac"), group="Solar", label="Current voltage", type="V"))
-    resources.addRes(Sensor("currentPower", solarInterface, ("inverters", "sum", "Pac"), group="Solar", label="Current power", type="KW"))
-    resources.addRes(Sensor("todaysEnergy", solarInterface, ("inverters", "sum", "Eday"), group="Solar", label="Energy today", type="KWh"))
-#    resources.addRes(Sensor("monthlyEnergy", solarInterface, ("stats", "", "Emonth"), group="Solar", label="Energy this month", type="KWh"))
-#    resources.addRes(Sensor("yearlyEnergy", solarInterface, ("stats", "", "Eyear"), group="Solar", label="Energy this year", type="MWh"))
-    resources.addRes(Sensor("lifetimeEnergy", solarInterface, ("inverters", "sum", "Etot"), group="Solar", label="Lifetime energy", type="MWh"))
+    resources.addRes(Sensor("currentVoltage", solarInterface, ("inverters", "avg", "Vac"), group=["Solar", "Power"], label="Current voltage", type="V"))
+    resources.addRes(Sensor("currentPower", solarInterface, ("inverters", "sum", "Pac"), group=["Solar", "Power"], label="Current power", type="KW"))
+    resources.addRes(Sensor("todaysEnergy", solarInterface, ("inverters", "sum", "Eday"), group=["Solar", "Power"], label="Energy today", type="KWh"))
+#    resources.addRes(Sensor("monthlyEnergy", solarInterface, ("stats", "", "Emonth"), group=["Solar", "Power"], label="Energy this month", type="KWh"))
+#    resources.addRes(Sensor("yearlyEnergy", solarInterface, ("stats", "", "Eyear"), group=["Solar", "Power"], label="Energy this year", type="MWh"))
+    resources.addRes(Sensor("lifetimeEnergy", solarInterface, ("inverters", "sum", "Etot"), group=["Solar", "Power"], label="Lifetime energy", type="MWh"))
 
     # Start interfaces
     fileInterface.start()

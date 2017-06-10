@@ -11,18 +11,18 @@ if __name__ == "__main__":
     gpioInterface = GPIOInterface("gpio", i2c1, addr=0x20, bank=1)
 
     # Sprinklers
-    frontLawn = Control("frontLawn", gpioInterface, 4, group="Water", label="Front lawn valve") # yellow
-    garden = Control("garden", gpioInterface, 5, group="Water", label="Garden valve") # red
-    backLawn = Control("backLawn", gpioInterface, 6, group="Water", label="Back lawn valve") # green
-    sideBeds = Control("sideBeds", gpioInterface, 3, group="Water", label="Side beds valve") # red
-    backBeds = Control("backBeds", gpioInterface, 7, group="Water", label="Back beds valve") # blue
+    frontLawn = Control("frontLawn", gpioInterface, 4, group="Sprinklers", label="Front lawn valve") # yellow
+    garden = Control("garden", gpioInterface, 5, group="Sprinklers", label="Garden valve") # red
+    backLawn = Control("backLawn", gpioInterface, 6, group="Sprinklers", label="Back lawn valve") # green
+    sideBeds = Control("sideBeds", gpioInterface, 3, group="Sprinklers", label="Side beds valve") # red
+    backBeds = Control("backBeds", gpioInterface, 7, group="Sprinklers", label="Back beds valve") # blue
 
     # Sequences
-    frontLawnSequence = Sequence("frontLawnSequence", [Cycle(frontLawn, 1200)], group="Water", label="Front lawn")
-    gardenSequence = Sequence("gardenSequence", [Cycle(garden, 600)], group="Water", label="Garden")
-    backLawnSequence = Sequence("backLawnSequence", [Cycle(backLawn, 1200)], group="Water", label="Back lawn")
-    sideBedSequence = Sequence("sideBedSequence", [Cycle(sideBeds, 600)], group="Water", label="Side beds")
-    backBedSequence = Sequence("backBedSequence", [Cycle(backBeds, 600)], group="Water", label="Back beds")
+    frontLawnSequence = Sequence("frontLawnSequence", [Cycle(frontLawn, 1200)], group="Sprinklers", label="Front lawn")
+    gardenSequence = Sequence("gardenSequence", [Cycle(garden, 600)], group="Sprinklers", label="Garden")
+    backLawnSequence = Sequence("backLawnSequence", [Cycle(backLawn, 1200)], group="Sprinklers", label="Back lawn")
+    sideBedSequence = Sequence("sideBedSequence", [Cycle(sideBeds, 600)], group="Sprinklers", label="Side beds")
+    backBedSequence = Sequence("backBedSequence", [Cycle(backBeds, 600)], group="Sprinklers", label="Back beds")
 
     # Schedules
     frontLawnTask = Task("frontLawnTask", SchedTime(hour=[21], minute=[00], weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), frontLawnSequence, 1, enabled=True)

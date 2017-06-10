@@ -49,17 +49,17 @@ if __name__ == "__main__":
                                 group="Pool", label="Spa temp set", type="tempFControl")
     
     # Lights
-    poolLight = Control("poolLight", gpioInterface0, 2, type="light", group="Lights", label="Pool light")
-    spaLight = Control("spaLight", gpioInterface0, 3, type="light", group="Lights", label="Spa light")
-    poolLights = ControlGroup("poolLights", [poolLight, spaLight], type="light", group="Lights", label="Pool and spa")
+    poolLight = Control("poolLight", gpioInterface0, 2, type="light", group=["Pool", "Lights"], label="Pool light")
+    spaLight = Control("spaLight", gpioInterface0, 3, type="light", group=["Pool", "Lights"], label="Spa light")
+    poolLights = ControlGroup("poolLights", [poolLight, spaLight], type="light", group=["Pool", "Lights"], label="Pool and spa")
 
     # Temperature
-    waterTemp = Sensor("waterTemp", analogTempInterface, 0, "Temperature", label="Water temp", type="tempF")
-    poolTemp = Sensor("poolTemp", owfsInterface, "28.B9CA5F070000", "Temperature", label="Pool temp", type="tempF")
-    spaTemp = Sensor("spaTemp", owfsInterface, "28.556E5F070000", "Temperature", label="Spa temp", type="tempF")
-#    poolTemp = Sensor("poolTemp", analogTempInterface, 0, "Temperature", label="Pool temp", type="tempF")
-#    spaTemp = Sensor("spaTemp", analogTempInterface, 0, "Temperature", label="Spa temp", type="tempF")
-    poolEquipTemp = Sensor("poolEquipTemp", analogTempInterface, 1, "Temperature",label="Pool equipment temp", type="tempF")
+    waterTemp = Sensor("waterTemp", analogTempInterface, 0, group=["Pool", "Temperature"], label="Water temp", type="tempF")
+    poolTemp = Sensor("poolTemp", owfsInterface, "28.B9CA5F070000", group=["Pool", "Temperature"], label="Pool temp", type="tempF")
+    spaTemp = Sensor("spaTemp", owfsInterface, "28.556E5F070000", group=["Pool", "Temperature"], label="Spa temp", type="tempF")
+#    poolTemp = Sensor("poolTemp", analogTempInterface, 0, group=["Pool", "Temperature"], label="Pool temp", type="tempF")
+#    spaTemp = Sensor("spaTemp", analogTempInterface, 0, group=["Pool", "Temperature"], label="Spa temp", type="tempF")
+    poolEquipTemp = Sensor("poolEquipTemp", analogTempInterface, 1, group=["Pool", "Temperature"], label="Pool equipment temp", type="tempF")
 
     # Pool
     poolPump = Control("poolPump", pentairInterface, 0, group="Pool", label="Pump", type="pump")
@@ -95,11 +95,11 @@ if __name__ == "__main__":
                                               ], group="Pool", label="Flush spa 15 min")
 
     # Power
-    poolPumpPower = Sensor("poolPumpPower", pentairInterface, 2, type="power", group="Power", label="Pool pump")
-    poolCleanerPower = Sensor("poolCleanerPower", powerInterface, poolCleaner, type="power", group="Power", label="Pool cleaner")
-    spaBlowerPower = Sensor("spaBlowerPower", powerInterface, spaBlower, type="power", group="Power", label="Spa blower")
-    poolLightPower = Sensor("poolLightPower", powerInterface, poolLight, type="power", group="Power", label="Pool light")
-    spaLightPower = Sensor("spaLightPower", powerInterface, spaLight, type="power", group="Power", label="Spa light")
+    poolPumpPower = Sensor("poolPumpPower", pentairInterface, 2, type="power", group=["Pool", "Power", "Loads"], label="Pool pump")
+    poolCleanerPower = Sensor("poolCleanerPower", powerInterface, poolCleaner, type="power", group=["Pool", "Power", "Loads"], label="Pool cleaner")
+    spaBlowerPower = Sensor("spaBlowerPower", powerInterface, spaBlower, type="power", group=["Pool", "Power", "Loads"], label="Spa blower")
+    poolLightPower = Sensor("poolLightPower", powerInterface, poolLight, type="power", group=["Pool", "Power", "Loads"], label="Pool light")
+    spaLightPower = Sensor("spaLightPower", powerInterface, spaLight, type="power", group=["Pool", "Power", "Loads"], label="Spa light")
 
     # Schedules
     sundaySpaOnTask = Task("sundaySpaOnTask", SchedTime(year=[2016], month=[8], day=[14], hour=[16], minute=[30]), spa, 1)

@@ -40,12 +40,12 @@ if __name__ == "__main__":
     southThermostatMode = Control("southThermostatMode", configData, "southThermostatMode")
    
     # Temperature sensors
-    masterBedroomTemp = Sensor("masterBedroomTemp", owfs, "28.175CDC060000", group="Temperature", label="Master bedroom temp", type="tempF")
-    diningRoomTemp = Sensor("diningRoomTemp", owfs, "28.E4F6DB060000", group="Temperature", label="Dining room temp", type="tempF")
-    hallTemp = Sensor("hallTemp", owfs, "28.FA78DB060000", group="Temperature", label="Hall temp", type="tempF")
-    atticTemp = Sensor("atticTemp", owfs, "28.CC02DC060000", group="Temperature", label="Attic temp", type="tempF")
-    livingRoomTemp = Sensor("livingRoomTemp", owfs, "28.11B2DB060000", group="Temperature", label="Living room temp", type="tempF")
-    familyRoomTemp = Sensor("familyRoomTemp", owfs, "28.7202DC060000", group="Temperature", label="Family room temp", type="tempF")
+    masterBedroomTemp = Sensor("masterBedroomTemp", owfs, "28.175CDC060000", group=["Hvac", "Temperature"], label="Master bedroom temp", type="tempF")
+    diningRoomTemp = Sensor("diningRoomTemp", owfs, "28.E4F6DB060000", group=["Hvac", "Temperature"], label="Dining room temp", type="tempF")
+    hallTemp = Sensor("hallTemp", owfs, "28.FA78DB060000", group=["Hvac", "Temperature"], label="Hall temp", type="tempF")
+    atticTemp = Sensor("atticTemp", owfs, "28.CC02DC060000", group=["Hvac", "Temperature"], label="Attic temp", type="tempF")
+    livingRoomTemp = Sensor("livingRoomTemp", owfs, "28.11B2DB060000", group=["Hvac", "Temperature"], label="Living room temp", type="tempF")
+    familyRoomTemp = Sensor("familyRoomTemp", owfs, "28.7202DC060000", group=["Hvac", "Temperature"], label="Family room temp", type="tempF")
     
     # HVAC equipment controls
     northHeat = Control("northHeat", gpio1, 4, group="Hvac", label="North heat")

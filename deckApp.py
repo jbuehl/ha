@@ -27,9 +27,9 @@ if __name__ == "__main__":
     allShades = ControlGroup("allShades", [shade1, shade2, shade3, shade4], type="shade", group="Shades", label="All shades")
 
     # Sensors
-    deckTemp = Sensor("deckTemp", barometerCache, "temp", group="Temperature", label="Deck temp", type="tempF")
-    barometer = Sensor("barometer", barometerCache, "barometer", group="Temperature", label="Barometer", type="barometer")
-    humidity = Sensor("humidity", humidityCache, "humidity", group="Temperature", label="Humidity", type="humidity")
+    deckTemp = Sensor("deckTemp", barometerCache, "temp", group=["Temperature", "Weather"], label="Deck temp", type="tempF")
+    barometer = Sensor("barometer", barometerCache, "barometer", group="Weather", label="Barometer", type="barometer")
+    humidity = Sensor("humidity", humidityCache, "humidity", group="Weather", label="Humidity", type="humidity")
 
     # Schedules
     shadesDown = Task("shadesDown", SchedTime(hour=[13], minute=[00], month=[Apr, May, Jun, Jul, Aug, Sep]), allShades, 1, enabled=True)

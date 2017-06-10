@@ -40,7 +40,7 @@ if __name__ == "__main__":
                                                 "xmasFrontLights",
                                                 "xmasBackLights"],
                                                resources=cacheResources, 
-                                               type="light", group="Lights", label="Xmas lights")
+                                               type="light", group=["Lights", "Xmas"], label="Xmas lights")
     bedroomLights = ControlGroup("bedroomLights", ["bedroomLight", 
                                                "bathroomLight"],
                                                resources=cacheResources, 

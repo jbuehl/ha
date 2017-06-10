@@ -34,10 +34,6 @@ def todaysDate():
     tomorrow = today + datetime.timedelta(days=1)
     return (today, tomorrow)
 
-# turn an item into a list if it is not already
-def listize(x):
-    return x if isinstance(x, list) else [x]
-                               
 # the Scheduler manages a list of Tasks and runs them at the times specified
 class Schedule(Collection):
     objectArgs = ["tasks"]

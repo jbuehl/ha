@@ -19,6 +19,10 @@ Off = 0
 on = 1
 On = 1
 
+# turn an item into a list if it is not already
+def listize(x):
+    return x if isinstance(x, list) else [x]
+                               
 # normalize state values from boolean to integers
 def normalState(value):
     if value == True: return On
@@ -143,11 +147,11 @@ class Collection(Resource, OrderedDict):
 
     # Return a list of resource references that are members of the specified group
     # in order of addition to the table
-    def getGroup(self, theGroup):
+    def getGroup(self, group):
         resourceList = []
         for resourceName in self.keys():
             resource = self.__getitem__(resourceName)
-            if resource.group == theGroup:
+            if group in listize(resource.group):
                 resourceList.append(resource)
         return resourceList
 

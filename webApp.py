@@ -67,8 +67,8 @@ def details(group=None):
         groups = [group.capitalize()]
         details = False
     except:
-        groups = ["Time", "Temperature", "Hvac", "Pool", "Lights", "Shades", "Doors", 
-                  "Water", "Power", "Solar", "Inverters", "Optimizers", "Cameras", 
+        groups = ["Time", "Weather", "Temperature", "Hvac", "Pool", "Lights", "Shades", "Doors", 
+                  "Sprinklers", "Water", "Power", "Solar", "Inverters", "Optimizers", "Cameras", 
                   "Services", "Tasks"]
         details = True
     with resources.lock:
