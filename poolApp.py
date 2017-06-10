@@ -1,10 +1,6 @@
 spaTempTargetDefault = 100
 spaTempTargetMin = 85
 spaTempTargetMax = 102
-spaNotifyMsg = "Spa is ready"
-notifyFromNumber = ""
-spaReadyNotifyNumbers = []
-spaReadyNotifyApp = ""
 
 import threading
 import time
@@ -15,6 +11,7 @@ from ha.interfaces.gpioInterface import *
 from ha.interfaces.i2cInterface import *
 from ha.interfaces.pentairInterface import *
 from ha.interfaces.powerInterface import *
+from ha.interfaces.owfsInterface import *
 from ha.interfaces.ads1015Interface import *
 from ha.interfaces.analogTempInterface import *
 from ha.interfaces.valveInterface import *
@@ -40,6 +37,7 @@ if __name__ == "__main__":
     gpioInterface1 = GPIOInterface("gpioInterface1", i2cInterface, addr=0x20, bank=1, inOut=0x00)
     pentairInterface = PentairInterface("pentairInterface", serialInterface)
     powerInterface = PowerInterface("powerInterface", Interface("None"), event=stateChangeEvent)
+    owfsInterface = OWFSInterface("owfsInterface", event=stateChangeEvent)
     ads1015Interface = ADS1015Interface("ads1015Interface", addr=0x48)
     analogTempInterface = AnalogTempInterface("analogTempInterface", ads1015Interface)
     valveInterface = ValveInterface("valveInterface", gpioInterface1)
@@ -56,9 +54,11 @@ if __name__ == "__main__":
     poolLights = ControlGroup("poolLights", [poolLight, spaLight], type="light", group="Lights", label="Pool and spa")
 
     # Temperature
-    waterTemp = Sensor("waterTemp", analogTempInterface, 0, "Temperature",label="Water temp", type="tempF")
-    poolTemp = Sensor("poolTemp", analogTempInterface, 0, "Temperature",label="Pool temp", type="tempF")
-    spaTemp = Sensor("spaTemp", analogTempInterface, 0, "Temperature",label="Spa temp", type="tempF")
+    waterTemp = Sensor("waterTemp", analogTempInterface, 0, "Temperature", label="Water temp", type="tempF")
+    poolTemp = Sensor("poolTemp", owfsInterface, "28.B9CA5F070000", "Temperature", label="Pool temp", type="tempF")
+    spaTemp = Sensor("spaTemp", owfsInterface, "28.556E5F070000", "Temperature", label="Spa temp", type="tempF")
+#    poolTemp = Sensor("poolTemp", analogTempInterface, 0, "Temperature", label="Pool temp", type="tempF")
+#    spaTemp = Sensor("spaTemp", analogTempInterface, 0, "Temperature", label="Spa temp", type="tempF")
     poolEquipTemp = Sensor("poolEquipTemp", analogTempInterface, 1, "Temperature",label="Pool equipment temp", type="tempF")
 
     # Pool
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     sunUp = Sensor("sunUp", timeInterface, "sunUp")
     # spa light control that will only turn on if the sun is down
     spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(sunUp, 0)])
-    spa = SpaControl("spa", nullInterface, valveMode, poolPump, heaterControl, spaLightNight, waterTemp, group="Pool", label="Spa", type="spa")
+    spa = SpaControl("spa", nullInterface, valveMode, poolPump, heaterControl, spaLightNight, spaTemp, spaTempTarget, group="Pool", label="Spa", type="spa")
     # spa light control that will only turn on if the sun is down and the spa is on
     spaLightNightSpa = DependentControl("spaLightNightSpa", nullInterface, spaLightNight, [(spa, 1)])
     

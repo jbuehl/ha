@@ -1,3 +1,8 @@
+spaNotifyMsg = "Spa is ready"
+notifyFromNumber = ""
+spaReadyNotifyNumbers = []
+spaReadyNotifyApp = ""
+
 from ha import *
 from ha.notify import *
 
@@ -25,7 +30,7 @@ valveSpa = 1
 valveMoving = 4
 
 class SpaControl(Control):
-    def __init__(self, name, interface, valveControl, pumpControl, heaterControl, lightApp, tempSensor, addr=None, 
+    def __init__(self, name, interface, valveControl, pumpControl, heaterControl, lightApp, tempSensor, tempTargetControl, addr=None, 
             group="", type="control", location=None, view=None, label="", interrupt=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
         self.className = "Control"
@@ -35,6 +40,7 @@ class SpaControl(Control):
         self.heaterControl = heaterControl
         self.lightApp = lightApp
         self.tempSensor = tempSensor
+        self.tempTargetControl = tempTargetControl
         self.eventThread = None
         
         # state transition sequences
@@ -113,7 +119,7 @@ class SpaControl(Control):
     def spaStarted(self, endState):
         debug('debugState', self.name, "spaStarted ", endState)
         self.stateTransition(spaWarming)
-        self.startEventThread("spaWarming", self.tempSensor.getState, spaTempTarget, self.spaReady, endState)
+        self.startEventThread("spaWarming", self.tempSensor.getState, self.tempTargetControl.getState(), self.spaReady, endState)
 
     # called when target temperature is reached        
     def spaReady(self, state):
