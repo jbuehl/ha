@@ -73,9 +73,13 @@ if __name__ == "__main__":
     northThermostat = ThermostatControl("northThermostat", nullInterface, 
                                     northHeatControl, northCoolControl, northFan, masterBedroomDoor, northThermostatMode,
                                     group="Hvac", label="North thermostat", type="thermostat")
+    northThermostatUnitSensor = ThermostatUnitSensor("northThermostatUnitSensor", northThermostat,
+                                    group="Hvac", label="North thermostat unit", type="thermostat")
     southThermostat = ThermostatControl("southThermostat", nullInterface, 
                                     southHeatControl, southCoolControl, southFan, familyRoomDoor, southThermostatMode,
                                     group="Hvac", label="South thermostat", type="thermostat")
+    southThermostatUnitSensor = ThermostatUnitSensor("southThermostatUnitSensor", southThermostat,
+                                    group="Hvac", label="South thermostat unit", type="thermostat")
 
     # Tasks
     northHeatTempUpMorning = Task("northHeatTempUpMorning", SchedTime(hour=[6], minute=[0]), northHeatTempTarget, 69)
@@ -93,9 +97,9 @@ if __name__ == "__main__":
     resources = Collection("resources", resources=[frontDoor, familyRoomDoor, masterBedroomDoor, houseDoors,
                                                    atticTemp, hallTemp, masterBedroomTemp, livingRoomTemp, familyRoomTemp, diningRoomTemp,
                                                    northHeat, northCool, northFan, northHeatTempTarget, northCoolTempTarget, 
-                                                   northHeatControl, northCoolControl, northThermostat,
+                                                   northHeatControl, northCoolControl, northThermostat, northThermostatUnitSensor,
                                                    southHeat, southCool, southFan, southHeatTempTarget, southCoolTempTarget, 
-                                                   southHeatControl, southCoolControl, southThermostat,
+                                                   southHeatControl, southCoolControl, southThermostat, southThermostatUnitSensor, 
                                                    northHeatTempUpMorning, northHeatTempDownMorning, northHeatTempDownEvening,
                                                    southHeatTempUpMorning, southHeatTempDownMorning, southHeatTempDownEvening
                                                    ])

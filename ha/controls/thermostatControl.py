@@ -103,3 +103,27 @@ class ThermostatControl(Control):
             self.persistenceControl.setState(state)                    
         self.notify()
 
+heatOn = modeHeat
+coolOn = modeCool
+fanOn = modeFan
+
+# Sensor that returns the thermostat unit control that is currently running
+class ThermostatUnitSensor(Sensor):
+    def __init__(self, name, thermostatControl, interface=None, addr=None, group="", type="sensor", location=None, label="", view=None, interrupt=None, event=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt, event=event)
+        self.className = "Sensor"
+        self.thermostatControl = thermostatControl
+
+    def getState(self):
+        # assume only one of them is on
+        if self.thermostatControl.heatControl.unitControl.getState() == On:
+            return heatOn
+        elif self.thermostatControl.coolControl.unitControl.getState() == On:
+            return coolOn
+        if self.thermostatControl.fanControl.getState() == On:
+            return fanOn
+        else:
+            return Off
+        
+    
+
