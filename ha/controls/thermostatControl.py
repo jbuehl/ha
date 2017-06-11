@@ -14,15 +14,16 @@ from ha import *
 # thermostat control for heating and cooling
 class ThermostatControl(Control):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface, heatControl, coolControl, fanControl, inhibitSensor=None, persistenceControl=None,
-                addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+    def __init__(self, name, heatControl, coolControl, fanControl, inhibitSensor=None, persistenceControl=None,
+                interface=None, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None, event=None):
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt, event=event)
         self.className = "Control"
         self.heatControl = heatControl                  # the heating unit
         self.coolControl = coolControl                  # the A/C unit
         self.fanControl = fanControl                    # the fan unit
         self.inhibitSensor = inhibitSensor              # sensor that inhibits thermostat operation if it is on
         self.persistenceControl = persistenceControl    # persistent storage of the state
+        self.inhibited = False
 
     def start(self):
         currentState = self.persistenceControl.getState()
@@ -106,6 +107,7 @@ class ThermostatControl(Control):
 heatOn = modeHeat
 coolOn = modeCool
 fanOn = modeFan
+hold = 5
 
 # Sensor that returns the thermostat unit control that is currently running
 class ThermostatUnitSensor(Sensor):
@@ -116,7 +118,11 @@ class ThermostatUnitSensor(Sensor):
 
     def getState(self):
         # assume only one of them is on
-        if self.thermostatControl.heatControl.unitControl.getState() == On:
+        if self.thermostatControl.getState() == Off:
+            return Off
+        elif self.thermostatControl.inhibited:
+            return hold
+        elif self.thermostatControl.heatControl.unitControl.getState() == On:
             return heatOn
         elif self.thermostatControl.coolControl.unitControl.getState() == On:
             return coolOn

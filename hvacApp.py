@@ -70,16 +70,14 @@ if __name__ == "__main__":
                                     group="Hvac", label="South cool control", type="tempControl")
 
     # Thermostats
-    northThermostat = ThermostatControl("northThermostat", nullInterface, 
-                                    northHeatControl, northCoolControl, northFan, masterBedroomDoor, northThermostatMode,
-                                    group="Hvac", label="North thermostat", type="thermostat")
+    northThermostat = ThermostatControl("northThermostat",northHeatControl, northCoolControl, northFan, masterBedroomDoor, northThermostatMode,
+                                    group="Hvac", label="North thermostat", type="thermostat", event=stateChangeEvent)
     northThermostatUnitSensor = ThermostatUnitSensor("northThermostatUnitSensor", northThermostat,
-                                    group="Hvac", label="North thermostat unit", type="thermostat")
-    southThermostat = ThermostatControl("southThermostat", nullInterface, 
-                                    southHeatControl, southCoolControl, southFan, familyRoomDoor, southThermostatMode,
-                                    group="Hvac", label="South thermostat", type="thermostat")
+                                    group="Hvac", label="North thermostat unit", type="thermostatSensor")
+    southThermostat = ThermostatControl("southThermostat", southHeatControl, southCoolControl, southFan, familyRoomDoor, southThermostatMode,
+                                    group="Hvac", label="South thermostat", type="thermostat", event=stateChangeEvent)
     southThermostatUnitSensor = ThermostatUnitSensor("southThermostatUnitSensor", southThermostat,
-                                    group="Hvac", label="South thermostat unit", type="thermostat")
+                                    group="Hvac", label="South thermostat unit", type="thermostatSensor")
 
     # Tasks
     northHeatTempUpMorning = Task("northHeatTempUpMorning", SchedTime(hour=[6], minute=[0]), northHeatTempTarget, 69)

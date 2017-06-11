@@ -269,11 +269,31 @@ td {
     }
 
 .thermostat_Fan {
-	color: Blue;
+	color: Lime;
     }
 
 .thermostat_Auto {
-	color: Magenta;
+	color: Blue;
+    }
+
+.thermostatSensor_Off {
+	color: SlateGray;
+    }
+
+.thermostatSensor_Heating {
+	color: OrangeRed;
+    }
+
+.thermostatSensor_Cooling {
+	color: Aqua;
+    }
+
+.thermostatSensor_Fan {
+	color: Lime;
+    }
+
+.thermostatSensor_Hold {
+	color: BlueViolet;
     }
 
 .spa_Off {
