@@ -121,10 +121,11 @@ class SpaControl(Control):
     def spaReady(self, state):
         debug('debugState', self.name, "spaReady ", state)
         self.stateTransition(state)
+        notifyMsg = spaNotifyMsg+" "+str(self.tempSensor.getState())+" F"
         if spaReadyNotifyNumbers != []:
-            smsNotify(spaReadyNotifyNumbers, spaNotifyMsg)
+            smsNotify(spaReadyNotifyNumbers, notifyMsg)
         if spaReadyNotifyApp != "":
-            iosNotify(spaReadyNotifyApp, spaNotifyMsg)
+            iosNotify(spaReadyNotifyApp, notifyMsg)
 
     # start an event thread
     def startEventThread(self, name, checkFunction, checkValue, actionFunction, actionValue, waitFunction=None, waitValue=0):
