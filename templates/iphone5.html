@@ -28,7 +28,7 @@
         {% endfor %}
         {% for resource in resources %}
         <tr>
-            {{ resourceTemplate.render(resource=resource, views=views, details=False, label=True) }}
+            {{ resourceTemplate.render(resource=resource, views=views, details=False) }}
         </tr>
         {% endfor %}
     </table>

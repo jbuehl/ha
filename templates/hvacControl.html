@@ -1,0 +1,24 @@
+    <!-- heatTargetControl - heat target control -->
+    <!-- coolTargetControl - cool target control -->
+    <!-- tempSensor - the temp sensor -->
+    <!-- thermostatControl - the thermostat control -->
+    <!-- thermostatUnitSensor - the thermostat unit sensor -->
+
+    <table border=0 width={{ widths[0] }} style='table-layout:fixed'>
+        {% for w in widths[1] %}<col width={{ w }}>{% endfor %}
+        <tr>
+            <td><div class=label>{{ label }}</div>
+            {% if not stack %}
+            </td>
+            <td>
+            {% endif %}
+                <div id="{{ tempSensor.name }}" class="{{ tempSensor.type+'_'+tempSensor.getViewState(views) }}">{{ tempSensor.getViewState(views) }}</div></td>
+            <td><div id="{{ thermostatUnitSensor.name }}" class="{{ thermostatUnitSensor.type+'_'+thermostatUnitSensor.getViewState(views) }}">{{ thermostatUnitSensor.getViewState(views) }}</div></td>
+        </tr>
+        <tr>{{ resourceTemplate.render(resource=heatTargetControl, views=views, details=False, stack=stack, label="Heat set") }}</tr>
+        <tr>{{ resourceTemplate.render(resource=coolTargetControl, views=views, details=False, stack=stack, label="Cool set") }}</tr>
+        {% if thermostatControl %}
+        <tr>{{ resourceTemplate.render(resource=thermostatControl, views=views, details=False, stack=stack) }}</tr>
+        {% endif %}
+    </table>
+

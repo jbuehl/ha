@@ -15,18 +15,18 @@
         {% endfor %}
         <tr>
             <td>
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=timeGroup, details=False, name=True, link=True, label=True, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=weatherGroup, details=False, name=True, link=True, label=True, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=lightsGroup, details=False, name=True, link=True, label=True, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=poolGroup, details=False, name=True, link=True, label=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=timeGroup, details=False, name=True, link=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=weatherGroup, details=False, name=True, link=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=lightsGroup, details=False, name=True, link=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], group=poolGroup, details=False, name=True, link=True, views=views) }}
                 {{ poolPumpControlTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], poolPumpControl=poolPumpControl, poolPumpFlowSensor=poolPumpFlowSensor, nSetValues=5, views=views) }}
                 {{ spaTempTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][0], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=3, views=views) }}
             </td>
             <td>
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1], group=shadesGroup, details=False, name=True, link=True, label=True, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1], group=hvacGroup, details=False, name=True, link=True, label=True, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1], group=sprinklersGroup, details=False, name=True, link=True, label=True, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1], group=powerGroup, details=False, name=True, link=True, label=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1], group=shadesGroup, details=False, name=True, link=True, views=views) }}
+                <a href="/details?group=Hvac"><h2>Hvac</h2></a>{{ hvac }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1], group=sprinklersGroup, details=False, name=True, link=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1], group=powerGroup, details=False, name=True, link=True, views=views) }}
             </td>
         </tr>
     </table>

@@ -18,9 +18,9 @@
             <td><div id="{{ time.name }}" class="time">{{ time.getViewState(views) }}</div></td>
             <td><div id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState(views) }}</div></td>
             <td><div id="{{ day.name }}" class="date">{{ day.getViewState(views) }}</div></td>
-            <td>pool<div id="{{ pooltemp.name }}" class="tempF">{{ pooltemp.getViewState(views) }}</div></td>
-            <td>inside<div id="{{ intemp.name }}" class="tempF">{{ intemp.getViewState(views) }}</div></td>
-            <td>outside<div id="{{ outtemp.name }}" class="tempF">{{ outtemp.getViewState(views) }}</div></td>
+            <td>Pool<div id="{{ pooltemp.name }}" class="tempF">{{ pooltemp.getViewState(views) }}</div></td>
+            <td>Outside<div id="{{ outtemp.name }}" class="tempF">{{ outtemp.getViewState(views) }}</div></td>
+            <td>Humidity<div id="{{ humidity.name }}" class="humidity">{{ humidity.getViewState(views) }}</div></td>
         </tr>
     </table>
     <table border=0 width={{ widths[1][0] }} style='table-layout:fixed'>
@@ -29,13 +29,13 @@
         {% endfor %}
         <tr>
             <td>
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][0], group=lightsGroup, details=False, name=False, label=True, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][0], group=shadesGroup, details=False, name=False, label=True, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][0], group=hvacGroup, details=False, name=False, label=True, views=views) }}
+                <br>{{ hvac }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][0], group=shadesGroup, details=False, name=False, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][0], group=lightsGroup, details=False, name=False, views=views) }}
             </td>
             <td>
                 <br>{{ spaTempTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][1], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=2, views=views) }}
-                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][1], group=sprinklersGroup, details=False, name=False, label=True, views=views) }}
+                {{ groupTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1][1][1], group=sprinklersGroup, details=False, name=False, views=views) }}
             </td>
         </tr>
     </table>

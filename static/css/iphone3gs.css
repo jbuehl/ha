@@ -13,7 +13,6 @@ body {
     
 .time {
 	color: LightYellow;
-    opacity: 0.5;
 	font-size: 120px;
 	line-height: 90%;
 	text-align: center;
@@ -24,14 +23,12 @@ body {
 
 .ampm {
 	color: LightYellow;
-    opacity: 0.5;
 	font-size: 12px;
 	margin-left: 0px;
     }
 
 .date {
     color: LightGray;
-    opacity: 0.5;
 	font-size: 24px;
 	text-align: left;
 	margin-left: 12px;
@@ -39,15 +36,13 @@ body {
     }
 
 .tempF {
-    opacity: 0.5;
-	font-size: 30px;
-	text-align: right;
+    font-size: 30px;
+	text-align: left;
 	margin-left: 0px;
     }
 
 .label {
     color: LightGray;
-    opacity: 0.5;
     font-size: 20px;
     padding: 0px 0px 0px 0px;
     }
@@ -60,40 +55,13 @@ body {
 	margin-left: 0px;
     }
     
-.light_Off {
-    opacity: 0.5;
-    }
-
-.light_On {
-    opacity: 0.5;
-    }
-
-.nightLight_Off {
-    opacity: 0.5;
-    }
-
-.nightLight_Sleep {
-    opacity: 0.5;
-    }
-
-.nightLight_On {
-    opacity: 0.5;
-    }
-
-.hotwater_Off {
-    opacity: 0.5;
-    }
-
-.hotwater_On {
-    opacity: 0.5;
-    }
-
-.door_Closed {
+.bedside {
     opacity: 0.5;
     }
 
 .door_Open {
 	color: #ffcf4f;
+	opacity: 1.0;
     }
 
 table {
@@ -101,7 +69,6 @@ table {
     }
     
 input {
-    opacity: 0.5;
     height: 48px;
     width: 80px;
 	font-size: 24px;

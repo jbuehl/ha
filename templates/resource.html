@@ -1,14 +1,16 @@
-    <!-- label - display the resource label -->
+    <!-- label - override for the resource label -->
     <!-- stack - display the resource state under the label -->
     <!-- details - display resource details -->
 
         <td>
-        {% if label %}  
+        {% if label %} 
+            <div class=label>{{ label }}</div>
+        {% else %} 
             <div class=label>{{ resource.label }}</div>
+        {% endif %}
         {% if not stack %}
         </td>
         <td>
-        {% endif %}
         {% endif %}
             <div id="{{ resource.name }}" class="{{ resource.type+'_'+resource.getViewState(views) }}">{{ resource.getViewState(views) }}</div>
         </td>
