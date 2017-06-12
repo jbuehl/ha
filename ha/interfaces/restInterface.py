@@ -11,11 +11,12 @@ from ha import *
 
 class RestInterface(Interface):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface=None, event=None, service="", secure=False, cache=True):
+    def __init__(self, name, interface=None, event=None, service="", secure=False, cache=True, writeThrough=True):
         Interface.__init__(self, name, interface=interface, event=event)
         self.service = service  # the REST service to target
         self.secure = secure    # use SSL
         self.cache = cache      # cache the states
+        self.writeThrough = writeThrough
         self.enabled = True
         self.hostname = socket.gethostname()
         debug('debugRest', self.name, "created", self.hostname, self.service, self.secure, self.cache, self.enabled)
@@ -152,6 +153,9 @@ class RestInterface(Interface):
 
     def write(self, addr, value):
         path = self.service+urllib.quote(addr)
+        if self.cache and self.writeThrough:
+            self.states[addr] = value
+            self.notify()
         data=json.dumps({addr.split("/")[-1]:value})
         try:
             if self.secure:
