@@ -1,6 +1,7 @@
 $(document).ready(function() {
     var blinkers = [];
     var cacheTime = 0;      // timestamp of resource cache
+    var changedResource = '';
     // set temp color based on temp value
     var tempColor = function(tempString){
         temp = parseInt(tempString);
@@ -46,22 +47,37 @@ $(document).ready(function() {
             }
         return "rgb("+red.toString()+","+green.toString()+","+blue.toString()+")";
         }
-    // update the attributes of the data items
-    var update = function(data) {
+    // submit a data change
+    $(".button").click(function() {
+        event.preventDefault();
+        changedResource = this['form']['children']['0']['defaultValue'];
+        $.post('/submit', {"action": this['defaultValue'], "resource": changedResource});
+        return false;
+        });
+    // update the attributes of one data item
+    var update = function(key, val) {
+        $('#'+key).text(val[1]);            // set the value
+        $('#'+key).attr('value', val[1]);   // set the button value
+        if (val[0] == 'temp') {             // set the color of a temp item
+            $('#'+key).css('color', tempColor(val[1]))
+            }
+        else {                              // change the class
+            $('#'+key).attr('class', val[0]);
+            };
+        }
+    // update the attributes of all the data items
+    var updateAll = function(data) {
         blinkers = data["blinkers"];
         if (data["cacheTime"] > cacheTime) {        // has the resource cache been updated ?
             location.reload(true);                  // reload the page
             }
         else {
-            $.each(data, function(key, val) {       // set value and class of each item
-                $('#'+key).text(val[1]);            // set the value
-                $('#'+key).attr('value', val[1]);   // set the button value
-                if (val[0] == 'temp') {             // set the color of a temp item
-                    $('#'+key).css('color', tempColor(val[1]))
-                    }
-                else {                              // change the class
-                    $('#'+key).attr('class', val[0]);
-                    }
+            if (changedResource != '') {
+                update(changedResource, data[changedResource]);
+                changedResource = '';
+                }
+            $.each(data, function(key, val) {
+                update(key, val);
                 });
             };
         }
@@ -73,14 +89,14 @@ $(document).ready(function() {
     var refreshId = setInterval(function() {
         if (count == 60) {     // every minute
             $.getJSON('/state', {}, function(data) {    // get state values
-                update(data);
+                updateAll(data);
                 count = 0;
                 });
             };
         if (!pending) {     // don't allow multiple pending requests
             pending = true;
             $.getJSON('/stateChange', {}, function(data) {    // get changed state values
-                update(data);
+                updateAll(data);
                 pending = false;
                 });
             };
@@ -100,7 +116,7 @@ $(document).ready(function() {
     $.ajaxSetup({cache: false});
     $.getJSON('/state', {}, function(data) {    // get initial state values
         cacheTime = data["cacheTime"];
-        update(data);
+        updateAll(data);
         });
     });
 
