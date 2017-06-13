@@ -1,7 +1,7 @@
 $(document).ready(function() {
     var blinkers = [];
     var cacheTime = 0;      // timestamp of resource cache
-    var changedResource = '';
+    
     // set temp color based on temp value
     var tempColor = function(tempString){
         temp = parseInt(tempString);
@@ -47,17 +47,36 @@ $(document).ready(function() {
             }
         return "rgb("+red.toString()+","+green.toString()+","+blue.toString()+")";
         }
+        
     // submit a data change
     $(".button").click(function() {
         event.preventDefault();
-        changedResource = this['form']['children']['0']['defaultValue'];
-        $.post('/submit', {"action": this['defaultValue'], "resource": changedResource});
+        resource = this['form']['children']['0']['defaultValue'];
+        value = this['defaultValue'];
+//        if (value == '^') {
+//            dispValue = String(parseInt($('#'+resource).text().split(' ')[0]) + 1)+' '+$('#'+resource).text().split(' ')[1];
+//            dispClass = 'temp';
+//            }
+//        else if (value == 'v') {
+//            dispValue = String(parseInt($('#'+resource).text().split(' ')[0]) - 1)+' '+$('#'+resource).text().split(' ')[1];
+//            dispClass = 'temp';
+//            }
+//        else {
+//            dispValue = value;
+//            dispClass = $('#'+resource).attr('class').split('_')[0]+'_'+dispValue;
+//            }
+//        update(resource, [dispClass, dispValue]);
+        $.post('/submit', {"action": value, "resource": resource});
+        $.getJSON('/state', {}, function(data) {    // get state values
+            updateAll(data);
+            });
         return false;
         });
+        
     // update the attributes of one data item
     var update = function(key, val) {
         $('#'+key).text(val[1]);            // set the value
-        $('#'+key).attr('value', val[1]);   // set the button value
+//        $('#'+key).attr('value', val[1]);   // set the button value
         if (val[0] == 'temp') {             // set the color of a temp item
             $('#'+key).css('color', tempColor(val[1]))
             }
@@ -65,6 +84,7 @@ $(document).ready(function() {
             $('#'+key).attr('class', val[0]);
             };
         }
+        
     // update the attributes of all the data items
     var updateAll = function(data) {
         blinkers = data["blinkers"];
@@ -72,15 +92,12 @@ $(document).ready(function() {
             location.reload(true);                  // reload the page
             }
         else {
-            if (changedResource != '') {
-                update(changedResource, data[changedResource]);
-                changedResource = '';
-                }
             $.each(data, function(key, val) {
                 update(key, val);
                 });
             };
         }
+        
     var pending = false;    // true while an stateChange request is pending
     var count = 0;
     var blinkToggle = false;
