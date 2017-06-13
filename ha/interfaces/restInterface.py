@@ -11,7 +11,7 @@ from ha import *
 
 class RestInterface(Interface):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface=None, event=None, service="", secure=False, cache=True, writeThrough=True):
+    def __init__(self, name, interface=None, event=None, service="", secure=False, cache=True, writeThrough=False):
         Interface.__init__(self, name, interface=interface, event=event)
         self.service = service  # the REST service to target
         self.secure = secure    # use SSL
@@ -153,9 +153,14 @@ class RestInterface(Interface):
 
     def write(self, addr, value):
         path = self.service+urllib.quote(addr)
-        if self.cache and self.writeThrough:
-            self.states[addr] = value
-            self.notify()
+        if self.cache:
+            if self.writeThrough:
+                # update the cache
+                self.states[addr] = value
+                self.notify()
+            else:
+                # invalidate the cache
+                self.states[addr] = None
         data=json.dumps({addr.split("/")[-1]:value})
         try:
             if self.secure:
