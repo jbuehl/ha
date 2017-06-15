@@ -78,21 +78,31 @@ class WebRoot(object):
 
     # Return the value of a resource attribute
     @cherrypy.expose
-    def value(self, resource=None, attr=None):
+    def value(self, resource=None, attr=""):
         debug('debugWeb', "/value", cherrypy.request.method, resource, attr)
         try:
             if resource:
-                if attr:
-                    return self.resources.getRes(resource).__getattribute__(attr).__str__()
+                if attr != "":
+                    response = json.dumps({attr: self.resources[resource].dict()[attr]})
                 else:
-                    return self.resources.getRes(resource).dict().__str__()
+                    response = json.dumps(self.resources[resource].dict())
+                cherrypy.response.headers['Content-Type'] = "application/json"
+            else:
+                cherrypy.response.status = 400
+                response = "Resource not specified"
+        except KeyError:
+            cherrypy.response.status = 404
+            response = resource+"/"+attr+" not found"
         except:
-            return "Error"        
+            cherrypy.response.status = 500
+            response = "Error"
+        return response
 
     # Update the states of all resources
     @cherrypy.expose
     def state(self, _=None):
         debug('debugWebUpdate', "/state", cherrypy.request.method)
+        cherrypy.response.headers['Content-Type'] = "application/json"
         return self.updateStates(self.resources.getRes("states").getState())
         
     # Update the states of resources that have changed
@@ -103,6 +113,7 @@ class WebRoot(object):
         self.stateChangeEvent.wait()
         debug('debugInterrupt', "update", "event clear")
         self.stateChangeEvent.clear()
+        cherrypy.response.headers['Content-Type'] = "application/json"
         return self.updateStates(self.resources.getRes("states").getStateChange())
 
     # return the json to update the states of the specified collection of sensors
