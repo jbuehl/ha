@@ -2,6 +2,7 @@
     <!-- spaTemp - the spa temp sensor -->
     <!-- nSetValues - number of setValues to display -->
 
+{% set resourceTemplate = templates.get_template("resource.html") %}
     <table border=0 width={{ widths[0] }} style='table-layout:fixed'>
         <col width={{ (widths[1][0]/2)-2 }}><col width={{ widths[1][0]/2 }}>
         {% for w in widths[1][1:] %}

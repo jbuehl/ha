@@ -58,10 +58,7 @@ def index():
         sprinklersGroup = ["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "backBedSequence", "frontLawnSequence"])]
         powerGroup = ["Power", resources.getResList(["currentVoltage", "currentLoad", "currentPower", "todaysEnergy"])]
         reply = templates.get_template("dashboard.html").render(script="",
-                            groupTemplate=templates.get_template("group.html"),
-                            resourceTemplate=templates.get_template("resource.html"),
-                            spaTempTemplate=templates.get_template("spaTemp.html"),
-                            poolPumpControlTemplate=templates.get_template("poolPumpControl.html"),
+                            templates=templates,
                             widths=widths,
                             spa=resources.getRes("spa"),
                             spaTemp=resources.getRes("spaTemp"),
@@ -93,8 +90,7 @@ def details(group=None):
     with resources.lock:
         widths = [1280, [220, 160, 260, 120, 100, 120, 240, 60]]
         reply = templates.get_template("details.html").render(title=webPageTitle, script="", 
-                            groupTemplate=templates.get_template("group.html"),
-                            resourceTemplate=templates.get_template("resource.html"),
+                            templates=templates,
                             widths=widths,
                             groups=[[group, resources.getGroup(group)] for group in groups],
                             views=views,
@@ -145,9 +141,7 @@ def ipad():
                             thermostatUnitSensor=resources.getRes("southThermostatUnitSensor"),
                             views=views)
         reply = templates.get_template("ipad.html").render(script="", 
-                            groupTemplate=templates.get_template("group.html"),
-                            resourceTemplate=templates.get_template("resource.html"),
-                            spaTempTemplate=templates.get_template("spaTemp.html"),
+                            templates=templates,
                             widths=widths,
                             time=resources.getRes("theTime"),
                             ampm=resources.getRes("theAmPm"),
@@ -174,10 +168,7 @@ def iphone5():
     with resources.lock:
         widths = [[320, [60, 100, 60]], [320, [120, 72, 128]]]
         reply = templates.get_template("iphone5.html").render(script="", 
-                            groupTemplate=templates.get_template("group.html"),
-                            resourceTemplate=templates.get_template("resource.html"),
-                            spaTempTemplate=templates.get_template("spaTemp.html"),
-                            poolPumpControlTemplate=templates.get_template("poolPumpControl.html"),
+                            templates=templates,
                             widths=widths,
                             time=resources.getRes("theTime"),
                             ampm=resources.getRes("theAmPm"),
@@ -210,8 +201,7 @@ def iphone3gs():
                             thermostatUnitSensor=resources.getRes("northThermostatUnitSensor"),
                             views=views)
         reply = templates.get_template("iphone3gs.html").render(script="", 
-                            groupTemplate=templates.get_template("group.html"),
-                            resourceTemplate=templates.get_template("resource.html"),
+                            templates=templates,
                             widths=widths,
                             time=resources.getRes("theTime"),
                             ampm=resources.getRes("theAmPm"),

@@ -1,3 +1,6 @@
+{% set resourceTemplate = templates.get_template("resource.html") %}
+{% set spaTempTemplate = templates.get_template("spaTemp.html") %}
+{% set poolPumpControlTemplate = templates.get_template("poolPumpControl.html") %}
 <!DOCTYPE html>
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
 <head>
@@ -19,8 +22,8 @@
             <td><div id="{{ temp.name }}" class="tempF">{{ temp.getViewState(views) }}</div></td>
         </tr>
     </table>
-    {{ spaTempTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=2, views=views) }}
-    {{ poolPumpControlTemplate.render(resourceTemplate=resourceTemplate, widths=widths[1], poolPumpControl=poolPumpControl, poolPumpFlowSensor=poolPumpFlowSensor, nSetValues=5, views=views) }}
+    {{ spaTempTemplate.render(templates=templates, widths=widths[1], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=2, views=views) }}
+    {{ poolPumpControlTemplate.render(templates=templates, widths=widths[1], poolPumpControl=poolPumpControl, poolPumpFlowSensor=poolPumpFlowSensor, nSetValues=5, views=views) }}
     <table border=0 width={{ widths[1][0] }} style='table-layout:fixed'>
         {% for w in widths[1][1] %}
         <col width={{ w }}>
