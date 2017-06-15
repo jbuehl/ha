@@ -2,49 +2,17 @@ $(document).ready(function() {
     var blinkers = [];
     var cacheTime = 0;      // timestamp of resource cache
     
-    // set temp color based on temp value
+    // set color of temp elements based on temp value
     var tempColor = function(tempString){
         temp = parseInt(tempString);
-        if (temp > 120) {       // magenta
-            red = 252;
-            green = 0;
-            blue = 252;
-            }
-        else if (temp > 102) {  // red
-            red = 252;
-            green = 0;
-            blue = (temp-102)*14;
-            }
-        else if (temp > 84) {   // yellow
-            red = 252;
-            green = (102-temp)*14;
-            blue = 0;
-            }
-        else if (temp > 66) {   // green
-            red = (temp-66)*14;
-            green = 252;
-            blue = 0;
-            }
-        else if (temp > 48) {   // cyan
-            red = 0;
-            green = 252;
-            blue = (66-temp)*14;
-            }
-        else if (temp > 30) {   // blue
-            red = 0;
-            green = (temp-30)*14;
-            blue = 252;
-            }
-        else if (temp > 0) {
-            red = 0;
-            green = 0;;
-            blue = 252
-            }
-        else {
-            red = 112;
-            green = 128;
-            blue = 144;
-            }
+        if      (temp > 120) {red = 252; green = 0; blue = 252;}            // magenta 
+        else if (temp > 102) {red = 252; green = 0; blue = (temp-102)*14;}  // red 
+        else if (temp > 84)  {red = 252; green = (102-temp)*14; blue = 0;}  // yellow 
+        else if (temp > 66)  {red = (temp-66)*14; green = 252; blue = 0;}   // green 
+        else if (temp > 48)  {red = 0; green = 252; blue = (66-temp)*14;}   // cyan 
+        else if (temp > 30)  {red = 0; green = (temp-30)*14; blue = 252;}   // blue 
+        else if (temp > 0)   { red = 0; green = 0; blue = 252;}
+        else                 {red = 112; green = 128; blue = 144;}
         return "rgb("+red.toString()+","+green.toString()+","+blue.toString()+")";
         }
         
@@ -53,21 +21,8 @@ $(document).ready(function() {
         event.preventDefault();
         resource = this['form']['children']['0']['defaultValue'];
         value = this['defaultValue'];
-//        if (value == '^') {
-//            dispValue = String(parseInt($('#'+resource).text().split(' ')[0]) + 1)+' '+$('#'+resource).text().split(' ')[1];
-//            dispClass = 'temp';
-//            }
-//        else if (value == 'v') {
-//            dispValue = String(parseInt($('#'+resource).text().split(' ')[0]) - 1)+' '+$('#'+resource).text().split(' ')[1];
-//            dispClass = 'temp';
-//            }
-//        else {
-//            dispValue = value;
-//            dispClass = $('#'+resource).attr('class').split('_')[0]+'_'+dispValue;
-//            }
-//        update(resource, [dispClass, dispValue]);
         $.post('/submit', {"action": value, "resource": resource});
-        $.getJSON('/state', {}, function(data) {    // get state values
+        $.getJSON('/state', {}, function(data) {    // get new state value and update
             updateAll(data);
             });
         return false;
@@ -75,12 +30,12 @@ $(document).ready(function() {
         
     // update the attributes of one data item
     var update = function(key, val) {
-        $('#'+key).text(val[1]);            // set the value
-//        $('#'+key).attr('value', val[1]);   // set the button value
-        if (val[0] == 'temp') {             // set the color of a temp item
+        $('#'+key).text(val[1]);                // set the value
+//        $('#'+key).attr('value', val[1]);     // set the button value
+        if (val[0] == 'temp') {                 // set the color of a temp item
             $('#'+key).css('color', tempColor(val[1]))
             }
-        else {                              // change the class
+        else {                                  // change the class
             $('#'+key).attr('class', val[0]);
             };
         }
@@ -104,24 +59,24 @@ $(document).ready(function() {
     var blinkOpacity = 1.0;
     // main loop
     var refreshId = setInterval(function() {
-        if (count == 60) {     // every minute
+        if (count == 60) {     // update everything every minute
             $.getJSON('/state', {}, function(data) {    // get state values
                 updateAll(data);
                 count = 0;
                 });
             };
-        if (!pending) {     // don't allow multiple pending requests
+        if (!pending) {     // don't allow multiple pending stateChange requests
             pending = true;
             $.getJSON('/stateChange', {}, function(data) {    // get changed state values
                 updateAll(data);
                 pending = false;
                 });
             };
-        if (blinkToggle) {
+        if (blinkToggle) {      // blink bright
             blinkOpacity = 1.0;
             blinkToggle = false;
             }
-        else {
+        else {                  // blink dim
             blinkOpacity = 0.5;
             blinkToggle = true;
             };
