@@ -24,7 +24,7 @@ if __name__ == "__main__":
     gpio1 = GPIOInterface("gpio1", i2c1, addr=0x20, bank=1, inOut=0x00)
 
     # Doors
-    backHouseDoor = Sensor("backHouseDoor", gpio0, 0, type="door", group="Doors", label="Back house")
+    backHouseDoor = Sensor("backHouseDoor", gpio0, 0, type="door", group=["Doors", "Hvac"], label="Back house")
     
     # persistent config data
     backHeatTempTarget = Control("backHeatTempTarget", configData, "backHeatTempTarget", group="Hvac", label="Back heat set", type="tempFControl")
@@ -62,9 +62,10 @@ if __name__ == "__main__":
     schedule = Schedule("schedule", tasks=[backHeatTempUpMorning, backHeatTempDownMorning, backHeatTempDownEvening])
 
     # Resources
-    resources = Collection("resources", resources=[backHouseDoor, backHouseTemp, 
+    resources = Collection("resources", resources=[backHouseTemp, 
                                                    backHeat, backCool, backFan, backHeatTempTarget, backCoolTempTarget, 
                                                    backHeatControl, backCoolControl, backThermostat, backThermostatUnitSensor,
+                                                   backHouseDoor, 
                                                    backHeatTempUpMorning, backHeatTempDownMorning, backHeatTempDownEvening,
                                                    ])
     restServer = RestServer(resources, event=stateChangeEvent, label="Back house")

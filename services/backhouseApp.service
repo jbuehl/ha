@@ -1,0 +1,8 @@
+[Unit]
+Description=Home Automation Guest House
+After=syslog.target
+[Service]
+ExecStart=/usr/bin/python /root/ha/backhouseApp.py
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target

@@ -27,8 +27,8 @@ if __name__ == "__main__":
 
     # Doors
     frontDoor = Sensor("frontDoor", gpio0, 5, type="door", group="Doors", label="Front")
-    familyRoomDoor = Sensor("familyRoomDoor", gpio0, 6, type="door", group="Doors", label="Family room")
-    masterBedroomDoor = Sensor("masterBedroomDoor", gpio0, 7, type="door", group="Doors", label="Master bedroom")
+    familyRoomDoor = Sensor("familyRoomDoor", gpio0, 6, type="door", group=["Doors", "Hvac"], label="Family room")
+    masterBedroomDoor = Sensor("masterBedroomDoor", gpio0, 7, type="door", group=["Doors", "Hvac"], label="Master bedroom")
     houseDoors = SensorGroup("houseDoors", [frontDoor, familyRoomDoor, masterBedroomDoor], type="door", group="Doors", label="House doors")
     
     # persistent config data
@@ -42,10 +42,10 @@ if __name__ == "__main__":
     # Temperature sensors
     masterBedroomTemp = Sensor("masterBedroomTemp", owfs, "28.175CDC060000", group=["Hvac", "Temperature"], label="Master bedroom temp", type="tempF")
     diningRoomTemp = Sensor("diningRoomTemp", owfs, "28.E4F6DB060000", group=["Hvac", "Temperature"], label="Dining room temp", type="tempF")
-    hallTemp = Sensor("hallTemp", owfs, "28.FA78DB060000", group=["Hvac", "Temperature"], label="Hall temp", type="tempF")
-    atticTemp = Sensor("atticTemp", owfs, "28.CC02DC060000", group=["Hvac", "Temperature"], label="Attic temp", type="tempF")
-    livingRoomTemp = Sensor("livingRoomTemp", owfs, "28.11B2DB060000", group=["Hvac", "Temperature"], label="Living room temp", type="tempF")
-    familyRoomTemp = Sensor("familyRoomTemp", owfs, "28.7202DC060000", group=["Hvac", "Temperature"], label="Family room temp", type="tempF")
+    hallTemp = Sensor("hallTemp", owfs, "28.FA78DB060000", group=["Temperature"], label="Hall temp", type="tempF")
+    atticTemp = Sensor("atticTemp", owfs, "28.CC02DC060000", group=["Temperature"], label="Attic temp", type="tempF")
+    livingRoomTemp = Sensor("livingRoomTemp", owfs, "28.11B2DB060000", group=["Temperature"], label="Living room temp", type="tempF")
+    familyRoomTemp = Sensor("familyRoomTemp", owfs, "28.7202DC060000", group=["Temperature"], label="Family room temp", type="tempF")
     
     # HVAC equipment controls
     northHeat = Control("northHeat", gpio1, 4, group="Hvac", label="North heat")
@@ -92,12 +92,16 @@ if __name__ == "__main__":
                                            southHeatTempUpMorning, southHeatTempDownMorning, southHeatTempDownEvening])
 
     # Resources
-    resources = Collection("resources", resources=[frontDoor, familyRoomDoor, masterBedroomDoor, houseDoors,
-                                                   atticTemp, hallTemp, masterBedroomTemp, livingRoomTemp, familyRoomTemp, diningRoomTemp,
+    resources = Collection("resources", resources=[frontDoor, houseDoors,
+                                                   atticTemp, hallTemp, livingRoomTemp, familyRoomTemp, 
+                                                   masterBedroomTemp, 
                                                    northHeat, northCool, northFan, northHeatTempTarget, northCoolTempTarget, 
                                                    northHeatControl, northCoolControl, northThermostat, northThermostatUnitSensor,
+                                                   masterBedroomDoor, 
+                                                   diningRoomTemp,
                                                    southHeat, southCool, southFan, southHeatTempTarget, southCoolTempTarget, 
-                                                   southHeatControl, southCoolControl, southThermostat, southThermostatUnitSensor, 
+                                                   southHeatControl, southCoolControl, southThermostat, southThermostatUnitSensor,
+                                                   familyRoomDoor,  
                                                    northHeatTempUpMorning, northHeatTempDownMorning, northHeatTempDownEvening,
                                                    southHeatTempUpMorning, southHeatTempDownMorning, southHeatTempDownEvening
                                                    ])
