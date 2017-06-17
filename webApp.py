@@ -39,7 +39,7 @@ def index():
         shadesGroup = ["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])]
         southHvac = templates.get_template("hvacControl.html").render(label="Living area",
                             widths=widths[1][1],
-                            resourceTemplate=templates.get_template("resource.html"),
+                            templates=templates,
                             tempSensor=resources.getRes("diningRoomTemp"), 
                             heatTargetControl=resources.getRes("southHeatTempTarget"), 
                             coolTargetControl=resources.getRes("southCoolTempTarget"), 
@@ -48,12 +48,21 @@ def index():
                             views=views)
         northHvac = templates.get_template("hvacControl.html").render(label="Bedrooms",
                             widths=widths[1][1],
-                            resourceTemplate=templates.get_template("resource.html"),
+                            templates=templates,
                             tempSensor=resources.getRes("masterBedroomTemp"), 
                             heatTargetControl=resources.getRes("northHeatTempTarget"), 
                             coolTargetControl=resources.getRes("northCoolTempTarget"), 
                             thermostatControl=resources.getRes("northThermostat"), 
                             thermostatUnitSensor=resources.getRes("northThermostatUnitSensor"),
+                            views=views)
+        backHvac = templates.get_template("hvacControl.html").render(label="Back house",
+                            widths=widths[1][1],
+                            templates=templates,
+                            tempSensor=resources.getRes("backHouseTemp"), 
+                            heatTargetControl=resources.getRes("backHeatTempTarget"), 
+                            coolTargetControl=resources.getRes("backCoolTempTarget"), 
+                            thermostatControl=resources.getRes("backThermostat"), 
+                            thermostatUnitSensor=resources.getRes("backThermostatUnitSensor"),
                             views=views)
         sprinklersGroup = ["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "backBedSequence", "frontLawnSequence"])]
         powerGroup = ["Power", resources.getResList(["currentVoltage", "currentLoad", "currentPower", "todaysEnergy"])]
@@ -70,7 +79,7 @@ def index():
                             poolGroup=poolGroup,
                             lightsGroup=lightsGroup,
                             shadesGroup=shadesGroup,
-                            hvac=southHvac+northHvac,
+                            hvac=southHvac+northHvac+backHvac,
                             sprinklersGroup=sprinklersGroup,
                             powerGroup=powerGroup,
                             views=views)
@@ -134,7 +143,7 @@ def ipad():
         widths = [[1024, [62, 58, 312, 200, 200, 180]], [1024, [[512, [180, 140, 192]], [512, [180, 140, 192]]]]]
         southHvac = templates.get_template("hvacControl.html").render(label="Inside temp",
                             widths=widths[1][1][0],
-                            resourceTemplate=templates.get_template("resource.html"),
+                            templates=templates,
                             tempSensor=resources.getRes("diningRoomTemp"), 
                             heatTargetControl=resources.getRes("southHeatTempTarget"), 
                             coolTargetControl=resources.getRes("southCoolTempTarget"), 
@@ -193,6 +202,7 @@ def iphone3gs():
         widths = [[320, [296, 24]], [320, [240, 80]], [320, [152, 168]]]
         northHvac = templates.get_template("hvacControl.html").render(label="Temperature",
                             widths=widths[2],
+                            templates=templates,
                             stack=True,
                             resourceTemplate=templates.get_template("resource.html"),
                             tempSensor=resources.getRes("masterBedroomTemp"), 
@@ -210,7 +220,7 @@ def iphone3gs():
                             hvac=northHvac,
                             resources=resources.getResList(["porchLights", 
 #                                                            "xmasLights", 
-                                                            "bedroomLights", "recircPump", "garageDoors", "houseDoors"]),
+                                                            "bedroomLights", "recircPump", "garageDoors", "houseDoors", "backHouseDoor"]),
                             views=views)
     return reply
 
