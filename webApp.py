@@ -7,7 +7,7 @@ runRestServer = False
 restIgnore = []
 restPort = 7378
 insideTemp = "diningRoomTemp"
-outsideTemp = "deckTemp"
+outsideTemp = "poolEquipTemp"
 poolTemp = "poolTemp"
 
 import time
