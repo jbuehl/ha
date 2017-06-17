@@ -33,7 +33,7 @@ $(document).ready(function() {
         $('#'+key).text(val[1]);                // set the value
 //        $('#'+key).attr('value', val[1]);     // set the button value
         if (val[0] == 'temp') {                 // set the color of a temp item
-            $('#'+key).css('color', tempColor(val[1]))
+            $('.'+key).css('color', tempColor(val[1]));
             }
         else {                                  // change the class
             $('#'+key).attr('class', val[0]);

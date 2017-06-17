@@ -3,6 +3,7 @@
     <!-- details - display resource details -->
 
         <td>
+        <!-- label-->
         {% if label %} 
             <div class=label>{{ label }}</div>
         {% else %} 
@@ -10,10 +11,12 @@
         {% endif %}
         {% if not stack %}
         </td>
+        <!-- state-->
         <td>
         {% endif %}
-            <div id="{{ resource.name }}" class="{{ resource.type+'_'+resource.getViewState(views) }}">{{ resource.getViewState(views) }}</div>
+            <div id="{{ resource.name }}" class="{{ resource.name }} {{ resource.type+'_'+resource.getViewState(views) }}">{{ resource.getViewState(views) }}</div>
         </td>
+        <!-- controls-->
         <td>
             {% if resource.className != "Sensor" %}
             <div class=control>
@@ -32,6 +35,7 @@
             </div>
             {% endif %}
         </td>
+        <!-- details-->
         {% if details %}
         <td><div class=data>{{ resource.name }}</div></td>
         <td><div class=data>{{ resource.type }}</div></td>
