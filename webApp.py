@@ -30,7 +30,7 @@ def index():
     with resources.lock:
         widths = [1280, [[640, [180, 200, 260]], [640, [180, 200, 260]]]]
         timeGroup = ["Time", resources.getResList(["theDateDayOfWeek", "theTimeAmPm", "sunrise", "sunset"])]
-        weatherGroup = ["Weather", resources.getResList(["deckTemp", "humidity", "barometer"])]
+        weatherGroup = ["Weather", resources.getResList([outsideTemp, "humidity", "barometer"])]
         poolGroup = ["Pool", resources.getResList(["spaFill", "spaFlush", "spaDrain", 
                                                     "filterSequence", "cleanSequence", "flushSequence"])]
         lightsGroup = ["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLights", 
