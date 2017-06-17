@@ -22,7 +22,7 @@
         {% for w in widths[1][1] %}<col width={{ w }}>{% endfor %}
         <tr>
             <td><div id="{{ day.name }}" class="date">{{ day.getViewState(views) }}</div></td>
-            <td><div id="{{ temp.name }}" class="tempF">{{ temp.getViewState(views) }}</div></td>
+            <td><div id="{{ temp.name }}" class="{{ temp.name }}">{{ temp.getViewState(views) }}</div></td>
         </tr>
     </table>
     <table border=0 width={{ widths[2][0] }} style='table-layout:fixed'>

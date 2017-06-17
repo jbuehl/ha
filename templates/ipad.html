@@ -18,8 +18,8 @@
             <td><div id="{{ time.name }}" class="time">{{ time.getViewState(views) }}</div></td>
             <td><div id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState(views) }}</div></td>
             <td><div id="{{ day.name }}" class="date">{{ day.getViewState(views) }}</div></td>
-            <td>Pool<div id="{{ pooltemp.name }}" class="tempF">{{ pooltemp.getViewState(views) }}</div></td>
-            <td>Outside<div id="{{ outtemp.name }}" class="tempF">{{ outtemp.getViewState(views) }}</div></td>
+            <td>Pool<div id="{{ pooltemp.name }}" class="{{ pooltemp.name }}">{{ pooltemp.getViewState(views) }}</div></td>
+            <td>Outside<div id="{{ outtemp.name }}" class="{{ outtemp.name }}">{{ outtemp.getViewState(views) }}</div></td>
             <td>Humidity<div id="{{ humidity.name }}" class="humidity">{{ humidity.getViewState(views) }}</div></td>
         </tr>
     </table>
