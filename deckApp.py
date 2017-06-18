@@ -33,11 +33,15 @@ if __name__ == "__main__":
 
     # Schedules
     shadesDown = Task("shadesDown", SchedTime(hour=[13], minute=[00], month=[Apr, May, Jun, Jul, Aug, Sep]), allShades, 1, enabled=True)
-    shadesUp = Task("shadesUp", SchedTime(minute=-30, event="sunset", month=[Apr, May, Jun, Jul, Aug, Sep]), allShades, 0, enabled=True)
-    schedule = Schedule("schedule", tasks=[shadesDown, shadesUp])
+    shadesUpAprSep = Task("shadesUp", SchedTime(minute=-30, event="sunset", month=[Apr, Sep]), allShades, 0, enabled=True)
+    shadesUpMayAug = Task("shadesUp", SchedTime(minute=-35, event="sunset", month=[May, Aug]), allShades, 0, enabled=True)
+    shadesUpJunJul = Task("shadesUp", SchedTime(minute=-40, event="sunset", month=[Jun, Jul]), allShades, 0, enabled=True)
+    schedule = Schedule("schedule", tasks=[shadesDown, shadesUpAprSep, shadesUpMayAug, shadesUpJunJul])
 
     # Resources
-    resources = Collection("resources", resources=[shade1, shade2, shade3, shade4, allShades, shadesUp, shadesDown, deckTemp, barometer, humidity])
+    resources = Collection("resources", resources=[shade1, shade2, shade3, shade4, allShades, 
+                                                   shadesDown, shadesUpAprSep, shadesUpMayAug, shadesUpJunJul, 
+                                                   deckTemp, barometer, humidity])
     restServer = RestServer(resources, event=stateChangeEvent, label="Shades")
 
     # Start interfaces
