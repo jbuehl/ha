@@ -41,7 +41,7 @@ def index():
 #                                                       "xmasLights", "xmasTree",
                                                        "poolLight", "spaLight"])]
         shadesGroup = ["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])]
-        southHvac = templates.get_template("hvacControl.html").render(label="Living area",
+        southHvac = templates.get_template("hvacWidget.html").render(label="Living area",
                             widths=columnWidths,
                             templates=templates,
                             tempSensor=resources.getRes("diningRoomTemp"), 
@@ -50,7 +50,7 @@ def index():
                             thermostatControl=resources.getRes("southThermostat"), 
                             thermostatUnitSensor=resources.getRes("southThermostatUnitSensor"),
                             views=views)
-        northHvac = templates.get_template("hvacControl.html").render(label="Bedrooms",
+        northHvac = templates.get_template("hvacWidget.html").render(label="Bedrooms",
                             widths=columnWidths,
                             templates=templates,
                             tempSensor=resources.getRes("masterBedroomTemp"), 
@@ -59,7 +59,7 @@ def index():
                             thermostatControl=resources.getRes("northThermostat"), 
                             thermostatUnitSensor=resources.getRes("northThermostatUnitSensor"),
                             views=views)
-        backHvac = templates.get_template("hvacControl.html").render(label="Back house",
+        backHvac = templates.get_template("hvacWidget.html").render(label="Back house",
                             widths=columnWidths,
                             templates=templates,
                             tempSensor=resources.getRes("backHouseTemp"), 
@@ -161,7 +161,7 @@ def ipad():
         headerWidths = [screenWidth, [62, 58, 312, 200, 200, 180]]
         widths = [screenWidth, [columnWidths, columnWidths]]
         widths = [headerWidths, [screenWidth, [columnWidths, columnWidths]]]
-        southHvac = templates.get_template("hvacControl.html").render(label="Inside temp",
+        southHvac = templates.get_template("hvacWidget.html").render(label="Inside temp",
                             widths=columnWidths,
                             templates=templates,
                             tempSensor=resources.getRes("diningRoomTemp"), 
@@ -220,7 +220,7 @@ def iphone3gs():
     debug('debugWeb', "/iphone3gs", cherrypy.request.method)
     with resources.lock:
         widths = [[320, [296, 24]], [320, [240, 80]], [320, [152, 168]]]
-        northHvac = templates.get_template("hvacControl.html").render(label="Temperature",
+        northHvac = templates.get_template("hvacWidget.html").render(label="Temperature",
                             widths=widths[2],
                             templates=templates,
                             stack=True,

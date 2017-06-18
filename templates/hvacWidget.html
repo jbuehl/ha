@@ -19,7 +19,7 @@
         <tr>{{ resourceTemplate.render(resource=heatTargetControl, views=views, details=False, stack=stack, label="Heat set") }}</tr>
         <tr>{{ resourceTemplate.render(resource=coolTargetControl, views=views, details=False, stack=stack, label="Cool set") }}</tr>
         {% if thermostatControl %}
-        <tr>{{ resourceTemplate.render(resource=thermostatControl, views=views, details=False, stack=stack) }}</tr>
+        <tr>{{ resourceTemplate.render(resource=thermostatControl, views=views, details=False, stack=stack, label="Thermostat") }}</tr>
         {% endif %}
     </table>
 

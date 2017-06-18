@@ -1,5 +1,5 @@
 {% set groupTemplate = templates.get_template("group.html") %}
-{% set spaTempTemplate = templates.get_template("spaTemp.html") %}
+{% set spaTemplate = templates.get_template("spaWidget.html") %}
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
 <head>
     <title>{{ title }}</title>
@@ -34,7 +34,7 @@
                 {{ groupTemplate.render(templates=templates, widths=widths[1][1][0], group=lightsGroup, details=False, name=False, views=views) }}
             </td>
             <td>
-                <br>{{ spaTempTemplate.render(templates=templates, widths=widths[1][1][1], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=2, views=views) }}
+                <br>{{ spaTemplate.render(templates=templates, widths=widths[1][1][1], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=2, views=views) }}
                 {{ groupTemplate.render(templates=templates, widths=widths[1][1][1], group=sprinklersGroup, details=False, name=False, views=views) }}
             </td>
         </tr>

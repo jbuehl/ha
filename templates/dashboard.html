@@ -1,6 +1,6 @@
 {% set groupTemplate = templates.get_template("group.html") %}
-{% set spaTempTemplate = templates.get_template("spaTemp.html") %}
-{% set poolPumpControlTemplate = templates.get_template("poolPumpControl.html") %}
+{% set spaTemplate = templates.get_template("spaWidget.html") %}
+{% set poolPumpControlTemplate = templates.get_template("poolPumpWidget.html") %}
 <!DOCTYPE html>
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
 <head>
@@ -22,7 +22,7 @@
                 {{ groupTemplate.render(templates=templates, widths=widths[1][0], group=lightsGroup, details=False, name=True, link=True, views=views) }}
                 {{ groupTemplate.render(templates=templates, widths=widths[1][0], group=poolGroup, details=False, name=True, link=True, views=views) }}
                 {{ poolPumpControlTemplate.render(templates=templates, widths=widths[1][0], poolPumpControl=poolPumpControl, poolPumpFlowSensor=poolPumpFlowSensor, nSetValues=5, views=views) }}
-                {{ spaTempTemplate.render(templates=templates, widths=widths[1][0], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=3, views=views) }}
+                {{ spaTemplate.render(templates=templates, widths=widths[1][0], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=3, views=views) }}
             </td>
             <td>
                 {{ groupTemplate.render(templates=templates, widths=widths[1][1], group=shadesGroup, details=False, name=True, link=True, views=views) }}
