@@ -33,9 +33,9 @@ if __name__ == "__main__":
 
     # Schedules
     shadesDown = Task("shadesDown", SchedTime(hour=[13], minute=[00], month=[Apr, May, Jun, Jul, Aug, Sep]), allShades, 1, enabled=True)
-    shadesUpAprSep = Task("shadesUp", SchedTime(minute=-30, event="sunset", month=[Apr, Sep]), allShades, 0, enabled=True)
-    shadesUpMayAug = Task("shadesUp", SchedTime(minute=-35, event="sunset", month=[May, Aug]), allShades, 0, enabled=True)
-    shadesUpJunJul = Task("shadesUp", SchedTime(minute=-40, event="sunset", month=[Jun, Jul]), allShades, 0, enabled=True)
+    shadesUpAprSep = Task("shadesUpAprSep", SchedTime(minute=-30, event="sunset", month=[Apr, Sep]), allShades, 0, enabled=True)
+    shadesUpMayAug = Task("shadesUpMayAug", SchedTime(minute=-35, event="sunset", month=[May, Aug]), allShades, 0, enabled=True)
+    shadesUpJunJul = Task("shadesUpJunJul", SchedTime(minute=-40, event="sunset", month=[Jun, Jul]), allShades, 0, enabled=True)
     schedule = Schedule("schedule", tasks=[shadesDown, shadesUpAprSep, shadesUpMayAug, shadesUpJunJul])
 
     # Resources
