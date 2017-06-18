@@ -33,8 +33,21 @@ def index():
         columnWidth = screenWidth/2
         columnWidths = [columnWidth, [labelWidth, 200, 260]]
         widths = [screenWidth, [columnWidths, columnWidths]]
-        timeGroup = ["Time", resources.getResList(["theDateDayOfWeek", "theTimeAmPm", "sunrise", "sunset"])]
-        weatherGroup = ["Weather", resources.getResList([outsideTemp, "humidity", "barometer"])]
+        timeGroup = templates.get_template("timeWidget.html").render(
+                            widths=[columnWidth, labelWidth],
+                            templates=templates,
+                            date=resources["theDateDayOfWeek"],
+                            time=resources["theTimeAmPm"],
+                            sunrise=resources["sunrise"],
+                            sunset=resources["sunset"],
+                            views=views)
+        weatherGroup = templates.get_template("weatherWidget.html").render(
+                            widths=[columnWidth, labelWidth],
+                            templates=templates,
+                            temp=resources[outsideTemp],
+                            humidity=resources["barometer"],
+                            barometer=resources["humidity"],
+                            views=views)
         poolGroup = ["Pool", resources.getResList(["spaFill", "spaFlush", "spaDrain", 
                                                     "filterSequence", "cleanSequence", "flushSequence"])]
         lightsGroup = ["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLights", 

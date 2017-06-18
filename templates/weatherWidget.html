@@ -1,0 +1,20 @@
+    <!-- temp - the current outside temperature -->
+    <!-- humidity - the current humidity -->
+    <!-- barometer - the current air pressure -->
+
+{% set resourceTemplate = templates.get_template("resource.html") %}
+    <table border=0 width={{ widths[0] }} style='table-layout:fixed'>
+        <col width={{ widths[1] }}>
+        {% for w in range(5) %}
+        <col width={{ (widths[0] - widths[1]) / 5 }}>
+        {% endfor %}
+        <tr>
+        <td><div class=label>Outside temperature</div></td>
+        <td><div class="tempF {{ temp.name }}">{{ temp.getViewState(views) }}</div></td>
+        <td><div class=rlabel>Humidity</div></td>
+        <td><div class=humidity>{{ humidity.getViewState(views) }}</div></td>
+        <td><div class=rlabel>Barometer</div></td>
+        <td><div class=barometer>{{ barometer.getViewState(views) }}</div></td>
+        </tr>
+    </table>
+
