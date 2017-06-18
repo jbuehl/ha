@@ -1,6 +1,4 @@
 {% set groupTemplate = templates.get_template("group.html") %}
-{% set spaTemplate = templates.get_template("spaWidget.html") %}
-{% set poolPumpControlTemplate = templates.get_template("poolPumpWidget.html") %}
 <!DOCTYPE html>
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
 <head>
@@ -21,13 +19,14 @@
                 <a href="/details?group=Weather"><h2>Weather</h2></a>{{ weatherGroup }}
                 <a href="/details?group=Power"><h2>Power</h2></a>{{ powerGroup }}
                 {{ groupTemplate.render(templates=templates, widths=widths[1][0], group=lightsGroup, details=False, name=True, link=True, views=views) }}
-                {{ groupTemplate.render(templates=templates, widths=widths[1][0], group=poolGroup, details=False, name=True, link=True, views=views) }}
-                {{ poolPumpControlTemplate.render(templates=templates, widths=widths[1][0], poolPumpControl=poolPumpControl, poolPumpFlowSensor=poolPumpFlowSensor, nSetValues=5, views=views) }}
-                {{ spaTemplate.render(templates=templates, widths=widths[1][0], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=3, views=views) }}
+                <a href="/details?group=Pool"><h2>Pool</h2></a>
+                    {{ poolPumpGroup }}
+                    {{ spaGroup }}
+                    {{ groupTemplate.render(templates=templates, widths=widths[1][0], group=poolGroup, details=False, name=False, link=False, views=views) }}
             </td>
             <td>
                 {{ groupTemplate.render(templates=templates, widths=widths[1][1], group=shadesGroup, details=False, name=True, link=True, views=views) }}
-                <a href="/details?group=Hvac"><h2>Hvac</h2></a>{{ hvac }}
+                <a href="/details?group=Hvac"><h2>Hvac</h2></a>{{ hvacGroup }}
                 {{ groupTemplate.render(templates=templates, widths=widths[1][1], group=sprinklersGroup, details=False, name=True, link=True, views=views) }}
             </td>
         </tr>

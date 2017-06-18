@@ -30,12 +30,12 @@
         <tr>
             <td>
                 <br>{{ hvac }}
-                {{ groupTemplate.render(templates=templates, widths=widths[1][1][0], group=shadesGroup, details=False, name=False, views=views) }}
-                {{ groupTemplate.render(templates=templates, widths=widths[1][1][0], group=lightsGroup, details=False, name=False, views=views) }}
+                <br>{{ groupTemplate.render(templates=templates, widths=widths[1][1][0], group=shadesGroup, details=False, name=False, views=views) }}
+                <br>{{ groupTemplate.render(templates=templates, widths=widths[1][1][0], group=lightsGroup, details=False, name=False, views=views) }}
             </td>
             <td>
                 <br>{{ spaTemplate.render(templates=templates, widths=widths[1][1][1], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=2, views=views) }}
-                {{ groupTemplate.render(templates=templates, widths=widths[1][1][1], group=sprinklersGroup, details=False, name=False, views=views) }}
+                <br>{{ groupTemplate.render(templates=templates, widths=widths[1][1][1], group=sprinklersGroup, details=False, name=False, views=views) }}
             </td>
         </tr>
     </table>

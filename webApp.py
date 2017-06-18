@@ -48,7 +48,22 @@ def index():
                             humidity=resources["barometer"],
                             barometer=resources["humidity"],
                             views=views)
-        poolGroup = ["Pool", resources.getResList(["spaFill", "spaFlush", "spaDrain", 
+        spaGroup = templates.get_template("spaWidget.html").render(
+                            templates=templates, 
+                            widths=columnWidths, 
+                            spa=resources.getRes("spa"), 
+                            spaTemp=resources.getRes("spaTemp"),
+                            spaTempTarget=resources.getRes("spaTempTarget"),
+                            nSetValues=3, 
+                            views=views)
+        poolPumpGroup = templates.get_template("poolPumpWidget.html").render(
+                            templates=templates, 
+                            widths=columnWidths, 
+                            poolPumpControl=resources.getRes("poolPump"),
+                            poolPumpFlowSensor=resources.getRes("poolPumpFlow"),
+                            nSetValues=5, 
+                            views=views)
+        poolGroup = ["Pool", resources.getResList(["poolTemp", "spaFill", "spaFlush", "spaDrain", 
                                                     "filterSequence", "cleanSequence", "flushSequence"])]
         lightsGroup = ["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLights", 
 #                                                       "xmasLights", "xmasTree",
@@ -94,17 +109,14 @@ def index():
         reply = templates.get_template("dashboard.html").render(script="",
                             templates=templates,
                             widths=widths,
-                            spa=resources.getRes("spa"),
-                            spaTemp=resources.getRes("spaTemp"),
-                            spaTempTarget=resources.getRes("spaTempTarget"),
-                            poolPumpControl=resources.getRes("poolPump"),
-                            poolPumpFlowSensor=resources.getRes("poolPumpFlow"),
                             timeGroup=timeGroup,
                             weatherGroup=weatherGroup,
+                            poolPumpGroup=poolPumpGroup,
                             poolGroup=poolGroup,
+                            spaGroup=spaGroup,
                             lightsGroup=lightsGroup,
                             shadesGroup=shadesGroup,
-                            hvac=southHvac+northHvac+backHvac,
+                            hvacGroup=southHvac+northHvac+backHvac,
                             sprinklersGroup=sprinklersGroup,
                             powerGroup=powerGroup,
                             views=views)
