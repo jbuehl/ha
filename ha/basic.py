@@ -31,7 +31,7 @@ def normalState(value):
     
 # Base class for Resources
 class Resource(object):
-    def __init__(self, name):
+    def __init__(self, name, persistence=None, defaultAttrs={}):
         try:
             if self.name:   # init has already been called for this object
                 return
@@ -39,6 +39,14 @@ class Resource(object):
             self.name = name
             debug('debugObject', self.name, "created")
             self.className = self.__class__.__name__    # hack for web templates - FIXME
+        # optional state persistence interface
+        if persistence:
+            self.persistence = persistence
+            self.defaultAttrs = defaultAttrs
+            try:
+                self.__dict__.update(defaultAttrs.update(self.persistence.read(self.name)))
+            except:
+                pass
 
     def __str__(self, level=0):
         return self.name+" "+self.__class__.__name__
@@ -46,11 +54,9 @@ class Resource(object):
 # Base class for Interfaces 
 class Interface(Resource):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface=None, event=None, persistence=None):
+    def __init__(self, name, interface=None, event=None):
         Resource.__init__(self, name)
         self.interface = interface
-        # optional sensor state persistence layer
-        self.persistence = persistence
         # sensor state change event
         if event != None:                   # use the specified one
             self.event = event
@@ -65,13 +71,9 @@ class Interface(Resource):
         self.enabled = True
 
     def start(self):
-        if self.persistence:
-            self.persistence.start()
         return True
         
     def stop(self):
-        if self.persistence:
-            self.persistence.stop()
         return True
         
     def read(self, addr):
