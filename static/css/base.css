@@ -64,6 +64,10 @@ td {
     text-align: left;
     }
 
+.rlabel {
+    text-align: right;
+    }
+
 .control {
     font-weight: normal;
     text-align: left;
@@ -382,5 +386,29 @@ td {
 
 .valveMode_Moving {
     color: Orange;
+    }
+
+.V {
+	color: Yellow;
+    }
+
+.W {
+	color: Orange;
+    }
+
+.KW {
+	color: Orange;
+    }
+
+.KVA {
+	color: Orange;
+    }
+
+.KWh {
+	color: OrangeRed;
+    }
+
+.MWh {
+	color: OrangeRed;
     }
 

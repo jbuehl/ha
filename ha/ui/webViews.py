@@ -89,6 +89,6 @@ views = {"power": View({}, "%d W"),
 
 # by default the UI will create a css class based on the state value
 # these types are the exceptions
-staticTypes = ["time", "ampm", "date", "W", "KW"]          # types whose class does not depend on their value
+staticTypes = ["time", "ampm", "date", "KVA", "W", "V", "KW", "MW", "KWh"]          # types whose class does not depend on their value
 tempTypes = ["tempF", "tempFControl", "tempC", "spaTemp"]       # temperatures
                             

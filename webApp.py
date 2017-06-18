@@ -28,7 +28,11 @@ stateChangeEvent = threading.Event()
 def index():
     debug('debugWeb', "/")
     with resources.lock:
-        widths = [1280, [[640, [180, 200, 260]], [640, [180, 200, 260]]]]
+        screenWidth = 1280
+        labelWidth = 180
+        columnWidth = screenWidth/2
+        columnWidths = [columnWidth, [labelWidth, 200, 260]]
+        widths = [screenWidth, [columnWidths, columnWidths]]
         timeGroup = ["Time", resources.getResList(["theDateDayOfWeek", "theTimeAmPm", "sunrise", "sunset"])]
         weatherGroup = ["Weather", resources.getResList([outsideTemp, "humidity", "barometer"])]
         poolGroup = ["Pool", resources.getResList(["spaFill", "spaFlush", "spaDrain", 
@@ -38,7 +42,7 @@ def index():
                                                        "poolLight", "spaLight"])]
         shadesGroup = ["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])]
         southHvac = templates.get_template("hvacControl.html").render(label="Living area",
-                            widths=widths[1][1],
+                            widths=columnWidths,
                             templates=templates,
                             tempSensor=resources.getRes("diningRoomTemp"), 
                             heatTargetControl=resources.getRes("southHeatTempTarget"), 
@@ -47,7 +51,7 @@ def index():
                             thermostatUnitSensor=resources.getRes("southThermostatUnitSensor"),
                             views=views)
         northHvac = templates.get_template("hvacControl.html").render(label="Bedrooms",
-                            widths=widths[1][1],
+                            widths=columnWidths,
                             templates=templates,
                             tempSensor=resources.getRes("masterBedroomTemp"), 
                             heatTargetControl=resources.getRes("northHeatTempTarget"), 
@@ -56,7 +60,7 @@ def index():
                             thermostatUnitSensor=resources.getRes("northThermostatUnitSensor"),
                             views=views)
         backHvac = templates.get_template("hvacControl.html").render(label="Back house",
-                            widths=widths[1][1],
+                            widths=columnWidths,
                             templates=templates,
                             tempSensor=resources.getRes("backHouseTemp"), 
                             heatTargetControl=resources.getRes("backHeatTempTarget"), 
@@ -65,7 +69,15 @@ def index():
                             thermostatUnitSensor=resources.getRes("backThermostatUnitSensor"),
                             views=views)
         sprinklersGroup = ["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "backBedSequence", "frontLawnSequence"])]
-        powerGroup = ["Power", resources.getResList(["currentVoltage", "currentLoad", "currentPower", "todaysEnergy"])]
+        powerGroup = templates.get_template("powerWidget.html").render(
+                            widths=[columnWidth, labelWidth],
+                            templates=templates,
+                            power=resources["currentPower"],
+                            load=resources["currentLoad"],
+                            voltage=resources["currentVoltage"],
+                            energy=resources["todaysEnergy"],
+                            lifetime=resources["lifetimeEnergy"],
+                            views=views)
         reply = templates.get_template("dashboard.html").render(script="",
                             templates=templates,
                             widths=widths,
@@ -97,7 +109,9 @@ def details(group=None):
                   "Services", "Tasks"]
         details = True
     with resources.lock:
-        widths = [1280, [220, 160, 260, 120, 100, 120, 240, 60]]
+        screenWidth = 1280
+        labelWidth = 220
+        widths = [screenWidth, [labelWidth, 160, 260, 120, 100, 120, 240, 60]]
         reply = templates.get_template("details.html").render(title=webPageTitle, script="", 
                             templates=templates,
                             widths=widths,
@@ -140,9 +154,15 @@ def solar():
 def ipad():
     debug('debugWeb', "/ipad", cherrypy.request.method)
     with resources.lock:
-        widths = [[1024, [62, 58, 312, 200, 200, 180]], [1024, [[512, [180, 140, 192]], [512, [180, 140, 192]]]]]
+        screenWidth = 1024
+        labelWidth = 180
+        columnWidth = screenWidth/2
+        columnWidths = [columnWidth, [labelWidth, 140, 192]]
+        headerWidths = [screenWidth, [62, 58, 312, 200, 200, 180]]
+        widths = [screenWidth, [columnWidths, columnWidths]]
+        widths = [headerWidths, [screenWidth, [columnWidths, columnWidths]]]
         southHvac = templates.get_template("hvacControl.html").render(label="Inside temp",
-                            widths=widths[1][1][0],
+                            widths=columnWidths,
                             templates=templates,
                             tempSensor=resources.getRes("diningRoomTemp"), 
                             heatTargetControl=resources.getRes("southHeatTempTarget"), 
