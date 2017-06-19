@@ -15,9 +15,13 @@
         <col width={{ w }}>
         {% endfor %}
         <tr>
-            <td><div id="{{ time.name }}" class="time">{{ time.getViewState(views) }}</div></td>
-            <td><div id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState(views) }}</div></td>
-            <td><div id="{{ day.name }}" class="date">{{ day.getViewState(views) }}</div></td>
+            <td><div class=location>{{ location }}</div>
+                <div>
+                <span id="{{ time.name }}" class="time">{{ time.getViewState(views) }}</span>
+                <span id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState(views) }}</span>
+                <span id="{{ day.name }}" class="date">{{ day.getViewState(views) }}</span>
+                </div>
+            </td>
             <td>Pool<div id="{{ pooltemp.name }}" class="{{ pooltemp.name }}">{{ pooltemp.getViewState(views) }}</div></td>
             <td>Outside<div id="{{ outtemp.name }}" class="{{ outtemp.name }}">{{ outtemp.getViewState(views) }}</div></td>
             <td>Humidity<div id="{{ humidity.name }}" class="humidity">{{ humidity.getViewState(views) }}</div></td>
@@ -30,8 +34,8 @@
         <tr>
             <td>
                 <br>{{ hvac }}
-                <br>{{ groupTemplate.render(templates=templates, widths=widths[1][1][0], group=shadesGroup, details=False, name=False, views=views) }}
                 <br>{{ groupTemplate.render(templates=templates, widths=widths[1][1][0], group=lightsGroup, details=False, name=False, views=views) }}
+                <br>{{ groupTemplate.render(templates=templates, widths=widths[1][1][0], group=shadesGroup, details=False, name=False, views=views) }}
             </td>
             <td>
                 <br>{{ spaTemplate.render(templates=templates, widths=widths[1][1][1], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=2, views=views) }}

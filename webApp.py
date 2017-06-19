@@ -18,6 +18,7 @@ from ha.interfaces.timeInterface import *
 from ha.rest.restServer import *
 from ha.rest.restProxy import *
 from ha.ui.webUI import *
+from ha.ui.dashboardUI import *
 
 # global variables
 templates = None
@@ -27,176 +28,70 @@ stateChangeEvent = threading.Event()
 # default - dashboard                
 def index():
     debug('debugWeb', "/")
-    with resources.lock:
-        screenWidth = 1280
-        labelWidth = 180
-        columnWidth = screenWidth/2
-        columnWidths = [columnWidth, [labelWidth, 200, 260]]
-        widths = [screenWidth, [columnWidths, columnWidths]]
-        timeGroup = templates.get_template("timeWidget.html").render(
-                            widths=[columnWidth, labelWidth],
-                            templates=templates,
-                            date=resources["theDateDayOfWeek"],
-                            time=resources["theTimeAmPm"],
-                            sunrise=resources["sunrise"],
-                            sunset=resources["sunset"],
-                            views=views)
-        weatherGroup = templates.get_template("weatherWidget.html").render(
-                            widths=[columnWidth, labelWidth],
-                            templates=templates,
-                            temp=resources[outsideTemp],
-                            humidity=resources["barometer"],
-                            barometer=resources["humidity"],
-                            views=views)
-        spaGroup = templates.get_template("spaWidget.html").render(
-                            templates=templates, 
-                            widths=columnWidths, 
-                            spa=resources.getRes("spa"), 
-                            spaTemp=resources.getRes("spaTemp"),
-                            spaTempTarget=resources.getRes("spaTempTarget"),
-                            nSetValues=3, 
-                            views=views)
-        poolPumpGroup = templates.get_template("poolPumpWidget.html").render(
-                            templates=templates, 
-                            widths=columnWidths, 
-                            poolPumpControl=resources.getRes("poolPump"),
-                            poolPumpFlowSensor=resources.getRes("poolPumpFlow"),
-                            nSetValues=5, 
-                            views=views)
-        poolGroup = ["Pool", resources.getResList(["poolTemp", "spaFill", "spaFlush", "spaDrain", 
-                                                    "filterSequence", "cleanSequence", "flushSequence"])]
-        lightsGroup = ["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLights", 
-#                                                       "xmasLights", "xmasTree",
-                                                       "poolLight", "spaLight"])]
-        shadesGroup = ["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])]
-        southHvac = templates.get_template("hvacWidget.html").render(label="Living area",
-                            widths=columnWidths,
-                            templates=templates,
-                            tempSensor=resources.getRes("diningRoomTemp"), 
-                            heatTargetControl=resources.getRes("southHeatTempTarget"), 
-                            coolTargetControl=resources.getRes("southCoolTempTarget"), 
-                            thermostatControl=resources.getRes("southThermostat"), 
-                            thermostatUnitSensor=resources.getRes("southThermostatUnitSensor"),
-                            views=views)
-        northHvac = templates.get_template("hvacWidget.html").render(label="Bedrooms",
-                            widths=columnWidths,
-                            templates=templates,
-                            tempSensor=resources.getRes("masterBedroomTemp"), 
-                            heatTargetControl=resources.getRes("northHeatTempTarget"), 
-                            coolTargetControl=resources.getRes("northCoolTempTarget"), 
-                            thermostatControl=resources.getRes("northThermostat"), 
-                            thermostatUnitSensor=resources.getRes("northThermostatUnitSensor"),
-                            views=views)
-        backHvac = templates.get_template("hvacWidget.html").render(label="Back house",
-                            widths=columnWidths,
-                            templates=templates,
-                            tempSensor=resources.getRes("backHouseTemp"), 
-                            heatTargetControl=resources.getRes("backHeatTempTarget"), 
-                            coolTargetControl=resources.getRes("backCoolTempTarget"), 
-                            thermostatControl=resources.getRes("backThermostat"), 
-                            thermostatUnitSensor=resources.getRes("backThermostatUnitSensor"),
-                            views=views)
-        sprinklersGroup = ["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "backBedSequence", "frontLawnSequence"])]
-        powerGroup = templates.get_template("powerWidget.html").render(
-                            widths=[columnWidth, labelWidth],
-                            templates=templates,
-                            power=resources["currentPower"],
-                            load=resources["currentLoad"],
-                            voltage=resources["currentVoltage"],
-                            energy=resources["todaysEnergy"],
-                            lifetime=resources["lifetimeEnergy"],
-                            views=views)
-        reply = templates.get_template("dashboard.html").render(script="",
-                            templates=templates,
-                            widths=widths,
-                            timeGroup=timeGroup,
-                            weatherGroup=weatherGroup,
-                            poolPumpGroup=poolPumpGroup,
-                            poolGroup=poolGroup,
-                            spaGroup=spaGroup,
-                            lightsGroup=lightsGroup,
-                            shadesGroup=shadesGroup,
-                            hvacGroup=southHvac+northHvac+backHvac,
-                            sprinklersGroup=sprinklersGroup,
-                            powerGroup=powerGroup,
-                            views=views)
-    return reply
+    return dashboardUI(resources, templates, views)
     
 # show all resource details or specified group                
 def details(group=None):
     debug('debugWeb', "/detail", group)
     try:
-        groups = [group.capitalize()]
+        groups = [[group.capitalize(), resources.getGroup(group)]]
         details = False
     except:
-        groups = ["Time", "Weather", "Temperature", "Hvac", "Pool", "Lights", "Shades", "Doors", 
-                  "Sprinklers", "Water", "Power", "Solar", "Inverters", "Optimizers", "Cameras", 
-                  "Services", "Tasks"]
+        groups = [[group, resources.getGroup(group)] for group in ["Time", "Weather", "Temperature", 
+                    "Hvac", "Pool", "Lights", "Shades", "Doors", 
+                    "Sprinklers", "Water", "Power", "Solar", "Inverters", "Optimizers", "Cameras", 
+                    "Services", "Tasks"]]
         details = True
     with resources.lock:
         screenWidth = 1280
         labelWidth = 220
         widths = [screenWidth, [labelWidth, 160, 260, 120, 100, 120, 240, 60]]
-        reply = templates.get_template("details.html").render(title=webPageTitle, script="", 
+        return templates.get_template("details.html").render(title=webPageTitle, script="", 
                             templates=templates,
                             widths=widths,
-                            groups=[[group, resources.getGroup(group)] for group in groups],
+                            groups=groups,
                             views=views,
                             details=details,
                             link=False)
-    return reply
     
-# Solar   
-def solar():
-    debug('debugWeb', "/solar", cherrypy.request.method)
-    with resources.lock:
-        reply = templates.get_template("solar.html").render(script="",
-                            dayOfWeek=resources.getRes("theDayOfWeek"),
-                            date=resources.getRes("theDate"),
-                            time=resources.getRes("theTime"),
-                            ampm=resources.getRes("theAmPm"),
-                            sunrise=resources.getRes("sunrise"),
-                            sunset=resources.getRes("sunset"),
-                            latitude="%7.3f "%(abs(latLong[0])+.0005)+("N" if latLong[0]>0 else "S"), 
-                            longitude="%7.3f "%(abs(latLong[1])+.0005)+("E" if latLong[1]>0 else "W"), 
-                            elevation="%d ft"%(elevation),
-                            airTemp=resources.getRes(outsideTemp),
-                            inverterTemp=resources.getRes("inverterTemp"), 
-                            roofTemp=resources.getRes("roofTemp"), 
-                            currentVoltage=resources.getRes("currentVoltage"), 
-                            currentLoad=resources.getRes("currentLoad"), 
-                            currentPower=resources.getRes("currentPower"), 
-                            todaysEnergy=resources.getRes("todaysEnergy"), 
-                            lifetimeEnergy=resources.getRes("lifetimeEnergy"), 
-                            inverters=resources.getGroup("Inverters"), 
-                            invertersEnergy=resources.getGroup("InvertersEnergy"), 
-                            optimizers=resources.getGroup("Optimizers"), 
-                            optimizersEnergy=resources.getGroup("OptimizersEnergy"), 
-                            views=views)
-    return reply
-
 # iPad - 1024x768   
-def ipad():
+def ipad(location=""):
     debug('debugWeb', "/ipad", cherrypy.request.method)
     with resources.lock:
         screenWidth = 1024
         labelWidth = 180
         columnWidth = screenWidth/2
-        columnWidths = [columnWidth, [labelWidth, 140, 192]]
-        headerWidths = [screenWidth, [62, 58, 312, 200, 200, 180]]
+        columnWidths = [columnWidth, [labelWidth, 134, 190]]
+        headerWidths = [screenWidth, [432, 180, 180, 180]]
         widths = [screenWidth, [columnWidths, columnWidths]]
         widths = [headerWidths, [screenWidth, [columnWidths, columnWidths]]]
-        southHvac = templates.get_template("hvacWidget.html").render(label="Inside temp",
-                            widths=columnWidths,
-                            templates=templates,
-                            tempSensor=resources.getRes("diningRoomTemp"), 
-                            heatTargetControl=resources.getRes("southHeatTempTarget"), 
-                            coolTargetControl=resources.getRes("southCoolTempTarget"), 
-                            thermostatUnitSensor=resources.getRes("southThermostatUnitSensor"),
-                            views=views)
+        lightsGroup=["Lights", resources.getResList(["porchLights", "poolLight", "spaLight"])]
+        if location == "backhouse":
+            location = "Back house"
+            hvac = templates.get_template("hvacWidget.html").render(label="Inside temp",
+                    widths=columnWidths,
+                    templates=templates,
+                    tempSensor=resources.getRes("backHouseTemp"), 
+                    heatTargetControl=resources.getRes("backHeatTempTarget"), 
+                    coolTargetControl=resources.getRes("backCoolTempTarget"), 
+                    thermostatUnitSensor=resources.getRes("backThermostatUnitSensor"),
+                    views=views)
+            shadesGroup = []
+        else:
+            location = "Kitchen"
+            hvac = templates.get_template("hvacWidget.html").render(label="Inside temp",
+                    widths=columnWidths,
+                    templates=templates,
+                    tempSensor=resources.getRes("diningRoomTemp"), 
+                    heatTargetControl=resources.getRes("southHeatTempTarget"), 
+                    coolTargetControl=resources.getRes("southCoolTempTarget"), 
+                    thermostatUnitSensor=resources.getRes("southThermostatUnitSensor"),
+                    views=views)
+            shadesGroup=["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])]
         reply = templates.get_template("ipad.html").render(script="", 
                             templates=templates,
                             widths=widths,
+                            location=location,
                             time=resources.getRes("theTime"),
                             ampm=resources.getRes("theAmPm"),
                             day=resources.getRes("theDay"),
@@ -206,13 +101,14 @@ def ipad():
                             spa=resources.getRes("spa"),
                             spaTemp=resources.getRes("spaTemp"),
                             spaTempTarget=resources.getRes("spaTempTarget"),
-                            lightsGroup=["Lights", resources.getResList(["porchLights", "poolLight", "spaLight"])], 
+                            lightsGroup=lightsGroup, 
 #                           xmasGroup=["Lights", resources.getResList(["porchLights", "xmasLights", "xmasTree"])], 
 #                                      ["Lights", resources.getResList(["bbqLights", "backYardLights"])], 
 #                                      ["Lights", resources.getResList(["xmasTree", "xmasCowTree", "xmasLights"])], 
-                            shadesGroup=["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])], 
-                            hvac=southHvac, 
-                            sprinklersGroup=["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"])],
+                            shadesGroup=shadesGroup, 
+                            hvac=hvac, 
+                            sprinklersGroup=["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "backBedSequence", 
+                                                                                 "sideBedSequence", "frontLawnSequence"])],
                             views=views)
     return reply
 
@@ -268,6 +164,34 @@ def iphone3gs():
                                                             "bedroomLights", "recircPump", "garageDoors", "houseDoors", "backHouseDoor"]),
                             views=views)
     return reply
+
+# Solar   
+def solar():
+    debug('debugWeb', "/solar", cherrypy.request.method)
+    with resources.lock:
+        return templates.get_template("solar.html").render(script="",
+                            dayOfWeek=resources.getRes("theDayOfWeek"),
+                            date=resources.getRes("theDate"),
+                            time=resources.getRes("theTime"),
+                            ampm=resources.getRes("theAmPm"),
+                            sunrise=resources.getRes("sunrise"),
+                            sunset=resources.getRes("sunset"),
+                            latitude="%7.3f "%(abs(latLong[0])+.0005)+("N" if latLong[0]>0 else "S"), 
+                            longitude="%7.3f "%(abs(latLong[1])+.0005)+("E" if latLong[1]>0 else "W"), 
+                            elevation="%d ft"%(elevation),
+                            airTemp=resources.getRes(outsideTemp),
+                            inverterTemp=resources.getRes("inverterTemp"), 
+                            roofTemp=resources.getRes("roofTemp"), 
+                            currentVoltage=resources.getRes("currentVoltage"), 
+                            currentLoad=resources.getRes("currentLoad"), 
+                            currentPower=resources.getRes("currentPower"), 
+                            todaysEnergy=resources.getRes("todaysEnergy"), 
+                            lifetimeEnergy=resources.getRes("lifetimeEnergy"), 
+                            inverters=resources.getGroup("Inverters"), 
+                            invertersEnergy=resources.getGroup("InvertersEnergy"), 
+                            optimizers=resources.getGroup("Optimizers"), 
+                            optimizersEnergy=resources.getGroup("OptimizersEnergy"), 
+                            views=views)
 
 # dispatch table
 pathDict = {"": index,

@@ -5,9 +5,9 @@
         <td>
         <!-- label-->
         {% if label %} 
-            <div class=label>{{ label }}</div>
+            <div class=label{% if indent %} style=text-indent:8px{% endif %}>{{ label }}</div>
         {% else %} 
-            <div class=label>{{ resource.label }}</div>
+            <div class=label{% if indent %} style=text-indent:8px{% endif %}>{{ resource.label }}</div>
         {% endif %}
         {% if not stack %}
         </td>

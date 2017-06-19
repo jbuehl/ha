@@ -15,19 +15,16 @@
         {% endfor %}
         <tr>
             <td>
-                <a href="/details?group=Time"><h2>Time</h2></a>{{ timeGroup }}
-                <a href="/details?group=Weather"><h2>Weather</h2></a>{{ weatherGroup }}
-                <a href="/details?group=Power"><h2>Power</h2></a>{{ powerGroup }}
-                {{ groupTemplate.render(templates=templates, widths=widths[1][0], group=lightsGroup, details=False, name=True, link=True, views=views) }}
-                <a href="/details?group=Pool"><h2>Pool</h2></a>
-                    {{ poolPumpGroup }}
-                    {{ spaGroup }}
-                    {{ groupTemplate.render(templates=templates, widths=widths[1][0], group=poolGroup, details=False, name=False, link=False, views=views) }}
+                {{ timeGroup }}
+                {{ weatherGroup }}
+                {{ powerGroup }}
+                {{ lightsGroup }}
+                {{ poolGroup }}
             </td>
             <td>
-                {{ groupTemplate.render(templates=templates, widths=widths[1][1], group=shadesGroup, details=False, name=True, link=True, views=views) }}
-                <a href="/details?group=Hvac"><h2>Hvac</h2></a>{{ hvacGroup }}
-                {{ groupTemplate.render(templates=templates, widths=widths[1][1], group=sprinklersGroup, details=False, name=True, link=True, views=views) }}
+                {{ shadesGroup }}
+                {{ hvacGroup }}
+                {{ sprinklersGroup }}
             </td>
         </tr>
     </table>

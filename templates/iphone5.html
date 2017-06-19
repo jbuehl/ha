@@ -19,7 +19,7 @@
         <tr>
             <td><div id="{{ time.name }}" class="time">{{ time.getViewState(views) }}</div></td>
             <td><div id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState(views) }}</div></td>
-            <td><div id="{{ temp.name }}" class="tempF">{{ temp.getViewState(views) }}</div></td>
+            <td><div id="{{ temp.name }}" class="tempF {{ temp.name }}">{{ temp.getViewState(views) }}</div></td>
         </tr>
     </table>
     {{ spaTemplate.render(templates=templates, widths=widths[1], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=2, views=views) }}
