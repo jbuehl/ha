@@ -30,12 +30,13 @@ $(document).ready(function() {
         
     // update the attributes of one data item
     var update = function(key, val) {
-        $('#'+key).text(val[1]);                // set the value
 //        $('#'+key).attr('value', val[1]);     // set the button value
         if (val[0] == 'temp') {                 // set the color of a temp item
+            $('.'+key).text(val[1]);            // set the value
             $('.'+key).css('color', tempColor(val[1]));
             }
         else {                                  // change the class
+            $('#'+key).text(val[1]);            // set the value
             $('#'+key).attr('class', val[0]);
             };
         }
