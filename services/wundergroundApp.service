@@ -1,0 +1,8 @@
+[Unit]
+Description=Home Automation Weather Underground update app
+After=syslog.target
+[Service]
+ExecStart=/usr/bin/python /root/ha/wundergroundApp.py
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
