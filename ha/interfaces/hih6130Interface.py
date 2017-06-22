@@ -15,9 +15,8 @@ class HIH6130Interface(Interface):
         try:
             data = self.interface.readBlock((self.addr, 0), 4)
             status = (data[0] & 0xc0) >> 6
-            humidity = (((data[0] & 0x3f) << 8) + data[1]) *100 / 16383
-            humidity = ((((data[0] & 0x3F) * 256) + data[1]) * 100.0) / 16383.0
-            temp = (((data[2] & 0xFF) * 256) + (data[3] & 0xFC)) / 4
+            humidity = ((((data[0] & 0x3f) << 8) + data[1]) * 100.0) / 16383.0
+            temp = (((data[2] & 0xff) << 8) + (data[3] & 0xfc)) / 4
             tempC = (temp / 16384.0) * 165.0 - 40.0
             tempF = tempC * 1.8 + 32
             dewpointC = 243.04*(math.log(humidity/100)+((17.625*tempC)/(243.04+tempC)))/(17.625-math.log(humidity/100)-((17.625*tempC)/(243.04+tempC)))
