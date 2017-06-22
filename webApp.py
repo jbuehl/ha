@@ -74,6 +74,7 @@ def ipad(location=""):
                     tempSensor=resources.getRes("backHouseTemp"), 
                     heatTargetControl=resources.getRes("backHeatTempTarget"), 
                     coolTargetControl=resources.getRes("backCoolTempTarget"), 
+                    fanControl=resources.getRes("backFan"), 
                     thermostatUnitSensor=resources.getRes("backThermostatUnitSensor"),
                     views=views)
             shadesGroup = []

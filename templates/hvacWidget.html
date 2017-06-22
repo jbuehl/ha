@@ -1,6 +1,7 @@
 {% set resourceTemplate = templates.get_template("resource.html") %}
     <!-- heatTargetControl - heat target control -->
     <!-- coolTargetControl - cool target control -->
+    <!-- fanControl - fan control -->
     <!-- tempSensor - the temp sensor -->
     <!-- thermostatControl - the thermostat control -->
     <!-- thermostatUnitSensor - the thermostat unit sensor -->
@@ -18,6 +19,9 @@
         </tr>
         <tr>{{ resourceTemplate.render(resource=heatTargetControl, views=views, details=False, stack=stack, indent=indent, label="Heat set") }}</tr>
         <tr>{{ resourceTemplate.render(resource=coolTargetControl, views=views, details=False, stack=stack, indent=indent, label="Cool set") }}</tr>
+        {% if fanControl %}
+        <tr>{{ resourceTemplate.render(resource=fanControl, views=views, details=False, stack=stack, indent=indent, label="Fan") }}</tr>
+        {% endif %}
         {% if thermostatControl %}
         <tr>{{ resourceTemplate.render(resource=thermostatControl, views=views, details=False, stack=stack, indent=indent, label="Thermostat") }}</tr>
         {% endif %}
