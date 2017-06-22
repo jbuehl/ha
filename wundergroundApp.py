@@ -36,4 +36,6 @@ if __name__ == "__main__":
                 log("wundergroundApp", "update error response:", response.text, "status:", response.status_code)
         except KeyError:
             debug('debugWunderground', "no sensor")
+        except requests.exceptions.ConnectionError:
+            debug('debugWunderground', "connection error")
     
