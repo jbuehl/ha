@@ -18,7 +18,7 @@ class AnalogTempInterface(Interface):
             tempC = 28.25 * (2.52 - volts)
             tempF = tempC * 9 / 5 + 32
             debug('debugAnalogTemp', self.name, "volts", volts, "tempC", tempC, "tempF", tempF)
-            return int(tempF+.5)
+            return tempF
         except:
             return 0
 

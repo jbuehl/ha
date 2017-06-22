@@ -14,7 +14,7 @@ class OWFSInterface(Interface):
             with open(self.home+addr+"/temperature") as owfs:
                 value = owfs.read()
                 try:
-                    return int(float(value)+.5)
+                    return float(value)
                 except:
                     return value
         except:

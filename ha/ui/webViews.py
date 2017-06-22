@@ -19,7 +19,7 @@ def tempFormat(value):
     if value == 0:
         return "--"
     else:
-        return "%d F"%(value)
+        return "%d F"%(int(value+.5))
 
 def secsFormat(value):
     (m, s) = divmod(value, 60)
