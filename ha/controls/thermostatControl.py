@@ -120,14 +120,14 @@ class ThermostatUnitSensor(Sensor):
         # assume only one of them is on
         if self.thermostatControl.getState() == Off:
             return Off
+        elif self.thermostatControl.fanControl.getState() == On:
+            return fanOn
         elif self.thermostatControl.inhibited:
             return hold
         elif self.thermostatControl.heatControl.unitControl.getState() == On:
             return heatOn
         elif self.thermostatControl.coolControl.unitControl.getState() == On:
             return coolOn
-        if self.thermostatControl.fanControl.getState() == On:
-            return fanOn
         else:
             return Off
         
