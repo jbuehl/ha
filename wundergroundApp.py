@@ -1,10 +1,14 @@
 # Weather Underground update app
+# http://wiki.wunderground.com/index.php/PWS_-_Upload_Protocol
 
 # sensors
 weatherSensorServices = ["deck:7378", "pool:7378"]
 tempSensor = "poolEquipTemp"
 humiditySensor = "humidity"
 barometerSensor = "barometer"
+windSpeedSensor = "windSpeed"
+windDirSensor = "windDir"
+dewpointSensor = "dewpoint"
 
 # Wunderground
 wunderId = "KCASTUDI18"
@@ -27,15 +31,19 @@ if __name__ == "__main__":
         try:
             temp = resources[tempSensor].getState()
             humidity = resources[humiditySensor].getState()
+            dewpoint = resources[dewpointSensor].getState()
             barometer = resources[barometerSensor].getState()
+            windSpeed = 0
+            windDir = 0
             debug('debugWunderground', "temp:", temp, "humidity:", humidity, "barometer:", barometer)
-            request = wunderRequest+"&tempf="+str(temp)+"&humidity="+str(humidity)+"&baromin="+str(barometer)
+            request = wunderRequest+"&tempf="+str(temp)+"&humidity="+str(humidity)+"&dewptf="+str(dewpoint)+"&baromin="+str(barometer)
+            request += "&windspeedmph="+str(windSpeed)+"&winddir="+str(windDir)
             response = requests.get(request)
             debug('debugWunderground', "request:", request, "response:", response.text, "status:", response.status_code)
             if (response.status_code != 200) or (response.text[0:7] != "success"):
                 log("wundergroundApp", "update error response:", response.text, "status:", response.status_code)
         except KeyError:
-            debug('debugWunderground', "no sensor")
+            log('debugWunderground', "no sensor")
         except requests.exceptions.ConnectionError:
-            debug('debugWunderground', "connection error")
+            log('debugWunderground', "connection error")
     

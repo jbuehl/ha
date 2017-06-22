@@ -30,6 +30,7 @@ if __name__ == "__main__":
     deckTemp = Sensor("deckTemp", barometerCache, "temp", group=["Temperature", "Weather"], label="Deck temp", type="tempF")
     barometer = Sensor("barometer", barometerCache, "barometer", group="Weather", label="Barometer", type="barometer")
     humidity = Sensor("humidity", humidityCache, "humidity", group="Weather", label="Humidity", type="humidity")
+    dewpoint = Sensor("dewpoint", humidityCache, "dewpoint", group="Weather", label="Dewpoint", type="tempF")
 
     # Schedules
     shadesDown = Task("shadesDown", SchedTime(hour=[13], minute=[00], month=[Apr, May, Jun, Jul, Aug, Sep]), allShades, 1, enabled=True)
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     # Resources
     resources = Collection("resources", resources=[shade1, shade2, shade3, shade4, allShades, 
                                                    shadesDown, shadesUpAprSep, shadesUpMayAug, shadesUpJunJul, 
-                                                   deckTemp, barometer, humidity])
+                                                   deckTemp, barometer, humidity, dewpoint])
     restServer = RestServer(resources, event=stateChangeEvent, label="Shades")
 
     # Start interfaces
