@@ -13,8 +13,6 @@ class HIH6130Interface(Interface):
     def read(self, addr):
         debug('debugHIH6130', self.name, "read", addr)
         try:
-#            self.interface.writeQuick(self.addr)
-#            time.sleep(0.050)
             data = self.interface.readBlock((self.addr, 0), 4)
             status = (data[0] & 0xc0) >> 6
             humidity = (((data[0] & 0x3f) << 8) + data[1]) *100 / 16383
@@ -24,7 +22,7 @@ class HIH6130Interface(Interface):
             tempF = tempC * 1.8 + 32
             dewpointC = 243.04*(math.log(humidity/100)+((17.625*tempC)/(243.04+tempC)))/(17.625-math.log(humidity/100)-((17.625*tempC)/(243.04+tempC)))
             dewpointF = dewpointC * 1.8 + 32
-            debug("debugHumidity", "humidity:", humidity, "tempC:", tempC, "tempF:", tempF, "dewpointC:", dewpointC, "dewpointF:", dewpointF)
+            debug("debugHIH6130", "humidity:", humidity, "tempC:", tempC, "tempF:", tempF, "dewpointC:", dewpointC, "dewpointF:", dewpointF)
             if addr == "humidity":
                 return humidity
             elif addr == "temp":
