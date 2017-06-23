@@ -1,5 +1,5 @@
 import time
-import math
+from math import log as ln
 from ha import *
 
 # HIH-6130/6131 humidity sensor
@@ -19,7 +19,12 @@ class HIH6130Interface(Interface):
             temp = (((data[2] & 0xff) << 8) + (data[3] & 0xfc)) / 4
             tempC = (temp / 16384.0) * 165.0 - 40.0
             tempF = tempC * 1.8 + 32
-            dewpointC = 243.04*(math.log(humidity/100)+((17.625*tempC)/(243.04+tempC)))/(17.625-math.log(humidity/100)-((17.625*tempC)/(243.04+tempC)))
+            # https://en.wikipedia.org/wiki/Dew_point
+            # 0C <= T <= +50C
+            b = 17.368
+            c = 238.88
+            gamma = ln(humidity / 100) + ((b * tempC) / (c  +tempC))
+            dewpointC = c * (gamma) / (b - gamma)
             dewpointF = dewpointC * 1.8 + 32
             debug("debugHIH6130", "humidity:", humidity, "tempC:", tempC, "tempF:", tempF, "dewpointC:", dewpointC, "dewpointF:", dewpointF)
             if addr == "humidity":
