@@ -23,7 +23,7 @@ class HIH6130Interface(Interface):
             # 0C <= T <= +50C
             b = 17.368
             c = 238.88
-            gamma = ln(humidity / 100) + ((b * tempC) / (c  +tempC))
+            gamma = ln(humidity / 100) + ((b * tempC) / (c + tempC))
             dewpointC = c * (gamma) / (b - gamma)
             dewpointF = dewpointC * 1.8 + 32
             debug("debugHIH6130", "humidity:", humidity, "tempC:", tempC, "tempF:", tempF, "dewpointC:", dewpointC, "dewpointF:", dewpointF)
