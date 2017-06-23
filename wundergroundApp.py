@@ -10,16 +10,17 @@ windSpeedSensor = "windSpeed"
 windDirSensor = "windDir"
 dewpointSensor = "dewpoint"
 
-# Wunderground
-wunderId = "KCASTUDI18"
-wunderPassword = "h51hza4l"
-updatePeriod = 10
-wunderUrl = "http://rtupdate.wunderground.com/weatherstation/updateweatherstation.php"
-wunderRequest = wunderUrl+"?action=updateraw&realtime=1&dateutc=now&rtfreq="+str(updatePeriod)+"&ID="+wunderId+"&PASSWORD="+wunderPassword
-
 import requests
 from ha import *
 from ha.rest.restProxy import *
+
+# Wunderground
+wunderKey = keyDir+"wunderground.key"
+wunderId = getValue(wunderKey, "id")
+wunderPassword = getValue(wunderKey, "password")
+updatePeriod = 10
+wunderUrl = "http://rtupdate.wunderground.com/weatherstation/updateweatherstation.php"
+wunderRequest = wunderUrl+"?action=updateraw&realtime=1&dateutc=now&rtfreq="+str(updatePeriod)+"&ID="+wunderId+"&PASSWORD="+wunderPassword
 
 if __name__ == "__main__":
     stateChangeEvent = threading.Event()
