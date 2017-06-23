@@ -6,16 +6,11 @@ import json
 from twilio.rest import TwilioRestClient
 from ha import *
 
-smsSid = keyDir+"twilio.sid"
-smsToken = keyDir+"twilio.tkn"
+twilioKey = keyDir+"twilio.key"
 
-# get the value of a variable from a file
-def getValue(fileName):
-    return json.load(open(fileName))
-    
 # send an sms notification
 def smsNotify(numbers, message):
-    smsClient = TwilioRestClient(getValue(smsSid), getValue(smsToken))
+    smsClient = TwilioRestClient(getValue(twilioKey, "sid"), getValue(twilioKey, "token"))
     smsFrom = notifyFromNumber
     for smsTo in numbers:
         smsClient.sms.messages.create(to=smsTo, from_=smsFrom, body=message)

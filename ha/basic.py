@@ -7,6 +7,7 @@ import time
 import threading
 import copy
 import sys
+import json
 from collections import OrderedDict
 from config import *
 from environment import *
@@ -19,6 +20,12 @@ Off = 0
 on = 1
 On = 1
 
+### general utility functions ###
+
+# get the value of a variable from a file
+def getValue(fileName, item):
+    return json.load(open(fileName))[item]
+    
 # turn an item into a list if it is not already
 def listize(x):
     return x if isinstance(x, list) else [x]
