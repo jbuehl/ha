@@ -26,8 +26,8 @@ sequenceRunning = 1
 
 class Sequence(Control):
     objectArgs = ["interface", "event", "cycleList"]
-    def __init__(self, name, cycleList=[], addr=None, interface=None, event=None, group="", type="sequence", view=None, label="", location=None):
-        Control.__init__(self, name, addr=addr, interface=interface, event=event, group=group, type=type, view=view, label=label, location=location)
+    def __init__(self, name, cycleList=[], addr=None, interface=None, event=None, group="", type="sequence", label="", location=None):
+        Control.__init__(self, name, addr=addr, interface=interface, event=event, group=group, type=type, label=label, location=location)
         self.cycleList = cycleList
         self.running = False
 
@@ -113,8 +113,8 @@ class Sequence(Control):
 # A collection of sensors whose state is on if any one of them is on
 class SensorGroup(Sensor):
     objectArgs = ["interface", "event", "sensorList", "resources"]
-    def __init__(self, name, sensorList, resources=None, interface=None, addr=None, group="", type="sensor", view=None, label=""):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
+    def __init__(self, name, sensorList, resources=None, interface=None, addr=None, group="", type="sensor", label=""):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, label=label)
         self.sensorList = sensorList
         self.resources = resources  # if specified, sensorList contains resource names, otherwise references
         self.className = "Sensor"
@@ -139,9 +139,9 @@ class SensorGroup(Sensor):
 class ControlGroup(SensorGroup, Control):
     objectArgs = ["interface", "event", "controlList", "resources"]
     def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False, interface=None, addr=None, 
-                 group="", type="controlGroup", view=None, label=""):
-        SensorGroup.__init__(self, name, controlList, resources, interface, addr, group=group, type=type, view=view, label=label)
-        Control.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
+                 group="", type="controlGroup", label=""):
+        SensorGroup.__init__(self, name, controlList, resources, interface, addr, group=group, type=type, label=label)
+        Control.__init__(self, name, interface, addr, group=group, type=type, label=label)
         self.stateMode = stateMode  # which state to return: False = SensorGroup, True = groupState
         self.groupState = 0
         if stateList == []:
@@ -185,8 +185,8 @@ class ControlGroup(SensorGroup, Control):
 # Calculate a function of a list of sensor states
 class CalcSensor(Sensor):
     objectArgs = ["interface", "event", "sensors"]
-    def __init__(self, name, sensors=[], function="", interface=None, addr=None, group="", type="sensor", view=None, label="", location=None):
-        Sensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, view=view, label=label, location=location)
+    def __init__(self, name, sensors=[], function="", interface=None, addr=None, group="", type="sensor", label="", location=None):
+        Sensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, label=label, location=location)
         self.sensors = sensors
         self.function = function.lower()
         self.className = "Sensor"
@@ -203,8 +203,8 @@ class CalcSensor(Sensor):
 # Sensor that returns the states of all sensors in a list of resources
 class ResourceStateSensor(Sensor):
     objectArgs = ["interface", "event", "resources"]
-    def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, view=None, label="", interrupt=None):
-        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+    def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None):
+        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.resources = resources
         self.states = {}    # current sensor states
 
@@ -239,8 +239,8 @@ class ResourceStateSensor(Sensor):
 
 # Control that can only be turned on if all the specified resources are in the specified states
 class DependentControl(Control):
-    def __init__(self, name, interface, control, resources, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+    def __init__(self, name, interface, control, resources, addr=None, group="", type="control", location=None, label="", interrupt=None):
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.className = "Control"
         self.control = control
         self.resources = resources
@@ -255,8 +255,8 @@ class DependentControl(Control):
 
 # Control that has specified numeric limits on the values it can be set to
 class MinMaxControl(Control):
-    def __init__(self, name, interface, addr=None, minValue=0, maxValue=1, group="", type="control", location=None, view=None, label="", interrupt=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+    def __init__(self, name, interface, addr=None, minValue=0, maxValue=1, group="", type="control", location=None, label="", interrupt=None):
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.className = "Control"
         self.setMinMax(minValue, maxValue)
 

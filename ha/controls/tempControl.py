@@ -14,8 +14,8 @@ class TempControl(Control):
     objectArgs = ["interface", "event"]
     def __init__(self, name, interface, unitControl, tempSensor, 
                 tempTargetControl=None, unitType=0, hysteresis=[1, 1], 
-                addr=None, group="", type="control", location=None, view=None, label="", interrupt=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+                addr=None, group="", type="control", location=None, label="", interrupt=None):
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.className = "Control"
         self.unitControl = unitControl              # the control for the heating or cooling unit
         self.tempSensor = tempSensor                # associated temp sensor

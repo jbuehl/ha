@@ -166,8 +166,8 @@ class RestProxy(threading.Thread):
 
 # proxy for a REST service
 class RestServiceProxy(Sensor):
-    def __init__(self, name, addr, timeStamp, interface, event=None, group="", type="service", location=None, view=None, label="", interrupt=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+    def __init__(self, name, addr, timeStamp, interface, event=None, group="", type="service", location=None, label="", interrupt=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
         debug('debugRestProxy', name, "created")
         self.name = name
         self.addr = addr

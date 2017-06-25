@@ -182,7 +182,7 @@ class Collection(Resource, OrderedDict):
 # Sensors can also optionally be associated with a group and a physical location.
 class Sensor(Resource):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface=None, addr=None, group="", type="sensor", location=None, label="", view=None, interrupt=None, event=None):
+    def __init__(self, name, interface=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Resource.__init__(self, name)
         try:
             if self.type:   # init has already been called for this object
@@ -202,7 +202,6 @@ class Sensor(Resource):
             else:
                 self.label = label
             self.location = location
-            self.view = view
             if self.interface:
                 self.interface.addSensor(self)
             self.interrupt = interrupt
@@ -285,8 +284,8 @@ class Sensor(Resource):
 # A Control is a Sensor whose state can be set        
 class Control(Sensor):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt, event=event)
+    def __init__(self, name, interface, addr=None, group="", type="control", location=None, label="", interrupt=None, event=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.running = False
 
     # Set the state of the control by writing the value to the address on the interface.
@@ -301,5 +300,5 @@ class Control(Sensor):
         try:
             return views[self.type].setViewState(self, theValue)
         except:
-            return views["none"].setViewState(self, theValue) # self.view.setViewState(self, theValue)
+            return views["none"].setViewState(self, theValue)
  

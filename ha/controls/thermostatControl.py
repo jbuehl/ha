@@ -15,8 +15,8 @@ from ha import *
 class ThermostatControl(Control):
     objectArgs = ["interface", "event"]
     def __init__(self, name, heatControl, coolControl, fanControl, inhibitSensor=None, persistenceControl=None,
-                interface=None, addr=None, group="", type="control", location=None, view=None, label="", interrupt=None, event=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt, event=event)
+                interface=None, addr=None, group="", type="control", location=None, label="", interrupt=None, event=None):
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Control"
         self.heatControl = heatControl                  # the heating unit
         self.coolControl = coolControl                  # the A/C unit
@@ -111,8 +111,8 @@ hold = 5
 
 # Sensor that returns the thermostat unit control that is currently running
 class ThermostatUnitSensor(Sensor):
-    def __init__(self, name, thermostatControl, interface=None, addr=None, group="", type="sensor", location=None, label="", view=None, interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt, event=event)
+    def __init__(self, name, thermostatControl, interface=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None, event=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
         self.thermostatControl = thermostatControl
 

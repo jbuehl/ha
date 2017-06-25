@@ -55,7 +55,6 @@ Other classes are inherited from the base classes:
 
 These standalone classes are used by the HA classes
 
-    - class View(object):
     - class Cycle(object):
     - class SchedTime(object):
 

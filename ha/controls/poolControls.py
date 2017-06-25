@@ -27,8 +27,8 @@ valveMoving = 4
 
 class SpaControl(Control):
     def __init__(self, name, interface, valveControl, pumpControl, heaterControl, lightApp, tempSensor, tempTargetControl, addr=None, 
-            group="", type="control", location=None, view=None, label="", interrupt=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, view=view, label=label, interrupt=interrupt)
+            group="", type="control", location=None, label="", interrupt=None):
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.className = "Control"
         self.currentState = spaOff
         self.valveControl = valveControl

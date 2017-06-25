@@ -119,8 +119,8 @@ class Schedule(Collection):
 class Task(Control):
     objectArgs =["interface", "event", "schedTime", "control"]
     def __init__(self, name, schedTime=None, control=None, controlState=0, resources=None, parent=None, enabled=True, interface=None, addr=None, 
-                 type="task", group="Tasks", view=None, label=""):
-        Control.__init__(self, name, interface, addr, group=group, type=type, view=view, label=label)
+                 type="task", group="Tasks", label=""):
+        Control.__init__(self, name, interface, addr, group=group, type=type, label=label)
         self.schedTime = schedTime
         self.control = control
         self.controlState = controlState
@@ -176,10 +176,7 @@ class Task(Control):
         except (AttributeError, KeyError):    # can't resolve so use the name
             control = None
             controlName = self.control
-        try:                    # try to translate state value
-            value = control.setValues(views)[self.controlState]
-        except AttributeError:                 # use the value
-            value = str(self.controlState)
+        value = str(self.controlState)
         return controlName+": "+value+","+self.schedTime.__str__()
 
     def __del__(self):
