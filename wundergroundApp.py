@@ -42,7 +42,7 @@ if __name__ == "__main__":
             response = requests.get(request)
             debug('debugWunderground', "request:", request, "response:", response.text, "status:", response.status_code)
             if (response.status_code != 200) or (response.text[0:7] != "success"):
-                log("wundergroundApp", "update error response:", response.text, "status:", response.status_code)
+                log("update error response:", response.text, "status:", response.status_code)
         except KeyError:
             log("no sensor")
         except requests.exceptions.ConnectionError:
