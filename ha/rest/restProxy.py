@@ -8,6 +8,16 @@ import time
 
 # Proxy for the resources exposed by one or more REST services
 
+# set default service port if not specified
+def setServicePorts(serviceList):
+    newServiceList = []
+    for service in serviceList:
+        if len(service.split(":")) < 2:
+            newServiceList.append(service+":7378")
+        else:
+            newServiceList.append(service)
+    return newServiceList
+    
 # Autodiscover services and resources
 # Detect changes in resource configuration on each service
 # Remove resources on services that don't respond
@@ -15,16 +25,16 @@ import time
 class RestProxy(threading.Thread):
     def __init__(self, name, resources, watch=[], ignore=[], event=None, lock=None):
         debug('debugRestProxy', name, "starting", name)
-        debug('debugRestProxy', name, "watching", watch)    # watch == [] means watch all services
-        debug('debugRestProxy', name, "ignoring", ignore)
         threading.Thread.__init__(self, target=self.doRest)
         self.name = name
         self.services = {}
         self.resources = resources
         self.event = event
         self.cacheTime = 0
-        self.watch = watch
-        self.ignore = ignore
+        self.watch = setServicePorts(watch)
+        self.ignore = setServicePorts(ignore)
+        debug('debugRestProxy', name, "watching", self.watch)    # watch == [] means watch all services
+        debug('debugRestProxy', name, "ignoring", self.ignore)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(("", 4242))

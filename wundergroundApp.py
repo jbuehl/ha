@@ -2,7 +2,7 @@
 # http://wiki.wunderground.com/index.php/PWS_-_Upload_Protocol
 
 # sensors
-weatherSensorServices = ["deck:7378", "pool:7378"]
+weatherSensorServices = ["deck", "pool"]
 tempSensor = "poolEquipTemp"
 humiditySensor = "humidity"
 barometerSensor = "barometer"
