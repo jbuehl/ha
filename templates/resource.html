@@ -1,13 +1,15 @@
     <!-- label - override for the resource label -->
     <!-- stack - display the resource state under the label -->
     <!-- details - display resource details -->
+    <!-- indent - indent by n px -->
+    <!-- bullet - prepend to label -->
 
         <td>
         <!-- label-->
         {% if label %} 
-            <div class=label{% if indent %} style=text-indent:8px{% endif %}>{{ label }}</div>
+            <div class=label style=text-indent:{{ indent }}px>{{ bullet }}{{ label }}</div>
         {% else %} 
-            <div class=label{% if indent %} style=text-indent:8px{% endif %}>{{ resource.label }}</div>
+            <div class=label style=text-indent:{{ indent }}px>{{ bullet }}{{ resource.label }}</div>
         {% endif %}
         {% if not stack %}
         </td>

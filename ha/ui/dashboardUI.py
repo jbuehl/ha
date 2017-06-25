@@ -73,7 +73,8 @@ def dashboardUI(resources, templates, views):
                             coolTargetControl=resources.getRes("southCoolTempTarget"), 
                             thermostatControl=resources.getRes("southThermostat"), 
                             thermostatUnitSensor=resources.getRes("southThermostatUnitSensor"),
-                            indent=True,
+                            indent=8,
+                            bullet="- ",
                             views=views) + \
                     templates.get_template("hvacWidget.html").render(label="Bedrooms",
                             widths=columnWidths,
@@ -83,7 +84,8 @@ def dashboardUI(resources, templates, views):
                             coolTargetControl=resources.getRes("northCoolTempTarget"), 
                             thermostatControl=resources.getRes("northThermostat"), 
                             thermostatUnitSensor=resources.getRes("northThermostatUnitSensor"),
-                            indent=True,
+                            indent=8,
+                            bullet="- ",
                             views=views) + \
                     templates.get_template("hvacWidget.html").render(label="Back house",
                             widths=columnWidths,
@@ -93,7 +95,8 @@ def dashboardUI(resources, templates, views):
                             coolTargetControl=resources.getRes("backCoolTempTarget"), 
                             thermostatControl=resources.getRes("backThermostat"), 
                             thermostatUnitSensor=resources.getRes("backThermostatUnitSensor"),
-                            indent=True,
+                            indent=8,
+                            bullet="- ",
                             views=views)
         sprinklersGroup = groupTemplate.render(templates=templates, views=views, widths=columnWidths, 
                             group=["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "sideBedSequence", "backBedSequence", "frontLawnSequence"])],
