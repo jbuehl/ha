@@ -202,10 +202,7 @@ class Sensor(Resource):
             else:
                 self.label = label
             self.location = location
-            if view == None:
-                self.view = View()
-            else:
-                self.view = view
+            self.view = view
             if self.interface:
                 self.interface.addSensor(self)
             self.interrupt = interrupt
@@ -245,14 +242,14 @@ class Sensor(Resource):
         try:
             return views[self.type].getViewState(self)
         except:
-            return self.view.getViewState(self)
+            return views["none"].getViewState(self)
 
     # Return the printable string values for the states that can be set on the sensor
     def setValues(self, views=None):
         try:
             return views[self.type].setValues
         except:
-            return self.view.setValues
+            return views["none"].setValues
 
     # Define this function for sensors even though it does nothing        
     def setState(self, state, wait=False):
@@ -285,46 +282,6 @@ class Sensor(Resource):
                 "group":self.group, 
                 "location":self.location}
                     
-# A View describes how the value of a sensor's state should be displayed.  It contains a mapping of
-# state values to display values, an optional format string, and an optional transform function.
-# Reverse mappings of display values to state values may also be specified.
-class View(object):
-    def __init__(self, values={None:"", 0:"Off", 1:"On"}, format="%s", transform=None, setValues=None, toggle=False):
-        self.values = values
-        self.format = format
-        self.transform = transform
-        if setValues == None:
-            self.setValues = {0:"Off", 1:"On"}
-        else:
-            self.setValues = OrderedDict(setValues) # preserve the order of set values for display purposes
-        self.toggle = toggle
- 
-    # Return the printable string value for the state of the sensor
-    def getViewState(self, theSensor):
-        state = theSensor.getState()
-        try:    # run it through the transformation function
-            state = self.transform(state)
-        except:
-            pass
-        try:    # look it up in the values table
-            return self.format % (self.values[state])
-        except:
-            try:    # apply the format
-                return self.format % (state)
-            except: # worst case, return the string of the state
-                return str(state)
-
-    # Set the state of the control to the state value corresponding to the specified display value
-    def setViewState(self, control, dispValue):
-        try:
-            value = self.setValues.keys()[self.setValues.values().index(dispValue)]
-            if dispValue in ["-", "v", "+", "^"]:   # increment or decrement current state by the value
-                control.setState(control.getState() + value)
-            else:                                   # set it to the value
-                control.setState(value)
-        except:
-            control.setState(0)
-
 # A Control is a Sensor whose state can be set        
 class Control(Sensor):
     objectArgs = ["interface", "event"]
@@ -344,5 +301,5 @@ class Control(Sensor):
         try:
             return views[self.type].setViewState(self, theValue)
         except:
-            return self.view.setViewState(self, theValue)
+            return views["none"].setViewState(self, theValue) # self.view.setViewState(self, theValue)
  
