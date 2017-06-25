@@ -44,7 +44,7 @@ if __name__ == "__main__":
             if (response.status_code != 200) or (response.text[0:7] != "success"):
                 log("wundergroundApp", "update error response:", response.text, "status:", response.status_code)
         except KeyError:
-            log('debugWunderground', "no sensor")
+            log("no sensor")
         except requests.exceptions.ConnectionError:
-            log('debugWunderground', "connection error")
+            log("connection error")
     
