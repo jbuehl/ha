@@ -1,5 +1,5 @@
-
 from ha import *
+from ha.rest.restConfig import *
 from ha.interfaces.restInterface import *
 import json
 import threading
@@ -13,7 +13,7 @@ def setServicePorts(serviceList):
     newServiceList = []
     for service in serviceList:
         if len(service.split(":")) < 2:
-            newServiceList.append(service+":7378")
+            newServiceList.append(service+":"+str(restServicePort))
         else:
             newServiceList.append(service)
     return newServiceList
@@ -33,11 +33,12 @@ class RestProxy(threading.Thread):
         self.cacheTime = 0
         self.watch = setServicePorts(watch)
         self.ignore = setServicePorts(ignore)
+        self.ignore.append(socket.gethostname()+":"+str(restServicePort))   # always ignore services on this host
         debug('debugRestProxy', name, "watching", self.watch)    # watch == [] means watch all services
         debug('debugRestProxy', name, "ignoring", self.ignore)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.bind(("", 4242))
+        self.socket.bind(("", restBeaconPort))
                 
     def doRest(self):
         debug('debugThread', self.name, "started")

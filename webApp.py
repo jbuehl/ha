@@ -5,7 +5,6 @@ webUpdateInterval = 1
 webPageTitle = "Home Automation"
 runRestServer = False
 restIgnore = []
-restPort = 7378
 insideTemp = "diningRoomTemp"
 outsideTemp = "poolEquipTemp"
 poolTemp = "poolTemp"
@@ -225,8 +224,7 @@ if __name__ == "__main__":
     resources.addRes(Sensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
 
     # start the cache to listen for services on other servers
-    restIgnore.append(socket.gethostname()+":"+str(restPort))
-    restCache = RestProxy("restProxy", resources, ignore=restIgnore, event=stateChangeEvent)
+    restCache = RestProxy("restProxy", resources, event=stateChangeEvent)
     restCache.start()
     
     # set up the web server
@@ -237,6 +235,6 @@ if __name__ == "__main__":
             pathDict=pathDict, baseDir=baseDir, block=not runRestServer)
 
     if runRestServer:
-        restServer = RestServer(resources, port=restPort, event=stateChangeEvent, label="Control")
+        restServer = RestServer(resources, port=restServicePort, event=stateChangeEvent, label="Control")
         restServer.start()
  

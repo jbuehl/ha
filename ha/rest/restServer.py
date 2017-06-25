@@ -1,10 +1,5 @@
-
-restBeaconPort = 4242
-restStatePort = 4243
-restBeaconInterval = 10
-restHeartbeatInterval = 30
-
 from ha import *
+from ha.rest.restConfig import *
 from SocketServer import ThreadingMixIn
 from BaseHTTPServer import HTTPServer
 from BaseHTTPServer import BaseHTTPRequestHandler
@@ -18,7 +13,7 @@ import time
 # RESTful web services server interface
 class RestServer(object):
     objectArgs = ["resources", "event"]
-    def __init__(self, resources=None, port=7378, beacon=True, heartbeat=True, event=None, label="", name=None):
+    def __init__(self, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label="", name=None):
         self.resources = resources
         self.event = event
         self.hostname = socket.gethostname()

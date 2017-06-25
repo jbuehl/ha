@@ -1,13 +1,10 @@
-
-restStatePort = 4243
-restTimeout = 60
-
 import json
 import requests
 import urllib
 import socket
 import threading
 from ha import *
+from ha.rest.restConfig import *
 
 class RestInterface(Interface):
     objectArgs = ["interface", "event"]
