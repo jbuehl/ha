@@ -2,7 +2,74 @@
 
 from ha import *
 
-# transform functions for views
+# A View describes how the value of a sensor's state should be displayed.  It contains a mapping of
+# state values to display values, an optional format string, and an optional transform function.
+# Reverse mappings of display values to state values may also be specified.
+class View(object):
+    def __init__(self, values={None:"", 0:"Off", 1:"On"}, format="%s", transform=None, setValues=None, toggle=False):
+        self.values = values
+        self.format = format
+        self.transform = transform
+        if setValues == None:
+            self.setValues = {0:"Off", 1:"On"}
+        else:
+            self.setValues = OrderedDict(setValues) # preserve the order of set values for display purposes
+        self.toggle = toggle
+ 
+    # Return the printable string value for the state of the sensor
+    def getViewState(self, sensor):
+        state = sensor.getState()
+        try:    # run it through the transformation function
+            state = self.transform(state)
+        except:
+            pass
+        try:    # look it up in the values table
+            return self.format % (self.values[state])
+        except:
+            try:    # apply the format
+                return self.format % (state)
+            except: # worst case, return the string of the state
+                return str(state)
+
+    # Set the state of the control to the state value corresponding to the specified display value
+    def setViewState(self, control, dispValue):
+        try:
+            value = self.setValues.keys()[self.setValues.values().index(dispValue)]
+            if dispValue in ["-", "v", "+", "^"]:   # increment or decrement current state by the value
+                control.setState(control.getState() + value)
+            else:                                   # set it to the value
+                control.setState(value)
+        except:
+            control.setState(0)
+
+# Dictionary of views keyed by sensor type
+class ViewDict(dict):
+    def __init__(self, views):
+        dict.__init__(self, views)
+        self.__setitem__("", View())    # default View
+                
+    # Return the printable string value for the state of the sensor
+    def getViewState(self, sensor):
+        try:
+            return self.__getitem__(sensor.type).getViewState(sensor)
+        except KeyError:
+            return self.__getitem__("").getViewState(sensor)
+
+    # Return the printable string values for the states that can be set on the control
+    def getSetValues(self, control):
+        try:
+            return self.__getitem__(control.type).setValues
+        except KeyError:
+            return self.__getitem__("").setValues
+
+    # Set the state of the control to the state value corresponding to the specified display value
+    def setViewState(self, control, value):
+        try:
+            return self.__getitem__(control.type).setViewState(control, value)
+        except KeyError:
+            return self.__getitem__("").setViewState(control, value)
+         
+# transform functions
 def ctofFormat(value):
     return tempFormat(value*9/5+32)
 
@@ -37,48 +104,8 @@ def hdgFormat(value):
     direction = dirs[int((value+11.25)%360/22.5)]
     return "%03d %s" % (int(value), direction)
         
-# A View describes how the value of a sensor's state should be displayed.  It contains a mapping of
-# state values to display values, an optional format string, and an optional transform function.
-# Reverse mappings of display values to state values may also be specified.
-class View(object):
-    def __init__(self, values={None:"", 0:"Off", 1:"On"}, format="%s", transform=None, setValues=None, toggle=False):
-        self.values = values
-        self.format = format
-        self.transform = transform
-        if setValues == None:
-            self.setValues = {0:"Off", 1:"On"}
-        else:
-            self.setValues = OrderedDict(setValues) # preserve the order of set values for display purposes
-        self.toggle = toggle
- 
-    # Return the printable string value for the state of the sensor
-    def getViewState(self, theSensor):
-        state = theSensor.getState()
-        try:    # run it through the transformation function
-            state = self.transform(state)
-        except:
-            pass
-        try:    # look it up in the values table
-            return self.format % (self.values[state])
-        except:
-            try:    # apply the format
-                return self.format % (state)
-            except: # worst case, return the string of the state
-                return str(state)
-
-    # Set the state of the control to the state value corresponding to the specified display value
-    def setViewState(self, control, dispValue):
-        try:
-            value = self.setValues.keys()[self.setValues.values().index(dispValue)]
-            if dispValue in ["-", "v", "+", "^"]:   # increment or decrement current state by the value
-                control.setState(control.getState() + value)
-            else:                                   # set it to the value
-                control.setState(value)
-        except:
-            control.setState(0)
-
 # view definitions    
-views = {"none": View(),
+views = ViewDict(  {"none": View(),
 #         "tempC": View({}, "%d °", ctofFormat),
 #         "tempF": View({}, "%d °", tempFormat),
          "tempC": View({}, "%d F", ctofFormat),
@@ -126,7 +153,7 @@ views = {"none": View(),
          "MWh": View({}, "%7.3f MWh", megaFormat),
          "sequence": View({0:"Stopped", 1:"Running"}, "%s", None, {0:"Stop", 1:"Run"}),
          "task": View({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"})
-         }
+         })
 
 # by default the UI will create a css class based on the state value
 # these types are the exceptions

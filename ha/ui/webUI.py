@@ -72,7 +72,7 @@ class WebRoot(object):
                 if state:
                     self.resources.getRes(resource).setViewState(state, views)
                     time.sleep(1)   # hack
-                return json.dumps({"state": self.resources.getRes(resource).getViewState(views)})
+                return json.dumps({"state": views.getViewState(self.resources.getRes(resource))})
         except:
             return "Error"        
 
@@ -127,7 +127,7 @@ class WebRoot(object):
         for resource in resourceStates.keys():
             try:
                 state = self.resources.getRes(resource).getState()
-                resState = self.resources.getRes(resource).getViewState(views)
+                resState = views.getViewState(self.resources.getRes(resource))
                 resClass = self.resources.getRes(resource).type
                 debug('debugWebUpdate', "/updateStates", resource, resClass, resState, state)
                 if resClass in tempTypes:

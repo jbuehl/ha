@@ -10,11 +10,11 @@
         {% endfor %}
         <tr>
         <td><div class=label>Outside temperature</div></td>
-        <td><div id="{{ temp.name }}" class="tempF {{ temp.name }}">{{ temp.getViewState(views) }}</div></td>
+        <td><div id="{{ temp.name }}" class="tempF {{ temp.name }}">{{ views.getViewState(temp) }}</div></td>
         <td><div class=rlabel>Humidity</div></td>
-        <td><div id="{{ humidity.name }}" class=humidity>{{ humidity.getViewState(views) }}</div></td>
+        <td><div id="{{ humidity.name }}" class=humidity>{{ views.getViewState(humidity) }}</div></td>
         <td><div class=rlabel>Barometer</div></td>
-        <td><div id="{{ barometer.name }}" class=barometer>{{ barometer.getViewState(views) }}</div></td>
+        <td><div id="{{ barometer.name }}" class=barometer>{{ views.getViewState(barometer) }}</div></td>
         </tr>
     </table>
 

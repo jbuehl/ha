@@ -16,7 +16,7 @@
         <!-- state-->
         <td>
         {% endif %}
-            <div id="{{ resource.name }}" class="{{ resource.name }} {{ resource.type+'_'+resource.getViewState(views) }}">{{ resource.getViewState(views) }}</div>
+            <div id="{{ resource.name }}" class="{{ resource.name }} {{ resource.type+'_'+views.getViewState(resource) }}">{{ views.getViewState(resource) }}</div>
         </td>
         <!-- controls-->
         <td>
@@ -24,7 +24,7 @@
             <div class=control>
             <form name='control' action='' method='get'>
                 <input type='hidden' name='resource' value='{{ resource.name }}' />
-                {% for value in resource.setValues(views).values() %}
+                {% for value in views.getSetValues(resource).values() %}
                 <input type='submit' class='button' name='action' value='{{ value }}' />
                 {% endfor %}
             </form>

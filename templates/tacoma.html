@@ -13,17 +13,17 @@
             <col width=320><col width=480>
             <tr>
                 <td>
-                <span id="{{ time.name }}" class="time">{{ time.getViewState(views) }}</span>
-                <span id="{{ ampm.name }}" class="ampm">{{ ampm.getViewState(views) }}</span>
+                <span id="{{ time.name }}" class="time">{{ views.getViewState(time) }}</span>
+                <span id="{{ ampm.name }}" class="ampm">{{ views.getViewState(ampm) }}</span>
                 </td>
                 <td>
-                <span id="{{ temp.name }}" class="tempF">{{ temp.getViewState(views) }}</span>
+                <span id="{{ temp.name }}" class="tempF">{{ views.getViewState(temp) }}</span>
                 </td>
             </tr>
             {% for r in group %}
             <tr>
                 <td><div class=label>{{ r.label }}</div></td>
-                <td><div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">{{ r.getViewState(views) }}</div></td>
+                <td><div id="{{ r.name }}" class="{{ r.type+'_'+views.getViewState(r) }}">{{ views.getViewState(r) }}</div></td>
             </tr>
             {% endfor %}
         </table>
@@ -35,8 +35,8 @@
                     <div class=label>
                         {{ r.label }}
                     </div>
-                    <div id="{{ r.name }}" class="{{ r.type+'_'+r.getViewState(views) }}">
-                        {{ r.getViewState(views) }}
+                    <div id="{{ r.name }}" class="{{ r.type+'_'+views.getViewState(r) }}">
+                        {{ views.getViewState(r) }}
                     </div>
                 </td>
                  <td>
@@ -44,9 +44,9 @@
                         <form name='control' action='' method='get'>
                             <input type='hidden' name='resource' value='{{ r.name }}' />
                             {% if views[r.type].toggle %}
-                                <input type='submit' class='button' id="{{ r.name }}" name='action' value='{{ r.getViewState(views) }}' />
+                                <input type='submit' class='button' id="{{ r.name }}" name='action' value='{{ views.getViewState(r) }}' />
                             {% else %}
-                                {% for v in r.setValues(views).values() %}
+                                {% for v in r.getSetValues(views).values() %}
                                 <input type='submit' class='button' name='action' value='{{ v }}' />
                                 {% endfor %}
                             {% endif %}

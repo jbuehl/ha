@@ -236,20 +236,6 @@ class Sensor(Resource):
             self.event.set()
             debug('debugInterrupt', self.name, "set", self.event)
         
-    # Return the printable string value for the state of the sensor
-    def getViewState(self, views=None):
-        try:
-            return views[self.type].getViewState(self)
-        except:
-            return views["none"].getViewState(self)
-
-    # Return the printable string values for the states that can be set on the sensor
-    def setValues(self, views=None):
-        try:
-            return views[self.type].setValues
-        except:
-            return views["none"].setValues
-
     # Define this function for sensors even though it does nothing        
     def setState(self, state, wait=False):
         return False
@@ -294,11 +280,4 @@ class Control(Sensor):
         self.interface.write(self.addr, state)
         self.notify()
         return True
-
-    # Set the state of the control to the state value corresponding to the specified display value
-    def setViewState(self, theValue, views=None):
-        try:
-            return views[self.type].setViewState(self, theValue)
-        except:
-            return views["none"].setViewState(self, theValue)
  

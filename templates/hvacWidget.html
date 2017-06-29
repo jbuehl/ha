@@ -14,8 +14,8 @@
             </td>
             <td>
             {% endif %}
-                <div id="{{ tempSensor.name }}" class="{{ tempSensor.name }}">{{ tempSensor.getViewState(views) }}</div></td>
-            <td><div id="{{ thermostatUnitSensor.name }}" class="{{ thermostatUnitSensor.type+'_'+thermostatUnitSensor.getViewState(views) }}">{{ thermostatUnitSensor.getViewState(views) }}</div></td>
+                <div id="{{ tempSensor.name }}" class="{{ tempSensor.name }}">{{ views.getViewState(tempSensor) }}</div></td>
+            <td><div id="{{ thermostatUnitSensor.name }}" class="{{ thermostatUnitSensor.type+'_'+views.getViewState(thermostatUnitSensor) }}">{{ views.getViewState(thermostatUnitSensor) }}</div></td>
         </tr>
         <tr>{{ resourceTemplate.render(resource=heatTargetControl, views=views, details=False, stack=stack, indent=indent, bullet=bullet, label="Heat set") }}</tr>
         <tr>{{ resourceTemplate.render(resource=coolTargetControl, views=views, details=False, stack=stack, indent=indent, bullet=bullet, label="Cool set") }}</tr>

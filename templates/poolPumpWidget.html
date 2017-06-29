@@ -9,13 +9,13 @@
         {% endfor %}
         <tr>
         <td><div class=label>{{ poolPumpControl.label }}</div></td>
-        <td><div id="{{ poolPumpFlowSensor.name }}" class="{{ poolPumpFlowSensor.type+'_'+poolPumpFlowSensor.getViewState(views) }}">{{ poolPumpFlowSensor.getViewState(views) }}</div></td>
-        <td><div id="{{ poolPumpControl.name }}" class="{{ poolPumpControl.type+'_'+poolPumpControl.getViewState(views) }}">{{ poolPumpControl.getViewState(views) }}</div></td>
+        <td><div id="{{ poolPumpFlowSensor.name }}" class="{{ poolPumpFlowSensor.type+'_'+views.getViewState(poolPumpFlowSensor) }}">{{ views.getViewState(poolPumpFlowSensor) }}</div></td>
+        <td><div id="{{ poolPumpControl.name }}" class="{{ poolPumpControl.type+'_'+views.getViewState(poolPumpControl) }}">{{ views.getViewState(poolPumpControl) }}</div></td>
         <td>
             <div class=control>
             <form name='control' action='' method='get'>
                 <input type='hidden' name='resource' value='{{ poolPumpControl.name }}' />
-                {% for value in poolPumpControl.setValues(views).values()[:nSetValues] %}
+                {% for value in views.getSetValues(poolPumpControl).values()[:nSetValues] %}
                 <input type='submit' class='button' name='action' value='{{ value }}' />
                 {% endfor %}
             </form>
