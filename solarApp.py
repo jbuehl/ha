@@ -138,8 +138,8 @@ if __name__ == "__main__":
 
     # Devices
     for inverter in inverters.keys():
-        resources.addRes(InverterPowerSensor(inverter, fileInterface, group=["Solar"], type="KW", label="Inverter "+inverter, location=inverters[inverter]))
-        resources.addRes(InverterEnergySensor(inverter+"-E", fileInterface, group=["Solar"], type="KWh", label="Inverter "+inverter+" energy", location=inverters[inverter]))
+        resources.addRes(InverterPowerSensor(inverter, fileInterface, group=["Solar", "Inverters"], type="KW", label="Inverter "+inverter, location=inverters[inverter]))
+        resources.addRes(InverterEnergySensor(inverter+"-E", fileInterface, group=["Solar", "Inverters"], type="KWh", label="Inverter "+inverter+" energy", location=inverters[inverter]))
     for optimizer in optimizers.keys():
         resources.addRes(OptimizerPowerSensor(optimizer, fileInterface, group=["Optimizers"], type="W", label="Optimizer "+optimizer, location=optimizers[optimizer]))
         resources.addRes(OptimizerEnergySensor(optimizer+"-E", fileInterface, group=["Optimizers"], type="KWh", label="Optimizer "+optimizer+" energy", location=optimizers[optimizer]))

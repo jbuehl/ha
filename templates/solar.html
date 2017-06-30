@@ -75,25 +75,25 @@
                 </div>
             </div>
         {% for inv in inverters %}
+            {% if inv.name[-2:] != "-E" %}
             <div class="inverter" style="position:absolute; top:{{ inv.location[0] }}px; left:{{ inv.location[1] }}px" >
                 <div class="inverterName">{{ inv.name }}</div>
                 <div id="{{ inv.name }}" class="KW">{{ views.getViewState(inv) }}</div>
-            </div>
-        {% endfor %}
-        {% for inv in invertersEnergy %}
+            {% else %}
             <div class="inverter" style="position:absolute; top:{{ inv.location[0]+28 }}px; left:{{ inv.location[1] }}px" >
                 <div id="{{ inv.name }}" class="KWh">{{ views.getViewState(inv) }}</div>
+            {% endif %}
             </div>
         {% endfor %}
         {% for opt in optimizers %}
+            {% if opt.name[-2:] != "-E" %}
             <div class="optimizer" style="position:absolute; top:{{ opt.location[0] }}px; left:{{ opt.location[1] }}px" >
                 <div class="optimizerName">{{ opt.name }}</div>
                 <div id="{{ opt.name }}" class="W">{{ views.getViewState(opt) }}</div>
-            </div>
-        {% endfor %}
-        {% for opt in optimizersEnergy %}
+            {% else %}
             <div class="optimizer" style="position:absolute; top:{{ opt.location[0]+28 }}px; left:{{ opt.location[1] }}px" >
                 <div id="{{ opt.name }}" class="KWh">{{ views.getViewState(opt) }}</div>
+            {% endif %}
             </div>
         {% endfor %}
      </div>

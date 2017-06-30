@@ -188,9 +188,7 @@ def solar():
                             todaysEnergy=resources.getRes("todaysEnergy"), 
                             lifetimeEnergy=resources.getRes("lifetimeEnergy"), 
                             inverters=resources.getGroup("Inverters"), 
-                            invertersEnergy=resources.getGroup("InvertersEnergy"), 
                             optimizers=resources.getGroup("Optimizers"), 
-                            optimizersEnergy=resources.getGroup("OptimizersEnergy"), 
                             views=views)
 
 # dispatch table
