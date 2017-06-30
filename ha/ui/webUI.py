@@ -149,7 +149,7 @@ class WebRoot(object):
     @cherrypy.expose
     def submit(self, action=None, resource=None):
         debug('debugWeb', "/submit", cherrypy.request.method, action, resource)
-        self.resources.getRes(resource).setViewState(action, views)
+        views.setViewState(self.resources.getRes(resource), action)
         reply = ""
         return reply
 
