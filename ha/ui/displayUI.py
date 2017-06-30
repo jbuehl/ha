@@ -10,7 +10,7 @@
 # text string bbox size
 # frame buffer python module
 
-fbLib = "/root/ha/ha/libfb.so"
+fbLib = "/root/ha/ha/ui/fb/libfb.so"
 
 from ctypes import cdll
 import freetype
@@ -21,7 +21,31 @@ import copy
 import webcolors
 import png
 from ha import *
-from ha.ui.webUIViews import *
+from ha.ui.webViews import *
+
+# set temp color based on temp value
+def tempColor(tempString):
+    try:
+        temp = int(tempString.split(" ")[0])
+    except:
+        temp = 0       
+    if temp > 120:                 # magenta
+        red = 252; green = 0; blue = 252
+    elif temp > 102:               # red
+        red = 252; green = 0; blue = (temp-102)*14
+    elif temp > 84:                # yellow
+        red = 252; green = (102-temp)*14; blue = 0
+    elif temp > 66:                # green
+        red = (temp-66)*14; green = 252; blue = 0
+    elif temp > 48:                # cyan
+        red = 0; green = 252; blue = (66-temp)*14
+    elif temp > 30:                # blue
+        red = 0; green = (temp-30)*14; blue = 252
+    elif temp > 0:
+        red = 0; green = 0; blue = 252
+    else:
+        red = 112; green = 128; blue = 144
+    return 'rgb('+str(red)+','+str(green)+','+str(blue)+')'
 
 def png2fb(pngImage):
     fbPixMap = ""
@@ -101,7 +125,7 @@ class Display(object):
                 for resourceElement in self.resourceElements:
                     resource = resourceElement[0]
                     element = resourceElement[1]
-                    resState = resource.getViewState(self.views)
+                    resState = self.views.getViewState(resource)
                     element.setValue(resState)
                     if resource.type in tempTypes:
                         element.fgColor = rgb2fb(eval(tempColor(resState).lstrip("rgb")))
