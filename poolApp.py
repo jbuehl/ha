@@ -41,7 +41,7 @@ if __name__ == "__main__":
     ads1015Interface = ADS1015Interface("ads1015Interface", addr=0x48)
     analogTempInterface = AnalogTempInterface("analogTempInterface", ads1015Interface)
     valveInterface = ValveInterface("valveInterface", gpioInterface1)
-    timeInterface = TimeInterface("timeInterface")
+    timeInterface = TimeInterface("timeInterface", None, latLong=latLong)
     configInterface = FileInterface("configInterface", fileName=stateDir+"pool.state", event=stateChangeEvent)
     
     # persistent config data
