@@ -40,6 +40,7 @@ if __name__ == "__main__":
     southThermostatMode = Control("southThermostatMode", configData, "southThermostatMode")
    
     # Temperature sensors
+    officeTemp = Sensor("officeTemp", owfs, "28.C1EFDB060000", group=["Temperature"], label="Office temp", type="tempF")
     masterBedroomTemp = Sensor("masterBedroomTemp", owfs, "28.175CDC060000", group=["Hvac", "Temperature"], label="Master bedroom temp", type="tempF")
     diningRoomTemp = Sensor("diningRoomTemp", owfs, "28.E4F6DB060000", group=["Hvac", "Temperature"], label="Dining room temp", type="tempF")
     hallTemp = Sensor("hallTemp", owfs, "28.FA78DB060000", group=["Temperature"], label="Hall temp", type="tempF")
@@ -94,7 +95,7 @@ if __name__ == "__main__":
     # Resources
     resources = Collection("resources", resources=[frontDoor, houseDoors,
                                                    atticTemp, hallTemp, livingRoomTemp, familyRoomTemp, 
-                                                   masterBedroomTemp, 
+                                                   officeTemp, masterBedroomTemp, 
                                                    northHeat, northCool, northFan, northHeatTempTarget, northCoolTempTarget, 
                                                    northHeatControl, northCoolControl, northThermostat, northThermostatUnitSensor,
                                                    masterBedroomDoor, 
