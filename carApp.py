@@ -1,5 +1,3 @@
-tzOffset = -7
-
 rootDir = "/root/"
 dataDir = rootDir+"data/"
 audioDir = "audio/"
@@ -31,8 +29,6 @@ stateChangeEvent = threading.Event()
 resourceLock = threading.Lock()
 
 if __name__ == "__main__":
-    fgColor = color("yellow")
-    bgColor = color("black")
 
     # interfaces
     gpsInterface = FileInterface("gpsInterface", fileName=gpsFileName, readOnly=True, event=stateChangeEvent)
@@ -75,6 +71,8 @@ if __name__ == "__main__":
     outsideTemp = Sensor("outsideTemp", tempInterface, 0x4e, label="Outside temp", type="tempF")
 
     # initialization
+    fgColor = color("yellow")
+    bgColor = color("black")
     display = Display(displayDevice, inputDevice, views)
     display.clear(bgColor)
     face = freetype.Face(fontPath+fontName)
