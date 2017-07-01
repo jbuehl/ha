@@ -6,7 +6,7 @@ webPageTitle = "Home Automation"
 runRestServer = False
 restIgnore = []
 insideTemp = "diningRoomTemp"
-outsideTemp = "poolEquipTemp"
+outsideTemp = "edisonTemp"
 poolTemp = "poolTemp"
 
 import time
@@ -210,11 +210,13 @@ if __name__ == "__main__":
     resources = Collection("resources", aliases=aliases)
 
     # add local resources
-    timeInterface = TimeInterface("time")
+    timeInterface = TimeInterface("timeInterface", None, latLong=latLong)
     resources.addRes(Sensor("theDayOfWeek", timeInterface, "%A", type="date", group="Time", label="Day of week"))
     resources.addRes(Sensor("theDateDayOfWeek", timeInterface, "%a %B %-d %Y", type="date", label="Date"))
     resources.addRes(Sensor("theDate", timeInterface, "%B %-d %Y", type="date", group="Time", label="Date"))
     resources.addRes(Sensor("theTimeAmPm", timeInterface, "%I:%M %p", type="time", group="Time", label="Time"))
+    resources.addRes(Sensor("theTimeZone", timeInterface, "timeZone", type="time", group="Time", label="Time zone"))
+    resources.addRes(Sensor("theTimeZoneName", timeInterface, "timeZoneName", type="time", group="Time", label="Time zone name"))
     resources.addRes(Sensor("sunrise", timeInterface, "sunrise", type="time", group="Time", label="Sunrise"))
     resources.addRes(Sensor("sunset", timeInterface, "sunset", type="time", group="Time", label="Sunset"))
     resources.addRes(Sensor("theDay", timeInterface, "%a %b %-d %Y", type="date", label="Day"))

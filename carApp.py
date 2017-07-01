@@ -18,9 +18,8 @@ import time
 import threading
 from ha import *
 from ha.ui.displayUI import *
-from ha.ui.webUIViews import *
 from ha.interfaces.fileInterface import *
-from ha.interfaces.gpsTimeInterface import *
+from ha.interfaces.timeInterface import *
 from ha.interfaces.i2cInterface import *
 from ha.interfaces.tc74Interface import *
 from ha.interfaces.tempInterface import *
@@ -36,19 +35,20 @@ if __name__ == "__main__":
     bgColor = color("black")
 
     # interfaces
-    gpsInterface = FileInterface("GPS", fileName=gpsFileName, readOnly=True, event=stateChangeEvent)
-    timeInterface = GpsTimeInterface("Time", gpsInterface)
-    diagInterface = FileInterface("Diag", fileName=diagFileName, readOnly=True, event=stateChangeEvent)
-    i2cInterface = I2CInterface("I2C", bus=1, event=stateChangeEvent)
-    tc74Interface = TC74Interface("TC74", i2cInterface)
-    tempInterface = TempInterface("Temp", tc74Interface, sample=1)
-    audioInterface = AudioInterface("Audio", event=stateChangeEvent)
+    gpsInterface = FileInterface("gpsInterface", fileName=gpsFileName, readOnly=True, event=stateChangeEvent)
+    timeInterface = TimeInterface("timeInterface", gpsInterface, clock="utc")
+    diagInterface = FileInterface("diagInterface", fileName=diagFileName, readOnly=True, event=stateChangeEvent)
+    i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
+    tc74Interface = TC74Interface("tc74Interface", i2cInterface)
+    tempInterface = TempInterface("tempInterface", tc74Interface, sample=1)
+    audioInterface = AudioInterface("audioInterface", event=stateChangeEvent)
 
     # time sensors
     timeResource = Sensor("time", timeInterface, "%-I:%M", type="time", label="Time")
+    ampmResource = Sensor("ampm", timeInterface, "%p", type="time", label="AmPm")
     dateResource = Sensor("date", timeInterface, "%B %-d %Y", type="date", label="Date")
     dayOfWeekResource = Sensor("dayOfWeek", timeInterface, "%A", type="date", label="Day of week")
-    timeZoneResource = Sensor("timeZone", timeInterface, "%Z", label="Time zone")
+    timeZoneResource = Sensor("timeZone", timeInterface, "timeZoneName", label="Time zone")
 
     # position sensors
     positionSensors = [
@@ -81,7 +81,8 @@ if __name__ == "__main__":
     
     # styles        
     defaultStyle = Style("default", face=face, fontSize=24, bgColor=bgColor, fgColor=fgColor)
-    timeStyle = Style("timeStyle", defaultStyle, face=face, fontSize=80, width=300, height=90, fgColor=color("LightYellow"))
+    timeStyle = Style("timeStyle", defaultStyle, face=face, fontSize=80, width=220, height=90, fgColor=color("LightYellow"))
+    ampmStyle = Style("ampmStyle", defaultStyle, face=face, fontSize=32, width=80, height=90, fgColor=color("LightYellow"))
     tempStyle = Style("tempStyle", defaultStyle, face=face, fontSize=72, width=200, height=90)
     textStyle = Style("textStyle", defaultStyle, width=300, height=30, fgColor=color("cyan"))
     labelStyle = Style("labelStyle", defaultStyle, fontSize=32, width=220, height=50, fgColor=color("cyan"))
@@ -100,6 +101,7 @@ if __name__ == "__main__":
     screen = Div("screen", containerStyle, [
                     Span("heading", containerStyle, [
                             Text("time", timeStyle, display=display, resource=timeResource),
+                            Text("ampm", ampmStyle, display=display, resource=ampmResource),
                             Div("text", containerStyle, [
                                 Text("dayOfWeek", textStyle, display=display, resource=dayOfWeekResource), 
                                 Text("date", textStyle, display=display, resource=dateResource),
