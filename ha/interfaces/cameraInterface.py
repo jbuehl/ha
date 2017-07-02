@@ -83,7 +83,7 @@ class CameraInterface(Interface):
     # Enable/disable the camera
     def getEnable(self):
         debug('debugCamera', self.name, "getEnable")
-        return self.enabled
+        return normalState(self.enabled)
 
     # Enable/disable the camera
     def setEnable(self, value):
@@ -94,7 +94,7 @@ class CameraInterface(Interface):
     # Return recording state of the camera
     def getRecording(self):
         debug('debugCamera', self.name, "getRecording")
-        return self.recording
+        return normalState(self.recording)
 
     # record an image or video
     def setRecording(self, value):
@@ -121,13 +121,12 @@ class CameraInterface(Interface):
 
     def takePicture(self):
         def takePicture():
-#            try:
-            subprocess.check_output("/opt/vc/bin/raspistill -rot %d -o %s.jpg"%(self.rotation, self.imageFileName), shell=True)
-            subprocess.check_output("/usr/bin/convert %s.jpg -resize 120x90 %s-thumb.jpg"%(self.imageFileName, self.imageFileName), shell=True)
-#            except:
-#                pass
+            debug('debugCamera', self.name, "takePicture", "started")
+            subprocess.check_output("/usr/bin/raspistill -rot %d -o %s.jpg"%(self.rotation, self.imageFileName), shell=True)
+#            subprocess.check_output("/usr/bin/convert %s.jpg -resize 120x90 %s-thumb.jpg"%(self.imageFileName, self.imageFileName), shell=True)
             self.recording = False
             self.notify()
+            debug('debugCamera', self.name, "takePicture", "finished")
         takePictureThread = threading.Thread(target=takePicture)
         takePictureThread.start()
             
