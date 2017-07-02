@@ -5,6 +5,7 @@ blinkers = []
 import json
 import cherrypy
 from cherrypy.lib import auth_basic
+import requests
 from ha import *
 from ha.ui.webViews import *
 
@@ -152,6 +153,15 @@ class WebRoot(object):
         views.setViewState(self.resources.getRes(resource), action)
         reply = ""
         return reply
+
+    # return a camera image    
+    @cherrypy.expose
+    def image(self, camera=None):
+        debug('debugWeb', "/image", cherrypy.request.method, camera)
+        url = "http://"+camera+".local:7378/resources/"+camera+"image/state"
+        response = requests.get(url)
+        cherrypy.response.headers['Content-Type'] = "image/jpeg"
+        return response.content
 
 def webInit(resources, restCache, stateChangeEvent, httpPort=80, ssl=False, httpsPort=443, domain="", pathDict=None, baseDir="/", block=False):
     # set up the web server
