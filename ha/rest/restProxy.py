@@ -43,7 +43,7 @@ class RestProxy(threading.Thread):
     def doRest(self):
         debug('debugThread', self.name, "started")
         while running:
-            (data, addr) = self.socket.recvfrom(4096)
+            (data, addr) = self.socket.recvfrom(8192)   # FIXME - need to handle arbitrarily large data
             debug('debugRestBeacon', self.name, "beacon data", data)
             serviceData = json.loads(data)
             serviceName = serviceData[0]+":"+str(serviceData[1])       # hostname:port
