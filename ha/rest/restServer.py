@@ -39,7 +39,13 @@ class RestServer(object):
                 debug('debugRestBeacon', "REST beacon started")
                 while True:
                     debug('debugRestBeacon', "REST beacon")
-                    self.beaconSocket.sendto(json.dumps((self.hostname, self.port, self.resources.dict(), self.timeStamp, self.label)), ("<broadcast>", restBeaconPort))
+                    self.beaconSocket.sendto(json.dumps((self.hostname, 
+                                                         self.port,
+#                                                         self.resources.dict(), 
+                                                         [self.server.resources.name], 
+                                                         self.timeStamp, 
+                                                         self.label)), 
+                                                     ("<broadcast>", restBeaconPort))
                     time.sleep(restBeaconInterval)
             beaconThread = threading.Thread(target=beacon)
             beaconThread.start()
@@ -90,7 +96,8 @@ class RestRequestHandler(BaseHTTPRequestHandler):
             self.send_response(200)     # success
             self.send_header("Content-type", "application/json")
             self.end_headers()
-            self.wfile.write(json.dumps({"resources": self.server.resources.name}))
+#            self.wfile.write(json.dumps({"resources": self.server.resources.name}))
+            self.wfile.write(json.dumps([self.server.resources.name]))
         else:                   # find the specified resource or attribute
             (resource, attr) = self.getResFromPath(self.server.resources, urllib.unquote(self.path).lstrip("/"))
             debug('debugRestGet', "resource:", resource, "attr:", attr)

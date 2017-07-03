@@ -90,10 +90,14 @@ class RestProxy(threading.Thread):
 
     # get all the resources on the specified service and add them to the cache
     def getResources(self, service, serviceResources, timeStamp):
-        debug('debugRestProxy', self.name, "getting", service.name)
+        debug('debugRestProxy', self.name, "getting", service.name, "resources:", serviceResources, isinstance(serviceResources, list))
         resources = Collection(service.name+"/Resources", aliases=self.resources.aliases)
         service.interface.enabled = True
-        self.load(resources, service.interface, "/"+serviceResources["name"])
+        if isinstance(serviceResources, list):
+            for serviceResource in serviceResources:
+                self.load(resources, service.interface, "/"+service.interface.read("/"+serviceResource)["name"])
+        else:   # for backwards compatibility
+            self.load(resources, service.interface, "/"+serviceResources["name"])
         service.resourceNames = resources.keys()
         service.timeStamp = timeStamp
         service.interface.readStates()          # fill the cache for these resources
