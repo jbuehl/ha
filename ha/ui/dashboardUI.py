@@ -1,5 +1,5 @@
 insideTemp = "diningRoomTemp"
-outsideTemp = "poolEquipTemp"
+outsideTemp = "edisonTemp"
 poolTemp = "poolTemp"
 
 from jinja2 import FileSystemLoader
