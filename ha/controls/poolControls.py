@@ -121,7 +121,7 @@ class SpaControl(Control):
     def spaReady(self, state):
         debug('debugState', self.name, "spaReady ", state)
         self.stateTransition(state)
-        notifyMsg = spaNotifyMsg+" "+str(self.tempSensor.getState())+" F"
+        notifyMsg = spaNotifyMsg+" "+str(int(self.tempSensor.getState()+.5))+" F"
         if spaReadyNotifyNumbers != []:
             smsNotify(spaReadyNotifyNumbers, notifyMsg)
         if spaReadyNotifyApp != "":
