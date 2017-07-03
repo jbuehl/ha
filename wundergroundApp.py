@@ -31,12 +31,15 @@ if __name__ == "__main__":
         time.sleep(updatePeriod)
         try:
             temp = resources[tempSensor].getState()
+            debug('debugWunderground', "temp:", temp)
             humidity = resources[humiditySensor].getState()
+            debug('debugWunderground', "humidity:", humidity)
             dewpoint = resources[dewpointSensor].getState()
+            debug('debugWunderground', "dewpoint:", dewpoint)
             barometer = resources[barometerSensor].getState()
+            debug('debugWunderground', "barometer:", barometer)
             windSpeed = 0
             windDir = 0
-            debug('debugWunderground', "temp:", temp, "humidity:", humidity, "barometer:", barometer)
             request = wunderRequest+"&tempf="+str(temp)+"&humidity="+str(humidity)+"&dewptf="+str(dewpoint)+"&baromin="+str(barometer)
             request += "&windspeedmph="+str(windSpeed)+"&winddir="+str(windDir)
             response = requests.get(request)
