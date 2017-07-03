@@ -123,7 +123,7 @@ class CameraInterface(Interface):
         def takePicture():
             debug('debugCamera', self.name, "takePicture", "started")
             subprocess.check_output("/usr/bin/raspistill -rot %d -o %s.jpg"%(self.rotation, self.imageFileName), shell=True)
-#            subprocess.check_output("/usr/bin/convert %s.jpg -resize 120x90 %s-thumb.jpg"%(self.imageFileName, self.imageFileName), shell=True)
+            subprocess.check_output("/usr/bin/convert %s.jpg -resize 120x90 %s-thumb.jpg"%(self.imageFileName, self.imageFileName), shell=True)
             self.recording = False
             self.notify()
             debug('debugCamera', self.name, "takePicture", "finished")
