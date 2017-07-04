@@ -1,5 +1,7 @@
 backHeatTempTargetDefault = 65
 backCoolTempTargetDefault = 75
+windSpeedAddr = 1
+windDirAddr = 2
 
 import threading
 from ha import *
@@ -8,6 +10,7 @@ from ha.interfaces.i2cInterface import *
 from ha.interfaces.owfsInterface import *
 from ha.interfaces.fileInterface import *
 from ha.interfaces.tempInterface import *
+from ha.interfaces.windInterface import *
 from ha.controls.tempControl import *
 from ha.controls.thermostatControl import *
 from ha.rest.restServer import *
@@ -23,6 +26,13 @@ if __name__ == "__main__":
     gpio0 = GPIOInterface("gpio0", i2c1, addr=0x20, bank=0, inOut=0xff, config=[(GPIOInterface.IPOL, 0x00)])
     gpio1 = GPIOInterface("gpio1", i2c1, addr=0x20, bank=1, inOut=0x00)
 
+    # Weather
+    anemometer = Sensor("anemometer", gpio0, addr=windSpeedAddr)
+    windVane = Sensor("windVane", gpio0, addr=windDirAddr)
+    windInterface = WindInterface("windInterface", gpio0, anemometer=anemometer, windVane=windVane)
+    windSpeed = Sensor("windSpeed", windInterface, addr="speed", type="MPH", group="Weather", label="Wind speed")
+    windDir = Sensor("windDir", windInterface, addr="dir", type="Deg", group="Weather", label="Wind direction")
+    
     # Doors
     backHouseDoor = Sensor("backHouseDoor", gpio0, 0, type="door", group=["Doors", "Hvac"], label="Back house")
     
@@ -62,7 +72,8 @@ if __name__ == "__main__":
     schedule = Schedule("schedule", tasks=[backHeatTempUpMorning, backHeatTempDownMorning, backHeatTempDownEvening])
 
     # Resources
-    resources = Collection("resources", resources=[backHouseTemp, 
+    resources = Collection("resources", resources=[windSpeed, windDir,
+                                                   backHouseTemp, 
                                                    backHeat, backCool, backFan, backHeatTempTarget, backCoolTempTarget, 
                                                    backHeatControl, backCoolControl, backThermostat, backThermostatUnitSensor,
                                                    backHouseDoor, 

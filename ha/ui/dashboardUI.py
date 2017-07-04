@@ -31,6 +31,8 @@ def dashboardUI(resources, templates, views):
                             temp=resources[outsideTemp],
                             humidity=resources["humidity"],
                             barometer=resources["barometer"],
+                            windSpeed=resources["windSpeed"],
+                            windDir=resources["windDir"],
                             views=views)
         poolGroup = groupTemplate.render(templates=templates, views=views, widths=columnWidths, 
                             group=["Pool", []], details=False, name=True, link=True) + \
