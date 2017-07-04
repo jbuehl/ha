@@ -85,13 +85,17 @@ class GPIOInterface(Interface):
         self.readState()
         for i in range(8):
             if (intFlags >> i) & 0x01:
-                sensor = self.sensorAddrs[i]
-                state = (self.state >> i) & 0x01
-                debug('debugGPIO', self.name, "notifying", sensor.name)
-                sensor.notify()
-                if sensor.interrupt:
-                    debug('debugGPIO', self.name, "calling", sensor.name, state)
-                    sensor.interrupt(sensor, state)
+                try:
+                    sensor = self.sensorAddrs[i]
+                    state = (self.state >> i) & 0x01
+                    debug('debugGPIO', self.name, "notifying", sensor.name)
+                    sensor.notify()
+                    if sensor.interrupt:
+                        debug('debugGPIO', self.name, "calling", sensor.name, state)
+                        sensor.interrupt(sensor, state)
+                except KeyError:
+                    debug('debugGPIO', self.name, "no sensor for interrupt on addr", i, self.sensorAddrs)
+
 
     def read(self, addr):
         if self.interface:
