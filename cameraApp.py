@@ -8,24 +8,24 @@ if __name__ == "__main__":
     cameraName = socket.gethostname()
     cameraDisplay = cameraName[:-1].capitalize()+" "+cameraName[-1]
 
-    # Resources
-    resources = Collection("resources")
-
     # Interfaces
     stateChangeEvent = threading.Event()
     camera = CameraInterface(cameraName, imageDir=imageDir, rotation=cameraRotation, event=stateChangeEvent)
     
     # Cameras
-    resources.addRes(Sensor(cameraName+"image", camera, "image", group="Cameras", label=cameraDisplay, type="image"))
-    resources.addRes(Sensor(cameraName+"thumb", camera, "thumb", group="Cameras", label=cameraDisplay+" thumbnail", type="image"))
-    resources.addRes(Control(cameraName+"mode", camera, "mode", group="Cameras", label=cameraDisplay+" mode", type="cameraMode"))
-    resources.addRes(Control(cameraName+"enable", camera, "enable", group="Cameras", label=cameraDisplay+" enable", type="cameraEnable"))
-    resources.addRes(Control(cameraName+"record", camera, "record", group="Cameras", label=cameraDisplay+" record", type="cameraRecord"))
+    cameraImage = Sensor(cameraName+"image", camera, "image", group="Cameras", label=cameraDisplay, type="image")
+    cameraThumb = Sensor(cameraName+"thumb", camera, "thumb", group="Cameras", label=cameraDisplay+" thumbnail", type="image")
+    cameraMode = Control(cameraName+"mode", camera, "mode", group="Cameras", label=cameraDisplay+" mode", type="cameraMode")
+    cameraEnable = Control(cameraName+"enable", camera, "enable", group="Cameras", label=cameraDisplay+" enable", type="cameraEnable")
+    cameraRecord = Control(cameraName+"record", camera, "record", group="Cameras", label=cameraDisplay+" record", type="cameraRecord")
     
     # Schedules
 
+    # Resources
+    resources = Collection("resources", [cameraImage, cameraThumb, cameraMode, cameraEnable, cameraRecord])
+    restServer = RestServer(resources, event=stateChangeEvent, label=cameraDisplay)
+
     # Start interfaces
     camera.start()
-    restServer = RestServer(resources, event=stateChangeEvent, label=cameraDisplay)
     restServer.start()
 
