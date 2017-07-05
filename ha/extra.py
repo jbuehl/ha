@@ -124,14 +124,17 @@ class SensorGroup(Sensor):
         for sensorIdx in range(len(self.sensorList)):
             if self.resources:      # sensors are resource names - FIXME - test list element type
                 try:
+                    sensorName = self.sensorList[sensorIdx]
                     sensorState = self.resources.getRes(self.sensorList[sensorIdx]).getState()
                 except KeyError:    # can't resolve so ignore it
                     sensorState = 0
             else:                   # sensors are resource references
                 try:
+                    sensorName = self.sensorList[sensorIdx].name
                     sensorState = self.sensorList[sensorIdx].getState()
                 except AttributeError:
                     sensorState = 0
+            debug("debugSensorGroup", self.name, "sensor:", sensorName, "state:", sensorState)
             groupState = groupState or sensorState    # group is on if any one sensor is on
         return groupState
 
@@ -239,17 +242,18 @@ class ResourceStateSensor(Sensor):
 
 # Control that can only be turned on if all the specified resources are in the specified states
 class DependentControl(Control):
-    def __init__(self, name, interface, control, resources, addr=None, group="", type="control", location=None, label="", interrupt=None):
+    def __init__(self, name, interface, control, conditions, addr=None, group="", type="control", location=None, label="", interrupt=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.className = "Control"
         self.control = control
-        self.resources = resources
+        self.conditions = conditions
 
     def setState(self, state, wait=False):
         debug('debugState', self.name, "setState ", state)
-        for sensor in self.resources:
-            debug('debugSpaLight', self.name, sensor[0].name, sensor[0].getState())
-            if sensor[0].getState() != sensor[1]:
+        for (sensor, condition, value) in self.conditions:
+            sensorState = sensor.getState()
+            debug('debugDependentControl', self.name, sensor.name, sensorState, condition, value)
+            if not eval(str(sensorState)+condition+str(value)):
                 return
         self.control.setState(state)
 

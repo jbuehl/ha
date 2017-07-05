@@ -82,10 +82,10 @@ if __name__ == "__main__":
     # Spa
     sunUp = Sensor("sunUp", timeInterface, "sunUp")
     # spa light control that will only turn on if the sun is down
-    spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(sunUp, 0)])
+    spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(sunUp, "==", 0)])
     spa = SpaControl("spa", nullInterface, valveMode, poolPump, heaterControl, spaLightNight, spaTemp, spaTempTarget, group="Pool", label="Spa", type="spa")
     # spa light control that will only turn on if the sun is down and the spa is on
-    spaLightNightSpa = DependentControl("spaLightNightSpa", nullInterface, spaLightNight, [(spa, 1)])
+    spaLightNightSpa = DependentControl("spaLightNightSpa", nullInterface, spaLightNight, [(spa, "==", 1)])
     
     filterSequence = Sequence("filterSequence", [Cycle(poolPump, duration=39600, startState=1),  # filter 11 hr
                                               ], group="Pool", label="Filter daily")
