@@ -38,10 +38,12 @@ if __name__ == "__main__":
             debug('debugWunderground', "dewpoint:", dewpoint)
             barometer = resources[barometerSensor].getState()
             debug('debugWunderground', "barometer:", barometer)
-            windSpeed = resources[windSpeedSensor].getState()
-            debug('debugWunderground', "windSpeed:", windSpeed)
-            windDir = resources[windDirSensor].getState()
-            debug('debugWunderground', "windDir:", windDir)
+#            windSpeed = resources[windSpeedSensor].getState()
+#            debug('debugWunderground', "windSpeed:", windSpeed)
+#            windDir = resources[windDirSensor].getState()
+#            debug('debugWunderground', "windDir:", windDir)
+            windSpeed = 0
+            windDir = 0
             request = wunderRequest+"&tempf="+str(temp)+"&humidity="+str(humidity)+"&dewptf="+str(dewpoint)+"&baromin="+str(barometer)
             request += "&windspeedmph="+str(windSpeed)+"&winddir="+str(windDir)
             response = requests.get(request)
