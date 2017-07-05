@@ -37,7 +37,7 @@ class TempControl(Control):
             debug('debugTempControl', self.name, "tempWatch started")
             while self.controlState == enabled:  # stop when state is set to off
                 time.sleep(tempWatchInterval)
-                currentTemp = self.tempSensor.getState()
+                currentTemp = int(self.tempSensor.getState())
                 if currentTemp > 0:                 # don't do anything if no temp reading
                     if self.tempTargetControl:
                         self.tempTarget = self.tempTargetControl.getState()
