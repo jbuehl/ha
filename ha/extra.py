@@ -123,8 +123,8 @@ class SensorGroup(Sensor):
         groupState = 0
         for sensorIdx in range(len(self.sensorList)):
             if self.resources:      # sensors are resource names - FIXME - test list element type
+                sensorName = self.sensorList[sensorIdx]
                 try:
-                    sensorName = self.sensorList[sensorIdx]
                     sensorState = self.resources.getRes(self.sensorList[sensorIdx]).getState()
                 except KeyError:    # can't resolve so ignore it
                     sensorState = 0
@@ -133,6 +133,7 @@ class SensorGroup(Sensor):
                     sensorName = self.sensorList[sensorIdx].name
                     sensorState = self.sensorList[sensorIdx].getState()
                 except AttributeError:
+                    sensorName = ""
                     sensorState = 0
             debug("debugSensorGroup", self.name, "sensor:", sensorName, "state:", sensorState)
             groupState = groupState or sensorState    # group is on if any one sensor is on
@@ -276,4 +277,55 @@ class MinMaxControl(Control):
     def setMinMax(self, minValue, maxValue):
         self.minValue = minValue
         self.maxValue = maxValue    
+
+# Sensor that captures the minimum state value of the specified sensor
+class MinSensor(Sensor):
+    def __init__(self, name, interface, sensor, event=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None):
+        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label, interrupt=interrupt)
+        self.className = "Sensor"
+        self.sensor = sensor
+        if self.interface:
+            self.minState = self.interface.read(self.name)
+        else:
+            self.minState = 999
+
+    def getState(self):
+        sensorState = self.sensor.getState()
+        if sensorState < self.minState:
+            if sensorState != 0:    # FIXME
+                self.minState = sensorState
+                if self.interface:
+                    self.interface.write(self.name, self.minState)
+        return self.minState
+
+    # reset the min value
+    def setState(self, value):
+        self.minState = value
+        if self.interface:
+            self.interface.write(self.name, self.minState)
+        
+# Sensor that captures the maximum state value of the specified sensor
+class MaxSensor(Sensor):
+    def __init__(self, name, interface, sensor, event=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None):
+        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label, interrupt=interrupt)
+        self.className = "Sensor"
+        self.sensor = sensor
+        if self.interface:
+            self.maxState = self.interface.read(self.name)
+        else:
+            self.maxState = 0
+
+    def getState(self):
+        sensorState = self.sensor.getState()
+        if sensorState > self.maxState:
+            self.maxState = sensorState
+            if self.interface:
+                self.interface.write(self.name, self.maxState)
+        return self.maxState
+
+    # reset the max value
+    def setState(self, value):
+        self.maxState = value
+        if self.interface:
+            self.interface.write(self.name, self.maxState)
 
