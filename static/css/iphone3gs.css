@@ -55,13 +55,49 @@ body {
 	margin-left: 0px;
     }
     
-.bedside {
+.dimmed {
+    opacity: 0.5;
+    }
+
+.label {
+    opacity: 0.5;
+    }
+
+.light_On {
+    opacity: 0.5;
+    }
+
+.light_Off {
+    opacity: 0.5;
+    }
+
+.nightlight_On {
+    opacity: 0.5;
+    }
+
+.nightlight_Off {
+    opacity: 0.5;
+    }
+
+.nightlight_Sleep {
+    opacity: 0.5;
+    }
+
+.hotwater_On {
+    opacity: 0.5;
+    }
+
+.hotwater_Off {
     opacity: 0.5;
     }
 
 .door_Open {
 	color: #ffcf4f;
 	opacity: 1.0;
+    }
+
+.door_Closed {
+	opacity: 0.5;
     }
 
 table {

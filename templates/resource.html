@@ -3,6 +3,7 @@
     <!-- details - display resource details -->
     <!-- indent - indent by n px -->
     <!-- bullet - prepend to label -->
+    <!-- dimmed - dim the label and controls -->
 
         <td>
         <!-- label-->
@@ -16,12 +17,15 @@
         <!-- state-->
         <td>
         {% endif %}
-            <div id="{{ resource.name }}" class="{{ resource.name }} {{ resource.type+'_'+views.getViewState(resource) }}">{{ views.getViewState(resource) }}</div>
+            <div id="{{ resource.name }}" 
+                 class="{{ resource.name }} 
+                        {{ resource.type+'_'+views.getViewState(resource) }}
+                        {% if dimmed %} dimmed {% endif %}">{{ views.getViewState(resource) }}</div>
         </td>
         <!-- controls-->
         <td>
             {% if resource.className != "Sensor" %}
-            <div class=control>
+            <div class="control {% if dimmed %} dimmed {% endif %}" >
             <form name='control' action='' method='get'>
                 <input type='hidden' name='resource' value='{{ resource.name }}' />
                 {% for value in views.getSetValues(resource).values() %}
