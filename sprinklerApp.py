@@ -40,7 +40,7 @@ if __name__ == "__main__":
     gardenSequence = Sequence("gardenSequence", [Cycle(garden, 600)], group="Sprinklers", label="Garden")
     backBedSequence = Sequence("backBedSequence", [Cycle(backBeds, 600)], group="Sprinklers", label="Back beds")
     backBedHotSequence = DependentControl("backBedHotSequence", None, backBedSequence, [(tempSensor, ">", 90)])
-    backBedHotterSequence = DependentControl("backBedHotterSequence", None, backBedSequence, [(tempSensor, ">", 100)])
+    backBedHotterSequence = DependentControl("backBedHotterSequence", None, backBedSequence, [(maxTemp, ">", 100)])
     sideBedSequence = Sequence("sideBedSequence", [Cycle(sideBeds, 600)], group="Sprinklers", label="Side beds")
 
     # Schedules
