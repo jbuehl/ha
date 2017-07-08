@@ -66,7 +66,10 @@ if __name__ == "__main__":
     sideBedTask = Task("sideBedTask", SchedTime(hour=scheduleHour+1, minute=00, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), 
                         sideBedSequence, 1, enabled=True)
 
-    schedule = Schedule("schedule", tasks=[frontLawnTask, frontLawnHotTask, gardenTask, backLawnTask, backLawnHotTask, sideBedTask, backBedTask, backBedHotTask, backBedHotterTask])
+    schedule = Schedule("schedule", tasks=[resetMinTempTask, resetMaxTempTask, 
+                                           frontLawnTask, frontLawnHotTask, gardenTask, 
+                                           backLawnTask, backLawnHotTask, 
+                                           sideBedTask, backBedTask, backBedHotTask, backBedHotterTask])
 
     # Resources
     resources = Collection("resources", resources=[minTemp, maxTemp,
