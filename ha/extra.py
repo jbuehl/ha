@@ -284,9 +284,9 @@ class MinSensor(Sensor):
         Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.className = "Sensor"
         self.sensor = sensor
-        if self.interface:
+        try:
             self.minState = self.interface.read(self.name)
-        else:
+        except:
             self.minState = 999
 
     def getState(self):
@@ -310,9 +310,9 @@ class MaxSensor(Sensor):
         Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.className = "Sensor"
         self.sensor = sensor
-        if self.interface:
+        try:
             self.maxState = self.interface.read(self.name)
-        else:
+        except:
             self.maxState = 0
 
     def getState(self):
@@ -328,4 +328,28 @@ class MaxSensor(Sensor):
         self.maxState = value
         if self.interface:
             self.interface.write(self.name, self.maxState)
+            
+# Sensor that captures the accumulated state values of the specified sensor
+class AccumSensor(Sensor):
+    def __init__(self, name, interface, sensor, multiplier=1, event=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None):
+        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label, interrupt=interrupt)
+        self.className = "Sensor"
+        self.sensor = sensor
+        self.multiplier = multiplier
+        try:
+            self.accumValue = self.interface.read(self.name)
+        except:
+            self.accumValue = 0
+
+    def getState(self):
+        self.accumValue = self.sensor.getState() * self.multiplier
+        if self.interface:
+            self.interface.write(self.name, self.accumValue)
+        return self.accumValue
+
+    # reset the accumulated value
+    def setState(self, value):
+        self.accumValue = value
+        if self.interface:
+            self.interface.write(self.name, self.accumValue)
 

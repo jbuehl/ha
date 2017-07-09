@@ -9,6 +9,8 @@ barometerSensor = "barometer"
 windSpeedSensor = "windSpeed"
 windDirSensor = "windDir"
 dewpointSensor = "dewpoint"
+rainHourSensor = "rainHour"
+rainDailySensor = "rainDaily"
 
 import requests
 from ha import *
@@ -44,8 +46,15 @@ if __name__ == "__main__":
 #            debug('debugWunderground', "windDir:", windDir)
             windSpeed = 0
             windDir = 0
+#            rainHour = resources[rainHourSensor].getState()
+#            debug('debugWunderground', "rainHour:", rainHour)
+#            rainDaily = resources[rainDailySensor].getState()
+#            debug('debugWunderground', "rainDaily:", rainDaily)
+            rainHour = 0
+            rainDaily = 0
             request = wunderRequest+"&tempf="+str(temp)+"&humidity="+str(humidity)+"&dewptf="+str(dewpoint)+"&baromin="+str(barometer)
             request += "&windspeedmph="+str(windSpeed)+"&winddir="+str(windDir)
+            request += "&rainin="+str(rainHour)+"&dailyrainin="+str(rainDaily)
             response = requests.get(request)
             debug('debugWunderground', "request:", request, "response:", response.text, "status:", response.status_code)
             if (response.status_code != 200) or (response.text[0:7] != "success"):
