@@ -18,21 +18,21 @@ def dashboardUI(resources, templates, views):
                     templates.get_template("timeWidget.html").render(
                             widths=[columnWidth, labelWidth],
                             templates=templates,
-                            date=resources["theDateDayOfWeek"],
-                            time=resources["theTimeAmPm"],
-                            sunrise=resources["sunrise"],
-                            sunset=resources["sunset"],
+                            date=resources.getRes("theDateDayOfWeek"),
+                            time=resources.getRes("theTimeAmPm"),
+                            sunrise=resources.getRes("sunrise"),
+                            sunset=resources.getRes("sunset"),
                             views=views)
         weatherGroup = groupTemplate.render(templates=templates, views=views, widths=columnWidths, 
                             group=["Weather", []], details=False, name=True, link=True) + \
                     templates.get_template("weatherWidget.html").render(
                             widths=[columnWidth, labelWidth],
                             templates=templates,
-                            temp=resources[outsideTemp],
-                            humidity=resources["humidity"],
-                            barometer=resources["barometer"],
-                            windSpeed=resources["windSpeed"],
-                            windDir=resources["windDir"],
+                            temp=resources.getRes(outsideTemp),
+                            humidity=resources.getRes("humidity"),
+                            barometer=resources.getRes("barometer"),
+                            windSpeed=resources.getRes("windSpeed"),
+                            windDir=resources.getRes("windDir"),
                             views=views)
         poolGroup = groupTemplate.render(templates=templates, views=views, widths=columnWidths, 
                             group=["Pool", []], details=False, name=True, link=True) + \
@@ -108,11 +108,11 @@ def dashboardUI(resources, templates, views):
                     templates.get_template("powerWidget.html").render(
                             widths=[columnWidth, labelWidth],
                             templates=templates,
-                            power=resources["currentPower"],
-                            load=resources["currentLoad"],
-                            voltage=resources["currentVoltage"],
-                            energy=resources["todaysEnergy"],
-                            lifetime=resources["lifetimeEnergy"],
+                            power=resources.getRes("currentPower"),
+                            load=resources.getRes("currentLoad"),
+                            voltage=resources.getRes("currentVoltage"),
+                            energy=resources.getRes("todaysEnergy"),
+                            lifetime=resources.getRes("lifetimeEnergy"),
                             views=views)
         return templates.get_template("dashboard.html").render(script="",
                             templates=templates,
