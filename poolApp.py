@@ -80,7 +80,7 @@ if __name__ == "__main__":
     poolPumpFlow = Sensor("poolPumpFlow", pentairInterface, 3, group="Pool", label="Pump flow", type="pumpFlow")
 
     # Spa
-    sunUp = Sensor("sunUp", timeInterface, "sunUp")
+    sunUp = Sensor("sunUp", timeInterface, "daylight")
     # spa light control that will only turn on if the sun is down
     spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(sunUp, "==", 0)])
     spa = SpaControl("spa", nullInterface, valveMode, poolPump, heaterControl, spaLightNight, spaTemp, spaTempTarget, group="Pool", label="Spa", type="spa")
