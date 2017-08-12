@@ -63,4 +63,6 @@ if __name__ == "__main__":
             log("no sensor")
         except requests.exceptions.ConnectionError:
             log("connection error")
+        except requests.exceptions.ReadTimeout:
+            log("read timeout")
     
