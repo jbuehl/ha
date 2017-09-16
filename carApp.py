@@ -67,7 +67,7 @@ if __name__ == "__main__":
         Sensor("coolantTemp", diagInterface, "WaterTemp", label="Water temp", type="tempC"),
 #        Sensor("airPressure", diagInterface, "Barometer", label="Barometer", type="barometer"),
         Sensor("runTime", diagInterface, "RunTime", label="Run time", type="Secs"),
-        Sensor("nCodes", diagInterface, "NCodes", label="Diag codes",type="diagCode"),
+        Sensor("diagCodes", diagInterface, "DiagCodes", label="Diag codes",type="diagCode"),
     ]
     outsideTemp = Sensor("outsideTemp", tempInterface, 0x4e, label="Outside temp", type="tempF")
 

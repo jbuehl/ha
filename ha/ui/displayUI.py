@@ -130,7 +130,8 @@ class Display(object):
                     if resource.type in tempTypes:
                         element.fgColor = rgb2fb(eval(tempColor(resState).lstrip("rgb")))
                     elif resource.type == "diagCode":
-                        if resState != "0":
+                        if resState[0] != "0":
+                            element.setValue(resState[0:8])
                             element.fgColor = color("OrangeRed")
                     resourceElement[1].render(self)
                 time.sleep(10)
