@@ -129,6 +129,9 @@ class Display(object):
                     element.setValue(resState)
                     if resource.type in tempTypes:
                         element.fgColor = rgb2fb(eval(tempColor(resState).lstrip("rgb")))
+                    elif resource.type == "diagCode":
+                        if resState != "0":
+                            element.fgColor = color("OrangeRed")
                     resourceElement[1].render(self)
                 time.sleep(10)
         updateThread = threading.Thread(target=UpdateThread)
