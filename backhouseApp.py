@@ -75,9 +75,9 @@ if __name__ == "__main__":
     # Tasks
     rainResetTask = Task("rainResetTask", SchedTime(hour=0, minute=0), rainReset, 0, enabled=True)
     
-    backHeatTempUpMorning = Task("backHeatTempUpMorning", SchedTime(hour=[6], minute=[0]), backHeatTempTarget, 69)
-    backHeatTempDownMorning = Task("backHeatTempDownMorning", SchedTime(hour=[8], minute=[0]), backHeatTempTarget, 66)
-    backHeatTempDownEvening = Task("backHeatTempDownEvening", SchedTime(hour=[21], minute=[0]), backHeatTempTarget, 66)
+    backHeatTempUpMorning = Task("backHeatTempUpMorning", SchedTime(hour=[6], minute=[0]), backHeatTempTarget, 69, enabled=False)
+    backHeatTempDownMorning = Task("backHeatTempDownMorning", SchedTime(hour=[8], minute=[0]), backHeatTempTarget, 66, enabled=False)
+    backHeatTempDownEvening = Task("backHeatTempDownEvening", SchedTime(hour=[21], minute=[0]), backHeatTempTarget, 66, enabled=False)
     
     # Schedule
     schedule = Schedule("schedule", tasks=[rainResetTask, backHeatTempUpMorning, backHeatTempDownMorning, backHeatTempDownEvening])
