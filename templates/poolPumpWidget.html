@@ -9,8 +9,8 @@
         {% endfor %}
         <tr>
         <td><div class=label>{{ poolPumpControl.label }}</div></td>
-        <td><div id="{{ poolPumpFlowSensor.name }}" class="{{ poolPumpFlowSensor.type+'_'+views.getViewState(poolPumpFlowSensor) }}">{{ views.getViewState(poolPumpFlowSensor) }}</div></td>
         <td><div id="{{ poolPumpControl.name }}" class="{{ poolPumpControl.type+'_'+views.getViewState(poolPumpControl) }}">{{ views.getViewState(poolPumpControl) }}</div></td>
+        <td><div id="{{ poolPumpFlowSensor.name }}" class="{{ poolPumpFlowSensor.type+'_'+views.getViewState(poolPumpFlowSensor) }}">{{ views.getViewState(poolPumpFlowSensor) }}</div></td>
         <td>
             <div class=control>
             <form name='control' action='' method='get'>
