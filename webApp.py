@@ -191,10 +191,18 @@ def solar():
                             optimizers=resources.getGroup("Optimizers"), 
                             views=views)
 
+# Weather   
+def weather():
+    debug('debugWeb', "/weather", cherrypy.request.method)
+    with resources.lock:
+        return templates.get_template("weather.html").render(script="",
+                            )
+
 # dispatch table
 pathDict = {"": index,
             "details": details,
             "solar": solar,
+            "weather": weather,
             "ipad": ipad,
             "iphone5": iphone5,
             "iphone3gs": iphone3gs,
