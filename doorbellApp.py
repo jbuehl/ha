@@ -8,10 +8,14 @@ doorbellSound = "doorbell.wav"
 doorbellRepeat = 1
 
 # sms alert
-doorbellNotifyMsg = "Ding dong!"
+doorbellNotifyMsg = "Doorbell https://shadyglade.thebuehls.com/image?camera=%s&image=%s"
 notifyFromNumber = ""
 doorbellNotifyNumbers = []
 
+# camera
+camera = "camera1"
+
+import subprocess
 from ha import *
 from ha.rest.restProxy import *
 from ha.notify import *
@@ -29,11 +33,12 @@ if __name__ == "__main__":
             state = resources[doorbellSensor].getStateChange()
             debug('debugDoorbell', "state:", state, "lastState", lastState)
             if (state != lastState) and (state == doorbellState):
-                debug('debugDoorbell', "notifying", str(doorbellNotifyNumbers))
-                smsNotify(doorbellNotifyNumbers, doorbellNotifyMsg)
                 for i in range(doorbellRepeat):
                     debug('debugDoorbell', "playing", soundDir+doorbellSound)
                     os.system("aplay "+soundDir+doorbellSound)
+                debug('debugDoorbell', "notifying", str(doorbellNotifyNumbers))
+                imageFileName = subprocess.check_output("ssh pluto.local ls -1 /var/ftp/images/"+camera+"/*.jpg | tail -n1", shell=True).split("/")[-1].strip("\n")
+                smsNotify(doorbellNotifyNumbers, doorbellNotifyMsg%(camera, imageFileName))
                 state = 0
             lastState = state
         except KeyError:
