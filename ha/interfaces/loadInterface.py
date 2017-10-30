@@ -16,6 +16,8 @@ class LoadInterface(Interface):
 	                  "Ac":240,
 	                  "Pool":240,
 	                  "Back":240,
+	                  "CurrentLoad":240,
+	                  "DailyLoad":240,
 	                   }
 
     def read(self, addr):
