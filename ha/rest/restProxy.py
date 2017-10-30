@@ -33,7 +33,7 @@ class RestProxy(threading.Thread):
         self.cacheTime = 0
         self.watch = setServicePorts(watch)
         self.ignore = setServicePorts(ignore)
-        self.ignore.append(socket.gethostname()+":"+str(restServicePort))   # always ignore services on this host
+        self.ignore.append("services."+socket.gethostname()+":"+str(restServicePort))   # always ignore services on this host
         debug('debugRestProxy', name, "watching", self.watch)    # watch == [] means watch all services
         debug('debugRestProxy', name, "ignoring", self.ignore)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -46,7 +46,7 @@ class RestProxy(threading.Thread):
             (data, addr) = self.socket.recvfrom(8192)   # FIXME - need to handle arbitrarily large data
             debug('debugRestBeacon', self.name, "beacon data", data)
             serviceData = json.loads(data)
-            serviceName = serviceData[0]+":"+str(serviceData[1])       # hostname:port
+            serviceName = "services."+serviceData[0]+":"+str(serviceData[1])       # hostname:port
             serviceAddr = addr[0]+":"+str(serviceData[1])             # IPAddr:port
             serviceResources = serviceData[2]
             try:
@@ -67,22 +67,32 @@ class RestProxy(threading.Thread):
                     self.event.set()
                     debug('debugInterrupt', self.name, "event set")
                 else:
-                    if serviceTimeStamp > self.services[serviceName].timeStamp: # service resources changed
+                    service = self.services[serviceName]
+                    if serviceTimeStamp > service.timeStamp: # service resources changed
                         debug('debugRestProxy', self.name, timeStamp, "updating", serviceName, serviceAddr, serviceTimeStamp, serviceLabel)
-                        if self.services[serviceName].enabled:
-                            self.delResources(self.services[serviceName])
-                        self.getResources(self.services[serviceName], serviceResources, serviceTimeStamp)
+                        if service.enabled:
+                            self.delResources(service)
+                        else:
+                            # the service was disabled but it is broadcasting again
+                            # re-enable it
+                            debug('debugRestProxy', self.name, timeStamp, "reenabling", serviceName, service.addr, service.timeStamp, service.label)
+                            service.interface.start()
+                            service.enabled = True
+                        # update the service resources and cache time and set the event
+                        self.getResources(service, serviceResources, serviceTimeStamp)
                         self.cacheTime = timeStamp
                         self.event.set()
                         debug('debugInterrupt', self.name, "event set")
             for serviceName in self.services.keys():
                 service = self.services[serviceName]
                 if service.enabled:
-                    if not service.interface.enabled:    # delete disabled service resources
+                    if not service.interface.enabled:
+                        # the service interface is disabled
+                        # delete the service resources
                         debug('debugRestProxy', self.name, timeStamp, "disabling", serviceName, service.addr, service.timeStamp, service.label)
                         self.delResources(service)
-                        del(self.services[service.name])
-                        del(service)
+#                        del(self.services[service.name])
+#                        del(service)
                         self.cacheTime = timeStamp
                         self.event.set()
                         debug('debugInterrupt', self.name, "event set")
@@ -119,6 +129,7 @@ class RestProxy(threading.Thread):
 
     # instantiate the resource from the specified node            
     def loadResource(self, resources, interface, node, path):
+        debug('debugCollection', self.name, "loadResource", "node:", node)
         if node["class"] not in ["Collection", "HACollection", "Schedule", "ResourceStateSensor", "RestServiceProxy"]:
             # override attributes with alias attributes if specified for the resource
             try:
@@ -166,7 +177,7 @@ class RestProxy(threading.Thread):
         with self.resources.lock:
             for resourceName in service.resourceNames:
                 self.resources.delRes(resourceName)
-            self.resources.delRes(service.name)
+#            self.resources.delRes(service.name)
 
 # proxy for a REST service
 class RestServiceProxy(Sensor):
@@ -178,6 +189,7 @@ class RestServiceProxy(Sensor):
         self.timeStamp = timeStamp
         self.resourceNames = []
         self.interface = interface
+        self.interface.start()
 #        self.className = "Sensor" # so the web UI doesn't think it's a control
         self.enabled = False
 

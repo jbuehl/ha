@@ -14,7 +14,6 @@ class RestInterface(Interface):
         self.secure = secure    # use SSL
         self.cache = cache      # cache the states
         self.writeThrough = writeThrough
-        self.enabled = True
         self.hostname = socket.gethostname()
         debug('debugRest', self.name, "created", self.hostname, self.service, self.secure, self.cache, self.enabled)
         if self.secure:
@@ -23,6 +22,10 @@ class RestInterface(Interface):
             self.keyFile = self.keyDir+self.hostname+"-client.key"
             self.caFile = self.keyDir+"ca.crt"
             debug('debugRest', self.name, self.crtFile, self.keyFile, self.caFile)
+
+    def start(self):
+        debug('debugRest', self.name, "starting")
+        self.enabled = True
         if self.cache:
             # start the thread to update the cache when states change
             def readStateChange():
@@ -39,6 +42,7 @@ class RestInterface(Interface):
             def readStateNotify():
                 debug('debugRestStates', self.name, "readStateNotify started")
                 # open the socket to listen for state change notifications
+                debug('debugRest', self.name, "opening socket")
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 self.socket.bind(("", restStatePort))
@@ -46,6 +50,7 @@ class RestInterface(Interface):
                 # can't use a socket timeout because multiple threads are using the same port
                 def readStateTimeout():
                     debug('debugRestStates', self.name, "read state timeout")
+                    debug('debugRest', self.name, "disabled")
                     self.enabled = False
                 readStateTimer = None
                 while self.enabled:
@@ -73,17 +78,23 @@ class RestInterface(Interface):
                                 readStateTimer = threading.Timer(restTimeout, readStateTimeout)
                                 readStateTimer.start()
                     else: #except:
-                        debug('debugRestStates', self.name, "disabled")
+                        debug('debugRest', self.name, "disabled")
                         self.enabled = False
                         break
                 # interface is no longer enabled, clean up
                 if readStateTimer:
                     readStateTimer.cancel()
-                self.socket.close()
+                self.stop()
                 debug('debugRestStates', self.name, "readStateNotify terminated")
             readStateNotifyThread = threading.Thread(target=readStateNotify)
             readStateNotifyThread.start()
 
+    def stop(self):
+        debug('debugRest', self.name, "stopping")
+        self.states = {}
+        debug('debugRest', self.name, "closing socket")
+        self.socket.close()
+        
     # return the state value for the specified sensor address
     def read(self, addr):
         debug('debugRestStates', self.name, "read", addr)
