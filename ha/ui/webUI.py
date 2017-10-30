@@ -3,6 +3,7 @@ webReload = False
 blinkers = []
 
 import json
+import subprocess
 import cherrypy
 from cherrypy.lib import auth_basic
 import requests
@@ -156,12 +157,19 @@ class WebRoot(object):
 
     # return a camera image    
     @cherrypy.expose
-    def image(self, camera=None):
+    def image(self, camera=None, image=None):
         debug('debugWeb', "/image", cherrypy.request.method, camera)
-        url = "http://"+camera+".local:7378/resources/"+camera+"image/state"
-        response = requests.get(url)
+        if not camera:
+            camera = "camera1"
+#            url = "http://"+camera+".local:7378/resources/"+camera+"image/state"
+#            response = requests.get(url)
+#            imageContent = response.content
+        if not image:
+            image = subprocess.check_output("ls -1 /var/ftp/images/"+camera+"/*.jpg | tail -n1", shell=True).split("/")[-1].strip("\n")
+        with open("/var/ftp/images/"+camera+"/"+image) as imageFile:
+            imageContent = imageFile.read()
         cherrypy.response.headers['Content-Type'] = "image/jpeg"
-        return response.content
+        return imageContent
 
 def webInit(resources, restCache, stateChangeEvent, httpPort=80, ssl=False, httpsPort=443, domain="", pathDict=None, baseDir="/", block=False):
     # set up the web server
