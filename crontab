@@ -1,0 +1,2 @@
+0 0 * * * /usr/bin/systemctl restart datalogApp
+
