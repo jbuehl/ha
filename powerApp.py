@@ -19,10 +19,12 @@ if __name__ == "__main__":
     acLoad = Sensor("acLoad", loadInterface, "Ac", group=["Power", "Loads"], label="Air conditioners", type="KVA")
     poolLoad = Sensor("poolLoad", loadInterface, "Pool", group=["Power", "Loads"], label="Pool equipment", type="KVA")
     backLoad = Sensor("backLoad", loadInterface, "Back", group=["Power", "Loads"], label="Back house", type="KVA")
-    currentLoad = CalcSensor("currentLoad", [lightsLoad, plugsLoad, appl1Load, appl2Load, cookingLoad, acLoad, poolLoad, backLoad], "sum", group=["Power", "Loads"], label="Current load", type="KVA")
+#    currentLoad = CalcSensor("currentLoad", [lightsLoad, plugsLoad, appl1Load, appl2Load, cookingLoad, acLoad, poolLoad, backLoad], "sum", group=["Power", "Loads"], label="Current load", type="KVA")
+    currentLoad = Sensor("currentLoad", loadInterface, "CurrentLoad", group=["Power", "Loads"], label="Current load", type="KVA")
+    dailyLoad = Sensor("dailyLoad", loadInterface, "DailyLoad", group=["Power", "Loads"], label="Daily load", type="KVAh")
 
     # Resources
-    resources = Collection("resources", resources=[lightsLoad, plugsLoad, appl1Load, appl2Load, cookingLoad, acLoad, poolLoad, backLoad, currentLoad])
+    resources = Collection("resources", resources=[lightsLoad, plugsLoad, appl1Load, appl2Load, cookingLoad, acLoad, poolLoad, backLoad, currentLoad, dailyLoad])
     restServer = RestServer(resources=resources, event=stateChangeEvent, label="Loads")
 
     # Start interfaces
