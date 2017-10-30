@@ -75,7 +75,7 @@ if __name__ == "__main__":
         localResources.addRes(Task("xmasLightsOnSunset", SchedTime(event="sunset"), "xmasLights", 1, resources=localResources))
         localResources.addRes(Task("xmasLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, resources=localResources))
         localResources.addRes(Task("xmasLightsOffSunrise", SchedTime(event="sunrise"), "xmasLights", 0, resources=localResources))
-        localResources.addRes(Task("xmasTreeOnXmas", SchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1, resources=localResources))
+#        localResources.addRes(Task("xmasTreeOnXmas", SchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1, resources=localResources))
     
     # Schedule
     schedule = Schedule("schedule")
@@ -88,7 +88,7 @@ if __name__ == "__main__":
         schedule.addTask(localResources["xmasLightsOnSunset"])
         schedule.addTask(localResources["xmasLightsOffMidnight"])
         schedule.addTask(localResources["xmasLightsOffSunrise"])
-        schedule.addTask(localResources["xmasTreeOnXmas"])
+#        schedule.addTask(localResources["xmasTreeOnXmas"])
     schedule.start()
 
     # start the REST server for this service
