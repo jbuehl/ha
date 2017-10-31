@@ -10,6 +10,12 @@ import socket
 import ssl
 import time
 
+def openBroadcastSocket():
+    broadcastSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    broadcastSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    broadcastSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    return broadcastSocket
+
 # RESTful web services server interface
 class RestServer(object):
     objectArgs = ["resources", "event"]
@@ -27,6 +33,8 @@ class RestServer(object):
             self.label = label
         debug('debugInterrupt', self.label, "event", self.event)
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
+        self.beaconSocket = None
+        self.heartbeatSocket = None
 
     def start(self):
         # start the beacon to advertise this service
@@ -39,13 +47,18 @@ class RestServer(object):
                 debug('debugRestBeacon', "REST beacon started")
                 while True:
                     debug('debugRestBeacon', "REST beacon")
-                    self.beaconSocket.sendto(json.dumps((self.hostname, 
-                                                         self.port,
-#                                                         self.resources.dict(), 
-                                                         [self.server.resources.name], 
-                                                         self.timeStamp, 
-                                                         self.label)), 
-                                                     ("<broadcast>", restBeaconPort))
+                    if not self.beaconSocket:
+                        self.beaconSocket = openBroadcastSocket()
+                    try:
+                        self.beaconSocket.sendto(json.dumps((self.hostname, 
+                                                             self.port,
+                                                             [self.server.resources.name], 
+                                                             self.timeStamp, 
+                                                             self.label)), 
+                                                        ("<broadcast>", restBeaconPort))
+                    except socket.error as exception:
+                        log("socket error", exception)
+                        self.beaconSocket = None
                     time.sleep(restBeaconInterval)
             beaconThread = threading.Thread(target=beacon)
             beaconThread.start()
@@ -66,13 +79,20 @@ class RestServer(object):
             def heartbeat():
                 while True:
                     debug('debugRestHeartbeat', "REST heartbeat")
-                    states = stateResource.states
-                    # send the broadcast message
-                    self.heartbeatSocket.sendto(json.dumps({"state": states, "hostname": self.hostname, "port": self.port}), ("<broadcast>", restStatePort))
-                    if self.event:
-                        # set the state event so the stateChange request returns
-                        debug('debugInterrupt', "heartbeat", "set", self.event)
-                        self.event.set()
+                    if not self.heartbeatSocket:
+                        self.heartbeatSocket = openBroadcastSocket()
+                    try:
+                        self.heartbeatSocket.sendto(json.dumps({"state": stateResource.states, 
+                                                                "hostname": self.hostname, 
+                                                                "port": self.port}), 
+                                                            ("<broadcast>", restStatePort))
+                        if self.event:
+                            # set the state event so the stateChange request returns
+                            debug('debugInterrupt', "heartbeat", "set", self.event)
+                            self.event.set()
+                    except socket.error as exception:
+                        log("socket error", exception)
+                        self.heartbeatSocket = None
                     time.sleep(restHeartbeatInterval)
             heartbeatThread = threading.Thread(target=heartbeat)
             heartbeatThread.start()
