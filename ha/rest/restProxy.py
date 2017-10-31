@@ -174,6 +174,7 @@ class RestProxy(threading.Thread):
     # delete all the resources from the specified service from the cache
     def delResources(self, service):
         service.enabled = False
+        service.timeStamp = 0
         with self.resources.lock:
             for resourceName in service.resourceNames:
                 self.resources.delRes(resourceName)
