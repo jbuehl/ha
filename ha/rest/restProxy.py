@@ -27,12 +27,12 @@ class RestProxy(threading.Thread):
         debug('debugRestProxy', name, "starting", name)
         threading.Thread.__init__(self, target=self.doRest)
         self.name = name
-        self.services = {}
-        self.resources = resources
+        self.services = {}                      # cached services
+        self.resources = resources              # resource cache
         self.event = event
-        self.cacheTime = 0
-        self.watch = setServicePorts(watch)
-        self.ignore = setServicePorts(ignore)
+        self.cacheTime = 0                      # time of the last update to the cache
+        self.watch = setServicePorts(watch)     # services to watch for
+        self.ignore = setServicePorts(ignore)   # services to ignore
         self.ignore.append("services."+socket.gethostname()+":"+str(restServicePort))   # always ignore services on this host
         debug('debugRestProxy', name, "watching", self.watch)    # watch == [] means watch all services
         debug('debugRestProxy', name, "ignoring", self.ignore)
@@ -43,56 +43,65 @@ class RestProxy(threading.Thread):
     def doRest(self):
         debug('debugThread', self.name, "started")
         while running:
+            # wait for a beacon message from a service
             (data, addr) = self.socket.recvfrom(8192)   # FIXME - need to handle arbitrarily large data
             debug('debugRestBeacon', self.name, "beacon data", data)
+            # parse the message
             serviceData = json.loads(data)
-            serviceName = "services."+serviceData[0]+":"+str(serviceData[1])       # hostname:port
-            serviceAddr = addr[0]+":"+str(serviceData[1])             # IPAddr:port
+            serviceName = "services."+serviceData[0]+":"+str(serviceData[1])    # hostname:port
+            serviceAddr = addr[0]+":"+str(serviceData[1])                       # IPAddr:port
             serviceResources = serviceData[2]
+            # timestamp and label are optional
             try:
                 serviceTimeStamp = serviceData[3]
                 serviceLabel = serviceData[4]
-            except:
+            except IndexError:
                 serviceTimeStamp = 0
                 serviceLabel = serviceName
             timeStamp = time.time()
+            # determine if this message should be processed
             if ((self.watch != []) and (serviceName  in self.watch)) or ((self.watch == []) and (serviceName not in self.ignore)):
-                if serviceName not in self.services.keys():   # new service
+                debug('debugRestProxy', self.name, "processing", serviceName, serviceAddr, serviceTimeStamp, serviceLabel)
+                if serviceName not in self.services.keys():
+                    # create a new service proxy
                     debug('debugRestProxy', self.name, timeStamp, "adding", serviceName, serviceAddr, serviceTimeStamp, serviceLabel)
-                    self.services[serviceName] = RestServiceProxy(serviceName, serviceAddr, serviceTimeStamp, 
+                    self.services[serviceName] = RestServiceProxy(serviceName, serviceAddr, 
                                                                RestInterface(serviceName, service=serviceAddr, event=self.event, secure=False),
-                                                               label=serviceLabel, group="Services")
+                                                               serviceTimeStamp, label=serviceLabel, group="Services")
                     self.getResources(self.services[serviceName], serviceResources, serviceTimeStamp)
                     self.cacheTime = timeStamp
                     self.event.set()
                     debug('debugInterrupt', self.name, "event set")
-                else:
+                else:   # service is already in the cache
                     service = self.services[serviceName]
-                    if serviceTimeStamp > service.timeStamp: # service resources changed
+                    if serviceTimeStamp > service.timeStamp: # service resources have changed
                         debug('debugRestProxy', self.name, timeStamp, "updating", serviceName, serviceAddr, serviceTimeStamp, serviceLabel)
                         if service.enabled:
+                            # delete the resources from the cache
                             self.delResources(service)
                         else:
-                            # the service was disabled but it is broadcasting again
+                            # the service was previously disabled but it is broadcasting again
                             # re-enable it
                             debug('debugRestProxy', self.name, timeStamp, "reenabling", serviceName, service.addr, service.timeStamp, service.label)
                             service.interface.start()
-                            service.enabled = True
-                        # update the service resources and cache time and set the event
+                            service.enable()
+                        # update the resource cache and set the event
                         self.getResources(service, serviceResources, serviceTimeStamp)
                         self.cacheTime = timeStamp
                         self.event.set()
                         debug('debugInterrupt', self.name, "event set")
+                    else:   # no resource changes - ignore it
+                        debug('debugRestProxy', self.name, timeStamp, "skipping", serviceName, service.addr, service.timeStamp, service.label)
+            else:
+                debug('debugRestProxy', self.name, "ignoring", serviceName, serviceAddr, serviceTimeStamp, serviceLabel)
             for serviceName in self.services.keys():
                 service = self.services[serviceName]
                 if service.enabled:
                     if not service.interface.enabled:
-                        # the service interface is disabled
-                        # delete the service resources
+                        # the service interface is disabled due to a heartbeat timeout or exception
+                        # delete the service resources and disable the service proxy
                         debug('debugRestProxy', self.name, timeStamp, "disabling", serviceName, service.addr, service.timeStamp, service.label)
                         self.delResources(service)
-#                        del(self.services[service.name])
-#                        del(service)
                         self.cacheTime = timeStamp
                         self.event.set()
                         debug('debugInterrupt', self.name, "event set")
@@ -115,7 +124,7 @@ class RestProxy(threading.Thread):
             self.resources.addRes(service)
             self.resources.update(resources)
             del(resources)
-        service.enabled = True
+        service.enable()
 
     # load resources from the specified interface
     # this does not replicate the collection hierarchy being read
@@ -173,16 +182,14 @@ class RestProxy(threading.Thread):
             
     # delete all the resources from the specified service from the cache
     def delResources(self, service):
-        service.enabled = False
-        service.timeStamp = 0
+        service.disable()
         with self.resources.lock:
             for resourceName in service.resourceNames:
                 self.resources.delRes(resourceName)
-#            self.resources.delRes(service.name)
 
 # proxy for a REST service
 class RestServiceProxy(Sensor):
-    def __init__(self, name, addr, timeStamp, interface, event=None, group="", type="service", location=None, label="", interrupt=None):
+    def __init__(self, name, addr, interface, timeStamp=-1, event=None, group="", type="service", location=None, label="", interrupt=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
         debug('debugRestProxy', name, "created")
         self.name = name
@@ -196,7 +203,14 @@ class RestServiceProxy(Sensor):
 
     def getState(self):
         return normalState(self.enabled)
+
+    def enable(self):
+        self.enabled = True
+
+    def disable(self):
+        self.enabled = False
+        self.timeStamp = -1
         
-    def __del__(self):
-        del(self.interface)
+#    def __del__(self):
+#        del(self.interface)
 
