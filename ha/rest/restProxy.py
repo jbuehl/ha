@@ -12,10 +12,11 @@ import time
 def setServicePorts(serviceList):
     newServiceList = []
     for service in serviceList:
+        if len(service.split(".")) < 2:
+            service = "services."+service
         if len(service.split(":")) < 2:
-            newServiceList.append(service+":"+str(restServicePort))
-        else:
-            newServiceList.append(service)
+            service = service+":"+str(restServicePort)
+        newServiceList.append(service)
     return newServiceList
     
 # Autodiscover services and resources
