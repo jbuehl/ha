@@ -26,9 +26,9 @@ if __name__ == "__main__":
     gpio1 = GPIOInterface("gpio1", i2c1, addr=0x20, bank=1, inOut=0x00)
 
     # Doors
-    frontDoor = Sensor("frontDoor", gpio0, 5, type="door", group="Doors", label="Front")
-    familyRoomDoor = Sensor("familyRoomDoor", gpio0, 6, type="door", group=["Doors", "Hvac"], label="Family room")
-    masterBedroomDoor = Sensor("masterBedroomDoor", gpio0, 7, type="door", group=["Doors", "Hvac"], label="Master bedroom")
+    frontDoor = Sensor("frontDoor", gpio0, 0, type="door", group="Doors", label="Front")
+    familyRoomDoor = Sensor("familyRoomDoor", gpio0, 1, type="door", group=["Doors", "Hvac"], label="Family room")
+    masterBedroomDoor = Sensor("masterBedroomDoor", gpio0, 2, type="door", group=["Doors", "Hvac"], label="Master bedroom")
     houseDoors = SensorGroup("houseDoors", [frontDoor, familyRoomDoor, masterBedroomDoor], type="door", group="Doors", label="House doors")
     
     # persistent config data
