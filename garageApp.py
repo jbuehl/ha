@@ -1,9 +1,16 @@
+windSpeedAddr = 4
+windDirAddr = 5
+rainGaugeAddr = 6
+
 from ha import *
 from ha.interfaces.gpioInterface import *
 from ha.interfaces.i2cInterface import *
 from ha.interfaces.tc74Interface import *
 from ha.interfaces.tempInterface import *
 from ha.interfaces.ledInterface import *
+from ha.interfaces.fileInterface import *
+from ha.interfaces.windInterface import *
+from ha.interfaces.rainInterface import *
 from ha.rest.restServer import *
 
 if __name__ == "__main__":
@@ -16,6 +23,7 @@ if __name__ == "__main__":
     led = LedInterface("led", gpio0)
     tc74 = TC74Interface("tc74", i2c1)
     temp = TempInterface("temp", tc74, sample=10)
+    fileInterface = FileInterface("fileInterface", fileName=stateDir+"garage.state", event=stateChangeEvent)
     
     # Water
     recircPump = Control("recircPump", gpio0, 0, type="hotwater", group="Water", label="Hot water")
@@ -33,22 +41,43 @@ if __name__ == "__main__":
     # Temperature
     garageTemp = Sensor("garageTemp", temp, 0x4d, group="Temperature", label="Garage temp", type="tempF")
     
+    # Weather
+    anemometer = Sensor("anemometer", gpio0, addr=windSpeedAddr)
+    windVane = Sensor("windVane", gpio0, addr=windDirAddr)
+    windInterface = WindInterface("windInterface", None, anemometer=anemometer, windVane=windVane)
+    windSpeed = Sensor("windSpeed", windInterface, addr="speed", type="MPH", group="Weather", label="Wind speed")
+    windDir = Sensor("windDir", windInterface, addr="dir", type="Deg", group="Weather", label="Wind direction")
+    
+    rainGauge = Sensor("rainGauge", gpio0, addr=rainGaugeAddr)
+    rainInterface = RainInterface("rainInterface", fileInterface, rainGauge=rainGauge)
+    rainMinute = Sensor("rainMinute", rainInterface, "minute", type="in", group="Weather", label="Rain per minute")
+    rainHour = Sensor("rainHour", rainInterface, "hour", type="in", group="Weather", label="Rain last hour")
+    rainDay = Sensor("rainDay", rainInterface, "today", type="in", group="Weather", label="Rain today")
+    rainReset = Control("rainReset ", rainInterface, "reset")
+      
     # Tasks
     hotWaterRecircOn = Task("hotWaterRecircOn", SchedTime(hour=[05], minute=[0]), recircPump, 1)
     hotWaterRecircOff = Task("hotWaterRecircOff", SchedTime(hour=[23], minute=[0]), recircPump, 0)
-    
+    rainResetTask = Task("rainResetTask", SchedTime(hour=0, minute=0), rainReset, 0, enabled=True)
+        
     # Schedule
-    schedule = Schedule("schedule", tasks=[hotWaterRecircOn, hotWaterRecircOff])
+    schedule = Schedule("schedule", tasks=[hotWaterRecircOn, hotWaterRecircOff, rainResetTask])
 
     # Resources
-    resources = Collection("resources", resources=[recircPump, sculptureLights, garageDoor, garageBackDoor, garageHouseDoor, 
-            garageDoors, doorbellButton, garageTemp, hotWaterRecircOn, hotWaterRecircOff])
+    resources = Collection("resources", resources=[recircPump, sculptureLights, 
+                                                   garageDoor, garageBackDoor, garageHouseDoor, garageDoors, 
+                                                   doorbellButton, garageTemp, 
+                                                   windSpeed, windDir, rainMinute, rainHour, rainDay,
+                                                   hotWaterRecircOn, hotWaterRecircOff,
+                                                   ])
     restServer = RestServer(resources, event=stateChangeEvent, label="Garage")
 
     # Start interfaces
     gpio0.start()
     gpio1.start()
     temp.start()
+    fileInterface.start()
+    rainInterface.start()
     schedule.start()
     restServer.start()
 
