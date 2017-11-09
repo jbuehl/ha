@@ -57,28 +57,33 @@ if __name__ == "__main__":
     waterTemp = Sensor("waterTemp", analogTempInterface, 0, group=["Pool", "Temperature"], label="Water temp", type="tempF")
     poolTemp = Sensor("poolTemp", owfsInterface, "28.B9CA5F070000", group=["Pool", "Temperature"], label="Pool temp", type="tempF")
     spaTemp = Sensor("spaTemp", owfsInterface, "28.556E5F070000", group=["Pool", "Temperature"], label="Spa temp", type="tempF")
-#    poolTemp = Sensor("poolTemp", analogTempInterface, 0, group=["Pool", "Temperature"], label="Pool temp", type="tempF")
-#    spaTemp = Sensor("spaTemp", analogTempInterface, 0, group=["Pool", "Temperature"], label="Spa temp", type="tempF")
     poolEquipTemp = Sensor("poolEquipTemp", analogTempInterface, 1, group=["Pool", "Temperature", "Weather"], label="Pool equipment temp", type="tempF")
 
-    # Pool
+    # Pump
     poolPump = Control("poolPump", pentairInterface, 0, group="Pool", label="Pump", type="pump")
+    poolPumpSpeed = Sensor("poolPumpSpeed", pentairInterface, 1, group="Pool", label="Pump speed", type="pumpSpeed")
+    poolPumpFlow = Sensor("poolPumpFlow", pentairInterface, 3, group="Pool", label="Pump flow", type="pumpFlow")
+
+    # Accessories
     poolCleaner = Control("poolCleaner", gpioInterface0, 0, group="Pool", label="Polaris", type="cleaner")
+    spaBlower = Control("spaBlower", gpioInterface0, 1, group="Pool", label="Spa blower")
+
+    # Valves
     intakeValve = Control("intakeValve", valveInterface, 0, group="Pool", label="Intake valve", type="poolValve")
     returnValve = Control("returnValve", valveInterface, 1, group="Pool", label="Return valve", type="poolValve")
     valveMode = ControlGroup("valveMode", [intakeValve, returnValve], stateList=[[0, 1, 1, 0], [0, 1, 0, 1]], stateMode=True, 
                              type="valveMode", group="Pool", label="Valve mode")
-    spaFill = ControlGroup("spaFill", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 4]], stateMode=True, group="Pool", label="Spa fill")
-    spaFlush = ControlGroup("spaFlush", [intakeValve, returnValve, poolPump], stateList=[[0, 0], [0, 1], [0, 3]], stateMode=True, group="Pool", label="Spa flush")
-    spaDrain = ControlGroup("spaDrain", [intakeValve, returnValve, poolPump], stateList=[[0, 1], [0, 0], [0, 4]], stateMode=True, group="Pool", label="Spa drain")
-    poolClean = ControlGroup("poolClean", [poolCleaner, poolPump], stateList=[[0, 1], [0, 3]], stateMode=True, group="Pool", label="Pool clean")
+
+    # Heater
     poolHeater = Control("poolHeater", gpioInterface1, 2, group="Pool", label="Pool heater")
     heaterControl = TempControl("heaterControl", nullInterface, poolHeater, spaTemp, spaTempTarget, hysteresis=[1, 0], group="Pool", label="Heater control", type="tempControl")
-    spaBlower = Control("spaBlower", gpioInterface0, 1, group="Pool", label="Spa blower")
-    
-    poolPumpSpeed = Sensor("poolPumpSpeed", pentairInterface, 1, group="Pool", label="Pump speed", type="pumpSpeed")
-    poolPumpFlow = Sensor("poolPumpFlow", pentairInterface, 3, group="Pool", label="Pump flow", type="pumpFlow")
 
+    # Controls
+    spaFill = ControlGroup("spaFill", [valveMode, poolPump], stateList=[[0, 3], [0, 4]], stateMode=True, group="Pool", label="Spa fill")
+    spaFlush = ControlGroup("spaFlush", [valveMode, poolPump], stateList=[[0, 3], [0, 3]], stateMode=True, group="Pool", label="Spa flush")
+    spaDrain = ControlGroup("spaDrain", [valveMode, poolPump], stateList=[[0, 2], [0, 4]], stateMode=True, group="Pool", label="Spa drain")
+    poolClean = ControlGroup("poolClean", [poolCleaner, poolPump], stateList=[[0, 1], [0, 3]], stateMode=True, group="Pool", label="Pool clean")
+    
     # Spa
     sunUp = Sensor("sunUp", timeInterface, "daylight")
     # spa light control that will only turn on if the sun is down
