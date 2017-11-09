@@ -42,13 +42,13 @@ if __name__ == "__main__":
     garageTemp = Sensor("garageTemp", temp, 0x4d, group="Temperature", label="Garage temp", type="tempF")
     
     # Weather
-    anemometer = Sensor("anemometer", gpio0, addr=windSpeedAddr)
-    windVane = Sensor("windVane", gpio0, addr=windDirAddr)
+    anemometer = Sensor("anemometer", gpio1, addr=windSpeedAddr)
+    windVane = Sensor("windVane", gpio1, addr=windDirAddr)
     windInterface = WindInterface("windInterface", None, anemometer=anemometer, windVane=windVane)
     windSpeed = Sensor("windSpeed", windInterface, addr="speed", type="MPH", group="Weather", label="Wind speed")
     windDir = Sensor("windDir", windInterface, addr="dir", type="Deg", group="Weather", label="Wind direction")
     
-    rainGauge = Sensor("rainGauge", gpio0, addr=rainGaugeAddr)
+    rainGauge = Sensor("rainGauge", gpio1, addr=rainGaugeAddr)
     rainInterface = RainInterface("rainInterface", fileInterface, rainGauge=rainGauge)
     rainMinute = Sensor("rainMinute", rainInterface, "minute", type="in", group="Weather", label="Rain per minute")
     rainHour = Sensor("rainHour", rainInterface, "hour", type="in", group="Weather", label="Rain last hour")
