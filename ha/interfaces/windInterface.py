@@ -44,41 +44,34 @@ class WindInterface(Interface):
         if addr == "speed":
             # if no data for timeOut seconds, there is no wind
             if curTime > timeOut:
-                rps = 0.0
-                mph = 0.0
+                rps = 0
+                self.speed = 0.0
             else:
                 # calculate revolutions per second
                 try:
                     rps = 1.0 / speedTime
                 except ZeroDivisionError:
                     rps = 0.0
-                # approximate the wind speed in mph
+                # calculate the wind speed
                 if rps < .010:
-                    mph = 0.0
-                elif rps < 3.229:   # 0.2 - 8.2 mph
-                    mph = -0.1095 * rps**2 + 2.9318 * rps - 0.1412
-                elif rps < 54.362:  # 8.2 - 136.0 mph
-                    mph = 0.0052 * rps**2 + 2.1980 * rps + 1.1091
-                else:               # 136.0 - 181.5 mph
-                    mph = 0.1104 * rps**2 + 9.5685 * rps + 329.87
-            debug("debugWind", self.name, "speedTime:", speedTime, "rps:", rps, "mph:", mph)
-            self.speed = mph
-            return int(mph + .5)
+                    self.speed = 0.0
+                elif rps < 3.229:   # 0.2 - 8.2 speed
+                    self.speed = -0.1095 * rps**2 + 2.9318 * rps - 0.1412
+                elif rps < 54.362:  # 8.2 - 136.0 speed
+                    self.speed = 0.0052 * rps**2 + 2.1980 * rps + 1.1091
+                else:               # 136.0 - 181.5 speed
+                    self.speed = 0.1104 * rps**2 + 9.5685 * rps + 329.87
+            debug("debugWind", self.name, "speedTime:", speedTime, "rps:", rps, "speed:", self.speed)
+            return int(self.speed + .5)
         elif addr == "dir":
-            # if no data for timeOut seconds, there is no wind
-            if curTime > timeOut:
-                deg = 0.0
-            else:
-                if self.speed != 0.0:
-                    try:
-                        deg = (360 * dirTime / speedTime) % 360
-                    except ZeroDivisionError:
-                        deg = 0.0
-                else:
-                    deg = 0.0
-            debug("debugWind", self.name, "dirTime:", dirTime, "speedTime:", speedTime, "deg:", deg)
-            self.dir = deg
-            return int(deg + .5)
+            # calculate direction only if there is wind
+            if self.speed > 0.0:
+                try:
+                    self.dir = (360 * dirTime / speedTime) % 360
+                except ZeroDivisionError:
+                    self.dir = 0.0
+                debug("debugWind", self.name, "dirTime:", dirTime, "speedTime:", speedTime, "direction:", self.dir)
+            return int(self.dir + .5)
         else:
             return 0.0
 
