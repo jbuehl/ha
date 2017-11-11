@@ -19,7 +19,12 @@ def openSocket(theHost, thePort, theSocket=None):
 
 if __name__ == "__main__":
     stateChangeEvent = threading.Event()
-    resources = Collection("resources")
+    try:
+        with open(rootDir+"aliases") as aliasFile:
+            aliases = json.load(aliasFile)
+    except:
+        aliases = {}
+    resources = Collection("resources", aliases=aliases)
     resourceStates = ResourceStateSensor("states", None, resources=resources, event=stateChangeEvent)
     restCache = RestProxy("restCache", resources, ignore=ignoreServers, event=stateChangeEvent)
     restCache.start()
