@@ -140,19 +140,19 @@ class RestProxy(threading.Thread):
     # instantiate the resource from the specified node            
     def loadResource(self, resources, interface, node, path):
         debug('debugCollection', self.name, "loadResource", "node:", node)
-        if node["class"] not in ["Collection", "HACollection", "Schedule", "ResourceStateSensor", "RestServiceProxy"]:
-            # override attributes with alias attributes if specified for the resource
-            try:
-                aliasAttrs = resources.aliases[node["name"]]
-                debug('debugCollection', self.name, "loadResource", node["name"], "found alias")
-                for attr in aliasAttrs.keys():
-                    node[attr] = aliasAttrs[attr]
-                    debug('debugCollection', self.name, "loadResource", node["name"], "attr:", attr, "value:", aliasAttrs[attr])
-            except KeyError:
-                debug('debugCollection', self.name, "loadResource", node["name"], "no alias")
-                pass
-            # create the specified resource type
-            try:
+        try:
+            # ignore certain resource types
+            if node["class"] not in ["Collection", "HACollection", "Schedule", "ResourceStateSensor", "RestServiceProxy"]:
+                # override attributes with alias attributes if specified for the resource
+                try:
+                    aliasAttrs = resources.aliases[node["name"]]
+                    debug('debugCollection', self.name, "loadResource", node["name"], "found alias")
+                    for attr in aliasAttrs.keys():
+                        node[attr] = aliasAttrs[attr]
+                        debug('debugCollection', self.name, "loadResource", node["name"], "attr:", attr, "value:", aliasAttrs[attr])
+                except KeyError:
+                    debug('debugCollection', self.name, "loadResource", node["name"], "no alias")
+                    pass
                 # assemble the argument string
                 argStr = ""
                 for arg in node.keys():
@@ -173,13 +173,13 @@ class RestProxy(threading.Thread):
                 debug("debugCollection", "creating", className+"("+argStr[:-2]+")")
                 exec("resource = "+className+"("+argStr[:-2]+")")
                 resources.addRes(resource)
-            except:
-                log(self.name, "loadResource", interface.name, str(node), path, "exception")
-                try:
-                    if debugExceptions:
-                        raise
-                except NameError:
-                    pass
+        except Exception as exception:
+            log(self.name, "loadResource", interface.name, str(node), path, exception)
+            try:
+                if debugExceptions:
+                    raise
+            except NameError:
+                pass
             
     # delete all the resources from the specified service from the cache
     def delResources(self, service):
