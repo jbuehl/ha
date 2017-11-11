@@ -16,6 +16,7 @@ doorbellNotifyNumbers = []
 camera = "camera1"
 
 import subprocess
+import urllib
 from ha import *
 from ha.rest.restProxy import *
 from ha.notify import *
@@ -37,7 +38,7 @@ if __name__ == "__main__":
                     debug('debugDoorbell', "playing", soundDir+doorbellSound)
                     os.system("aplay "+soundDir+doorbellSound)
                 debug('debugDoorbell', "notifying", str(doorbellNotifyNumbers))
-                imageFileName = subprocess.check_output("ssh pluto.local ls -1 /var/ftp/images/"+camera+"/*.jpg | tail -n1", shell=True).split("/")[-1].strip("\n")
+                imageFileName = urllib.quote(subprocess.check_output("ssh pluto.local ls -1 /var/ftp/images/"+camera+"/*.jpg | tail -n1", shell=True).split("/")[-1].strip("\n"))
                 smsNotify(doorbellNotifyNumbers, doorbellNotifyMsg%(camera, imageFileName))
                 state = 0
             lastState = state
