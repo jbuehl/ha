@@ -4,7 +4,7 @@ spaReadyNotifyNumbers = []
 spaReadyNotifyApp = ""
 
 from ha import *
-from ha.notify import *
+from ha.notification import *
 
 # pump speed
 pumpLo = 1

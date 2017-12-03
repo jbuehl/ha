@@ -19,7 +19,7 @@ import subprocess
 import urllib
 from ha import *
 from ha.rest.restProxy import *
-from ha.notify import *
+from ha.notification import *
 
 if __name__ == "__main__":
     stateChangeEvent = threading.Event()
