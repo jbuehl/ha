@@ -8,20 +8,20 @@ from ha.notification import *
 def watchServices(resources, notifyNumbers, timeout=60):
     serviceUpTimes = {}
     def serviceWatch():
-        debug("debugServiceMonitor", "starting serviceWatch")
+        debug("debugServiceMonitor", "serviceMonitor", "starting")
         while True:
             with resources.lock:
                 for resource in resources:
                     if resource.split(".")[0] == "services":
                         serviceName = resource.split(".")[1]
-                        debug("debugServiceMonitor", serviceName, resources[resource].state)
+                        debug("debugServiceMonitor", "serviceMonitor", serviceName, resources[resource].state)
                         if resources[resource].state == 1:  # service is up
                             serviceUpTimes[serviceName] = time.time()
                         else:
                             try:        # send notification is service was previously up
                                 if time.time() - serviceUpTimes[serviceName] > 20: #timeout:
                                     msg = "service "+serviceName+" is down"
-                                    debug("debugServiceMonitor", msg)
+                                    debug("debugServiceMonitor", "serviceMonitor", msg)
                                     smsNotify(notifyNumbers, msg)
                                     serviceUpTimes[serviceName] = float("inf")
                             except KeyError:    # service is down at the start
