@@ -3,17 +3,17 @@
 import requests
 import urllib
 import json
-from twilio.rest import TwilioRestClient
+from twilio.rest import Client
 from ha import *
 
 twilioKey = keyDir+"twilio.key"
 
 # send an sms notification
 def smsNotify(numbers, message):
-    smsClient = TwilioRestClient(getValue(twilioKey, "sid"), getValue(twilioKey, "token"))
+    smsClient = Client(getValue(twilioKey, "sid"), getValue(twilioKey, "token"))
     smsFrom = notifyFromNumber
     for smsTo in numbers:
-        smsClient.sms.messages.create(to=smsTo, from_=smsFrom, body=message)
+        smsClient.messages.create(to=smsTo, from_=smsFrom, body=message)
 
 # send an iOS app notification
 def iosNotify(app, message):
