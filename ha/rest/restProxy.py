@@ -115,7 +115,7 @@ class RestProxy(threading.Thread):
         service.interface.enabled = True
         if isinstance(serviceResources, list):
             for serviceResource in serviceResources:
-                self.load(resources, service.interface, "/"+service.interface.read("/"+serviceResource)["name"])
+                self.load(resources, service.interface, "/"+service.interface.read("/"+serviceResource)["name"])    # FIXME
         else:   # for backwards compatibility
             self.load(resources, service.interface, "/"+serviceResources["name"])
         service.resourceNames = resources.keys()

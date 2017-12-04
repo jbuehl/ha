@@ -8,10 +8,12 @@ restIgnore = []
 insideTemp = "diningRoomTemp"
 outsideTemp = "edisonTemp"
 poolTemp = "poolTemp"
+serviceMonitorNotifyNumbers = []
 
 import time
 from jinja2 import Environment, FileSystemLoader
 from ha import *
+from ha.serviceMonitor import *
 from ha.interfaces.restInterface import *
 from ha.interfaces.timeInterface import *
 from ha.rest.restServer import *
@@ -234,6 +236,9 @@ if __name__ == "__main__":
     # start the cache to listen for services on other servers
     restCache = RestProxy("restProxy", resources, event=stateChangeEvent)
     restCache.start()
+
+    # monitor service states
+    watchServices(resources, serviceMonitorNotifyNumbers)
     
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
