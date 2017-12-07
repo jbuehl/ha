@@ -43,16 +43,14 @@ class RestProxy(threading.Thread):
                 
     def doRest(self):
         debug('debugThread', self.name, "started")
-        debug('debugRestProxy', self.name, "aliases", str(self.resources.aliases))
         while running:
             # wait for a beacon message from a service
             (data, addr) = self.socket.recvfrom(8192)   # FIXME - need to handle arbitrarily large data
             debug('debugRestBeacon', self.name, "beacon data", data)
             # parse the message
             serviceData = json.loads(data)
-            serviceBaseName = serviceData[0]+":"+str(serviceData[1])
-            serviceName = "services."+serviceBaseName               # services.hostname:port
-            serviceAddr = addr[0]+":"+str(serviceData[1])           # IPAddr:port
+            serviceName = "services."+serviceData[0]+":"+str(serviceData[1])    # hostname:port
+            serviceAddr = addr[0]+":"+str(serviceData[1])                       # IPAddr:port
             serviceResources = serviceData[2]
             # timestamp and label are optional
             try:
@@ -66,9 +64,9 @@ class RestProxy(threading.Thread):
             if ((self.watch != []) and (serviceName  in self.watch)) or ((self.watch == []) and (serviceName not in self.ignore)):
                 debug('debugRestProxy', self.name, "processing", serviceName, serviceAddr, serviceTimeStamp, serviceLabel)
                 # rename it if there is an alias
-                if serviceBaseName in self.resources.aliases.keys():
-                    newServiceName = "services."+self.resources.aliases[serviceBaseName]["name"]
-                    newServiceLabel = self.resources.aliases[serviceBaseName]["label"]
+                if serviceName in self.resources.aliases.keys():
+                    newServiceName = self.resources.aliases[serviceName]["name"]
+                    newServiceLabel = self.resources.aliases[serviceName]["label"]
                     debug('debugRestProxy', self.name, "renaming", serviceName, "to", newServiceName)
                     serviceName = newServiceName
                     serviceLabel = newServiceLabel
