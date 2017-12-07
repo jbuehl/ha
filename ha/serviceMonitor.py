@@ -18,9 +18,10 @@ def watchServices(resources, notifyNumbers, timeout=60):
                         if resources[resource].state == 1:  # service is up
                             serviceUpTimes[serviceName] = time.time()
                         else:
-                            try:        # send notification is service was previously up
+                            try:        # send notification if service was previously up
                                 if time.time() - serviceUpTimes[serviceName] > 20: #timeout:
-                                    msg = "service "+serviceName+" is down"
+                                    serviceLabel = resources[resource].label
+                                    msg = "service "+serviceLabel+" is down"
                                     debug("debugServiceMonitor", "serviceMonitor", msg)
                                     smsNotify(notifyNumbers, msg)
                                     serviceUpTimes[serviceName] = float("inf")
