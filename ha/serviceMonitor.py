@@ -19,7 +19,7 @@ def watchServices(resources, notifyNumbers, timeout=60):
                             serviceUpTimes[serviceName] = time.time()
                         else:
                             try:        # send notification if service was previously up
-                                if time.time() - serviceUpTimes[serviceName] > 20: #timeout:
+                                if time.time() - serviceUpTimes[serviceName] > timeout:
                                     serviceLabel = resources[resource].label
                                     msg = "service "+serviceLabel+" is down"
                                     debug("debugServiceMonitor", "serviceMonitor", msg)
