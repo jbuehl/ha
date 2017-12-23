@@ -1,4 +1,4 @@
-restIgnore = []
+restIgnore = ["lights"]
 restPort = 7377
 restPortControl = 7378
 xmas = False
