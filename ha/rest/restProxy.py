@@ -62,7 +62,7 @@ class RestProxy(threading.Thread):
             timeStamp = time.time()
             # determine if this message should be processed
             if ((self.watch != []) and (serviceName  in self.watch)) or ((self.watch == []) and (serviceName not in self.ignore)):
-                debug('debugRestProxy', self.name, "processing", serviceName, serviceAddr, serviceTimeStamp, serviceLabel)
+                debug('debugRestProxy', self.name, "processing", serviceName, serviceAddr, serviceTimeStamp)
                 # rename it if there is an alias
                 if serviceName in self.resources.aliases.keys():
                     newServiceName = self.resources.aliases[serviceName]["name"]
@@ -72,10 +72,11 @@ class RestProxy(threading.Thread):
                     serviceLabel = newServiceLabel
                 if serviceName not in self.services.keys():
                     # create a new service proxy
-                    debug('debugRestProxy', self.name, timeStamp, "adding", serviceName, serviceAddr, serviceTimeStamp, serviceLabel)
+                    debug('debugRestProxy', self.name, "adding", serviceName, serviceAddr, serviceTimeStamp)
                     self.services[serviceName] = RestServiceProxy(serviceName, serviceAddr, 
                                                                RestInterface(serviceName, service=serviceAddr, event=self.event, secure=False),
                                                                serviceTimeStamp, label=serviceLabel, group="Services")
+                    self.services[serviceName].enable()
                     self.getResources(self.services[serviceName], serviceResources, serviceTimeStamp)
                     self.cacheTime = timeStamp
                     self.event.set()
@@ -83,15 +84,14 @@ class RestProxy(threading.Thread):
                 else:   # service is already in the cache
                     service = self.services[serviceName]
                     if serviceTimeStamp > service.timeStamp: # service resources have changed
-                        debug('debugRestProxy', self.name, timeStamp, "updating", serviceName, serviceAddr, serviceTimeStamp, serviceLabel)
+                        debug('debugRestProxy', self.name, "updating", serviceName, serviceAddr, serviceTimeStamp)
                         if service.enabled:
                             # delete the resources from the cache
                             self.delResources(service)
                         else:
                             # the service was previously disabled but it is broadcasting again
                             # re-enable it
-                            debug('debugRestProxy', self.name, timeStamp, "reenabling", serviceName, service.addr, service.timeStamp, service.label)
-                            service.interface.start()
+                            debug('debugRestProxy', self.name, "reenabling", serviceName, service.addr, serviceTimeStamp)
                             service.enable()
                         # update the resource cache and set the event
                         self.getResources(service, serviceResources, serviceTimeStamp)
@@ -99,16 +99,16 @@ class RestProxy(threading.Thread):
                         self.event.set()
                         debug('debugInterrupt', self.name, "event set")
                     else:   # no resource changes - ignore it
-                        debug('debugRestProxy', self.name, timeStamp, "skipping", serviceName, service.addr, service.timeStamp, service.label)
+                        debug('debugRestProxy', self.name, "skipping", serviceName, service.addr, serviceTimeStamp)
             else:
-                debug('debugRestProxy', self.name, "ignoring", serviceName, serviceAddr, serviceTimeStamp, serviceLabel)
+                debug('debugRestProxy', self.name, "ignoring", serviceName, serviceAddr, serviceTimeStamp)
             for serviceName in self.services.keys():
                 service = self.services[serviceName]
                 if service.enabled:
                     if not service.interface.enabled:
                         # the service interface is disabled due to a heartbeat timeout or exception
                         # delete the service resources and disable the service proxy
-                        debug('debugRestProxy', self.name, timeStamp, "disabling", serviceName, service.addr, service.timeStamp, service.label)
+                        debug('debugRestProxy', self.name, "disabling", serviceName, service.addr, serviceTimeStamp)
                         self.delResources(service)
                         self.cacheTime = timeStamp
                         self.event.set()
@@ -117,9 +117,9 @@ class RestProxy(threading.Thread):
 
     # get all the resources on the specified service and add them to the cache
     def getResources(self, service, serviceResources, timeStamp):
-        debug('debugRestProxy', self.name, "getting", service.name, "resources:", serviceResources, isinstance(serviceResources, list))
+        debug('debugRestProxy', self.name, "getting", service.name) #, "resources:", serviceResources, isinstance(serviceResources, list))
         resources = Collection(service.name+"/Resources", aliases=self.resources.aliases)
-        service.interface.enabled = True
+#        service.interface.enabled = True
         if isinstance(serviceResources, list):
             for serviceResource in serviceResources:
                 self.load(resources, service.interface, "/"+service.interface.read("/"+serviceResource)["name"])    # FIXME
@@ -132,7 +132,7 @@ class RestProxy(threading.Thread):
             self.resources.addRes(service)
             self.resources.update(resources)
             del(resources)
-        service.enable()
+#        service.enable()
 
     # load resources from the specified interface
     # this does not replicate the collection hierarchy being read
@@ -199,23 +199,31 @@ class RestProxy(threading.Thread):
 class RestServiceProxy(Sensor):
     def __init__(self, name, addr, interface, timeStamp=-1, event=None, group="", type="service", location=None, label="", interrupt=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
-        debug('debugRestProxy', name, "created")
+        debug('debugRestProxy', "RestServiceProxy", name, "created")
         self.name = name
         self.addr = addr
         self.timeStamp = timeStamp
         self.resourceNames = []
         self.interface = interface
-        self.interface.start()
 #        self.className = "Sensor" # so the web UI doesn't think it's a control
         self.enabled = False
 
     def getState(self):
         return normalState(self.enabled)
 
+    def setState(self, state, wait=False):
+        if state == 0:
+            self.enable()
+        else:
+            self.disable()
+        return True
+        
     def enable(self):
+        self.interface.start()
         self.enabled = True
 
     def disable(self):
+        self.interface.stop()
         self.enabled = False
         self.timeStamp = -1
         

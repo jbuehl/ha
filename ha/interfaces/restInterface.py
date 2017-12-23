@@ -15,7 +15,8 @@ class RestInterface(Interface):
         self.cache = cache      # cache the states
         self.writeThrough = writeThrough
         self.hostname = socket.gethostname()
-        debug('debugRest', self.name, "created", self.hostname, self.service, self.secure, self.cache, self.enabled)
+        self.enabled = False
+        debug('debugRest', self.name, "created", self.hostname, self.service) #, self.secure, self.cache, self.enabled)
         if self.secure:
             self.keyDir = keyDir
             self.crtFile = self.keyDir+self.hostname+"-client.crt"
@@ -90,10 +91,12 @@ class RestInterface(Interface):
             readStateNotifyThread.start()
 
     def stop(self):
-        debug('debugRest', self.name, "stopping")
-        self.states = {}
-        debug('debugRest', self.name, "closing socket")
-        self.socket.close()
+        if self.enabled:
+            self.enabled = False
+            debug('debugRest', self.name, "stopping")
+            self.states = {}
+            debug('debugRest', self.name, "closing socket")
+            self.socket.close()
         
     # return the state value for the specified sensor address
     def read(self, addr):
