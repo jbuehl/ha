@@ -77,9 +77,7 @@ class RestProxy(threading.Thread):
                                                                RestInterface(serviceName, service=serviceAddr, event=self.event, secure=False),
                                                                serviceTimeStamp, label=serviceLabel, group="Services")
                     self.services[serviceName].enable()
-                    self.getResources(self.services[serviceName], serviceResources, serviceTimeStamp)
-                    self.cacheTime = timeStamp
-                    self.event.set()
+                    self.getResources(self.services[serviceName], serviceResources, serviceTimeStamp, timeStamp)
                     debug('debugInterrupt', self.name, "event set")
                 else:   # service is already in the cache
                     service = self.services[serviceName]
@@ -94,9 +92,7 @@ class RestProxy(threading.Thread):
                             debug('debugRestProxy', self.name, "reenabling", serviceName, service.addr, serviceTimeStamp)
                             service.enable()
                         # update the resource cache and set the event
-                        self.getResources(service, serviceResources, serviceTimeStamp)
-                        self.cacheTime = timeStamp
-                        self.event.set()
+                        self.getResources(service, serviceResources, serviceTimeStamp, timeStamp)
                         debug('debugInterrupt', self.name, "event set")
                     else:   # no resource changes - ignore it
                         debug('debugRestProxy', self.name, "skipping", serviceName, service.addr, serviceTimeStamp)
@@ -116,33 +112,37 @@ class RestProxy(threading.Thread):
         debug('debugThread', self.name, "terminated")
 
     # get all the resources on the specified service and add them to the cache
-    def getResources(self, service, serviceResources, timeStamp):
+    def getResources(self, service, serviceResources, serviceTimeStamp, timeStamp):
         debug('debugRestProxy', self.name, "getting", service.name) #, "resources:", serviceResources, isinstance(serviceResources, list))
-        resources = Collection(service.name+"/Resources", aliases=self.resources.aliases)
-#        service.interface.enabled = True
-        if isinstance(serviceResources, list):
-            for serviceResource in serviceResources:
-                self.load(resources, service.interface, "/"+service.interface.read("/"+serviceResource)["name"])    # FIXME
-        else:   # for backwards compatibility
-            self.load(resources, service.interface, "/"+serviceResources["name"])
-        service.resourceNames = resources.keys()
-        service.timeStamp = timeStamp
-        service.interface.readStates()          # fill the cache for these resources
-        with self.resources.lock:
-            self.resources.addRes(service)
-            self.resources.update(resources)
+        # load in a separate thread
+        def loadResources():
+            resources = Collection(service.name+"/Resources", aliases=self.resources.aliases)
+            if isinstance(serviceResources, list):
+                for serviceResource in serviceResources:
+                    self.loadPath(resources, service.interface, "/"+service.interface.read("/"+serviceResource)["name"])    # FIXME
+            else:   # for backwards compatibility
+                self.loadPath(resources, service.interface, "/"+serviceResources["name"])
+            service.resourceNames = resources.keys()
+            service.timeStamp = serviceTimeStamp
+            service.interface.readStates()          # fill the cache for these resources
+            with self.resources.lock:
+                self.resources.addRes(service)
+                self.resources.update(resources)
             del(resources)
-#        service.enable()
+            self.cacheTime = timeStamp
+            self.event.set()
+        loadResourcesThread = threading.Thread(target=loadResources)
+        loadResourcesThread.start()
 
-    # load resources from the specified interface
+    # load resources from the path on the specified interface
     # this does not replicate the collection hierarchy being read
-    def load(self, resources, interface, path):
+    def loadPath(self, resources, interface, path):
         node = interface.read(path)
         self.loadResource(resources, interface, node, path)
         if "resources" in node.keys():
             # the node is a collection
             for resource in node["resources"]:
-                self.load(resources, interface, path+"/"+resource)
+                self.loadPath(resources, interface, path+"/"+resource)
 
     # instantiate the resource from the specified node            
     def loadResource(self, resources, interface, node, path):
