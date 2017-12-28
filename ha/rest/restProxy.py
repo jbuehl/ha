@@ -59,17 +59,17 @@ class RestProxy(threading.Thread):
             except IndexError:
                 serviceTimeStamp = 0
                 serviceLabel = serviceName
+            # rename it if there is an alias
+            if serviceName in self.resources.aliases.keys():
+                newServiceName = self.resources.aliases[serviceName]["name"]
+                newServiceLabel = self.resources.aliases[serviceName]["label"]
+                debug('debugRestProxy', self.name, "renaming", serviceName, "to", newServiceName)
+                serviceName = newServiceName
+                serviceLabel = newServiceLabel
             timeStamp = time.time()
             # determine if this message should be processed
             if ((self.watch != []) and (serviceName  in self.watch)) or ((self.watch == []) and (serviceName not in self.ignore)):
                 debug('debugRestProxy', self.name, "processing", serviceName, serviceAddr, serviceTimeStamp)
-                # rename it if there is an alias
-                if serviceName in self.resources.aliases.keys():
-                    newServiceName = self.resources.aliases[serviceName]["name"]
-                    newServiceLabel = self.resources.aliases[serviceName]["label"]
-                    debug('debugRestProxy', self.name, "renaming", serviceName, "to", newServiceName)
-                    serviceName = newServiceName
-                    serviceLabel = newServiceLabel
                 if serviceName not in self.services.keys():
                     # create a new service proxy
                     debug('debugRestProxy', self.name, "adding", serviceName, serviceAddr, serviceTimeStamp)
