@@ -3,6 +3,7 @@ Description=Home Automation pool
 After=syslog.target
 [Service]
 ExecStart=/usr/bin/python /root/ha/poolApp.py
+ExecStartPre=-/usr/bin/systemctl stop serial-getty@ttyAMA0
 Restart=on-abort
 [Install]
 WantedBy=multi-user.target
