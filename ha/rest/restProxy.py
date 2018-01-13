@@ -122,7 +122,7 @@ class RestProxy(threading.Thread):
                     self.loadPath(resources, service.interface, "/"+service.interface.read("/"+serviceResource)["name"])    # FIXME
             else:   # for backwards compatibility
                 self.loadPath(resources, service.interface, "/"+serviceResources["name"])
-            service.resourceNames = resources.keys()
+            service.resourceNames = resources.keys()    # FIXME - need to alias the names
             service.timeStamp = serviceTimeStamp
             service.interface.readStates()          # fill the cache for these resources
             with self.resources.lock:
@@ -219,10 +219,12 @@ class RestServiceProxy(Sensor):
         return True
         
     def enable(self):
+        debug('debugRestProxy', "RestServiceProxy", self.name, "enabled")
         self.interface.start()
         self.enabled = True
 
     def disable(self):
+        debug('debugRestProxy', "RestServiceProxy", self.name, "disabled")
         self.interface.stop()
         self.enabled = False
         self.timeStamp = -1
