@@ -60,9 +60,9 @@ def ipad(location=""):
     debug('debugWeb', "/ipad", cherrypy.request.method)
     with resources.lock:
         screenWidth = 1024
-        labelWidth = 180
+        labelWidth = 194
         columnWidth = screenWidth/2
-        columnWidths = [columnWidth, [labelWidth, 134, 190]]
+        columnWidths = [columnWidth, [labelWidth, 120, 190]]
         headerWidths = [screenWidth, [432, 180, 180, 180]]
         widths = [screenWidth, [columnWidths, columnWidths]]
         widths = [headerWidths, [screenWidth, [columnWidths, columnWidths]]]
@@ -103,6 +103,8 @@ def ipad(location=""):
                             spa=resources.getRes("spa"),
                             spaTemp=resources.getRes("spaTemp"),
                             spaTempTarget=resources.getRes("spaTempTarget"),
+                            poolPumpControl=resources.getRes("poolPump"),
+                            poolPumpFlowSensor=resources.getRes("poolPumpFlow"),
                             lightsGroup=lightsGroup, 
 #                           xmasGroup=["Lights", resources.getResList(["porchLights", "xmasLights", "xmasTree"])], 
 #                                      ["Lights", resources.getResList(["bbqLights", "backYardLights"])], 
