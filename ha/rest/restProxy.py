@@ -105,6 +105,7 @@ class RestProxy(threading.Thread):
                         # the service interface is disabled due to a heartbeat timeout or exception
                         # delete the service resources and disable the service proxy
                         debug('debugRestProxy', self.name, "disabling", serviceName, service.addr, serviceTimeStamp)
+                        service.disable()
                         self.delResources(service)
                         self.cacheTime = timeStamp
                         self.event.set()
@@ -190,10 +191,12 @@ class RestProxy(threading.Thread):
             
     # delete all the resources from the specified service from the cache
     def delResources(self, service):
-        service.disable()
         with self.resources.lock:
             for resourceName in service.resourceNames:
-                self.resources.delRes(resourceName)
+                try:
+                    self.resources.delRes(resourceName)
+                except KeyError:
+                    debug('debugRestProxy', service.name, "error deleting", resourceName)
 
 # proxy for a REST service
 class RestServiceProxy(Sensor):
