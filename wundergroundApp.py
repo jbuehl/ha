@@ -10,7 +10,7 @@ windSpeedSensor = "windSpeed"
 windDirSensor = "windDir"
 dewpointSensor = "dewpoint"
 rainHourSensor = "rainHour"
-rainDailySensor = "rainDaily"
+rainDailySensor = "rainDay"
 
 import requests
 from ha import *
@@ -40,21 +40,21 @@ if __name__ == "__main__":
             debug('debugWunderground', "dewpoint:", dewpoint)
             barometer = resources[barometerSensor].getState()
             debug('debugWunderground', "barometer:", barometer)
-#            windSpeed = resources[windSpeedSensor].getState()
-#            debug('debugWunderground', "windSpeed:", windSpeed)
-#            windDir = resources[windDirSensor].getState()
-#            debug('debugWunderground', "windDir:", windDir)
-            windSpeed = 0
-            windDir = 0
-#            rainHour = resources[rainHourSensor].getState()
-#            debug('debugWunderground', "rainHour:", rainHour)
-#            rainDaily = resources[rainDailySensor].getState()
-#            debug('debugWunderground', "rainDaily:", rainDaily)
-            rainHour = 0
-            rainDaily = 0
+            windSpeed = resources[windSpeedSensor].getState()
+            debug('debugWunderground', "windSpeed:", windSpeed)
+            windDir = resources[windDirSensor].getState()
+            debug('debugWunderground', "windDir:", windDir)
+#            windSpeed = 0
+#            windDir = 0
+            rainHour = resources[rainHourSensor].getState()
+            debug('debugWunderground', "rainHour:", rainHour)
+            rainDay = resources[rainDailySensor].getState()
+            debug('debugWunderground', "rainDay:", rainDay)
+#            rainHour = 0
+#            rainDay = 0
             request = wunderRequest+"&tempf="+str(temp)+"&humidity="+str(humidity)+"&dewptf="+str(dewpoint)+"&baromin="+str(barometer)
             request += "&windspeedmph="+str(windSpeed)+"&winddir="+str(windDir)
-            request += "&rainin="+str(rainHour)+"&dailyrainin="+str(rainDaily)
+            request += "&rainin="+str(rainHour)+"&dailyrainin="+str(rainDay)
             response = requests.get(request)
             debug('debugWunderground', "request:", request, "response:", response.text, "status:", response.status_code)
             if (response.status_code != 200) or (response.text[0:7] != "success"):
