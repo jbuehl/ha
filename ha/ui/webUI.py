@@ -166,9 +166,13 @@ class WebRoot(object):
 #            imageContent = response.content
         if not image:
             image = subprocess.check_output("ls -1 /var/ftp/images/"+camera+"/*.jpg | tail -n1", shell=True).split("/")[-1].strip("\n")
+        debug('debugImage', "camera = ", camera)
+        debug('debugImage', "image = ", image)
         with open("/var/ftp/images/"+camera+"/"+image) as imageFile:
             imageContent = imageFile.read()
+        debug('debugImage', "length = ", len(imageContent))
         cherrypy.response.headers['Content-Type'] = "image/jpeg"
+        cherrypy.response.headers['Content-Length'] = len(imageContent)
         return imageContent
 
 def webInit(resources, restCache, stateChangeEvent, httpPort=80, ssl=False, httpsPort=443, domain="", pathDict=None, baseDir="/", block=False):
