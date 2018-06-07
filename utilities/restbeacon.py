@@ -13,16 +13,15 @@ if __name__ == "__main__":
     beaconSocket.bind(("", restBeaconPort))
     while True:
         (data, addr) = beaconSocket.recvfrom(8192)   # FIXME - need to handle arbitrarily large data
-        print "addr:", addr
-        print "data:", data
-        try:
-            serviceData = json.loads(data)
-            print "  hostname:", serviceData[0]
-            print "  port:", serviceData[1]
-            print "  resources:", serviceData[2]
-            print "  timestamp:", time.asctime(time.localtime(serviceData[3]))
-            print "  label:", serviceData[4]
-        except:
-            pass
-        print
+        print time.asctime(time.localtime()), "addr:", addr, "data:", data
+#        try:
+#            serviceData = json.loads(data)
+#            print "  hostname:", serviceData[0]
+#            print "  port:", serviceData[1]
+#            print "  resources:", serviceData[2]
+#            print "  timestamp:", time.asctime(time.localtime(serviceData[3]))
+#            print "  label:", serviceData[4]
+#        except:
+#            pass
+#        print
 
