@@ -66,9 +66,9 @@ def ipad(location=""):
         headerWidths = [screenWidth, [432, 180, 180, 180]]
         widths = [screenWidth, [columnWidths, columnWidths]]
         widths = [headerWidths, [screenWidth, [columnWidths, columnWidths]]]
-        lightsGroup=["Lights", resources.getResList(["porchLights", "poolLight", "spaLight"])]
         if location == "backhouse":
             location = "Back house"
+            lightsGroup=["Lights", resources.getResList(["backLights", "poolLight", "spaLight"])]
             hvac = templates.get_template("hvacWidget.html").render(label="Inside temp",
                     widths=columnWidths,
                     templates=templates,
@@ -81,6 +81,7 @@ def ipad(location=""):
             shadesGroup = []
         else:
             location = "Kitchen"
+            lightsGroup=["Lights", resources.getResList(["porchLights", "poolLight", "spaLight"])]
             hvac = templates.get_template("hvacWidget.html").render(label="Inside temp",
                     widths=columnWidths,
                     templates=templates,
