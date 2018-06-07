@@ -89,7 +89,7 @@ class RestProxy(threading.Thread):
                         else:
                             # the service was previously disabled but it is broadcasting again
                             # re-enable it
-                            debug('debugRestProxy', self.name, "reenabling", serviceName, service.addr, serviceTimeStamp)
+                            debug('debugRestProxyDisable', self.name, "reenabling", serviceName, service.addr, serviceTimeStamp)
                             service.enable()
                         # update the resource cache and set the event
                         self.getResources(service, serviceResources, serviceTimeStamp, timeStamp)
@@ -104,7 +104,7 @@ class RestProxy(threading.Thread):
                     if not service.interface.enabled:
                         # the service interface is disabled due to a heartbeat timeout or exception
                         # delete the service resources and disable the service proxy
-                        debug('debugRestProxy', self.name, "disabling", serviceName, service.addr, serviceTimeStamp)
+                        debug('debugRestProxyDisable', self.name, "disabling", serviceName, service.addr, serviceTimeStamp)
                         service.disable()
                         self.delResources(service)
                         self.cacheTime = timeStamp
@@ -202,7 +202,7 @@ class RestProxy(threading.Thread):
 class RestServiceProxy(Sensor):
     def __init__(self, name, addr, interface, timeStamp=-1, event=None, group="", type="service", location=None, label="", interrupt=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
-        debug('debugRestProxy', "RestServiceProxy", name, "created")
+        debug('debugRestServiceProxy', "RestServiceProxy", name, "created")
         self.name = name
         self.addr = addr
         self.timeStamp = timeStamp
@@ -222,12 +222,12 @@ class RestServiceProxy(Sensor):
         return True
         
     def enable(self):
-        debug('debugRestProxy', "RestServiceProxy", self.name, "enabled")
+        debug('debugRestServiceProxy', "RestServiceProxy", self.name, "enabled")
         self.interface.start()
         self.enabled = True
 
     def disable(self):
-        debug('debugRestProxy', "RestServiceProxy", self.name, "disabled")
+        debug('debugRestServiceProxy', "RestServiceProxy", self.name, "disabled")
         self.interface.stop()
         self.enabled = False
         self.timeStamp = -1
