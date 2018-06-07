@@ -153,6 +153,7 @@ views = ViewDict(  {"none": View(),
          "KW": View({}, "%7.3f KW", kiloFormat),
          "KWh": View({}, "%7.3f KWh", kiloFormat),
          "MWh": View({}, "%7.3f MWh", megaFormat),
+         "dBm": View({}, "%4.1f dBm"),
          "sequence": View({0:"Stopped", 1:"Running"}, "%s", None, {0:"Stop", 1:"Run"}),
          "task": View({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"})
          })
