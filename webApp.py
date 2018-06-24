@@ -250,7 +250,3 @@ if __name__ == "__main__":
 #            ssl=True, httpsPort=webSSLPort, domain=webSSLDomain, 
             pathDict=pathDict, baseDir=baseDir, block=not runRestServer)
 
-    if runRestServer:
-        restServer = RestServer(resources, port=restServicePort, event=stateChangeEvent, label="Control")
-        restServer.start()
- 
