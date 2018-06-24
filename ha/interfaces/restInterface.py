@@ -50,7 +50,7 @@ class RestInterface(Interface):
                 # define a timer to disable the interface if the heartbeat times out
                 # can't use a socket timeout because multiple threads are using the same port
                 def readStateTimeout():
-                    debug('debugRestStates', self.name, "read state timeout")
+                    debug('debugRestDisable', self.name, "read state timeout")
                     debug('debugRest', self.name, "disabled")
                     self.enabled = False
                 readStateTimer = None
@@ -154,11 +154,11 @@ class RestInterface(Interface):
             else:
                 return {}
         except requests.exceptions.Timeout: # timeout
-            debug('debugRest', self.name, "timeout")
+            debug('debugRestDisable', self.name, "read timeout", path)
             self.enabled = False
             return {}
         except:                                 # other exceptions are fatal
-            debug('debugRest', self.name, "disabled")
+            debug('debugRestDisable', self.name, "exception", path)
             self.enabled = False
             return {}
 
