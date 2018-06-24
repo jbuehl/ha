@@ -118,17 +118,20 @@ class RestProxy(threading.Thread):
         # load in a separate thread
         def loadResources():
             resources = Collection(service.name+"/Resources", aliases=self.resources.aliases)
-            if isinstance(serviceResources, list):
-                for serviceResource in serviceResources:
-                    self.loadPath(resources, service.interface, "/"+service.interface.read("/"+serviceResource)["name"])    # FIXME
-            else:   # for backwards compatibility
-                self.loadPath(resources, service.interface, "/"+serviceResources["name"])
-            service.resourceNames = resources.keys()    # FIXME - need to alias the names
-            service.timeStamp = serviceTimeStamp
-            service.interface.readStates()          # fill the cache for these resources
-            with self.resources.lock:
-                self.resources.addRes(service)
-                self.resources.update(resources)
+            try:
+                if isinstance(serviceResources, list):
+                    for serviceResource in serviceResources:
+                        self.loadPath(resources, service.interface, "/"+service.interface.read("/"+serviceResource)["name"])
+                else:   # for backwards compatibility
+                    self.loadPath(resources, service.interface, "/"+serviceResources["name"])
+                service.resourceNames = resources.keys()    # FIXME - need to alias the names
+                service.timeStamp = serviceTimeStamp
+                service.interface.readStates()          # fill the cache for these resources
+                with self.resources.lock:
+                    self.resources.addRes(service)
+                    self.resources.update(resources)
+            except KeyError:
+                service.disable()
             del(resources)
             self.cacheTime = timeStamp
             self.event.set()
