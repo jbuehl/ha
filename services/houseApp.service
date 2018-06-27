@@ -1,0 +1,8 @@
+[Unit]
+Description=Home Automation sensor aggregation app
+After=syslog.target
+[Service]
+ExecStart=/usr/bin/python /root/ha/houseApp.py
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
