@@ -19,7 +19,8 @@ def openBroadcastSocket():
 # RESTful web services server interface
 class RestServer(object):
     objectArgs = ["resources", "event"]
-    def __init__(self, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label="", name=None):
+    def __init__(self, name, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label=""):
+        self.name = name
         self.resources = resources
         self.event = event
         self.hostname = socket.gethostname()
@@ -54,7 +55,8 @@ class RestServer(object):
                                                              self.port,
                                                              [self.server.resources.name], 
                                                              self.timeStamp, 
-                                                             self.label)), 
+                                                             self.label,
+                                                             self.name)), 
                                                         ("<broadcast>", restBeaconPort))
                     except socket.error as exception:
                         log("socket error", exception)

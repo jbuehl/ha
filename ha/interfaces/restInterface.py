@@ -157,8 +157,8 @@ class RestInterface(Interface):
             debug('debugRestDisable', self.name, "read timeout", path)
             self.enabled = False
             return {}
-        except:                                 # other exceptions are fatal
-            debug('debugRestDisable', self.name, "exception", path)
+        except Exception as exception:                                 # other exceptions are fatal
+            debug('debugRestDisable', self.name, "exception", path, exception)
             self.enabled = False
             return {}
 

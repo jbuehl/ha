@@ -49,7 +49,10 @@ class RestProxy(threading.Thread):
             debug('debugRestBeacon', self.name, "beacon data", data)
             # parse the message
             serviceData = json.loads(data)
-            serviceName = "services."+serviceData[0]+":"+str(serviceData[1])    # hostname:port
+            try:
+                serviceName = "services."+serviceData[5]+":"+str(serviceData[1])
+            except IndexError:
+                serviceName = "services."+serviceData[0]+":"+str(serviceData[1])    # hostname:port
             serviceAddr = addr[0]+":"+str(serviceData[1])                       # IPAddr:port
             serviceResources = serviceData[2]
             # timestamp and label are optional

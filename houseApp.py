@@ -87,6 +87,6 @@ if __name__ == "__main__":
     schedule.start()
 
     # start the REST server for this service
-    restServer = RestServer(resources, port=restServicePort, event=stateChangeEvent, label="House")
+    restServer = RestServer("house", resources, port=restServicePort, event=stateChangeEvent, label="House")
     restServer.start()
 

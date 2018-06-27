@@ -237,7 +237,7 @@ if __name__ == "__main__":
     resources.addRes(Sensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
 
     # start the cache to listen for services on other servers
-    restCache = RestProxy("restProxy", resources, event=stateChangeEvent)
+    restCache = RestProxy("restProxy", resources, watch=["house"], event=stateChangeEvent)
     restCache.start()
 
     # monitor service states
