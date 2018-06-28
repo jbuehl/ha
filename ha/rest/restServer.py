@@ -20,6 +20,7 @@ def openBroadcastSocket():
 class RestServer(object):
     objectArgs = ["resources", "event"]
     def __init__(self, name, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label=""):
+        debug('debugRestServer', name, "creating RestServer")
         self.name = name
         self.resources = resources
         self.event = event
@@ -38,6 +39,7 @@ class RestServer(object):
         self.heartbeatSocket = None
 
     def start(self):
+        debug('debugRestServer', self.name, "starting RestServer")
         # start the beacon to advertise this service
         if self.beacon:
             self.beaconSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -45,9 +47,9 @@ class RestServer(object):
             self.beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.timeStamp = time.time()
             def beacon():
-                debug('debugRestBeacon', "REST beacon started")
+                debug('debugRestServer', self.name, "REST beacon started")
                 while True:
-                    debug('debugRestBeacon', "REST beacon")
+                    debug('debugRestBeacon', self.name, "REST beacon")
                     if not self.beaconSocket:
                         self.beaconSocket = openBroadcastSocket()
                     try:
@@ -67,7 +69,7 @@ class RestServer(object):
             
         # start the heartbeat to periodically send the state of all resources
         if self.heartbeat:
-            debug('debugRestHeartbeat', "REST heartbeat started")
+            debug('debugRestServer', self.name, "REST heartbeat started")
             # thread to periodically send states as keepalive message
             self.heartbeatSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.heartbeatSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -75,12 +77,12 @@ class RestServer(object):
             try:
                 stateResource = self.resources.getRes("states", dummy=False)
             except:
-                debug('debugRestHeartbeat', "created resource state sensor")
+                debug('debugRestHeartbeat', self.name, "created resource state sensor")
                 stateResource = ResourceStateSensor("states", None, resources=self.resources, event=self.event)
                 self.resources.addRes(stateResource)
             def heartbeat():
                 while True:
-                    debug('debugRestHeartbeat', "REST heartbeat")
+                    debug('debugRestHeartbeat', self.name, "REST heartbeat")
                     if not self.heartbeatSocket:
                         self.heartbeatSocket = openBroadcastSocket()
                     try:
@@ -90,7 +92,7 @@ class RestServer(object):
                                                             ("<broadcast>", restStatePort))
                         if self.event:
                             # set the state event so the stateChange request returns
-                            debug('debugInterrupt', "heartbeat", "set", self.event)
+                            debug('debugInterrupt', self.name, "heartbeat", "set", self.event)
                             self.event.set()
                     except socket.error as exception:
                         log("socket error", exception)
