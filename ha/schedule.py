@@ -157,11 +157,15 @@ class Task(Control):
             except KeyError:    # can't resolve so ignore it
                 control = "None"
         else:                   # control is resource reference
-            control = self.control    
+            control = self.control
+        try:
+            controlName = control.name
+        except AttributeError:
+            controlName = control    
         return {"class":self.__class__.__name__, 
                 "name":self.name, 
                 "type": self.type, 
-                "control":control.name, 
+                "control":controlName, 
                 "controlState":self.controlState, 
                 "schedTime": self.schedTime.dict()}
                     
