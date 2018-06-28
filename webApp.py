@@ -316,6 +316,6 @@ if __name__ == "__main__":
 
     # start the REST server
     if runRestServer:
-        restServer = RestServer("house", resources, port=restServicePort, event=stateChangeEvent, label="House")
+        restServer = RestServer("house", resources, port=restServicePort, beacon=False, heartbeat=False, event=stateChangeEvent, label="House")
         restServer.start()
 
