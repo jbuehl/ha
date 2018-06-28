@@ -75,7 +75,7 @@ class RestProxy(threading.Thread):
                 debug('debugRestProxy', self.name, "processing", serviceName, serviceAddr, serviceTimeStamp)
                 if serviceName not in self.services.keys():
                     # create a new service proxy
-                    debug('debugRestProxy', self.name, "adding", serviceName, serviceAddr, serviceTimeStamp)
+                    debug('debugRestProxyAdd', self.name, "adding", serviceName, serviceAddr, serviceTimeStamp)
                     self.services[serviceName] = RestServiceProxy(serviceName, serviceAddr, 
                                                                RestInterface(serviceName, service=serviceAddr, event=self.event, secure=False),
                                                                serviceTimeStamp, label=serviceLabel, group="Services")
@@ -85,7 +85,7 @@ class RestProxy(threading.Thread):
                 else:   # service is already in the cache
                     service = self.services[serviceName]
                     if serviceTimeStamp > service.timeStamp: # service resources have changed
-                        debug('debugRestProxy', self.name, "updating", serviceName, serviceAddr, serviceTimeStamp)
+                        debug('debugRestProxyUpdate', self.name, "updating", serviceName, serviceAddr, serviceTimeStamp)
                         if service.enabled:
                             # delete the resources from the cache
                             self.delResources(service)
@@ -130,9 +130,11 @@ class RestProxy(threading.Thread):
                 service.resourceNames = resources.keys()    # FIXME - need to alias the names
                 service.timeStamp = serviceTimeStamp
                 service.interface.readStates()          # fill the cache for these resources
+                debug('debugRestLock', service.name, "locking")
                 with self.resources.lock:
                     self.resources.addRes(service)
                     self.resources.update(resources)
+                debug('debugRestLock', service.name, "unlocking")
             except KeyError:
                 service.disable()
             del(resources)
@@ -197,12 +199,14 @@ class RestProxy(threading.Thread):
             
     # delete all the resources from the specified service from the cache
     def delResources(self, service):
+        debug('debugRestLock', service.name, "locking")
         with self.resources.lock:
             for resourceName in service.resourceNames:
                 try:
                     self.resources.delRes(resourceName)
                 except KeyError:
                     debug('debugRestProxy', service.name, "error deleting", resourceName)
+        debug('debugRestLock', service.name, "unlocking")
 
 # proxy for a REST service
 class RestServiceProxy(Sensor):
