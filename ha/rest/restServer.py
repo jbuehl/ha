@@ -141,7 +141,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                         data = json.dumps(resource.dict())
                     except Exception as exception:
                         debug('debugRestException', "restServer", self.path, exception)
-#                        data = "{}"
+                        data = "{}"
                         self.send_error(500)
                 self.send_header("Content-type", contentType)
                 self.end_headers()
