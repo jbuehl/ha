@@ -3,12 +3,13 @@ webSSLPort = 7380
 webSSLDomain = "cloud.buehltech.com"
 webUpdateInterval = 1
 webPageTitle = "Home Automation"
-runRestServer = False
+runRestServer = True
 restIgnore = []
 insideTemp = "diningRoomTemp"
 outsideTemp = "edisonTemp"
 poolTemp = "poolTemp"
 serviceMonitorNotifyNumbers = []
+xmas = False
 
 import time
 from jinja2 import Environment, FileSystemLoader
@@ -236,8 +237,71 @@ if __name__ == "__main__":
     resources.addRes(Sensor("theTime", timeInterface, "%I:%M", type="time", label="Time"))
     resources.addRes(Sensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
 
+    # light groups
+    porchLights = ControlGroup("porchLights", ["frontLights",
+                                               "sculptureLights",
+                                               "backLights",
+                                               "garageBackDoorLight"],
+                                               resources=resources, 
+                                               type="light", group="Lights", label="Porch lights")
+    xmasLights = ControlGroup("xmasLights", ["xmasTree",
+                                                "xmasCowTree",
+                                                "xmasFrontLights",
+                                                "xmasBackLights"],
+                                               resources=resources, 
+                                               type="light", group=["Lights", "Xmas"], label="Xmas lights")
+    bedroomLights = ControlGroup("bedroomLights", ["bedroomLight", 
+                                               "bathroomLight"],
+                                               resources=resources, 
+                                               stateList=[[0, 100, 0], [0, 100, 10]], 
+                                               type="nightLight", group="Lights", label="Night lights")
+    outsideLights = ControlGroup("outsideLights", ["frontLights",
+                                               "sculptureLights",
+                                               "backLights",
+                                               "garageBackDoorLight",
+                                               "bbqLights",
+                                               "backYardLights",
+                                               "deckLights",
+                                               "trashLights",
+                                               "xmasTree",
+                                               "xmasCowTree",
+                                               "xmasFrontLights",
+                                               "xmasBackLights"],
+                                               resources=resources, 
+                                               type="light", group="Lights", label="Outside lights")
+    resources.addRes(porchLights)
+    resources.addRes(xmasLights)
+    resources.addRes(bedroomLights)
+    resources.addRes(outsideLights)
+    
+    # Light tasks
+    resources.addRes(Task("bedroomLightsOnSunset", SchedTime(event="sunset"), "bedroomLights", 1, resources=resources))
+    resources.addRes(Task("bedroomLightsOffSunrise", SchedTime(event="sunrise"), "bedroomLights", 0, resources=resources))
+    resources.addRes(Task("porchLightsOnSunset", SchedTime(event="sunset"), "porchLights", 1, resources=resources))
+    resources.addRes(Task("outsideLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "outsideLights", 0, resources=resources))
+    resources.addRes(Task("outsideLightsOffSunrise", SchedTime(event="sunrise"), "outsideLights", 0, resources=resources))
+    if xmas:
+        resources.addRes(Task("xmasLightsOnSunset", SchedTime(event="sunset"), "xmasLights", 1, resources=resources))
+        resources.addRes(Task("xmasLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, resources=resources))
+        resources.addRes(Task("xmasLightsOffSunrise", SchedTime(event="sunrise"), "xmasLights", 0, resources=resources))
+#        resources.addRes(Task("xmasTreeOnXmas", SchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1, resources=resources))
+    
+    # Light schedule
+    schedule = Schedule("schedule")
+    schedule.addTask(resources["bedroomLightsOnSunset"])
+    schedule.addTask(resources["bedroomLightsOffSunrise"])
+    schedule.addTask(resources["porchLightsOnSunset"])
+    schedule.addTask(resources["outsideLightsOffMidnight"])
+    schedule.addTask(resources["outsideLightsOffSunrise"])
+    if xmas:
+        schedule.addTask(resources["xmasLightsOnSunset"])
+        schedule.addTask(resources["xmasLightsOffMidnight"])
+        schedule.addTask(resources["xmasLightsOffSunrise"])
+#        schedule.addTask(resources["xmasTreeOnXmas"])
+    schedule.start()
+
     # start the cache to listen for services on other servers
-    restCache = RestProxy("restProxy", resources, watch=["house"], event=stateChangeEvent)
+    restCache = RestProxy("restProxy", resources, event=stateChangeEvent)
     restCache.start()
 
     # monitor service states
@@ -249,4 +313,9 @@ if __name__ == "__main__":
     webInit(resources, restCache, stateChangeEvent, httpPort=webPort, 
 #            ssl=True, httpsPort=webSSLPort, domain=webSSLDomain, 
             pathDict=pathDict, baseDir=baseDir, block=not runRestServer)
+
+    # start the REST server
+    if runRestServer:
+        restServer = RestServer("house", resources, port=restServicePort, event=stateChangeEvent, label="House")
+        restServer.start()
 
