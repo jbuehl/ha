@@ -138,8 +138,8 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                     try:
                         data = json.dumps(resource.dict())
                     except Exception as exception:
-                        debug('debugRestException', self.path, exception)
-                        data = "{}"
+                        debug('debugRestException', "restServer", self.path, exception)
+#                        data = "{}"
                         self.send_error(500)
                 self.send_header("Content-type", contentType)
                 self.end_headers()
@@ -163,7 +163,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                 self.send_response(200) # success
                 self.end_headers()
             except Exception as exception:
-                debug('debugRestException', self.path, exception)
+                debug('debugRestException', "restServer", self.path, exception)
                 self.send_error(500) # error
         else:
             self.send_error(404)     # resource not found
