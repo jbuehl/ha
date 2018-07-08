@@ -161,9 +161,6 @@ class WebRoot(object):
         debug('debugWeb', "/image", cherrypy.request.method, camera)
         if not camera:
             camera = "camera1"
-#            url = "http://"+camera+".local:7378/resources/"+camera+"image/state"
-#            response = requests.get(url)
-#            imageContent = response.content
         if not image:
             image = subprocess.check_output("ls -1 /var/ftp/images/"+camera+"/*.jpg | tail -n1", shell=True).split("/")[-1].strip("\n")
         debug('debugImage', "camera = ", camera)
@@ -174,6 +171,23 @@ class WebRoot(object):
         cherrypy.response.headers['Content-Type'] = "image/jpeg"
         cherrypy.response.headers['Content-Length'] = len(imageContent)
         return imageContent
+
+    # return a camera video    
+    @cherrypy.expose
+    def video(self, camera=None, video=None):
+        debug('debugWeb', "/image", cherrypy.request.method, camera)
+        if not camera:
+            camera = "camera1"
+        if not video:
+            video = subprocess.check_output("ls -1 /var/ftp/images/"+camera+"/*.mp4 | tail -n1", shell=True).split("/")[-1].strip("\n")
+        debug('debugImage', "camera = ", camera)
+        debug('debugImage', "video = ", video)
+        with open("/var/ftp/images/"+camera+"/"+video) as videoFile:
+            videoContent = videoFile.read()
+        debug('debugImage', "length = ", len(video))
+        cherrypy.response.headers['Content-Type'] = "video/mp4"
+        cherrypy.response.headers['Content-Length'] = len(videoContent)
+        return videoContent
 
 def webInit(resources, restCache, stateChangeEvent, httpPort=80, ssl=False, httpsPort=443, domain="", pathDict=None, baseDir="/", block=False):
     # set up the web server
