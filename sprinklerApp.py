@@ -26,22 +26,24 @@ if __name__ == "__main__":
     maxTemp = MaxSensor("maxTemp", stateInterface, tempSensor, group="Weather", type="tempF", label="Max temp")
 
     # Sprinklers
-    frontLawn = Control("frontLawn", gpioInterface, 4, group="Sprinklers", label="Front lawn valve") # yellow
+    sideBeds = Control("sideBeds", gpioInterface, 1, group="Sprinklers", label="Side beds valve") # red
+    frontLawn = Control("frontLawn", gpioInterface, 2, group="Sprinklers", label="Front lawn valve") # yellow
+    frontBeds = Control("frontBeds", gpioInterface, 3, group="Sprinklers", label="Front beds valve") # green
     garden = Control("garden", gpioInterface, 5, group="Sprinklers", label="Garden valve") # red
     backLawn = Control("backLawn", gpioInterface, 6, group="Sprinklers", label="Back lawn valve") # green
-    sideBeds = Control("sideBeds", gpioInterface, 3, group="Sprinklers", label="Side beds valve") # red
     backBeds = Control("backBeds", gpioInterface, 7, group="Sprinklers", label="Back beds valve") # blue
 
     # Sequences
+    sideBedSequence = Sequence("sideBedSequence", [Cycle(sideBeds, 600)], group="Sprinklers", label="Side beds")
     frontLawnSequence = Sequence("frontLawnSequence", [Cycle(frontLawn, 1200)], group="Sprinklers", label="Front lawn")
     frontLawnHotSequence = DependentControl("frontLawnHotSequence", None, frontLawnSequence, [(maxTemp, ">", 95)])
+    frontBedSequence = Sequence("frontBedSequence", [Cycle(frontBeds, 3600)], group="Sprinklers", label="Front beds")
     backLawnSequence = Sequence("backLawnSequence", [Cycle(backLawn, 1200)], group="Sprinklers", label="Back lawn")
     backLawnHotSequence = DependentControl("backLawnHotSequence", None, backLawnSequence, [(maxTemp, ">", 95)])
     gardenSequence = Sequence("gardenSequence", [Cycle(garden, 300)], group="Sprinklers", label="Garden")
     backBedSequence = Sequence("backBedSequence", [Cycle(backBeds, 600)], group="Sprinklers", label="Back beds")
     backBedHotSequence = DependentControl("backBedHotSequence", None, backBedSequence, [(tempSensor, ">", 90)])
     backBedHotterSequence = DependentControl("backBedHotterSequence", None, backBedSequence, [(maxTemp, ">", 100)])
-    sideBedSequence = Sequence("sideBedSequence", [Cycle(sideBeds, 600)], group="Sprinklers", label="Side beds")
 
     # Schedules
     resetMinTempTask = Task("resetMinTempTask", SchedTime(hour=0, minute=0), minTemp, 999, enabled=True)
@@ -55,6 +57,8 @@ if __name__ == "__main__":
                         frontLawnSequence, 1, enabled=True)
     frontLawnHotTask = Task("frontLawnHotTask", SchedTime(hour=scheduleHour, minute=00, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep, Oct]), 
                         frontLawnHotSequence, 1, enabled=True)
+    frontBedTask = Task("frontBedTask", SchedTime(hour=scheduleHour+1, minute=30, weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), 
+                        frontBedSequence, 1, enabled=True)
     backLawnTask = Task("backLawnTask", SchedTime(hour=scheduleHour, minute=20, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), 
                         backLawnSequence, 1, enabled=True)
     backLawnHotTask = Task("backLawnHotTask", SchedTime(hour=scheduleHour, minute=20, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep, Oct]), 
@@ -67,22 +71,22 @@ if __name__ == "__main__":
                         sideBedSequence, 1, enabled=True)
 
     schedule = Schedule("schedule", tasks=[resetMinTempTask, resetMaxTempTask, 
-                                           frontLawnTask, frontLawnHotTask, gardenTask, 
+                                           frontLawnTask, frontLawnHotTask, frontBedTask, gardenTask, 
                                            backLawnTask, backLawnHotTask, 
                                            sideBedTask, backBedTask, backBedHotTask, backBedHotterTask])
 
     # Resources
     resources = Collection("resources", resources=[minTemp, maxTemp,
-                                                   frontLawn, garden, backLawn, sideBeds, backBeds, 
-                                                   frontLawnSequence, frontLawnHotSequence, gardenSequence, 
+                                                   frontLawn, frontBeds, garden, backLawn, sideBeds, backBeds, 
+                                                   frontLawnSequence, frontLawnHotSequence, frontBedSequence, gardenSequence, 
                                                    backLawnSequence, backLawnHotSequence, sideBedSequence, backBedSequence, 
                                                    backBedHotSequence, backBedHotterSequence,
                                                    resetMinTempTask, resetMaxTempTask, 
                                                    backBedHotTask, backBedHotterTask,
-                                                   frontLawnTask, frontLawnHotTask, 
+                                                   frontLawnTask, frontLawnHotTask, frontBedTask,
                                                    backLawnTask, backLawnHotTask, 
                                                    gardenTask, backBedTask, sideBedTask])
-    restServer = RestServer(resources, event=stateChangeEvent, label="Sprinklers")
+    restServer = RestServer("sprinklers", resources, event=stateChangeEvent, label="Sprinklers")
 
     # Start interfaces
     gpioInterface.start()

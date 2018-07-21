@@ -114,7 +114,7 @@ def ipad(location=""):
                             shadesGroup=shadesGroup, 
                             hvac=hvac, 
                             sprinklersGroup=["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "backBedSequence", 
-                                                                                 "sideBedSequence", "frontLawnSequence"])],
+                                                                                 "sideBedSequence", "frontLawnSequence", "frontBedSequence"])],
                             views=views)
     return reply
 
@@ -137,7 +137,7 @@ def iphone5():
                             resources=resources.getResList(["porchLights", 
 #                                                            "xmasLights", "xmasTree",
                                                             "shade1", "shade2", "shade3", "shade4", 
-                                                            "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence"
+                                                            "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence", "frontBedSequence"
                                                             ]),
                             views=views)
     return reply
