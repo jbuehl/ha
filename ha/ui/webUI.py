@@ -1,10 +1,12 @@
 webLogging = False
 webReload = False
 blinkers = []
+imageBase = "/var/ftp/images/"
 
 import json
 import subprocess
 import cherrypy
+import time
 from cherrypy.lib import auth_basic
 import requests
 from ha import *
@@ -157,15 +159,22 @@ class WebRoot(object):
 
     # return a camera image    
     @cherrypy.expose
-    def image(self, camera=None, image=None):
+    def image(self, camera=None, date=None, image=None):
         debug('debugWeb', "/image", cherrypy.request.method, camera)
         if not camera:
-            camera = "camera1"
+            camera = "frontdoor"
         if not image:
             image = subprocess.check_output("ls -1 /var/ftp/images/"+camera+"/*.jpg | tail -n1", shell=True).split("/")[-1].strip("\n")
+        if not date:
+            date = time.strftime("%Y%m%d")
+        year = date[0:4]
+        month = date[4:6]
+        day = date[6:8]
         debug('debugImage', "camera = ", camera)
+        debug('debugImage', "date = ", date)
         debug('debugImage', "image = ", image)
-        with open("/var/ftp/images/"+camera+"/"+image) as imageFile:
+        imageDir = imageBase+camera+"/"+year+"/"+month+"/"+day+"/"
+        with open(imageDir+image) as imageFile:
             imageContent = imageFile.read()
         debug('debugImage', "length = ", len(imageContent))
         cherrypy.response.headers['Content-Type'] = "image/jpeg"
@@ -174,15 +183,22 @@ class WebRoot(object):
 
     # return a camera video    
     @cherrypy.expose
-    def video(self, camera=None, video=None):
-        debug('debugWeb', "/image", cherrypy.request.method, camera)
+    def video(self, camera=None, date=None, video=None):
+        debug('debugWeb', "/video", cherrypy.request.method, camera)
         if not camera:
-            camera = "camera1"
+            camera = "frontdoor"
         if not video:
             video = subprocess.check_output("ls -1 /var/ftp/images/"+camera+"/*.mp4 | tail -n1", shell=True).split("/")[-1].strip("\n")
+        if not date:
+            date = time.strftime("%Y%m%d")
+        year = date[0:4]
+        month = date[4:6]
+        day = date[6:8]
         debug('debugImage', "camera = ", camera)
+        debug('debugImage', "date = ", date)
         debug('debugImage', "video = ", video)
-        with open("/var/ftp/images/"+camera+"/"+video) as videoFile:
+        imageDir = imageBase+camera+"/"+year+"/"+month+"/"+day+"/"
+        with open(imageDir+video) as videoFile:
             videoContent = videoFile.read()
         debug('debugImage', "length = ", len(video))
         cherrypy.response.headers['Content-Type'] = "video/mp4"
