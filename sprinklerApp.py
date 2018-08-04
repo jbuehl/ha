@@ -57,7 +57,7 @@ if __name__ == "__main__":
                         frontLawnSequence, 1, enabled=True)
     frontLawnHotTask = Task("frontLawnHotTask", SchedTime(hour=scheduleHour, minute=00, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep, Oct]), 
                         frontLawnHotSequence, 1, enabled=True)
-    frontBedTask = Task("frontBedTask", SchedTime(hour=scheduleHour+1, minute=30, weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), 
+    frontBedTask = Task("frontBedTask", SchedTime(hour=scheduleHour-1, minute=00, weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), 
                         frontBedSequence, 1, enabled=True)
     backLawnTask = Task("backLawnTask", SchedTime(hour=scheduleHour, minute=20, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), 
                         backLawnSequence, 1, enabled=True)
