@@ -165,12 +165,15 @@ class ControlGroup(SensorGroup, Control):
                 for controlIdx in range(len(self.sensorList)):
                     if self.resources:      # controls are resource names - FIXME - test list element type
                         try:
+                            debug("debugControlGroup", self.name, "looking up:", self.sensorList[controlIdx])
                             control = self.resources[self.sensorList[controlIdx]]
                         except KeyError:    # can't resolve so ignore it
+                            debug("debugControlGroup", self.name, "can't find:", self.sensorList[controlIdx])
                             control = None
                     else:                   # controls are resource references
                         control = self.sensorList[controlIdx]
                     if control:
+                        debug("debugControlGroup", self.name, "control:", control.name, "state:", self.groupState)
                         control.setState(self.stateList[controlIdx][self.groupState])
                 self.running = False
                 debug('debugThread', self.name, "finished")
