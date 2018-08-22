@@ -8,7 +8,7 @@ from ha.rest.restConfig import *
 
 class RestInterface(Interface):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface=None, event=None, service="", secure=False, cache=True, writeThrough=False):
+    def __init__(self, name, interface=None, event=None, service="", secure=False, cache=True, writeThrough=True):
         Interface.__init__(self, name, interface=interface, event=event)
         self.service = service  # the REST service to target
         self.secure = secure    # use SSL
