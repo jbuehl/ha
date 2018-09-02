@@ -1,5 +1,4 @@
 ignoreServers = ["solar", "power"]
-logDir = "/backups/ha/"
 
 import time
 import json
