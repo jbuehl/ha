@@ -64,7 +64,7 @@ if __name__ == "__main__":
     backLawnHotTask = Task("backLawnHotTask", SchedTime(hour=scheduleHour, minute=20, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep, Oct]), 
                         backLawnHotSequence, 1, enabled=True)
     gardenTask = Task("gardenTask", SchedTime(hour=scheduleHour, minute=40, month=[May, Jun, Jul, Aug, Sep]), 
-                        gardenSequence, 1, enabled=True)
+                        gardenSequence, 1, enabled=False)
     backBedTask = Task("backBedTask", SchedTime(hour=scheduleHour, minute=50, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), 
                         backBedSequence, 1, enabled=True)
     sideBedTask = Task("sideBedTask", SchedTime(hour=scheduleHour+1, minute=00, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), 
