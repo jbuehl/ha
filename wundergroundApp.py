@@ -12,6 +12,9 @@ dewpointSensor = "dewpoint"
 rainHourSensor = "rainHour"
 rainDailySensor = "rainDay"
 
+reportWind = False
+reportRain = False
+
 import requests
 from ha import *
 from ha.rest.restProxy import *
@@ -40,18 +43,22 @@ if __name__ == "__main__":
             debug('debugWunderground', "dewpoint:", dewpoint)
             barometer = resources[barometerSensor].getState()
             debug('debugWunderground', "barometer:", barometer)
-            windSpeed = resources[windSpeedSensor].getState()
-            debug('debugWunderground', "windSpeed:", windSpeed)
-            windDir = resources[windDirSensor].getState()
-            debug('debugWunderground', "windDir:", windDir)
-#            windSpeed = 0
-#            windDir = 0
-            rainHour = resources[rainHourSensor].getState()
-            debug('debugWunderground', "rainHour:", rainHour)
-            rainDay = resources[rainDailySensor].getState()
-            debug('debugWunderground', "rainDay:", rainDay)
-#            rainHour = 0
-#            rainDay = 0
+            if reportWind:
+                windSpeed = resources[windSpeedSensor].getState()
+                debug('debugWunderground', "windSpeed:", windSpeed)
+                windDir = resources[windDirSensor].getState()
+                debug('debugWunderground', "windDir:", windDir)
+            else:
+                windSpeed = 0
+                windDir = 0
+            if reportRain:
+                rainHour = resources[rainHourSensor].getState()
+                debug('debugWunderground', "rainHour:", rainHour)
+                rainDay = resources[rainDailySensor].getState()
+                debug('debugWunderground', "rainDay:", rainDay)
+            else:
+                rainHour = 0
+                rainDay = 0
             request = wunderRequest+"&tempf="+str(temp)+"&humidity="+str(humidity)+"&dewptf="+str(dewpoint)+"&baromin="+str(barometer)
             request += "&windspeedmph="+str(windSpeed)+"&winddir="+str(windDir)
             request += "&rainin="+str(rainHour)+"&dailyrainin="+str(rainDay)
