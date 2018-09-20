@@ -10,6 +10,8 @@
 # text string bbox size
 # frame buffer python module
 
+updateInterval = 10
+
 fbLib = "/root/ha/ha/ui/fb/libfb.so"
 
 from ctypes import cdll
@@ -78,7 +80,8 @@ def printAttrs(style):
     return ["%s: %s"%(attr, style.__dict__[attr]) for attr in ["name", "xPos", "yPos", "width", "height", "margin"]]
         
 class Display(object):
-    def __init__(self, displayDevice="/dev/fb0", inputDevice="/dev/input/event0", views=None):
+    def __init__(self, name, displayDevice="/dev/fb0", inputDevice="/dev/input/event0", views=None):
+        self.name = name
         self.initDisplay(displayDevice)
         self.initInput(inputDevice)
         self.views = views
@@ -125,6 +128,7 @@ class Display(object):
                 for resourceElement in self.resourceElements:
                     resource = resourceElement[0]
                     element = resourceElement[1]
+                    debug("debugUpdate", self.name, "Display.update()", element.name, resource.name)
                     resState = self.views.getViewState(resource)
                     element.setValue(resState)
                     if resource.type in tempTypes:
@@ -133,8 +137,8 @@ class Display(object):
                         if resState[0] != "0":
                             element.setValue(resState[0:8])
                             element.fgColor = color("OrangeRed")
-                    resourceElement[1].render(self)
-                time.sleep(10)
+                    element.render(self)
+                time.sleep(updateInterval)
         updateThread = threading.Thread(target=UpdateThread)
         updateThread.start()
         
@@ -314,16 +318,29 @@ class Text(Element):
         del(renderStyle)
         
 class Image(Element):
-    def __init__(self, name, style=None, imageFile="", value="", **args):
+    def __init__(self, name, style=None, imageFile=None, value="", display=None, resource=None, **args):
         Element.__init__(self, name, style, **args)
-        pngReader = png.Reader(imageFile)
+        self.value=value
+        self.resource = resource
+        if display and resource:
+            display.addResource(resource, self)
+        if imageFile:
+            self.imageFile = imageFile
+        elif resource:
+            self.imageFile = resource.interface.fileName
+        self.readImage()
+        
+    def readImage(self):
+        debug("debugImage", self.name, "Image.readImage()", self.imageFile)
+        pngReader = png.Reader(self.imageFile)
         pngImage = pngReader.read()
         self.width = pngImage[0] + 2*self.style.margin
         self.height = pngImage[1] + 2*self.style.margin
-        print "Image", self.name, self.width, self.height
         self.image = png2fb(pngImage)
-        self.value=value
-        
+           
+    def setValue(self, value):
+        self.value = value
+
     def setImage(self, image):
         self.image = image
 
@@ -333,7 +350,7 @@ class Image(Element):
             renderStyle.__dict__.update(style.__dict__)
         debug("debugDisplay", self.name, "Image.render()", printAttrs(renderStyle))
         if image == None:
-            image = self.image
+            self.readImage()
         display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin, 
                                   self.width-2*self.margin, self.height-2*self.margin, 
                                   self.image)
