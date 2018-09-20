@@ -9,8 +9,10 @@ audioFileName = audioDir+"audio.json"
 displayDevice = "/dev/fb0"
 inputDevice = "/dev/input/event0"
 fontName = "FreeSansBold.ttf"
-fontPath = "/usr/share/fonts/TTF/"
+fontPath = "/root/.fonts/"
 imageDir = "/root/images/"
+dashCamFile = "/root/dashcam.png"
+dashCamInterval = 10
 
 import time
 import threading
@@ -28,6 +30,12 @@ resources = None
 stateChangeEvent = threading.Event()
 resourceLock = threading.Lock()
 
+# dash cam thread
+def dashCamImage():
+    while True:
+        os.popen("/usr/bin/raspistill -e png -o "+dashCamFile+" -w 400 -h 300 -n")
+        time.sleep(dashCamInterval)
+        
 if __name__ == "__main__":
 
     # interfaces
@@ -38,6 +46,7 @@ if __name__ == "__main__":
     tc74Interface = TC74Interface("tc74Interface", i2cInterface)
     tempInterface = TempInterface("tempInterface", tc74Interface, sample=1)
     audioInterface = AudioInterface("audioInterface", event=stateChangeEvent)
+    dashCamInterface = FileInterface("dashCamInterface", fileName=dashCamFile, event=stateChangeEvent)
 
     # time sensors
     timeResource = Sensor("time", timeInterface, "%-I:%M", type="time", label="Time")
@@ -71,10 +80,13 @@ if __name__ == "__main__":
     ]
     outsideTemp = Sensor("outsideTemp", tempInterface, 0x4e, label="Outside temp", type="tempF")
 
+    # dash cam
+    dashCam = Sensor("dashCam", dashCamInterface, type="image")
+    
     # initialization
     fgColor = color("yellow")
     bgColor = color("black")
-    display = Display(displayDevice, inputDevice, views)
+    display = Display("display", displayDevice, inputDevice, views)
     display.clear(bgColor)
     face = freetype.Face(fontPath+fontName)
     
@@ -116,14 +128,15 @@ if __name__ == "__main__":
                                 ],
                             )
                             for sensor in positionSensors]),
-                        Div("engineSensors", containerStyle, [
-                            Span(sensor.name, containerStyle, [
-                                Text(sensor.name+"Label", labelStyle, sensor.label),
-                                Text(sensor.name+"Value", valueStyle, display=display, resource=sensor),
-                                ],
-                            )
-                            for sensor in engineSensors]),
-                        ], height=300),
+#                        Div("engineSensors", containerStyle, [
+#                            Span(sensor.name, containerStyle, [
+#                                Text(sensor.name+"Label", labelStyle, sensor.label),
+#                                Text(sensor.name+"Value", valueStyle, display=display, resource=sensor),
+#                                ],
+#                            )
+#                            for sensor in engineSensors]),
+                        Image("dashCam", display=display, resource=dashCam),
+                        ], width=400, height=300),
                     Span("buttons", containerStyle, [
                         Button("volDownButton", buttonStyle,
                             content=Image("volDownImage", imageFile=imageDir+"icons_volumedown-01.png"),
@@ -162,7 +175,11 @@ if __name__ == "__main__":
 
     screen.arrange()
     screen.render(display)
-    
+
+    # start the dash cam
+    dashCamThread = threading.Thread(target=dashCamImage)
+    dashCamThread.start()
+        
     # Start interfaces
     gpsInterface.start()
     diagInterface.start()
