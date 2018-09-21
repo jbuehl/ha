@@ -49,6 +49,7 @@ def tempColor(tempString):
         red = 112; green = 128; blue = 144
     return 'rgb('+str(red)+','+str(green)+','+str(blue)+')'
 
+# convert PNG to frame buffer
 def png2fb(pngImage):
     fbPixMap = ""
     pngArrayList = list(pngImage[2])
@@ -67,15 +68,18 @@ def png2fb(pngImage):
             pass
     return fbPixMap
 
+# convert RGB pixmp to frame buffer
 def rgb2fb(rgbPixMap):
     fbPixMap = ""
     for pix in range(0, len(rgbPixMap), 3):
         fbPixMap += chr(rgbPixMap[pix+2]) + chr(rgbPixMap[pix+1]) + chr(rgbPixMap[pix]) + "\xff"
     return fbPixMap
 
+# return frame buffer value for named color
 def color(colorName):
     return rgb2fb(webcolors.name_to_rgb(colorName))
 
+# return printable string of attribute bvalues
 def printAttrs(style):
     return ["%s: %s"%(attr, style.__dict__[attr]) for attr in ["name", "xPos", "yPos", "width", "height", "margin"]]
         
@@ -187,6 +191,7 @@ class Display(object):
             self.FrameBuffer.setPixMap(self.frameBuffer, xPos, yPos, width, height, bgMap)
             self.FrameBuffer.freeMap(bgMap)
 
+# a Style contains the attributes that define the presentation of an Element
 class Style(object):
     def __init__(self, name, style=None, **args):
         # set defaults
@@ -203,7 +208,8 @@ class Style(object):
         # override with specified attributes
         self.name = name
         self.__dict__.update(args)
-        
+
+# an Element is the basic object that is rendered on a Display        
 class Element(object):
     def __init__(self, name, style=None, **args):
         self.name = name
@@ -240,7 +246,8 @@ class Element(object):
         
     def arrange(self):
         debug("debugArrange", self.name, "arrange()", printAttrs(self))
-                
+
+# a Container is an Element that contains one or more Elements                
 class Container(Element):
     def __init__(self, name, style=None, itemList=[], **args):
         Element.__init__(self, name, style, **args)
@@ -251,7 +258,8 @@ class Container(Element):
         display.fill(self.xPos, self.yPos, self.width, self.height, self.bgColor)
         for item in self.itemList:
             item.render(display)
-        
+
+# a Div is a Container that stacks its Elements vertically      
 class Div(Container):
     def __init__(self, name, style=None, itemList=[], **args):
         Container.__init__(self, name, style, itemList, **args)
@@ -271,6 +279,7 @@ class Div(Container):
         self.height = max(self.height, height)
         debug("debugArrange", self.name, "arrange()", printAttrs(self))
 
+# a Span is a Container that stacks its Elements horizontally      
 class Span(Container):
     def __init__(self, name, style=None, itemList=[], **args):
         Container.__init__(self, name, style, itemList, **args)
@@ -355,7 +364,8 @@ class Image(Element):
                                   self.width-2*self.margin, self.height-2*self.margin, 
                                   self.image)
         del(renderStyle)
-        
+
+# a Button is a Container that receives input        
 class Button(Container):
     def __init__(self, name, style=None, content=None, onPress=None, onRelease=None, altContent=None, **args):
         Container.__init__(self, name, style, [content, altContent], **args)
