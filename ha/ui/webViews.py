@@ -70,6 +70,9 @@ class ViewDict(dict):
             return self.__getitem__("").setViewState(control, value)
          
 # transform functions
+def intFormat(value):
+    return int(value+.5)
+    
 def ctofFormat(value):
     return tempFormat(value*9/5+32)
 
@@ -139,9 +142,9 @@ views = ViewDict(  {"none": View(),
          "cameraEnable": View({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"}),
          "cameraRecord": View({0:"Stopped", 1:"Recording"}, "%s", None, {0:"Stop", 1:"Rec"}),
          "diagCode": View({}, "%d"),
-         "Ft": View({}, "%d FT"),
-         "MPH": View({}, "%d MPH"),
-         "RPM": View({}, "%d RPM"),
+         "Ft": View({}, "%d FT", intFormat),
+         "MPH": View({}, "%d MPH", intFormat),
+         "RPM": View({}, "%d RPM", intFormat),
          "Secs": View({}, "%s", secsFormat),
          "Lat": View({}, "%s", latFormat),
          "Long": View({}, "%s", longFormat),
@@ -154,6 +157,7 @@ views = ViewDict(  {"none": View(),
          "KWh": View({}, "%7.3f KWh", kiloFormat),
          "MWh": View({}, "%7.3f MWh", megaFormat),
          "dBm": View({}, "%4.1f dBm"),
+         "int": View({}, "%d", intFormat),
          "sequence": View({0:"Stopped", 1:"Running"}, "%s", None, {0:"Stop", 1:"Run"}),
          "task": View({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"})
          })
