@@ -25,7 +25,7 @@ import png
 from ha import *
 from ha.ui.webViews import *
 
-# set temp color based on temp value
+# select a text color based on temperature value
 def tempColor(tempString):
     try:
         temp = int(tempString.split(" ")[0])
@@ -79,10 +79,11 @@ def rgb2fb(rgbPixMap):
 def color(colorName):
     return rgb2fb(webcolors.name_to_rgb(colorName))
 
-# return printable string of attribute bvalues
+# return printable string of attribute values
 def printAttrs(style):
     return ["%s: %s"%(attr, style.__dict__[attr]) for attr in ["name", "xPos", "yPos", "width", "height", "margin"]]
-        
+
+# a Display manages the device upon which the UI is presented        
 class Display(object):
     def __init__(self, name, displayDevice="/dev/fb0", inputDevice="/dev/input/event0", views=None):
         self.name = name
@@ -106,6 +107,7 @@ class Display(object):
         self.curYpos = 0
 
     def start(self, block=False):
+        # thread to handle Button inputs
         def InputThread():
             for event in self.inputDevice.read_loop():
 #                print event.__str__()
@@ -126,21 +128,12 @@ class Display(object):
                         self.curYpos = event.value
         inputThread = threading.Thread(target=InputThread)
         inputThread.start()
-        
+
+        # thread to periodically update Element values
         def UpdateThread():
             while True:
-                for resourceElement in self.resourceElements:
-                    resource = resourceElement[0]
-                    element = resourceElement[1]
-                    debug("debugUpdate", self.name, "Display.update()", element.name, resource.name)
-                    resState = self.views.getViewState(resource)
-                    element.setValue(resState)
-                    if resource.type in tempTypes:
-                        element.fgColor = rgb2fb(eval(tempColor(resState).lstrip("rgb")))
-                    elif resource.type == "diagCode":
-                        if resState[0] != "0":
-                            element.setValue(resState[0:8])
-                            element.fgColor = color("OrangeRed")
+                for element in self.resourceElements:
+                    debug("debugUpdate", self.name, "Display.update()", element.name)
                     element.render(self)
                 time.sleep(updateInterval)
         updateThread = threading.Thread(target=UpdateThread)
@@ -150,8 +143,9 @@ class Display(object):
             while True:
                 time.sleep(1)
 
-    def addResource(self, resource, element):
-        self.resourceElements.append((resource, element))
+    def addElement(self, element):
+        debug("debugUpdate", self.name, "Display.addElement()", element.name)
+        self.resourceElements.append((element))
 
     def findButton(self, xPos, yPos):
         for resourceElement in self.resourceElements:
@@ -161,19 +155,23 @@ class Display(object):
                    (yPos >= button.yPos) and (yPos <= button.yPos+button.height):
                     return resourceElement
         return None
-    
+
+    # clear the display
     def clear(self, color):
         with self.lock:
             self.FrameBuffer.fill(self.frameBuffer, color)
 
+    # fill an area of the display with a solid color
     def fill(self, xPos, yPos, width, height, color):
         with self.lock:
             self.FrameBuffer.setPixMap(self.frameBuffer, xPos, yPos, width, height, color*width*height)
 
+    # render a pixmap on the display
     def renderPixMap(self, xPos, yPos, width, height, pixMap):
         with self.lock:
             self.FrameBuffer.setPixMap(self.frameBuffer, xPos, yPos, width, height, pixMap)
-    
+
+    # render text on the display
     def renderChars(self, face, fontSize, chars, xPos, yPos, xOffset, yOffset, fgColor, bgColor, width, height):
         with self.lock:
             x = xOffset
@@ -229,6 +227,9 @@ class Element(object):
     def setPos(self, xPos, yPos):
         self.xPos = xPos
         self.yPos = yPos
+
+    def getSizePos(self):
+        return (self.xPos, self.yPos, self.width, self.height)
 
     def render(self, display, style=None):
         debug("debugDisplay", self.name, "Element.render()", printAttrs(self))
@@ -299,6 +300,7 @@ class Span(Container):
         self.width = max(self.width, width)
         debug("debugArrange", self.name, "arrange()", printAttrs(self))
 
+# an Element containing text
 # https://github.com/rougier/freetype-py/
 # http://freetype-py.readthedocs.io/en/latest/glyph_slot.html
 # https://www.freetype.org/freetype2/docs/tutorial/step2.html#section-4
@@ -306,18 +308,29 @@ class Text(Element):
     def __init__(self, name, style=None, value="", display=None, resource=None, **args):
         Element.__init__(self, name, style, **args)
         self.value = value
+        self.display = display
+        self.resource = resource
         if display and resource:
-            display.addResource(resource, self)
+            display.addElement(self)
         
     def setValue(self, value):
         self.value = value
 
-    def render(self, display, style=None, value=""):
+    def render(self, display, style=None, value=None):
+        if self.resource:
+            resState = display.views.getViewState(self.resource)
+            self.setValue(resState)
+            if self.resource.type in tempTypes:
+                self.fgColor = rgb2fb(eval(tempColor(resState).lstrip("rgb")))
+            elif self.resource.type == "diagCode":
+                if resState[0] != "0":
+                    self.setValue(resState[0:8])
+                    self.fgColor = color("OrangeRed")
         renderStyle = copy.copy(self)
         if style:
             renderStyle.__dict__.update(style.__dict__)
         debug("debugDisplay", self.name, "Text.render()", printAttrs(renderStyle))
-        if value == "":
+        if not value:
             value = self.value
         display.renderChars(renderStyle.face, renderStyle.fontSize, value, 
             self.xPos+self.margin, self.yPos+self.margin, 
@@ -325,19 +338,22 @@ class Text(Element):
             renderStyle.fgColor, renderStyle.bgColor,
             renderStyle.width-2*renderStyle.margin, renderStyle.height-2*renderStyle.margin)
         del(renderStyle)
-        
+
+# an Element containing a static image        
 class Image(Element):
     def __init__(self, name, style=None, imageFile=None, value="", display=None, resource=None, **args):
         Element.__init__(self, name, style, **args)
-        self.value=value
+        debug("debugImage", self.name, "Image()", self.name, display.name, resource.name)
+        self.imageFile = imageFile
+        self.value = value
+        self.display = display
         self.resource = resource
         if display and resource:
-            display.addResource(resource, self)
-        if imageFile:
-            self.imageFile = imageFile
-        elif resource:
-            self.imageFile = resource.interface.fileName
-        self.readImage()
+            display.addElement(self)
+        if self.imageFile:
+            self.readImage()
+        else:
+            self.image = None
         
     def readImage(self):
         debug("debugImage", self.name, "Image.readImage()", self.imageFile)
@@ -358,13 +374,42 @@ class Image(Element):
         if style:
             renderStyle.__dict__.update(style.__dict__)
         debug("debugDisplay", self.name, "Image.render()", printAttrs(renderStyle))
-        if image == None:
-            self.readImage()
+        if self.resource:
+            self.image = self.resource.getState()
+        elif image == None:
+            if self.imageFile:
+                self.readImage()
         display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin, 
                                   self.width-2*self.margin, self.height-2*self.margin, 
                                   self.image)
         del(renderStyle)
 
+# display a compass image based on the value of a heading
+class CompassImage(Element):
+    def __init__(self, name, style, hdgSensor=None, compassImgFileNames=None, display=None, resource=None, **args):
+        Element.__init__(self, name, style, **args)
+        self.hdgSensor = hdgSensor
+        self.compassImgs = []
+        for compassImgFileName in compassImgFileNames:
+            debug("debugCompass", "reading", compassImgFileName)
+            with open(compassImgFileName) as compassImgFile:
+                pngReader = png.Reader(compassImgFileName)
+                pngImage = pngReader.read()
+                self.width = pngImage[0] + 2*self.style.margin
+                self.height = pngImage[1] + 2*self.style.margin
+                self.compassImgs.append(png2fb(pngImage))
+        self.display = display
+        self.resource = resource
+        if display and resource:
+            display.addElement(self)
+
+    def render(self, display):
+        idx = int((self.hdgSensor.getState()+11.25)%360/22.5)
+        debug("debugCompass", "CompassImage.render()", idx)
+        display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin, 
+                                  self.width-2*self.margin, self.height-2*self.margin, 
+                                  self.compassImgs[idx])
+            
 # a Button is a Container that receives input        
 class Button(Container):
     def __init__(self, name, style=None, content=None, onPress=None, onRelease=None, altContent=None, **args):
