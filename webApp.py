@@ -240,13 +240,13 @@ if __name__ == "__main__":
     # light groups
     porchLights = ControlGroup("porchLights", ["frontLights",
                                                "sculptureLights",
+                                               "holidayLights",
                                                "backLights",
                                                "garageBackDoorLight"],
                                                resources=resources, 
                                                type="light", group="Lights", label="Porch lights")
     xmasLights = ControlGroup("xmasLights", ["xmasTree",
                                                 "xmasCowTree",
-                                                "xmasFrontLights",
                                                 "xmasBackLights"],
                                                resources=resources, 
                                                type="light", group=["Lights", "Xmas"], label="Xmas lights")
@@ -265,7 +265,7 @@ if __name__ == "__main__":
                                                "trashLights",
                                                "xmasTree",
                                                "xmasCowTree",
-                                               "xmasFrontLights",
+                                               "holidayLights",
                                                "xmasBackLights"],
                                                resources=resources, 
                                                type="light", group="Lights", label="Outside lights")
