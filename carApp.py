@@ -11,7 +11,8 @@ inputDevice = "/dev/input/event0"
 fontName = "FreeSansBold.ttf"
 fontPath = "/root/.fonts/"
 imageDir = "/root/images/"
-dashCamDir = "/root/data/photos/"
+dashCamImageDir = "/root/data/photos/"
+dashCamVideoDir = "/root/data/videos/"
 dashCamInterval = 10
 
 import time
@@ -31,16 +32,30 @@ resources = None
 stateChangeEvent = threading.Event()
 resourceLock = threading.Lock()
 compassImgFileNames = ["/root/compass/hdg "+hdg+".png" for hdg in ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]]
+dashCam=picamera.PiCamera()
+dashCam.resolution = (3280, 2464)
 
-# dash cam thread
-def dashCamVideo():
-    camera=picamera.PiCamera()
-    camera.resolution = (3280, 2464)
-    camera.start_preview(fullscreen=False, window = (400, 90, 400, 300))
-    while True:
-        time.sleep(dashCamInterval)
-        camera.capture(dashCamDir+time.strftime("%Y%m%d%H%M%S")+".jpg")
-    camera.stop_preview()
+# dash cam preview
+def dashCamPreview(container):
+    dashCam.start_preview(fullscreen=False, window = container.getSizePos())
+
+# dash cam capture
+def dashCamCapture():
+    dashCam.capture(dashCamImageDir+time.strftime("%Y%m%d%H%M%S")+".jpg")
+    
+# dash cam start recording
+def dashCamStartRec():
+    dashCam.resolution = (1920, 1080)
+    dashCam.start_recording(dashCamVideoDir+time.strftime("%Y%m%d%H%M%S")+".h264")
+#    dashCam.annotate_size = 120 
+#    dashCam.annotate_foreground = picamera.Color('red')
+#    dashCam.annotate_text = time.strftime("%Y %m %d %H:%M:%S")
+    
+# dash cam stop recording
+def dashCamStopRec():
+    dashCam.stop_recording()
+    dashCam.resolution = (3280, 2464)
+#    dashCam.annotate_text = ""
     
 #def dashCamImage():
 #    while True:
@@ -67,7 +82,7 @@ if __name__ == "__main__":
     timeZoneResource = Sensor("timeZone", timeInterface, "timeZoneName", label="Time zone")
 
     # GPS sensors
-    headingSensor = Sensor("heading", gpsInterface, "Hdg", label="Heading", type="int")
+    headingSensor = Sensor("heading", gpsInterface, "Hdg", label="Heading", type="int3")
     velocitySensors = [
         Sensor("speed", gpsInterface, "Speed", label="Speed", type="MPH"),
         headingSensor,
@@ -121,16 +136,16 @@ if __name__ == "__main__":
     velocityStyle = Style("velocityStyle", valueStyle, width=130)
     compassStyle = Style("compassStyle", defaultStyle, width=100, height=50)
     containerStyle = Style("containerStyle", defaultStyle)
-#    audioStyle = Style("audioButton", defaultStyle, margin=2)
     buttonStyle = Style("buttonStyle", defaultStyle, width=100, height=90, margin=2, bgColor=color("White"))
-#    buttonTextStyle = Style("buttonText", buttonStyle, fontSize=36, bgColor=color("white"), fgColor=color("black"), padding=8)
-#    buttonAltStyle = Style("buttonAlt", buttonTextStyle, bgColor=color("blue"), fgColor=color("white"))
+    buttonTextStyle = Style("buttonText", textStyle, fontSize=18, bgColor=color("black"), fgColor=color("white"), padding=8)
+    buttonAltStyle = Style("buttonAlt", buttonTextStyle, bgColor=color("blue"), fgColor=color("white"))
         
     # button callback routines
     def doNothing(button, display):
         return
 
     # layout
+    dashCamWindow = Div("dashCamWindow", containerStyle, width=396, height=296, margin=2)
     screen = Div("screen", containerStyle, [
                     Span("heading", containerStyle, [
                             Text("time", timeStyle, display=display, resource=timeResource),
@@ -139,28 +154,29 @@ if __name__ == "__main__":
                             Div("text", containerStyle, [
                                 Text("dayOfWeek", dateStyle, display=display, resource=dayOfWeekResource), 
                                 Text("date", dateStyle, display=display, resource=dateResource),
-                            ]),
+                                ]),
                             Text("temp", tempStyle, display=display, resource=outsideTemp),
-                        ]),
-                    Div("sensors", containerStyle, [
-                        Span("velocity", containerStyle, [
-                            Div("velocitySensors", containerStyle, [
+                            ]),
+                    Span("body", containerStyle, [
+                        Div("sensors", containerStyle, [
+                            Span("velocity", containerStyle, [
+                                Div("velocitySensors", containerStyle, [
+                                    Span(sensor.name, containerStyle, [
+                                        Text(sensor.name+"Label", labelStyle, sensor.label),
+                                        Text(sensor.name+"Value", velocityStyle, display=display, resource=sensor),
+                                        ],
+                                    )
+                                    for sensor in velocitySensors]),
+                                CompassImage("compassImage", defaultStyle, headingSensor, compassImgFileNames, display=display, resource=headingSensor),
+                                ]),
+                            Div("positionSensors", containerStyle, [
                                 Span(sensor.name, containerStyle, [
                                     Text(sensor.name+"Label", labelStyle, sensor.label),
-                                    Text(sensor.name+"Value", velocityStyle, display=display, resource=sensor),
+                                    Text(sensor.name+"Value", valueStyle, display=display, resource=sensor),
                                     ],
                                 )
-                                for sensor in velocitySensors]),
-                            CompassImage("compassImage", defaultStyle, headingSensor, compassImgFileNames, display=display, resource=headingSensor),
+                                for sensor in positionSensors]),
                             ]),
-                        Div("positionSensors", containerStyle, [
-                            Span(sensor.name, containerStyle, [
-                                Text(sensor.name+"Label", labelStyle, sensor.label),
-                                Text(sensor.name+"Value", valueStyle, display=display, resource=sensor),
-                                ],
-                            )
-                            for sensor in positionSensors]),
-                        Div("dashCamPreview", containerStyle),
 #                        Div("engineSensors", containerStyle, [
 #                            Span(sensor.name, containerStyle, [
 #                                Text(sensor.name+"Label", labelStyle, sensor.label),
@@ -169,49 +185,52 @@ if __name__ == "__main__":
 #                            )
 #                            for sensor in engineSensors]),
 #                        Image("dashCam", display=display, resource=dashCam),
-                        ], width=400, height=300),
-#                    Span("buttons", containerStyle, [
-#                        Button("volDownButton", buttonStyle,
-#                            content=Image("volDownImage", imageFile=imageDir+"icons_volumedown-01.png"),
+                        dashCamWindow,
+                        ]),
+                    Span("buttons", containerStyle, [
+                        Button("captureButton", buttonStyle, display=display,
+                            content=Text("button0Content", buttonTextStyle, "Capture", width=96, height=86),
+                            onPress=dashCamCapture,
 #                            altContent=Image("volDownImageInvert", imageFile=imageDir+"icons_volumedown-02.png"),
-#                            ),
-#                        Button("volUpButton", buttonStyle,
-#                            content=Image("volUpImage", imageFile=imageDir+"icons_volumeup-01.png"),
+                            ),
+                        Button("startRecButton", buttonStyle, display=display,
+                            content=Text("button1Content", buttonTextStyle, "Start rec", width=96, height=86),
+                            onPress=dashCamStartRec,
 #                            altContent=Image("volUpImageInvert", imageFile=imageDir+"icons_volumeup-02.png"),
-#                            ),
-#                        Button("rewButton", buttonStyle,
-#                            content=Image("rewImage", imageFile=imageDir+"icons_rew-01.png"),
+                            ),
+                        Button("stopRecButton", buttonStyle, display=display,
+                            content=Text("button2Content", buttonTextStyle, "Stop rec", width=96, height=86),
+                            onPress=dashCamStopRec,
 #                            altContent=Image("rewImageInvert", imageFile=imageDir+"icons_rew-02.png"),
-#                            ),
-#                        Button("playButton", buttonStyle,
-#                            content=Image("playImage", imageFile=imageDir+"icons_play-01.png"),
+                            ),
+                        Button("button3", buttonStyle, display=display,
+                            content=Text("button3Content", buttonTextStyle, "", width=96, height=86),
 #                            altContent=Image("playImageInvert", imageFile=imageDir+"icons_play-02.png"),
-#                            ),
-#                        Button("pauseButton", buttonStyle,
-#                            content=Image("pauseImage", imageFile=imageDir+"icons_pause-01.png"),
+                            ),
+                        Button("button4", buttonStyle, display=display,
+                            content=Text("button4Content", buttonTextStyle, "", width=96, height=86),
 #                            altContent=Image("pauseImageInvert", imageFile=imageDir+"icons_pause-02.png"),
-#                            ),
-#                        Button("ffButton", buttonStyle,
-#                            content=Image("ffImage", imageFile=imageDir+"icons_ff-01.png"),
+                            ),
+                        Button("button5", buttonStyle, display=display,
+                            content=Text("button5Content", buttonTextStyle, "", width=96, height=86),
 #                            altContent=Image("ffImageInvert", imageFile=imageDir+"icons_ff-02.png"),
-#                            ),
-#                        Button("sourceButton", buttonStyle,
-#                            content=Image("sourceImage", imageFile=imageDir+"icons_source-01.png"),
+                            ),
+                        Button("button6", buttonStyle, display=display,
+                            content=Text("button6Content", buttonTextStyle, "", width=96, height=86),
 #                            altContent=Image("sourceImageInvert", imageFile=imageDir+"icons_source-02.png"),
-#                            ),
-#                        Button("wifiButton", buttonStyle,
-#                            content=Image("wifiImage", imageFile=imageDir+"icons_wifi-01.png"),
+                            ),
+                        Button("wifiButton", buttonStyle, display=display,
+                            content=Text("button7Content", buttonTextStyle, "WiFi", width=96, height=86),
 #                            altContent=Image("wifiImageInvert", imageFile=imageDir+"icons_wifi-02.png"),
-#                            ),
-#                        ]),
+                            ),
+                        ]),
                      ])
 
     screen.arrange()
     screen.render(display)
 
     # start the dash cam
-    dashCamThread = threading.Thread(target=dashCamVideo)
-    dashCamThread.start()
+    dashCamPreview(dashCamWindow)
 
     # start the display        
     display.start(block=True)
