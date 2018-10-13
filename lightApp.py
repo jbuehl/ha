@@ -2,7 +2,9 @@
 from ha import *
 #from ha.interfaces.gpioInterface import *
 #from ha.interfaces.ledInterface import *
-from ha.interfaces.holidayLightInterface import *
+from ha.interfaces.neopixelInterface import *
+from ha.interfaces.fileInterface import *
+from ha.controls.holidayLightControl import *
 from ha.rest.restServer import *
 
 stateChangeEvent = threading.Event()
@@ -13,23 +15,29 @@ if __name__ == "__main__":
     # Interfaces
 #    gpioInterface = GPIOInterface("gpioInterface", event=stateChangeEvent)
 #    ledInterface = LedInterface("ledInterface", gpioInterface)
-    holidayLightInterface = HolidayLightInterface("holidayLightInterface", None, length=292, repeat=5)
+    neopixelInterface = NeopixelInterface("neopixelInterface", None, length=343)
+    configData = FileInterface("configData", fileName=stateDir+"lights.conf", event=stateChangeEvent)
     
     # Lights
 #    sculptureLights = Control("sculptureLights", ledInterface, 18, type="led", group="Lights", label="Sculpture light")
-    holidayLights = Control("holidayLights", holidayLightInterface, "state", type="light", group="Lights", label="Holiday lights")
-    holidayLightPattern = Control("holidayLightPattern", holidayLightInterface, "pattern")
-    holidayLightAnimation = Control("holidayLightAnimation", holidayLightInterface, "animation")
+    holidayLightPattern = Control("holidayLightPattern", configData, "pattern", group="Lights", label="Holiday light pattern")
+    holidayLightAnimation = Control("holidayLightAnimation", configData, "animation", group="Lights", label="Holiday light animation")
+    holidayLights = HolidayLightControl("holidayLights", neopixelInterface, patternControl=holidayLightPattern, animationControl=holidayLightAnimation,
+                                        type="light", group="Lights", label="Holiday lights")
 
     # Resources
-    resources = Collection("resources", resources=[
+    resources = Collection("resources", resources=[holidayLights, holidayLightPattern, holidayLightAnimation,
 #                                                   sculptureLights, 
-                                                   holidayLights, holidayLightPattern, holidayLightAnimation,
                                                    ])
     restServer = RestServer("lights", resources, event=stateChangeEvent, label="Lights")
 
     # Start interfaces
 #    gpioInterface.start()
-    holidayLightInterface.start()
+    configData.start()
+    if not holidayLightPattern.getState():
+        holidayLightPattern.setState(holidayLightPatternDefault)
+    if not holidayLightAnimation.getState():
+        holidayLightAnimation.setState(holidayLightAnimationDefault)
+    neopixelInterface.start()
     restServer.start()
 
