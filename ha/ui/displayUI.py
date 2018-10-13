@@ -99,7 +99,7 @@ class Display(object):
         self.bitsPerPix = self.FrameBuffer.getBitsPerPix(self.frameBuffer)
         self.lock = threading.Lock()
         self.buttons = []
-        self.resourceElements = []
+        self.elements = []
 
     def initInput(self, inputDeviceName):
         self.inputDevice = evdev.InputDevice(inputDeviceName)
@@ -110,17 +110,15 @@ class Display(object):
         # thread to handle Button inputs
         def InputThread():
             for event in self.inputDevice.read_loop():
-#                print event.__str__()
-#                print evdev.util.categorize(event)
+                debug("debugButton", event.__str__(), evdev.util.categorize(event))
                 if event.type == 1:         # BTN_TOUCH
                     if event.code == 330:     
-                        resourceElement = self.findButton(self.curXpos, self.curYpos)
-                        if event.value == 0:    # up
-                            if resourceElement:
-                                resourceElement[1].release(self, resourceElement[0])
-                        elif event.value == 1:   # down
-                            if resourceElement:
-                                resourceElement[1].press(self, resourceElement[0])
+                        element = self.findButton(self.curXpos, self.curYpos)
+                        if element:
+                            if event.value == 0:    # up
+                                element.release(self)
+                            elif event.value == 1:   # down
+                                element.press(self)
                 elif event.type == 3:
                     if (event.code == 0) or (event.code == 53):     # ABS_X or ABS_MT_POSITION_X 
                         self.curXpos = event.value
@@ -132,9 +130,10 @@ class Display(object):
         # thread to periodically update Element values
         def UpdateThread():
             while True:
-                for element in self.resourceElements:
+                for element in self.elements:
                     debug("debugUpdate", self.name, "Display.update()", element.name)
-                    element.render(self)
+                    if element.resource:
+                        element.render(self)
                 time.sleep(updateInterval)
         updateThread = threading.Thread(target=UpdateThread)
         updateThread.start()
@@ -145,15 +144,14 @@ class Display(object):
 
     def addElement(self, element):
         debug("debugUpdate", self.name, "Display.addElement()", element.name)
-        self.resourceElements.append((element))
+        self.elements.append((element))
 
     def findButton(self, xPos, yPos):
-        for resourceElement in self.resourceElements:
-            if resourceElement[1].__class__.__name__ == "Button":
-                button = resourceElement[1]
-                if (xPos >= button.xPos) and (xPos <= button.xPos+button.width) and \
-                   (yPos >= button.yPos) and (yPos <= button.yPos+button.height):
-                    return resourceElement
+        for element in self.elements:
+            if element.__class__.__name__ == "Button":
+                if (xPos >= element.xPos) and (xPos <= element.xPos+element.width) and \
+                   (yPos >= element.yPos) and (yPos <= element.yPos+element.height):
+                    return element
         return None
 
     # clear the display
@@ -412,12 +410,15 @@ class CompassImage(Element):
             
 # a Button is a Container that receives input        
 class Button(Container):
-    def __init__(self, name, style=None, content=None, onPress=None, onRelease=None, altContent=None, **args):
+    def __init__(self, name, style=None, content=None, onPress=None, onRelease=None, altContent=None, display=None, **args):
         Container.__init__(self, name, style, [content, altContent], **args)
         self.content = content
         self.onPress = onPress
         self.onRelease = onRelease
         self.altContent = altContent
+        self.resource = None
+        if display:
+            display.addElement(self)
 
     def arrange(self):
         # set the position of the content
@@ -442,16 +443,15 @@ class Button(Container):
         self.clear(display)
         self.content.render(display)
 
-    def press(self, display, resource):
+    def press(self, display):
         if self.onPress:
-            self.onPress(self, display)
+            self.onPress()
         elif self.altContent:
-            resource.setViewState(self.value, display.views)
             self.altContent.render(display)
             
-    def release(self, display, resource):
+    def release(self, display):
         if self.onRelease:
-            self.onRelease(self, display)
+            self.onRelease()
         else:
             self.render(display)
 
