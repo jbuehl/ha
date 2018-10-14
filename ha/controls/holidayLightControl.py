@@ -8,9 +8,8 @@ from ha import *
 
 # define a segment of a string of lights
 class Segment(object):
-    def __init__(self, name, strip, start, length, pattern=None, animation=None):
+    def __init__(self, name, start, length, pattern=None, animation=None):
         self.name = name
-        self.strip = strip
         self.start = start
         self.length = length
         if pattern:
@@ -30,9 +29,9 @@ class Segment(object):
             self.pixels[l] = pattern[l%len(pattern)]
 
     # display the segment
-    def display(self):
+    def display(self, strip):
         for l in range(self.length):
-            self.strip.write(self.start+l, self.pixels[l])
+            strip.write(self.start+l, self.pixels[l])
 
     # animate the segment
     def animate(self):
@@ -167,7 +166,7 @@ class HolidayLightControl(Control):
             debug("debugHolidayLights", self.name, "runDisplay started", "pattern:", self.pattern, "animation:", self.animation)
             for segment in self.segments:
                 segment.fill()
-                segment.display()
+                segment.display(self.interface)
             self.interface.show()
             shift = 1
 #            last = 0
@@ -178,12 +177,12 @@ class HolidayLightControl(Control):
 #                last = now
                 for segment in self.segments:
                     segment.animate()
-                    segment.display()
+                    segment.display(self.interface)
                 self.interface.show()
             debug("debugHolidayLights", self.name, "runDisplay terminated")
             for segment in self.segments:
                 segment.fill([off])
-                segment.display()
+                segment.display(self.interface)
             self.interface.show()
         if value:
             displayThread = threading.Thread(target=runDisplay)
