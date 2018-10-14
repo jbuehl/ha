@@ -3,83 +3,116 @@ holidayLightAnimationDefault = "solid"
 
 import time
 import threading
+import random
 from ha import *
 
-# colors
-def color(r, g, b):
-    return 65536*r+256*g+b
-    
-on = [color(255,255,255)]
-off = [color(0,0,0)]
+# define a segment of a string of lights
+class Segment(object):
+    def __init__(self, name, strip, start, length, pattern=None, animation=None):
+        self.name = name
+        self.strip = strip
+        self.start = start
+        self.length = length
+        if pattern:
+            self.pattern = pattern
+        else:
+            self.pattern = [0]
+        if animation:
+            self.animation = animation
+        else:
+            self.animation = "solid"
+        debug("debugHolidayLights", "segment", name, start, length, self.pattern, self.animation)
+        self.pixels = [0]*length
+        self.animationCount = 0
+        self.fadeFactor = 10
+        self.fadeIncr = -1
 
-white = [color(255,191,127)]
-pink = [color(255,63,63)]
-red = [color(255,0,0)]
-orange = [color(255,63,0)]
-yellow = [color(255,127,0)]
-green = [color(0,255,0)]
-blue = [color(0,0,127)]
-purple = [color(63,0,63)]
-cyan = [color(0,255,255)]
-magenta = [color(255,0,63)]
-rust = [color(63,7,0)]
+    # fill the segment with a pattern
+    def fill(self, pattern=None):
+        if not pattern:
+            pattern = self.pattern
+        debug("debugHolidayLights", "segment", self.name, "fill", pattern)
+        for l in range(self.length):
+            self.pixels[l] = pattern[l%len(pattern)]
 
-# dictionary of patterns
-patterns = {"on": on,
-            "off": off,
-            "white": white,
-            "pink": pink,
-            "red": red,
-            "orange": orange,
-            "yellow": yellow,
-            "green": green,
-            "blue": blue,
-            "purple": purple,
-            "cyan": cyan,
-            "magenta": magenta,
-            "rust": rust,
-            "xmas": 3*red+3*green,
-            "hanukkah": 3*blue+3*white,
-            "halloween": 2*orange+rust+purple+rust,
-            "valentines": white+pink+red+pink,
-            "stpatricks": green,
-            "mardigras": purple+yellow+green,
-            "july": 3*red+3*white+3*blue,
-            "cincodemayo": green+white+red,
-            "easter": yellow+blue+green+cyan+magenta,
-            "sweden": blue+yellow,
-            "fall": red+orange+rust+orange,
-            "pride": pink+red+orange+yellow+green+blue+purple,
-            "holi": red+yellow+blue+green+orange+purple+pink+magenta,
-            "mayday": red,
-            "columbus": green+white+red,
-            "mlk": white+red+yellow+rust,
-            }
+    # display the segment
+    def display(self):
+        for l in range(self.length):
+            self.strip.write(self.start+l, self.pixels[l])
 
-# animation types
-animations = ["solid", "crawl", "sparkle", "flicker", "blink", "fade"]
+    # shift the pattern by the specified number of pixels
+    def shift(self, n):
+        debug("debugHolidayLights", "segment", self.name, "shift", n)
+        if n > 0:   # shift right
+            pixels = self.pixels[-n:]
+            self.pixels = pixels+self.pixels[:-n]
+        else:       # shift left
+            pixels = self.pixels[:-n]
+            self.pixels = self.pixels[-n:]+pixels
 
-def display(strip, length, pattern, repeat=1, shift=0):
-    debug("debugHolidayLights", "display", "strip:", strip.name, "pattern:", str(pattern))
-    p = shift
-    while p < length+shift:
-        for c in range(len(pattern)):
-            for r in range(repeat):
-                if p < length+shift:
-                    strip.write(p%length, pattern[c])
-                    p += 1
-    strip.show()
+    # turn off random pixels based on a culling frequency between 0 and 1
+    def decimate(self, factor):
+        debug("debugHolidayLights", "segment", self.name, "decimate", factor)
+        for p in range(len(self.pixels)):
+            if random.random() < factor:
+                self.pixels[p] = 0
 
+    # dim the pattern by a specified factor
+    def dim(self, factor):
+        for p in range(len(self.pixels)):
+            pixel = self.pixels[p]
+            r = int(factor * ((pixel>>16)&0xff))
+            g = int(factor * ((pixel>>8)&0xff))
+            b = int(factor * (pixel&0xff))
+            self.pixels[p] = (r<<16)+(g<<8)+b
+                               
+    # define an animation cycle
+    def animate(self, animation=None):
+        if not animation:
+            animation = self.animation
+        if len(animation) > 1:
+            if self.animationCount == 0:        
+                if self.animation[0] == 1: # crawl
+                    if self.animationCount == 0:
+                        self.shift(self.animation[2])
+                elif self.animation[0] == 2: # sparkle
+                    self.fill()
+                    self.decimate(self.animation[2])
+                elif self.animation[0] == 3: # flicker
+                    if random.random() < self.animation[2]:
+                        self.fill()
+                    else:
+                        self.fill([0])
+                elif self.animation[0] == 4: # blink
+                    if self.pixels[0] == 0:
+                        self.fill()
+                    else:
+                        self.fill([0])
+                elif self.animation[0] == 5: # fade
+                    self.fill()
+                    self.dim(float(self.fadeFactor)/10)
+                    self.fadeFactor += self.fadeIncr
+                    if (self.fadeFactor == 0) or (self.fadeFactor == 10):
+                        self.fadeIncr = -self.fadeIncr
+            self.animationCount += 1
+            if self.animationCount == animation[1]:
+                self.animationCount = 0
      
 class HolidayLightControl(Control):
-    def __init__(self, name, interface, patternControl=None, animationControl=None, 
+    def __init__(self, name, interface, patterns={}, animations=[], patternControl=None, animationControl=None, segments=None,
                     addr=None, group="", type="control", location=None, label="", event=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, event=event)
         self.className = "Control"
+        self.patterns = patterns
+        self.animations = animations
         self.patternControl = patternControl
         self.pattern = holidayLightPatternDefault
         self.animationControl = animationControl
         self.animation = holidayLightAnimationDefault
+        if segments:
+            self.segments = segments
+        else:
+            self.segments = [Segment(self.interface, 0, self.interface.length)]
         self.running = False
 
     def getState(self):
@@ -93,15 +126,26 @@ class HolidayLightControl(Control):
             if self.animationControl:
                 self.setAnimation(self.animationControl.getState())
             debug("debugHolidayLights", self.name, "runDisplay started", "pattern:", self.pattern, "animation:", self.animation)
-            display(self.interface, self.interface.length, patterns[self.pattern], 1)
+            for segment in self.segments:
+                segment.fill()
+                segment.display()
+            self.interface.show()
             shift = 1
+            last = 0
             while self.running:
-                time.sleep(.1)
-                if self.animation == "crawl":
-                    display(self.interface, self.interface.length, patterns[self.pattern], 1, shift)
-                    shift += 1
+#                time.sleep(.1)
+#                now = time.time()
+#                debug("debugEnable", self.name, now-last)
+#                last = now
+                for segment in self.segments:
+                    segment.animate()
+                    segment.display()
+                self.interface.show()
             debug("debugHolidayLights", self.name, "runDisplay terminated")
-            display(self.interface, self.interface.length, patterns["off"])
+            for segment in self.segments:
+                segment.fill(self.patterns["off"])
+                segment.display()
+            self.interface.show()
         if value:
             displayThread = threading.Thread(target=runDisplay)
             self.running = True
@@ -110,13 +154,13 @@ class HolidayLightControl(Control):
            self.running = False
                 
     def setPattern(self, value):
-        if value in patterns.keys():
+        if value in self.patterns.keys():
             self.pattern = value
         else:
             self.pattern = "off"
             
     def setAnimation(self, value):
-        if value in animations:
+        if value in self.animations:
             self.animation = value
         else:
             self.animation = "solid"
