@@ -17,15 +17,9 @@ class Segment(object):
             self.pattern = pattern
         else:
             self.pattern = [0]
-        if animation:
-            self.animation = animation
-        else:
-            self.animation = "solid"
+        self.animation = animation
         debug("debugHolidayLights", "segment", name, start, length, self.pattern, self.animation)
         self.pixels = [0]*length
-        self.animationCount = 0
-        self.fadeFactor = 10
-        self.fadeIncr = -1
 
     # fill the segment with a pattern
     def fill(self, pattern=None):
@@ -40,6 +34,11 @@ class Segment(object):
         for l in range(self.length):
             self.strip.write(self.start+l, self.pixels[l])
 
+    # animate the segment
+    def animate(self):
+        if self.animation:
+            self.animation.animate(self)
+            
     # shift the pattern by the specified number of pixels
     def shift(self, n):
         debug("debugHolidayLights", "segment", self.name, "shift", n)
@@ -65,49 +64,89 @@ class Segment(object):
             g = int(factor * ((pixel>>8)&0xff))
             b = int(factor * (pixel&0xff))
             self.pixels[p] = (r<<16)+(g<<8)+b
-                               
+
+# define an animation for a segment
+class Animation(object):
+    def __init__(self, name, rate):
+        self.name = name
+        self.rate = rate
+        self.animationCount = 0
+        
     # define an animation cycle
-    def animate(self, animation=None):
-        if not animation:
-            animation = self.animation
-        if len(animation) > 1:
-            if self.animationCount == 0:        
-                if self.animation[0] == 1: # crawl
-                    if self.animationCount == 0:
-                        self.shift(self.animation[2])
-                elif self.animation[0] == 2: # sparkle
-                    self.fill()
-                    self.decimate(self.animation[2])
-                elif self.animation[0] == 3: # flicker
-                    if random.random() < self.animation[2]:
-                        self.fill()
-                    else:
-                        self.fill([0])
-                elif self.animation[0] == 4: # blink
-                    if self.pixels[0] == 0:
-                        self.fill()
-                    else:
-                        self.fill([0])
-                elif self.animation[0] == 5: # fade
-                    self.fill()
-                    self.dim(float(self.fadeFactor)/10)
-                    self.fadeFactor += self.fadeIncr
-                    if (self.fadeFactor == 0) or (self.fadeFactor == 10):
-                        self.fadeIncr = -self.fadeIncr
-            self.animationCount += 1
-            if self.animationCount == animation[1]:
-                self.animationCount = 0
+    def animate(self, segment):
+        self.segment = segment
+        if self.animationCount == 0:
+            self.cycle()        
+        self.animationCount += 1
+        if self.animationCount == self.rate:
+            self.animationCount = 0
+
+class CrawlAnimation(Animation):
+    def __init__(self, name="crawl", rate=3, direction=1):
+        Animation.__init__(self, name, rate)
+        self.direction = direction
+                                    
+    def cycle(self):                                    
+        self.segment.shift(self.direction)
+
+class SparkleAnimation(Animation):
+    def __init__(self, name="sparkle", rate=3, factor=.7):
+        Animation.__init__(self, name, rate)
+        self.factor = factor
+                                    
+    def cycle(self):                                    
+        self.segment.fill()
+        self.segment.decimate(self.factor)
+
+class FlickerAnimation(Animation):
+    def __init__(self, name="flicker", rate=1, factor=.7):
+        Animation.__init__(self, name, rate)
+        self.factor = factor
+                                    
+    def cycle(self):                                    
+        if random.random() < self.factor:
+            self.segment.fill()
+        else:
+            self.segment.fill([0])
+
+class BlinkAnimation(Animation):
+    def __init__(self, name="blink", rate=15):
+        Animation.__init__(self, name, rate)
+        self.state = True
+                                    
+    def cycle(self):                                    
+        if self.state:
+            self.segment.fill([off])
+            self.state = False
+        else:
+            self.segment.fill()
+            self.state = True
+
+class FadeAnimation(Animation):
+    def __init__(self, name="fade", rate=6):
+        Animation.__init__(self, name, rate)
+        self.fadeFactor = 10
+        self.fadeIncr = -1
+
+    def cycle(self):                                    
+        self.segment.fill()
+        self.segment.dim(float(self.fadeFactor)/10)
+        self.fadeFactor += self.fadeIncr
+        if (self.fadeFactor == 0) or (self.fadeFactor == 10):
+            self.fadeIncr = -self.fadeIncr
      
 class HolidayLightControl(Control):
-    def __init__(self, name, interface, patterns={}, animations=[], patternControl=None, animationControl=None, segments=None,
+    def __init__(self, name, interface, 
+#                    patterns={}, animations=[], patternControl=None, animationControl=None, 
+                    segments=None,
                     addr=None, group="", type="control", location=None, label="", event=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, event=event)
         self.className = "Control"
-        self.patterns = patterns
-        self.animations = animations
-        self.patternControl = patternControl
+#        self.patterns = patterns
+#        self.animations = animations
+#        self.patternControl = patternControl
         self.pattern = holidayLightPatternDefault
-        self.animationControl = animationControl
+#        self.animationControl = animationControl
         self.animation = holidayLightAnimationDefault
         if segments:
             self.segments = segments
@@ -121,17 +160,17 @@ class HolidayLightControl(Control):
     def setState(self, value):
         debug("debugHolidayLights", self.name, "setState", "value:", value)
         def runDisplay():
-            if self.patternControl:
-                self.setPattern(self.patternControl.getState())
-            if self.animationControl:
-                self.setAnimation(self.animationControl.getState())
+#            if self.patternControl:
+#                self.setPattern(self.patternControl.getState())
+#            if self.animationControl:
+#                self.setAnimation(self.animationControl.getState())
             debug("debugHolidayLights", self.name, "runDisplay started", "pattern:", self.pattern, "animation:", self.animation)
             for segment in self.segments:
                 segment.fill()
                 segment.display()
             self.interface.show()
             shift = 1
-            last = 0
+#            last = 0
             while self.running:
 #                time.sleep(.1)
 #                now = time.time()
@@ -143,7 +182,7 @@ class HolidayLightControl(Control):
                 self.interface.show()
             debug("debugHolidayLights", self.name, "runDisplay terminated")
             for segment in self.segments:
-                segment.fill(self.patterns["off"])
+                segment.fill([off])
                 segment.display()
             self.interface.show()
         if value:
@@ -153,11 +192,11 @@ class HolidayLightControl(Control):
         else:
            self.running = False
                 
-    def setPattern(self, value):
-        if value in self.patterns.keys():
-            self.pattern = value
-        else:
-            self.pattern = "off"
+#    def setPattern(self, value):
+#        if value in self.patterns.keys():
+#            self.pattern = value
+#        else:
+#            self.pattern = "off"
             
     def setAnimation(self, value):
         if value in self.animations:
