@@ -8,12 +8,13 @@ from ha.rest.restConfig import *
 
 class RestInterface(Interface):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface=None, event=None, service="", secure=False, cache=True, writeThrough=True):
+    def __init__(self, name, interface=None, event=None, service="", secure=False, cache=True, writeThrough=True, stateChange=False):
         Interface.__init__(self, name, interface=interface, event=event)
-        self.service = service  # the REST service to target
-        self.secure = secure    # use SSL
-        self.cache = cache      # cache the states
-        self.writeThrough = writeThrough
+        self.service = service              # the REST service to target
+        self.secure = secure                # use SSL
+        self.cache = cache                  # cache the states
+        self.writeThrough = writeThrough    # cache is write through
+        self.stateChange = stateChange      # server supports getStateChange
         self.hostname = socket.gethostname()
         self.enabled = False
         debug('debugRest', self.name, "created", self.hostname, self.service) #, self.secure, self.cache, self.enabled)
@@ -28,17 +29,18 @@ class RestInterface(Interface):
         debug('debugRest', self.name, "starting")
         self.enabled = True
         if self.cache:
-            # start the thread to update the cache when states change
-            def readStateChange():
-                debug('debugRestStates', self.name, "readStateChange started")
-                while self.enabled:
-                    states = self.readStates("/resources/states/stateChange")
-                    if states == {}:    # give up if there is an error
-                        break
-                    self.notify()
-                debug('debugRestStates', self.name, "readStateChange terminated")
-            readStateChangeThread = threading.Thread(target=readStateChange)
-            readStateChangeThread.start()
+            if self.stateChange:
+                # start the thread to update the cache when states change
+                def readStateChange():
+                    debug('debugRestStates', self.name, "readStateChange started")
+                    while self.enabled:
+                        states = self.readStates("/resources/states/stateChange")
+                        if states == {}:    # give up if there is an error
+                            break
+                        self.notify()
+                    debug('debugRestStates', self.name, "readStateChange terminated")
+                readStateChangeThread = threading.Thread(target=readStateChange)
+                readStateChangeThread.start()
             # start the thread to update the cache when a state change notification is received
             def readStateNotify():
                 debug('debugRestStates', self.name, "readStateNotify started")
@@ -76,9 +78,9 @@ class RestInterface(Interface):
                                 self.setStates(states)
                                 self.notify()
                                 # start the timer
-                                readStateTimer = threading.Timer(restTimeout, readStateTimeout)
+                                readStateTimer = threading.Timer(restStateTimeout, readStateTimeout)
                                 readStateTimer.start()
-                                debug('debugRestStateTimer', self.name, "timer started", restTimeout, "seconds")
+                                debug('debugRestStateTimer', self.name, "timer started", restStateTimeout, "seconds")
                     else: #except:
                         debug('debugRest', self.name, "disabled")
                         self.enabled = False
