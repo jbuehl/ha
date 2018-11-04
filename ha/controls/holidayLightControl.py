@@ -197,9 +197,9 @@ class HolidayLightControl(Control):
 #        else:
 #            self.pattern = "off"
             
-    def setAnimation(self, value):
-        if value in self.animations:
-            self.animation = value
-        else:
-            self.animation = "solid"
+#    def setAnimation(self, value):
+#        if value in self.animations:
+#            self.animation = value
+#        else:
+#            self.animation = "solid"
     
