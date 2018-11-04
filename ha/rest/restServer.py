@@ -19,7 +19,7 @@ def openBroadcastSocket():
 # RESTful web services server interface
 class RestServer(object):
     objectArgs = ["resources", "event"]
-    def __init__(self, name, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label=""):
+    def __init__(self, name, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label="", stateChange=True):
         debug('debugRestServer', name, "creating RestServer")
         self.name = name
         self.resources = resources
@@ -33,6 +33,7 @@ class RestServer(object):
             self.label = self.hostname+":"+str(self.port)
         else:
             self.label = label
+        self.stateChange = stateChange
         debug('debugInterrupt', self.label, "event", self.event)
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
         self.beaconSocket = None
@@ -58,7 +59,8 @@ class RestServer(object):
                                                              [self.server.resources.name], 
                                                              self.timeStamp, 
                                                              self.label,
-                                                             self.name)), 
+                                                             self.name
+                                                             self.stateChange)), 
                                                         ("<broadcast>", restBeaconPort))
                     except socket.error as exception:
                         log("socket error", exception)

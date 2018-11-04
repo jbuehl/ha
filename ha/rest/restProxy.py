@@ -62,6 +62,11 @@ class RestProxy(threading.Thread):
             except IndexError:
                 serviceTimeStamp = 0
                 serviceLabel = serviceName
+            # does service support getStateChange
+            try:
+                serviceStateChange = serviceData[6]
+            except IndexError:
+                serviceStateChange = False
             # rename it if there is an alias
             if serviceName in self.resources.aliases.keys():
                 newServiceName = self.resources.aliases[serviceName]["name"]
@@ -75,9 +80,10 @@ class RestProxy(threading.Thread):
                 debug('debugRestProxy', self.name, "processing", serviceName, serviceAddr, serviceTimeStamp)
                 if serviceName not in self.services.keys():
                     # create a new service proxy
-                    debug('debugRestProxyAdd', self.name, "adding", serviceName, serviceAddr, serviceTimeStamp)
+                    debug('debugRestProxyAdd', self.name, "adding", serviceName, serviceAddr, serviceTimeStamp, serviceStateChange)
                     self.services[serviceName] = RestServiceProxy(serviceName, serviceAddr, 
-                                                               RestInterface(serviceName, service=serviceAddr, event=self.event, secure=False),
+                                                               RestInterface(serviceName, service=serviceAddr, 
+                                                                             event=self.event, secure=False, stateChange=serviceStateChange),
                                                                serviceTimeStamp, label=serviceLabel, group="Services")
                     self.services[serviceName].enable()
                     self.getResources(self.services[serviceName], serviceResources, serviceTimeStamp, timeStamp)
