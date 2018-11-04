@@ -67,7 +67,7 @@ class RestInterface(Interface):
                             if readStateTimer:
                                 # cancel the timeout
                                 readStateTimer.cancel()
-                                debug('debugRestStateTimer', self.name, "timer cancelled")
+                                debug('debugRestStateTimer', self.name, "timer cancelled", "read state")
                             states = msg["state"]
                             debug('debugRestStates', self.name, "readStateNotify", "states", states)
                             # if still enabled, do it again
@@ -86,6 +86,7 @@ class RestInterface(Interface):
                 # interface is no longer enabled, clean up
                 if readStateTimer:
                     readStateTimer.cancel()
+                    debug('debugRestStateTimer', self.name, "timer cancelled", "service disabled")
                 self.stop()
                 debug('debugRestStates', self.name, "readStateNotify terminated")
             readStateNotifyThread = threading.Thread(target=readStateNotify)
