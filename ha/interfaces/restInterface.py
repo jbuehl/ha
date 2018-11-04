@@ -50,13 +50,13 @@ class RestInterface(Interface):
                 # define a timer to disable the interface if the heartbeat times out
                 # can't use a socket timeout because multiple threads are using the same port
                 def readStateTimeout():
+                    debug('debugRestStateTimer', self.name, "timer expired")
                     debug('debugRestDisable', self.name, "read state timeout")
                     debug('debugRest', self.name, "disabled")
                     self.enabled = False
                 readStateTimer = None
                 while self.enabled:
                     if True: #try:
-                        debug('debugRestStates', self.name, "start timer")
                         # wait to receive a state change notification message
                         (data, addr) = self.socket.recvfrom(8192)
 #                        debug('debugRestStates', self.name, "readStateNotify", "addr:", addr[0], "data:", data)
@@ -67,7 +67,7 @@ class RestInterface(Interface):
                             if readStateTimer:
                                 # cancel the timeout
                                 readStateTimer.cancel()
-                                debug('debugRestStates', self.name, "cancel timer")
+                                debug('debugRestStateTimer', self.name, "timer cancelled")
                             states = msg["state"]
                             debug('debugRestStates', self.name, "readStateNotify", "states", states)
                             # if still enabled, do it again
@@ -78,6 +78,7 @@ class RestInterface(Interface):
                                 # start the timer
                                 readStateTimer = threading.Timer(restTimeout, readStateTimeout)
                                 readStateTimer.start()
+                                debug('debugRestStateTimer', self.name, "timer started", restTimeout, "seconds")
                     else: #except:
                         debug('debugRest', self.name, "disabled")
                         self.enabled = False
