@@ -70,7 +70,7 @@ if __name__ == "__main__":
                                                    windSpeed, windDir, rainMinute, rainHour, rainDay,
                                                    hotWaterRecircOn, hotWaterRecircOff,
                                                    ])
-    restServer = RestServer(resources, event=stateChangeEvent, label="Garage")
+    restServer = RestServer("garage", resources, event=stateChangeEvent, label="Garage")
 
     # Start interfaces
     gpio0.start()

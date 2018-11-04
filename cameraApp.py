@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     # Resources
     resources = Collection("resources", [cameraImage, cameraThumb, cameraMode, cameraEnable, cameraRecord])
-    restServer = RestServer(resources, event=stateChangeEvent, label=cameraDisplay)
+    restServer = RestServer("camera", resources, event=stateChangeEvent, label=cameraDisplay)
 
     # Start interfaces
     camera.start()

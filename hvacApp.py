@@ -106,7 +106,7 @@ if __name__ == "__main__":
                                                    northHeatTempUpMorning, northHeatTempDownMorning, northHeatTempDownEvening,
                                                    southHeatTempUpMorning, southHeatTempDownMorning, southHeatTempDownEvening
                                                    ])
-    restServer = RestServer(resources, event=stateChangeEvent, label="Hvac")
+    restServer = RestServer("hvac", resources, event=stateChangeEvent, label="Hvac")
 
     # Start interfaces
     configData.start()

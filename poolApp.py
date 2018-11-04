@@ -125,7 +125,7 @@ if __name__ == "__main__":
                                         filterSequence, cleanSequence, flushSequence,
                                         poolPumpPower, poolCleanerPower, spaBlowerPower, poolLightPower, spaLightPower,
                                         ])
-    restServer = RestServer(resources, event=stateChangeEvent, label="Pool")
+    restServer = RestServer("pool", resources, event=stateChangeEvent, label="Pool")
 
     # Start interfaces
     configInterface.start()

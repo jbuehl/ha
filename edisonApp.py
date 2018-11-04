@@ -43,7 +43,7 @@ if __name__ == "__main__":
     resources = Collection("resources"resources=[edisonTemp, 
 #                                                 deckTemp, barometer, deckTemp2, humidity, dewpoint
                                                  ])
-    restServer = RestServer(resources, event=stateChangeEvent, label="Edison")
+    restServer = RestServer("edison", resources, event=stateChangeEvent, label="Edison")
 
     # Start interfaces
     temp.start()
