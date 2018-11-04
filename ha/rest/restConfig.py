@@ -5,5 +5,5 @@ restBeaconPort = 4242
 restStatePort = 4243
 restBeaconInterval = 10
 restHeartbeatInterval = 30
-restTimeout = 60
+restTimeout = 300
 
