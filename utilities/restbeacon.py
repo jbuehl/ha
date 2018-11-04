@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-# Print the messages that are sent to advertize REST services
+# Print the messages that are sent to advertise REST services
 
 restBeaconPort = 4242
 
 import socket
 import json
 import time
+import sys
 
 if __name__ == "__main__":
     beaconSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -24,4 +25,5 @@ if __name__ == "__main__":
 #        except:
 #            pass
 #        print
+        sys.stdout.flush()
 
