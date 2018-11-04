@@ -59,7 +59,7 @@ class RestServer(object):
                                                              [self.server.resources.name], 
                                                              self.timeStamp, 
                                                              self.label,
-                                                             self.name
+                                                             self.name,
                                                              self.stateChange)), 
                                                         ("<broadcast>", restBeaconPort))
                     except socket.error as exception:
