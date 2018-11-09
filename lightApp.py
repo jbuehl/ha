@@ -84,9 +84,15 @@ if __name__ == "__main__":
                                                   Segment("rightSegment",  170, 173, pattern=3*[red]+3*[green]),
                                                  ],
                                         type="light", group="Lights", label="Christmas lights")
+    electionLights = HolidayLightControl("electionLights", neopixelInterface, 
+                                        segments=[Segment("leftSegment",     0, 112, pattern=10*[red]+10*[white]+10*[blue], animation=CrawlAnimation(direction=1)),
+                                                  Segment("centerSegment", 112,  58, pattern=1*[red]+1*[white]+1*[blue], animation=SparkleAnimation(rate=1)),
+                                                  Segment("rightSegment",  170, 173, pattern=10*[red]+10*[white]+10*[blue], animation=CrawlAnimation(direction=-1)),
+                                                 ],
+                                        type="light", group="Lights", label="Election lights")
 
     # Resources
-    resources = Collection("resources", resources=[fallLights, halloweenLights, hanukkahLights, christmasLights,
+    resources = Collection("resources", resources=[fallLights, halloweenLights, hanukkahLights, christmasLights, electionLights,
 #                                                   holidayLightPattern, holidayLightAnimation,
 #                                                   sculptureLights, 
                                                    ])
