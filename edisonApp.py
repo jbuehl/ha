@@ -17,8 +17,8 @@ if __name__ == "__main__":
     # Interfaces
     stateChangeEvent = threading.Event()
     i2cInterface = I2CCmdInterface("i2cInterface", bus=1, event=stateChangeEvent)
-    tc74Interface = TC74Interface("TC74Interface", i2c1)
-    mcp9803Interface = MCP9803Interface("MCP9803Interface", i2c1)
+    tc74Interface = TC74Interface("TC74Interface", i2cInterface)
+    mcp9803Interface = MCP9803Interface("MCP9803Interface", i2cInterface)
     if tempType.upper() == "TC74":
         tempInterface = TempInterface("tempInterface", tc74Interface, sample=tempSample)
     elif tempType.upper() == "MCP9803":
@@ -40,13 +40,13 @@ if __name__ == "__main__":
 #    dewpoint = Sensor("dewpoint", humidityCache, "dewpoint", group="Weather", label="Dewpoint", type="tempF")
     
     # Resources
-    resources = Collection("resources"resources=[edisonTemp, 
+    resources = Collection("resources",resources=[edisonTemp, 
 #                                                 deckTemp, barometer, deckTemp2, humidity, dewpoint
                                                  ])
     restServer = RestServer("edison", resources, event=stateChangeEvent, label="Edison")
 
     # Start interfaces
-    temp.start()
+    tempInterface.start()
 #    barometerCache.start()
 #    humidityCache.start()
     restServer.start()
