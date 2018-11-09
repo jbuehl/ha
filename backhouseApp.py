@@ -68,7 +68,7 @@ if __name__ == "__main__":
                                                    backHouseDoor, 
                                                    backHeatTempUpMorning, backHeatTempDownMorning, backHeatTempDownEvening,
                                                    ])
-    restServer = RestServer("backHouse", resources, event=stateChangeEvent, label="Back house")
+    restServer = RestServer("backhouse", resources, event=stateChangeEvent, label="Back house")
 
     # Start interfaces
     fileInterface.start()
