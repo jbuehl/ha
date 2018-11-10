@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Print the messages that are sent to advertise REST services
 
-multicast = True
+multicast = False
 multicastGroup = "224.0.0.1"
 restBeaconPort = 4242
 
