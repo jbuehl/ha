@@ -91,12 +91,13 @@ class RestInterface(Interface):
 
     # start the read state timer
     def startTimer(self):
-        self.readStateTimer = threading.Timer(restStateTimeout, self.readStateTimeout)
-        self.readStateTimer.start()
-        debug('debugRestStateTimer', self.name, "timer started", restStateTimeout, "seconds")
+        if restStateTimeout:
+            self.readStateTimer = threading.Timer(restStateTimeout, self.readStateTimeout)
+            self.readStateTimer.start()
+            debug('debugRestStateTimer', self.name, "timer started", restStateTimeout, "seconds")
 
     # cancel the read state timer
-    def cancelTimer(self, reason):
+    def cancelTimer(self, reason=""):
         if self.readStateTimer:
             self.readStateTimer.cancel()
             debug('debugRestStateTimer', self.name, "timer cancelled", reason)
