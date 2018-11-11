@@ -40,15 +40,12 @@ class RestProxy(threading.Thread):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(("", restBeaconPort))
-                
-    def doRest(self):
-        debug('debugThread', self.name, "started")
-        while running:
-            # wait for a beacon message from a service
-            (data, addr) = self.socket.recvfrom(8192)   # FIXME - need to handle arbitrarily large data
-            debug('debugRestBeacon', self.name, "beacon data", data)
-            # parse the message
-            serviceData = json.loads(data)
+
+    def parseServiceData(self, data, addr):
+        serviceData = json.loads(data)
+        (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceStateChange, serviceSeq) = ("", "", [], 0, "", False, 0)
+        # data is in list format
+        if isinstance(serviceData, list):
             # service name
             try:
                 serviceName = "services."+serviceData[5]
@@ -68,6 +65,28 @@ class RestProxy(threading.Thread):
                 serviceStateChange = serviceData[6]
             except IndexError:
                 serviceStateChange = False
+        # data is in dictionary format
+        elif isinstance(serviceData, dict):
+            try:
+                serviceName = "services."+serviceData["name"]
+                serviceAddr = addr[0]+":"+str(serviceData["port"])
+                serviceResources = serviceData["resources"]
+                serviceTimeStamp = serviceData["timestamp"]
+                serviceLabel = serviceData["label"]
+                serviceStateChange = serviceData["statechange"]
+                serviceSeq = serviceData["seq"]
+            except KeyError:
+                pass
+        return (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceStateChange, serviceSeq)
+                        
+    def doRest(self):
+        debug('debugThread', self.name, "started")
+        while running:
+            # wait for a beacon message from a service
+            (data, addr) = self.socket.recvfrom(8192)   # FIXME - need to handle arbitrarily large data
+            debug('debugRestBeacon', self.name, "beacon data", data)
+            # parse the message
+            (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceStateChange, serviceSeq) = self.parseServiceData(data, addr)
             # rename it if there is an alias
             if serviceName in self.resources.aliases.keys():
                 newServiceName = self.resources.aliases[serviceName]["name"]

@@ -65,13 +65,13 @@ class RestServer(object):
                     if not self.beaconSocket:
                         self.beaconSocket = openBroadcastSocket()
                     try:
-                        self.beaconSocket.sendto(json.dumps((self.hostname, 
-                                                             self.port,
-                                                             [self.server.resources.name], 
-                                                             self.timeStamp, 
-                                                             self.label,
-                                                             self.name,
-                                                             self.stateChange)), 
+                        self.beaconSocket.sendto(json.dumps({"hostname": self.hostname, 
+                                                             "port": self.port,
+                                                             "resources": [self.server.resources.name], 
+                                                             "timestamp": self.timeStamp, 
+                                                             "label": self.label,
+                                                             "name": self.name,
+                                                             "statechange": self.stateChange}), 
                                                         (self.restAddr, restBeaconPort))
                     except socket.error as exception:
                         log("socket error", exception)
