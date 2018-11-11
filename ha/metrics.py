@@ -28,6 +28,7 @@ def sendMetrics(resourceStates):
                         msg = ""
                     except socket.error as exception:
                         log("socket error", exception)
+                        time.sleep(10)
         if metricsSocket:
             debug("debugMetrics", "closing socket to", metricsHost)
             metricsSocket.close()
