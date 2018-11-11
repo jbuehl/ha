@@ -60,6 +60,7 @@ class RestServer(object):
             self.timeStamp = time.time()
             def beacon():
                 debug('debugRestServer', self.name, "REST beacon started")
+                beaconSequence = 0
                 while True:
                     debug('debugRestBeacon', self.name, "REST beacon")
                     if not self.beaconSocket:
@@ -71,11 +72,13 @@ class RestServer(object):
                                                              "timestamp": self.timeStamp, 
                                                              "label": self.label,
                                                              "name": self.name,
-                                                             "statechange": self.stateChange}), 
+                                                             "statechange": self.stateChange,
+                                                             "seq": beaconSequence}), 
                                                         (self.restAddr, restBeaconPort))
                     except socket.error as exception:
                         log("socket error", exception)
                         self.beaconSocket = None
+                    beaconSequence += 1
                     time.sleep(restBeaconInterval)
             beaconThread = threading.Thread(target=beacon)
             beaconThread.start()
