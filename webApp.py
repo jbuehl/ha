@@ -15,6 +15,7 @@ holidayLights = "holidayLights"
 import time
 from jinja2 import Environment, FileSystemLoader
 from ha import *
+from ha.metrics import *
 from ha.serviceMonitor import *
 from ha.interfaces.restInterface import *
 from ha.interfaces.timeInterface import *
@@ -300,6 +301,10 @@ if __name__ == "__main__":
         schedule.addTask(resources["xmasLightsOffSunrise"])
 #        schedule.addTask(resources["xmasTreeOnXmas"])
     schedule.start()
+
+    # start the task to transmit resource metrics
+    resourceStates = ResourceStateSensor("states", None, resources=resources, event=stateChangeEvent)
+    startMetrics(resourceStates)
 
     # start the cache to listen for services on other servers
     restCache = RestProxy("restProxy", resources, event=stateChangeEvent)
