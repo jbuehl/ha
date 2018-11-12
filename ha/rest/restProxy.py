@@ -73,8 +73,8 @@ class RestProxy(threading.Thread):
                 serviceResources = serviceData["resources"]
                 serviceTimeStamp = serviceData["timestamp"]
                 serviceLabel = serviceData["label"]
-                serviceStateChange = serviceData["statechange"]
                 serviceSeq = serviceData["seq"]
+                serviceStateChange = serviceData["statechange"]
             except KeyError:
                 pass
         return (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceStateChange, serviceSeq)
@@ -101,10 +101,9 @@ class RestProxy(threading.Thread):
                 if serviceName not in self.services.keys():
                     # create a new service proxy
                     debug('debugRestProxyAdd', self.name, "adding", serviceName, serviceAddr, serviceTimeStamp, serviceStateChange)
-                    self.services[serviceName] = RestServiceProxy(serviceName, serviceAddr, 
-                                                               RestInterface(serviceName, service=serviceAddr, 
-                                                                             event=self.event, secure=False, stateChange=serviceStateChange),
-                                                               serviceTimeStamp, label=serviceLabel, group="Services")
+                    self.services[serviceName] = RestServiceProxy(serviceName, RestInterface(serviceName, service=serviceAddr, event=self.event, 
+                                                                                    secure=False, stateChange=serviceStateChange), serviceAddr, 
+                                                                    serviceTimeStamp, label=serviceLabel, group="Services")
                     service = self.services[serviceName]
                     self.getResources(service, serviceResources, serviceTimeStamp, timeStamp)
                     service.enable()
@@ -123,6 +122,7 @@ class RestProxy(threading.Thread):
                         self.getResources(service, serviceResources, serviceTimeStamp, timeStamp)
                     else:   # no resource changes - ignore it
                         debug('debugRestProxy', self.name, "skipping", serviceName, service.addr, serviceTimeStamp)
+                service.logSeq(serviceSeq)
             else:
                 debug('debugRestProxy', self.name, "ignoring", serviceName, serviceAddr, serviceTimeStamp)
             for serviceName in self.services.keys():
@@ -215,19 +215,22 @@ class RestProxy(threading.Thread):
             except NameError:
                 pass
             
-    # add all the resources from the specified service to the cache
+    # add the resource of the service as well as 
+    # all the resources from the specified service to the cache
     def addResources(self, service):
         debug('debugRestProxy', self.name, "adding resources for service", service.name)
         debug('debugRestLock', service.name, "locking")
         with self.resources.lock:
-            self.resources.addRes(service)
-            self.resources.update(service.resources)
+            self.resources.addRes(service)                  # the resource for the service
+            self.resources.addRes(service.missedSeqSensor)  # missed beacon messages
+            self.resources.update(service.resources)        # resources from the service
         debug('debugRestLock', service.name, "unlocking")
         self.cacheTime = service.timeStamp
         self.event.set()
         debug('debugInterrupt', self.name, "event set")
 
     # delete all the resources from the specified service from the cache
+    # don't delete the resource of the service
     def delResources(self, service):
         debug('debugRestProxy', self.name, "deleting resources for service", service.name)
         debug('debugRestLock', service.name, "locking")
@@ -243,23 +246,27 @@ class RestProxy(threading.Thread):
 
 # proxy for a REST service
 class RestServiceProxy(Sensor):
-    def __init__(self, name, addr, interface, timeStamp=-1, event=None, group="", type="service", location=None, label="", interrupt=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
+    def __init__(self, name, interface, addr, timeStamp=-1, group="", type="service", location=None, label="", interrupt=None, event=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         debug('debugRestServiceProxy', "RestServiceProxy", name, "created")
-        self.name = name
-        self.addr = addr
-        self.timeStamp = timeStamp
-        self.resourceNames = []
-        self.interface = interface
+        self.timeStamp = timeStamp      # the last time this service was updated
+        self.resourceNames = []         # resource names on this service
 #        self.className = "Sensor" # so the web UI doesn't think it's a control
-        self.resources = None
+        self.resources = None           # resources on this service
         self.enabled = False
+        self.lastSeq = 0                # the last beacon message sequence number received
+        self.missedSeq = 0              # count of how many missed beacon messages for this service
+        try:
+            serviceName = name.split(".")[1]
+        except IndexError:
+            serviceName = name
+        self.missedSeqSensor = AttributeSensor(serviceName+"-missedSeq", None, None, self, "missedSeq")
 
     def getState(self):
         return normalState(self.enabled)
 
     def setState(self, state, wait=False):
-        if state == 0:
+        if state:
             self.enable()
         else:
             self.disable()
@@ -283,4 +290,23 @@ class RestServiceProxy(Sensor):
         if self.resources:
             del(self.resources)
             self.resources = None
+
+    def logSeq(self, seq):
+        debug('debugRestSeq', "RestServiceProxy", self.name, seq, self.lastSeq, self.missedSeq)
+        if seq == 0:
+            self.lastSeq = 0    # reset when the service starts
+        if self.lastSeq != 0:   # ignore the first one after this program starts
+            self.missedSeq += seq - self.lastSeq - 1
+        self.lastSeq = seq
+
+# sensor that returns the value of an attribute of a specified sensor
+class AttributeSensor(Sensor):
+    def __init__(self, name, interface, addr, sensor, attr, group="", type="sensor", location=None, label="", interrupt=None, event=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+        self.sensor = sensor
+        self.attr = attr
+
+    def getState(self):
+        return getattr(self.sensor, self.attr)
+        
 
