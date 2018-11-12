@@ -299,14 +299,3 @@ class RestServiceProxy(Sensor):
             self.missedSeq += seq - self.lastSeq - 1
         self.lastSeq = seq
 
-# sensor that returns the value of an attribute of a specified sensor
-class AttributeSensor(Sensor):
-    def __init__(self, name, interface, addr, sensor, attr, group="", type="sensor", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
-        self.sensor = sensor
-        self.attr = attr
-
-    def getState(self):
-        return getattr(self.sensor, self.attr)
-        
-
