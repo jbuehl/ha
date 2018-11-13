@@ -208,7 +208,7 @@ class RestProxy(threading.Thread):
                 exec("resource = "+className+"("+argStr[:-2]+")")
                 resources.addRes(resource)
         except Exception as exception:
-            log(self.name, "loadResource", interface.name, str(node), path, exception)
+            log(self.name, "loadResource", interface.name, str(node), path, str(exception))
             try:
                 if debugExceptions:
                     raise

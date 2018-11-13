@@ -170,7 +170,7 @@ class RestInterface(Interface):
             self.enabled = False
             return {}
         except Exception as exception:                                 # other exceptions are fatal
-            debug('debugRestDisable', self.name, "exception", path, exception)
+            debug('debugRestDisable', self.name, "exception", path, str(exception))
             self.enabled = False
             return {}
 

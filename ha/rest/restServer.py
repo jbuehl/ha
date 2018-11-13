@@ -76,7 +76,7 @@ class RestServer(object):
                                                              "seq": beaconSequence}), 
                                                         (self.restAddr, restBeaconPort))
                     except socket.error as exception:
-                        log("socket error", exception)
+                        log("socket error", str(exception))
                         self.beaconSocket = None
                     beaconSequence += 1
                     time.sleep(restBeaconInterval)
@@ -117,7 +117,7 @@ class RestServer(object):
                             debug('debugInterrupt', self.name, "heartbeat", "set", self.event)
                             self.event.set()
                     except socket.error as exception:
-                        log("socket error", exception)
+                        log("socket error", str(exception))
                         self.heartbeatSocket = None
                     stateSequence += 1
                     time.sleep(restHeartbeatInterval)
@@ -163,7 +163,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                     try:
                         data = json.dumps(resource.dict())
                     except Exception as exception:
-                        debug('debugRestException', "restServer", self.path, exception)
+                        debug('debugRestException', "restServer", self.path, str(exception))
                         data = "{}"
                         self.send_error(500)
                 self.send_header("Content-type", contentType)
@@ -188,7 +188,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                 self.send_response(200) # success
                 self.end_headers()
             except Exception as exception:
-                debug('debugRestException', "restServer", self.path, exception)
+                debug('debugRestException', "restServer", self.path, str(exception))
                 self.send_error(500) # error
         else:
             self.send_error(404)     # resource not found
