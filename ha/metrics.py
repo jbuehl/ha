@@ -46,19 +46,16 @@ def sendMetrics(resourceStates):
         # send states to the metrics server        
         if sendMetrics:
             debug("debugMetrics", "opening socket to", metricsHost, metricsPort)
-            metricsSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            metricsSocket.connect((metricsHost, metricsPort))
-            for metric in metrics.keys():
-                if metric != "states":
-                    msg = metricsPrefix+"."+metric.replace(" ", "_")+" "+str(metrics[metric])+" "+str(int(time.time()))
-                    debug("debugMetrics", msg)
-                    while msg != "":
-                        try:
-                            metricsSocket.send(msg+"\n")
-                            msg = ""
-                        except socket.error as exception:
-                            log("socket error", exception)
-                            time.sleep(10)
+            try:
+                metricsSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                metricsSocket.connect((metricsHost, metricsPort))
+                for metric in metrics.keys():
+                    if metric != "states":
+                        msg = metricsPrefix+"."+metric.replace(" ", "_")+" "+str(metrics[metric])+" "+str(int(time.time()))
+                        debug("debugMetrics", msg)
+                        metricsSocket.send(msg+"\n")
+            except socket.error as exception:
+                log("socket error", str(exception))
             if metricsSocket:
                 debug("debugMetrics", "closing socket to", metricsHost)
                 metricsSocket.close()
