@@ -14,8 +14,6 @@ def setServicePorts(serviceList):
     for service in serviceList:
         if len(service.split(".")) < 2:
             service = "services."+service
-        if len(service.split(":")) < 2:
-            service = service+":"+str(restServicePort)
         newServiceList.append(service)
     return newServiceList
     
