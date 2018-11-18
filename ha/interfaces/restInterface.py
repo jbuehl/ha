@@ -8,21 +8,21 @@ from ha.rest.restConfig import *
 
 class RestInterface(Interface):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface=None, event=None, service="", secure=False, cache=True, writeThrough=True, stateChange=False):
+    def __init__(self, name, interface=None, event=None, serviceAddr="", secure=False, cache=True, writeThrough=True, stateChange=False):
         Interface.__init__(self, name, interface=interface, event=event)
-        self.service = service              # the REST service to target
+        self.serviceAddr = serviceAddr      # address of the REST service to target (ipAddr:port)
         self.secure = secure                # use SSL
         self.cache = cache                  # cache the states
         self.writeThrough = writeThrough    # cache is write through
         self.stateChange = stateChange      # server supports getStateChange
-        self.hostname = socket.gethostname()
+        self.hostName = socket.gethostname()
         self.enabled = False
         self.readStateTimer = None
-        debug('debugRest', self.name, "created", self.hostname, self.service) #, self.secure, self.cache, self.enabled)
+        debug('debugRest', self.name, "created", self.hostName, self.serviceAddr) #, self.secure, self.cache, self.enabled)
         if self.secure:
             self.keyDir = keyDir
-            self.crtFile = self.keyDir+self.hostname+"-client.crt"
-            self.keyFile = self.keyDir+self.hostname+"-client.key"
+            self.crtFile = self.keyDir+self.hostName+"-client.crt"
+            self.keyFile = self.keyDir+self.hostName+"-client.key"
             self.caFile = self.keyDir+"ca.crt"
             debug('debugRest', self.name, self.crtFile, self.keyFile, self.caFile)
 
@@ -59,7 +59,7 @@ class RestInterface(Interface):
                 # wait to receive a state change notification message
                 (data, addr) = self.socket.recvfrom(8192)
                 msg = json.loads(data)
-                if addr[0]+":"+str(msg["port"]) == self.service:   # is this from the correct service
+                if addr[0]+":"+str(msg["port"]) == self.serviceAddr:   # is this from the correct service
                     # this one is for us
                     debug('debugRestStates', self.name, "readStateNotify", "addr:", addr[0], "data:", data)
                     self.cancelTimer("read state")
@@ -142,7 +142,7 @@ class RestInterface(Interface):
     # return the state value of the specified sensor address       
     def readState(self, addr):
         debug('debugRestStates', self.name, "readState", addr)
-        path = self.service+urllib.quote(addr)
+        path = self.serviceAddr+urllib.quote(addr)
         try:
             if self.secure:
                 url = "https://"+path
@@ -173,7 +173,7 @@ class RestInterface(Interface):
             return {}
 
     def write(self, addr, value):
-        path = self.service+urllib.quote(addr)
+        path = self.serviceAddr+urllib.quote(addr)
         if self.cache:
             if self.writeThrough:
                 # update the cache
