@@ -55,10 +55,9 @@ class RestInterface(Interface):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(("", restStatePort))
         while self.enabled:
-            if True: #try:
+            try:
                 # wait to receive a state change notification message
                 (data, addr) = self.socket.recvfrom(8192)
-#                        debug('debugRestStates', self.name, "readStateNotify", "addr:", addr[0], "data:", data)
                 msg = json.loads(data)
                 if addr[0]+":"+str(msg["port"]) == self.service:   # is this from the correct service
                     # this one is for us
@@ -72,10 +71,9 @@ class RestInterface(Interface):
                         self.setStates(states)
                         self.notify()
                         self.startTimer()
-            else: #except:
-                debug('debugRest', self.name, "disabled")
+            except Exception as exception:
+                debug('debugRest', self.name, "disabled", str(exception))
                 self.enabled = False
-                break
         # interface is no longer enabled, clean up
         self.cancelTimer("service disabled")
         self.stop()
