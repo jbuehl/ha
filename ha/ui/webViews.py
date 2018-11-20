@@ -6,7 +6,7 @@ from ha import *
 # state values to display values, an optional format string, and an optional transform function.
 # Reverse mappings of display values to state values may also be specified.
 class View(object):
-    def __init__(self, values={None:"", 0:"Off", 1:"On"}, format="%s", transform=None, setValues=None, toggle=False):
+    def __init__(self, values={None:"--", 0:"Off", 1:"On"}, format="%s", transform=None, setValues=None, toggle=False):
         self.values = values
         self.format = format
         self.transform = transform
@@ -19,6 +19,7 @@ class View(object):
     # Return the printable string value for the state of the sensor
     def getViewState(self, sensor):
         state = sensor.getState()
+        if state == None: log("getViewState", "state", sensor.name)
         try:    # run it through the transformation function
             state = self.transform(state)
         except:
@@ -26,10 +27,13 @@ class View(object):
         try:    # look it up in the values table
             return self.format % (self.values[state])
         except:
-            try:    # apply the format
-                return self.format % (state)
-            except: # worst case, return the string of the state
-                return str(state)
+            if state:
+                try:    # apply the format
+                    return self.format % (state)
+                except: # worst case, return the string of the state
+                        return str(state)
+            else:   # None means sensor isn't reporting
+                return "--"
 
     # Set the state of the control to the state value corresponding to the specified display value
     def setViewState(self, control, dispValue):
