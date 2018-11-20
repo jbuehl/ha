@@ -19,7 +19,6 @@ class View(object):
     # Return the printable string value for the state of the sensor
     def getViewState(self, sensor):
         state = sensor.getState()
-        if state == None: log("getViewState", "state", sensor.name)
         try:    # run it through the transformation function
             state = self.transform(state)
         except:
