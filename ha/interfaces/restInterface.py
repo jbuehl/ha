@@ -62,15 +62,13 @@ class RestInterface(Interface):
                     debug('debugRestStates', self.name, "readStateNotify", "addr:", addr[0], "data:", data)
                     states = msg["state"]
                     debug('debugRestStates', self.name, "readStateNotify", "states", states)
-                    # if still enabled, do it again
-                    if self.enabled:
-                        # update the states
-                        self.setStates(states)
-                        self.notify()
+                    # update the states
+                    self.setStates(states)
+                    self.notify()
             except Exception as exception:
-                debug('debugRestStates', self.name, "exception", str(exception))
-#                self.enabled = False
-        # interface is no longer enabled, clean up
+                # log and ignore exceptions
+                log(self.name, "state notification exception", str(exception))
+        # interface is no longer enabled
         self.stop()
         debug('debugRestStates', self.name, "readStateNotify terminated")
 
@@ -86,7 +84,7 @@ class RestInterface(Interface):
     def read(self, addr):
         debug('debugRestStates', self.name, "read", addr)
         if not self.enabled:
-            return {}
+            return None
         if self.cache:
             debug('debugRestStates', self.name, "states", self.states)
             try:
@@ -138,15 +136,14 @@ class RestInterface(Interface):
                 else:
                     return response.json()
             else:
-                return {}
+                log(self.name, "read state status", response.status_code)
+                return None
         except requests.exceptions.Timeout:
-            debug('debugRestProxyDisable', self.name, "read timeout", path)
-#            self.enabled = False
-            return {}
+            log(self.name, "read state timeout", path)
+            return None
         except Exception as exception:
-            debug('debugRestProxyDisable', self.name, "exception", str(exception))
-#            self.enabled = False
-            return {}
+            log(self.name, "read state exception", str(exception))
+            return None
 
     def write(self, addr, value):
         path = self.serviceAddr+urllib.quote(addr)
@@ -178,9 +175,9 @@ class RestInterface(Interface):
             if response.status_code == 200:
                 return True
             else:
+                log(self.name, "write state status", response.status_code)
                 return False
         except Exception as exception:
-            debug('debugRestProxyDisable', self.name, "exception", str(exception))
-#            self.enabled = False
+            log(self.name, "write state exception", str(exception))
             return False
 
