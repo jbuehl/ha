@@ -7,7 +7,6 @@ from ha import *
 from ha.rest.restConfig import *
 
 class RestInterface(Interface):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None, serviceAddr="", secure=False, cache=True, writeThrough=True, stateChange=False):
         Interface.__init__(self, name, interface=interface, event=event)
         self.serviceAddr = serviceAddr      # address of the REST service to target (ipAddr:port)
@@ -17,7 +16,6 @@ class RestInterface(Interface):
         self.stateChange = stateChange      # server supports getStateChange
         self.hostName = socket.gethostname()
         self.enabled = False
-        self.readStateTimer = None
         debug('debugRest', self.name, "created", self.hostName, self.serviceAddr) #, self.secure, self.cache, self.enabled)
         if self.secure:
             self.keyDir = keyDir
@@ -62,7 +60,6 @@ class RestInterface(Interface):
                 if addr[0]+":"+str(msg["port"]) == self.serviceAddr:   # is this from the correct service
                     # this one is for us
                     debug('debugRestStates', self.name, "readStateNotify", "addr:", addr[0], "data:", data)
-                    self.cancelTimer("read state")
                     states = msg["state"]
                     debug('debugRestStates', self.name, "readStateNotify", "states", states)
                     # if still enabled, do it again
@@ -70,36 +67,13 @@ class RestInterface(Interface):
                         # update the states
                         self.setStates(states)
                         self.notify()
-                        self.startTimer()
             except Exception as exception:
-                debug('debugRest', self.name, "disabled", str(exception))
-                self.enabled = False
+                debug('debugRestStates', self.name, "exception", str(exception))
+#                self.enabled = False
         # interface is no longer enabled, clean up
-        self.cancelTimer("service disabled")
         self.stop()
         debug('debugRestStates', self.name, "readStateNotify terminated")
 
-    # define a timer to disable the interface if the heartbeat times out
-    # can't use a socket timeout because multiple threads are using the same port
-    def readStateTimeout(self):
-        debug('debugRestStateTimer', self.name, "timer expired")
-        debug('debugRestDisable', self.name, "read state timeout")
-        debug('debugRest', self.name, "disabled")
-        self.enabled = False
-
-    # start the read state timer
-    def startTimer(self):
-        if restStateTimeout:
-            self.readStateTimer = threading.Timer(restStateTimeout, self.readStateTimeout)
-            self.readStateTimer.start()
-            debug('debugRestStateTimer', self.name, "timer started", restStateTimeout, "seconds")
-
-    # cancel the read state timer
-    def cancelTimer(self, reason=""):
-        if self.readStateTimer:
-            self.readStateTimer.cancel()
-            debug('debugRestStateTimer', self.name, "timer cancelled", reason)
-                
     def stop(self):
         if self.enabled:
             self.enabled = False
@@ -111,6 +85,8 @@ class RestInterface(Interface):
     # return the state value for the specified sensor address
     def read(self, addr):
         debug('debugRestStates', self.name, "read", addr)
+        if not self.enabled:
+            return {}
         if self.cache:
             debug('debugRestStates', self.name, "states", self.states)
             try:
@@ -118,7 +94,7 @@ class RestInterface(Interface):
                     if self.sensorAddrs[addr].getStateType() != None:
                         self.states[addr] = self.readState(addr)
                 return self.states[addr]
-            except:
+            except KeyError:
                 return self.readState(addr)
         else:
             return self.readState(addr)
@@ -136,7 +112,7 @@ class RestInterface(Interface):
             try:
                 # set state using address because name may have been aliased
                 self.states["/resources/"+sensor+"/state"] = states[sensor]
-            except:
+            except KeyError:
                 debug('debugRestStates', self.name, "sensor not found", sensor)
 
     # return the state value of the specified sensor address       
@@ -163,13 +139,13 @@ class RestInterface(Interface):
                     return response.json()
             else:
                 return {}
-        except requests.exceptions.Timeout: # timeout
-            debug('debugRestDisable', self.name, "read timeout", path)
-            self.enabled = False
+        except requests.exceptions.Timeout:
+            debug('debugRestProxyDisable', self.name, "read timeout", path)
+#            self.enabled = False
             return {}
-        except Exception as exception:                                 # other exceptions are fatal
-            debug('debugRestDisable', self.name, "exception", path, str(exception))
-            self.enabled = False
+        except Exception as exception:
+            debug('debugRestProxyDisable', self.name, "exception", str(exception))
+#            self.enabled = False
             return {}
 
     def write(self, addr, value):
@@ -203,8 +179,8 @@ class RestInterface(Interface):
                 return True
             else:
                 return False
-        except:
-            debug('debugRest', self.name, "disabled")
-            self.enabled = False
+        except Exception as exception:
+            debug('debugRestProxyDisable', self.name, "exception", str(exception))
+#            self.enabled = False
             return False
 

@@ -7,5 +7,5 @@ multicastGroup = "224.0.0.1"
 restBeaconInterval = 10
 restHeartbeatInterval = 30
 restTimeout = 60
-restStateTimeout = 120
+beaconTimeout = 60
 
