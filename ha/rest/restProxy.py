@@ -114,6 +114,7 @@ class RestProxy(threading.Thread):
                         debug('debugRestProxyDisable', self.name, "reenabling", serviceName, service.addr, serviceTimeStamp)
                         # update the resource cache
                         self.addResources(service)
+                        service.interface.serviceAddr = serviceAddr # update the ipAddr:port in case it changed
                         service.enable()
                     if serviceTimeStamp > service.timeStamp: # service resources have changed
                         debug('debugRestProxyUpdate', self.name, "updating", serviceName, serviceAddr, serviceTimeStamp)
@@ -145,7 +146,7 @@ class RestProxy(threading.Thread):
 
     # get all the resources on the specified service and add to the cache
     def getResources(self, service, serviceResources, serviceTimeStamp, timeStamp):
-        debug('debugRestProxy', self.name, "getting", service.name) #, "resources:", serviceResources, isinstance(serviceResources, list))
+        debug('debugRestProxy', self.name, "getting", service.name)
         # load in a separate thread
         def loadResources():
             service.delResources()
