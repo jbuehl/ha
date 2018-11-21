@@ -4,6 +4,7 @@ webSSLDomain = "cloud.buehltech.com"
 webUpdateInterval = 1
 webPageTitle = "Home Automation"
 runRestServer = True
+restWatch = []
 restIgnore = []
 insideTemp = "diningRoomTemp"
 outsideTemp = "edisonTemp"
@@ -303,11 +304,11 @@ if __name__ == "__main__":
     schedule.start()
 
     # start the task to transmit resource metrics
-    resourceStates = ResourceStateSensor("states", None, resources=resources, event=stateChangeEvent)
+    resourceStates = ResourceStateSensor("resourceStateSensor", None, resources=resources, event=stateChangeEvent)
     startMetrics(resourceStates)
 
     # start the cache to listen for services on other servers
-    restCache = RestProxy("restProxy", resources, event=stateChangeEvent)
+    restCache = RestProxy("restProxy", resources, watch=restWatch, ignore=restIgnore, event=stateChangeEvent)
     restCache.start()
 
     # monitor service states
