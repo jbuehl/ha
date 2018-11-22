@@ -84,7 +84,7 @@ class Interface(Resource):
         return True
         
     def read(self, addr):
-        return False
+        return None
         
     def write(self, addr, theValue):
         return True
