@@ -146,17 +146,15 @@ class RestProxy(threading.Thread):
 
     # get all the resources on the specified service and add to the cache
     def getResources(self, service, serviceResources, serviceTimeStamp, timeStamp):
-        debug('debugRestProxy', self.name, "getting", service.name)
+        debug('debugRestProxy', self.name, "getting", service.name, "resources:", str(serviceResources))
         # load in a separate thread
         def loadResources():
             service.delResources()
             service.addResources()
             try:
-                if isinstance(serviceResources, list):
-                    for serviceResource in serviceResources:
-                        self.loadPath(service.resources, service.interface, "/"+service.interface.read("/"+serviceResource)["name"])
-                else:   # for backwards compatibility
-                    self.loadPath(service.resources, service.interface, "/"+serviceResources["name"])
+                for serviceResource in serviceResources:
+#                    self.loadPath(service.resources, service.interface, "/"+service.interface.readRest("/"+serviceResource)["name"])
+                    self.loadPath(service.resources, service.interface, "/"+serviceResource)
                 service.resourceNames = service.resources.keys()    # FIXME - need to alias the names
                 service.timeStamp = serviceTimeStamp
                 service.interface.readStates()          # fill the cache for these resources
@@ -169,7 +167,8 @@ class RestProxy(threading.Thread):
     # load resources from the path on the specified interface
     # this does not replicate the collection hierarchy being read
     def loadPath(self, resources, interface, path):
-        node = interface.read(path)
+        debug('debugLoadResources', self.name, "loadPath", "path:", path)
+        node = interface.readRest(path)
         self.loadResource(resources, interface, node, path)
         if "resources" in node.keys():
             # the node is a collection
@@ -178,19 +177,19 @@ class RestProxy(threading.Thread):
 
     # instantiate the resource from the specified node            
     def loadResource(self, resources, interface, node, path):
-        debug('debugCollection', self.name, "loadResource", "node:", node)
+        debug('debugLoadResources', self.name, "loadResource", "node:", node)
         try:
             # ignore certain resource types
             if node["class"] not in ["Collection", "HACollection", "Schedule", "ResourceStateSensor", "RestServiceProxy"]:
                 # override attributes with alias attributes if specified for the resource
                 try:
                     aliasAttrs = resources.aliases[node["name"]]
-                    debug('debugCollection', self.name, "loadResource", node["name"], "found alias")
+                    debug('debugLoadResources', self.name, "loadResource", node["name"], "found alias")
                     for attr in aliasAttrs.keys():
                         node[attr] = aliasAttrs[attr]
-                        debug('debugCollection', self.name, "loadResource", node["name"], "attr:", attr, "value:", aliasAttrs[attr])
+                        debug('debugLoadResources', self.name, "loadResource", node["name"], "attr:", attr, "value:", aliasAttrs[attr])
                 except KeyError:
-                    debug('debugCollection', self.name, "loadResource", node["name"], "no alias")
+                    debug('debugLoadResources', self.name, "loadResource", node["name"], "no alias")
                     pass
                 # assemble the argument string
                 argStr = ""
@@ -209,11 +208,11 @@ class RestProxy(threading.Thread):
                         argStr += arg+"='"+node[arg]+"', "
                     else:                                   # arg is numeric or other
                         argStr += arg+"="+str(node[arg])+", "
-                debug("debugCollection", "creating", className+"("+argStr[:-2]+")")
+                debug("debugLoadResources", "creating", className+"("+argStr[:-2]+")")
                 exec("resource = "+className+"("+argStr[:-2]+")")
                 resources.addRes(resource)
         except Exception as exception:
-            log(self.name, "loadResource", interface.name, str(node), path, str(exception))
+            log(self.name, "loadResource", interface.name, "exception", str(node), path, str(exception))
             try:
                 if debugExceptions:
                     raise

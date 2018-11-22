@@ -3,6 +3,8 @@ import requests
 import urllib
 import socket
 import threading
+import sys
+import inspect
 from ha import *
 from ha.rest.restConfig import *
 
@@ -86,55 +88,55 @@ class RestInterface(Interface):
         if not self.enabled:
             return None
         if self.cache:
-            debug('debugRestStates', self.name, "states", self.states)
+            # return the value from the cache if it is there
             try:
-                if self.states[addr] == None:
+                if self.states[addr] == None:   # cache contains no value
                     if self.sensorAddrs[addr].getStateType() != None:
-                        self.states[addr] = self.readState(addr)
-                return self.states[addr]
+                        # None is not a valid value for this type of sensor
+                        self.states[addr] = self.readRest(addr)["state"]
             except KeyError:
-                return self.readState(addr)
+                self.states[addr] = self.readRest(addr)["state"]
+            return self.states[addr]
         else:
-            return self.readState(addr)
+            # read the current value from the sensor
+            return self.readRest(addr)["state"]
 
-    # load state values of all sensor addresses
-    def readStates(self, addr="/resources/states/state"):
-        states = self.readState(addr)
+    # get state values of all sensors on this interface
+    def readStates(self, path="/resources/states/state"):
+        debug('debugRestStates', self.name, "readStates", "path", path)
+        attr = path.split("/")[-1]
+        states = self.readRest(path)[attr]
         debug('debugRestStates', self.name, "readStates", "states", states)
         self.setStates(states)
         return states
 
-    # set state values of all sensor addresses into the cache
+    # set state values of all sensors into the cache
     def setStates(self, states):
         for sensor in states.keys():
             try:
-                # set state using address because name may have been aliased
                 self.states["/resources/"+sensor+"/state"] = states[sensor]
             except KeyError:
                 debug('debugRestStates', self.name, "sensor not found", sensor)
 
-    # return the state value of the specified sensor address       
-    def readState(self, addr):
-        debug('debugRestStates', self.name, "readState", addr)
-        path = self.serviceAddr+urllib.quote(addr)
+    # read the json data from the specified path      
+    def readRest(self, path):
+        debug('debugRestStates', self.name, "readRest", path)
+        addrPath = self.serviceAddr+urllib.quote(path)
         try:
             if self.secure:
-                url = "https://"+path
+                url = "https://"+addrPath
                 debug('debugRestGet', self.name, "GET", url)
                 response = requests.get(url, timeout=restTimeout,
                                  cert=(self.crtFile, self.keyFile), 
                                  verify=False)
             else:
-                url = "http://"+path
+                url = "http://"+addrPath
                 debug('debugRestGet', self.name, "GET", url)
                 response = requests.get(url, timeout=restTimeout)
             debug('debugRestGet', self.name, "status", response.status_code)
             if response.status_code == 200:
-                attr = addr.split("/")[-1]
-                if (attr == "state") or (attr == "stateChange"):
-                    return response.json()[attr]
-                else:
-                    return response.json()
+                debug('debugRestGet', self.name, "response", response.json())
+                return response.json()
             else:
                 log(self.name, "read state status", response.status_code)
                 return None
@@ -145,8 +147,9 @@ class RestInterface(Interface):
             log(self.name, "read state exception", str(exception))
             return None
 
+    # write the control state to the specified address
     def write(self, addr, value):
-        path = self.serviceAddr+urllib.quote(addr)
+        debug('debugRestStates', self.name, "write", addr, value)
         if self.cache:
             if self.writeThrough:
                 # update the cache
@@ -156,9 +159,15 @@ class RestInterface(Interface):
                 # invalidate the cache
                 self.states[addr] = None
         data=json.dumps({addr.split("/")[-1]:value})
+        return self.writeRest(addr, data)
+
+    # write json data to the specified path
+    def writeRest(self, path, data):
+        debug('debugRestStates', self.name, "writeRest", path, data)
+        addrPath = self.serviceAddr+urllib.quote(path)
         try:
             if self.secure:
-                url = "https://"+path
+                url = "https://"+addrPath
                 debug('debugRestPut', self.name, "PUT", url, "data:", data)
                 response = requests.put(url,
                                  headers={"content-type":"application/json"}, 
@@ -166,7 +175,7 @@ class RestInterface(Interface):
                                  cert=(self.crtFile, self.keyFile), 
                                  verify=False)
             else:
-                url = "http://"+path
+                url = "http://"+addrPath
                 debug('debugRestPut', self.name, "PUT", url, "data:", data)
                 response = requests.put(url, 
                                  headers={"content-type":"application/json"}, 
