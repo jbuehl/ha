@@ -10,8 +10,6 @@ insideTemp = "diningRoomTemp"
 outsideTemp = "edisonTemp"
 poolTemp = "poolTemp"
 serviceMonitorNotifyNumbers = []
-xmas = False
-holidayLights = "holidayLights"
 
 import time
 from jinja2 import Environment, FileSystemLoader
@@ -284,10 +282,9 @@ if __name__ == "__main__":
     resources.addRes(Task("porchLightsOnSunset", SchedTime(event="sunset"), "porchLights", 1, resources=resources))
     resources.addRes(Task("outsideLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "outsideLights", 0, resources=resources))
     resources.addRes(Task("outsideLightsOffSunrise", SchedTime(event="sunrise"), "outsideLights", 0, resources=resources))
-    if xmas:
-        resources.addRes(Task("xmasLightsOnSunset", SchedTime(event="sunset"), "xmasLights", 1, resources=resources))
-        resources.addRes(Task("xmasLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, resources=resources))
-        resources.addRes(Task("xmasLightsOffSunrise", SchedTime(event="sunrise"), "xmasLights", 0, resources=resources))
+    resources.addRes(Task("xmasLightsOnSunset", SchedTime(event="sunset"), "xmasLights", 1, resources=resources))
+    resources.addRes(Task("xmasLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, resources=resources))
+    resources.addRes(Task("xmasLightsOffSunrise", SchedTime(event="sunrise"), "xmasLights", 0, resources=resources))
 #        resources.addRes(Task("xmasTreeOnXmas", SchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1, resources=resources))
     
     # Light schedule
@@ -297,10 +294,9 @@ if __name__ == "__main__":
     schedule.addTask(resources["porchLightsOnSunset"])
     schedule.addTask(resources["outsideLightsOffMidnight"])
     schedule.addTask(resources["outsideLightsOffSunrise"])
-    if xmas:
-        schedule.addTask(resources["xmasLightsOnSunset"])
-        schedule.addTask(resources["xmasLightsOffMidnight"])
-        schedule.addTask(resources["xmasLightsOffSunrise"])
+    schedule.addTask(resources["xmasLightsOnSunset"])
+    schedule.addTask(resources["xmasLightsOffMidnight"])
+    schedule.addTask(resources["xmasLightsOffSunrise"])
 #        schedule.addTask(resources["xmasTreeOnXmas"])
     schedule.start()
 
