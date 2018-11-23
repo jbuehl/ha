@@ -136,7 +136,8 @@ class SensorGroup(Sensor):
                     sensorName = ""
                     sensorState = 0
             debug("debugSensorGroup", self.name, "sensor:", sensorName, "state:", sensorState)
-            groupState = groupState or sensorState    # group is on if any one sensor is on
+            if sensorState:
+                groupState = groupState or sensorState    # group is on if any one sensor is on
         return groupState
 
 # A set of Controls whose state can be changed together
