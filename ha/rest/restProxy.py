@@ -100,9 +100,15 @@ class RestProxy(threading.Thread):
                 if serviceName not in self.services.keys():
                     # create a new service proxy
                     debug('debugRestProxyAdd', self.name, "adding", serviceName, serviceAddr, serviceTimeStamp, serviceStateChange)
-                    self.services[serviceName] = RestServiceProxy(serviceName, RestInterface(serviceName+"Interface", serviceAddr=serviceAddr, event=self.event, 
-                                                                                    secure=False, stateChange=serviceStateChange), serviceAddr, 
-                                                                    serviceTimeStamp, label=serviceLabel, group="Services")
+                    self.services[serviceName] = RestServiceProxy(serviceName, 
+                                                                    RestInterface(serviceName+"Interface", 
+                                                                                    serviceAddr=serviceAddr, 
+                                                                                    event=self.event, 
+                                                                                    secure=False, stateChange=serviceStateChange), 
+                                                                    addr=0, 
+                                                                    timeStamp=serviceTimeStamp, 
+                                                                    label=serviceLabel, 
+                                                                    group="Services")
                     service = self.services[serviceName]
                     service.enable()
                     self.getResources(service, serviceResources, serviceTimeStamp, timeStamp)
@@ -111,7 +117,7 @@ class RestProxy(threading.Thread):
                     service.cancelBeaconTimer("beacon received")
                     if not service.enabled:     # the service was previously disabled but it is broadcasting again
                         # re-enable it
-                        debug('debugRestProxyDisable', self.name, "reenabling", serviceName, service.addr, serviceTimeStamp)
+                        debug('debugRestProxyDisable', self.name, "reenabling", serviceName, serviceAddr, serviceTimeStamp)
                         # update the resource cache
                         self.addResources(service)
                         service.interface.serviceAddr = serviceAddr # update the ipAddr:port in case it changed
