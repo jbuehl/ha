@@ -78,34 +78,37 @@ class RestInterface(Interface):
         if self.enabled:
             self.enabled = False
             debug('debugRest', self.name, "stopping")
-            self.states = {}
+            # invalidate the state cache
+            for state in self.states.keys():
+                self.states[state] = None
             debug('debugRest', self.name, "closing socket")
             self.socket.close()
         
     # return the state value for the specified sensor address
+    # addr is the REST path to the specified resource
     def read(self, addr):
         debug('debugRestStates', self.name, "read", addr)
         if not self.enabled:
             return None
-        if self.cache:
+        # read the state from the interface unless it is in the cache
+        # or None is a valid value for this type of sensor
+        if (not self.cache) or ((self.states[addr] == None) and (self.sensorAddrs[addr].getStateType() != None)):
             # return the value from the cache if it is there
             try:
-                if self.states[addr] == None:   # cache contains no value
-                    if self.sensorAddrs[addr].getStateType() != None:
-                        # None is not a valid value for this type of sensor
-                        self.states[addr] = self.readRest(addr)["state"]
-            except KeyError:
                 self.states[addr] = self.readRest(addr)["state"]
-            return self.states[addr]
-        else:
-            # read the current value from the sensor
-            return self.readRest(addr)["state"]
+            except KeyError:
+                self.states[addr] = None
+        return self.states[addr]
 
     # get state values of all sensors on this interface
     def readStates(self, path="/resources/states/state"):
         debug('debugRestStates', self.name, "readStates", "path", path)
-        attr = path.split("/")[-1]
-        states = self.readRest(path)[attr]
+        # type of state resource: "state", "stateChange"
+        stateType = path.split("/")[-1]
+        try:
+            states = self.readRest(path)[stateType]
+        except KeyError:
+            states = {}
         debug('debugRestStates', self.name, "readStates", "states", states)
         self.setStates(states)
         return states
@@ -113,12 +116,9 @@ class RestInterface(Interface):
     # set state values of all sensors into the cache
     def setStates(self, states):
         for sensor in states.keys():
-            try:
-                self.states["/resources/"+sensor+"/state"] = states[sensor]
-            except KeyError:
-                debug('debugRestStates', self.name, "sensor not found", sensor)
+            self.states["/resources/"+sensor+"/state"] = states[sensor]
 
-    # read the json data from the specified path      
+    # read the json data from the specified path and return a dictionary    
     def readRest(self, path):
         debug('debugRestStates', self.name, "readRest", path)
         addrPath = self.serviceAddr+urllib.quote(path)
@@ -139,15 +139,16 @@ class RestInterface(Interface):
                 return response.json()
             else:
                 log(self.name, "read state status", response.status_code)
-                return None
+                return {}
         except requests.exceptions.Timeout:
             log(self.name, "read state timeout", path)
-            return None
+            return {}
         except Exception as exception:
             log(self.name, "read state exception", str(exception))
-            return None
+            return {}
 
     # write the control state to the specified address
+    # addr is the REST path to the specified resource
     def write(self, addr, value):
         debug('debugRestStates', self.name, "write", addr, value)
         if self.cache:
@@ -158,6 +159,7 @@ class RestInterface(Interface):
             else:
                 # invalidate the cache
                 self.states[addr] = None
+        # create a jsonized dictionary
         data=json.dumps({addr.split("/")[-1]:value})
         return self.writeRest(addr, data)
 
