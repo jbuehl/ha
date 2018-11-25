@@ -93,7 +93,7 @@ class Interface(Resource):
         debug('debugObject', self.name, "sensor", sensor.name)
         self.sensors[sensor.name] = sensor
         self.sensorAddrs[sensor.addr] = sensor
-        self.states[sensor.addr] = 0 # None - FIXME
+        self.states[sensor.addr] = None
         sensor.event = self.event
         
     # return the data type of the state of the specified sensor
