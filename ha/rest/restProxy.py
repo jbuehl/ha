@@ -93,7 +93,7 @@ class RestProxy(threading.Thread):
                 debug('debugRestProxy', self.name, "renaming", serviceName, "to", newServiceName)
                 serviceName = newServiceName
                 serviceLabel = newServiceLabel
-            timeStamp = time.time()
+#            timeStamp = time.time()
             # determine if this service should be processed based on watch and ignore lists
             if ((self.watch != []) and (serviceName  in self.watch)) or ((self.watch == []) and (serviceName not in self.ignore)):
                 debug('debugRestProxy', self.name, "processing", serviceName, serviceAddr, serviceTimeStamp)
@@ -111,7 +111,7 @@ class RestProxy(threading.Thread):
                                                                     group="Services")
                     service = self.services[serviceName]
                     service.enable()
-                    self.getResources(service, serviceResources, serviceTimeStamp, timeStamp)
+                    self.getResources(service, serviceResources, serviceTimeStamp)
                 else:   # service is already in the cache
                     service = self.services[serviceName]
                     service.cancelBeaconTimer("beacon received")
@@ -126,7 +126,7 @@ class RestProxy(threading.Thread):
                         debug('debugRestProxyUpdate', self.name, "updating", serviceName, serviceAddr, serviceTimeStamp)
                         # delete the resources from the cache and get new resources for the service
                         self.delResources(service)
-                        self.getResources(service, serviceResources, serviceTimeStamp, timeStamp)
+                        self.getResources(service, serviceResources, serviceTimeStamp)
                     else:   # no resource changes - skip it
                         debug('debugRestProxy', self.name, "skipping", serviceName, service.addr, serviceTimeStamp)
                 service.startBeaconTimer()
@@ -134,97 +134,15 @@ class RestProxy(threading.Thread):
             else:
                 debug('debugRestProxy', self.name, "ignoring", serviceName, serviceAddr, serviceTimeStamp)
 
-#            # if a proxy service interface is disabled, disable the service
-#            for serviceName in self.services.keys():
-#                service = self.services[serviceName]
-#                if service.enabled:
-#                    if not service.interface.enabled:
-#                        # the service interface is disabled due to a heartbeat timeout or exception
-#                        # delete the service resources and disable the service proxy
-#                        debug('debugRestProxyDisable', self.name, "disabling", serviceName, service.addr, serviceTimeStamp)
-#                        service.cancelBeaconTimer("service disabled")
-#                        service.disable()
-#                        self.delResources(service)
-#                        self.cacheTime = timeStamp
-#                        self.event.set()
-#                        debug('debugInterrupt', self.name, "event set")
         debug('debugThread', self.name, "terminated")
 
     # get all the resources on the specified service and add to the cache
-    def getResources(self, service, serviceResources, serviceTimeStamp, timeStamp):
+    def getResources(self, service, serviceResources, serviceTimeStamp):
         debug('debugRestProxy', self.name, "getting", service.name, "resources:", str(serviceResources))
-        # load in a separate thread
-        def loadResources():
-            service.delResources()
-            service.addResources()
-            try:
-                for serviceResource in serviceResources:
-#                    self.loadPath(service.resources, service.interface, "/"+service.interface.readRest("/"+serviceResource)["name"])
-                    self.loadPath(service.resources, service.interface, "/"+serviceResource)
-                service.resourceNames = service.resources.keys()    # FIXME - need to alias the names
-                service.timeStamp = serviceTimeStamp
-                service.interface.readStates()          # fill the cache for these resources
-                self.addResources(service)
-            except KeyError:
-                service.disable()
-        loadResourcesThread = threading.Thread(target=loadResources)
+        # load resources in a separate thread
+        loadResourcesThread = threading.Thread(target=service.loadResources, args=(self, serviceResources, serviceTimeStamp,))
         loadResourcesThread.start()
 
-    # load resources from the path on the specified interface
-    # this does not replicate the collection hierarchy being read
-    def loadPath(self, resources, interface, path):
-        debug('debugLoadResources', self.name, "loadPath", "path:", path)
-        node = interface.readRest(path)
-        self.loadResource(resources, interface, node, path)
-        if "resources" in node.keys():
-            # the node is a collection
-            for resource in node["resources"]:
-                self.loadPath(resources, interface, path+"/"+resource)
-
-    # instantiate the resource from the specified node            
-    def loadResource(self, resources, interface, node, path):
-        debug('debugLoadResources', self.name, "loadResource", "node:", node)
-        try:
-            # ignore certain resource types
-            if node["class"] not in ["Collection", "HACollection", "Schedule", "ResourceStateSensor", "RestServiceProxy"]:
-                # override attributes with alias attributes if specified for the resource
-                try:
-                    aliasAttrs = resources.aliases[node["name"]]
-                    debug('debugLoadResources', self.name, "loadResource", node["name"], "found alias")
-                    for attr in aliasAttrs.keys():
-                        node[attr] = aliasAttrs[attr]
-                        debug('debugLoadResources', self.name, "loadResource", node["name"], "attr:", attr, "value:", aliasAttrs[attr])
-                except KeyError:
-                    debug('debugLoadResources', self.name, "loadResource", node["name"], "no alias")
-                    pass
-                # assemble the argument string
-                argStr = ""
-                for arg in node.keys():
-                    if arg == "class":
-                        className = node[arg]
-                        if className == "HAControl":        # FIXME - temp until ESPs are changed
-                            className = "Control"
-                    elif arg == "interface":                # use the REST interface
-                        argStr += "interface=interface, "
-                    elif arg == "addr":                     # addr is REST path
-                        argStr += "addr=path+'/state', "
-                    elif arg == "schedTime":                # FIXME - need to generalize this for any class
-                        argStr += "schedTime=SchedTime(**"+str(node["schedTime"])+"), "
-                    elif isinstance(node[arg], str) or isinstance(node[arg], unicode):  # arg is a string
-                        argStr += arg+"='"+node[arg]+"', "
-                    else:                                   # arg is numeric or other
-                        argStr += arg+"="+str(node[arg])+", "
-                debug("debugLoadResources", "creating", className+"("+argStr[:-2]+")")
-                exec("resource = "+className+"("+argStr[:-2]+")")
-                resources.addRes(resource)
-        except Exception as exception:
-            log(self.name, "loadResource", interface.name, "exception", str(node), path, str(exception))
-            try:
-                if debugExceptions:
-                    raise
-            except NameError:
-                pass
-            
     # add the resource of the service as well as 
     # all the resources from the specified service to the cache
     def addResources(self, service):
