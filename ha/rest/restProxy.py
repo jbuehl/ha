@@ -149,9 +149,10 @@ class RestProxy(threading.Thread):
         debug('debugRestProxy', self.name, "adding resources for service", service.name)
         debug('debugRestLock', service.name, "locking")
         with self.resources.lock:
-            self.resources.addRes(service)                  # the resource for the service
-            self.resources.addRes(service.missedSeqSensor)  # missed beacon messages
-            self.resources.update(service.resources)        # resources from the service
+            self.resources.addRes(service)                          # the resource for the service
+            self.resources.addRes(service.missedSeqSensor)          # missed beacon messages
+            self.resources.addRes(service.missedSeqPctSensor)       # percent of missed beacon messages
+            self.resources.update(service.resources)                # resources from the service
         debug('debugRestLock', service.name, "unlocking")
         self.cacheTime = service.timeStamp
         self.event.set()

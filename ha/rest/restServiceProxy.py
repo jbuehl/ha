@@ -15,11 +15,13 @@ class RestServiceProxy(Sensor):
         self.beaconTimer = None
         self.lastSeq = 0                # the last beacon message sequence number received
         self.missedSeq = 0              # count of how many missed beacon messages for this service
+        self.missedSeqPct = 0.0         # percentage of missed messages 
         try:
             serviceName = name.split(".")[1]
         except IndexError:
             serviceName = name
         self.missedSeqSensor = AttributeSensor(serviceName+"-missedSeq", None, None, self, "missedSeq")
+        self.missedSeqPctSensor = AttributeSensor(serviceName+"-missedSeqPct", None, None, self, "missedSeqPct")
 
     def getState(self):
         return normalState(self.enabled)
@@ -52,11 +54,13 @@ class RestServiceProxy(Sensor):
             self.resources = None
 
     def logSeq(self, seq):
-        debug('debugRestSeq', "RestServiceProxy", self.name, seq, self.lastSeq, self.missedSeq)
+        debug('debugRestSeq', "RestServiceProxy", self.name, seq, self.lastSeq, self.missedSeq, self.missedSeqPct)
         if seq == 0:
             self.lastSeq = 0    # reset when the service starts
+            self.missedSeqPct = 0.0
         if self.lastSeq != 0:   # ignore the first one after this program starts
             self.missedSeq += seq - self.lastSeq - 1
+        self.missedSeqPct = (float(self.missedSeq) / float(seq)) * 100.0
         self.lastSeq = seq
 
     # define a timer to disable the interface if the beacon times out
