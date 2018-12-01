@@ -60,7 +60,8 @@ class RestServiceProxy(Sensor):
             self.missedSeqPct = 0.0
         if self.lastSeq != 0:   # ignore the first one after this program starts
             self.missedSeq += seq - self.lastSeq - 1
-        self.missedSeqPct = (float(self.missedSeq) / float(seq)) * 100.0
+        if seq > 0:
+            self.missedSeqPct = (float(self.missedSeq) / float(seq)) * 100.0
         self.lastSeq = seq
 
     # define a timer to disable the interface if the beacon times out
