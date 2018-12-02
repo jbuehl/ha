@@ -64,7 +64,7 @@ class RestServiceProxy(Sensor):
             self.missedSeqPct = float(self.missedSeq) / float(seq)
         self.lastSeq = seq
 
-    # define a timer to disable the interface if the beacon times out
+    # define a timer to disable the service if the beacon times out
     # can't use a socket timeout because multiple threads are using the same port
     def beaconTimeout(self):
         debug('debugBeaconTimer', self.name, "timer expired")
