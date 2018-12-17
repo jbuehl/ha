@@ -39,6 +39,27 @@ patterns = {"on": on,
             "mlk": white+red+yellow+rust,
             }
 
+# more colors
+c1 = color(255,000,000)
+c2 = color(191,063,000)
+c3 = color(127,127,000)
+c4 = color(063,191,000)
+c5 = color(000,255,000)
+c6 = color(000,191,063)
+c7 = color(000,127,127)
+c8 = color(000,063,191)
+c9 = color(000,000,255)
+c10 = color(063,000,191)
+c11 = color(127,000,127)
+c12 = color(191,000,063)
+c13 = color(223,000,031)
+
+# strings
+leftString = 112
+centerString = 58
+rightString1 = 30
+rightString2 = 143
+
 stateChangeEvent = threading.Event()
 
 if __name__ == "__main__":
@@ -47,7 +68,7 @@ if __name__ == "__main__":
     # Interfaces
 #    gpioInterface = GPIOInterface("gpioInterface", event=stateChangeEvent)
 #    ledInterface = LedInterface("ledInterface", gpioInterface)
-    neopixelInterface = NeopixelInterface("neopixelInterface", None, length=550)    # FIXME
+    neopixelInterface = NeopixelInterface("neopixelInterface", None, length=550, event=stateChangeEvent)
 #    configData = FileInterface("configData", fileName=stateDir+"lights.conf", event=stateChangeEvent)
     
     # Lights
@@ -60,48 +81,97 @@ if __name__ == "__main__":
     allLights = ("allLights", 0, 343)
     
     fallLights = HolidayLightControl("fallLights", neopixelInterface, 
-                                        segments=[Segment("all",     0, 343, pattern=5*[red]+5*[orange]+5*[rust]+5*[orange]),
+                                        segments=[Segment("all",     0, 343, 
+                                                          pattern=5*[red]+5*[orange]+5*[rust]+5*[orange]),
                                                  ],
                                         type="light", group="Lights", label="Fall lights")
     halloweenLights = HolidayLightControl("halloweenLights", neopixelInterface, 
 #                                        patterns, animations, 
 #                                        patternControl=holidayLightPattern, animationControl=holidayLightAnimation,
-                                        segments=[Segment("leftSegment",     0, 112, pattern=5*[orange]),
-                                                  Segment("centerSegment", 112,  58, pattern=2*[indigo]),
-                                                  Segment("rightSegment",  170, 140, pattern=5*[orange], animation=FlickerAnimation(rate=3)),
-                                                  Segment("farRightSegment", 310, 33, pattern=5*[orange], animation=FlickerAnimation()),
+                                        segments=[Segment("leftSegment",     0, 112, 
+                                                           pattern=5*[orange]),
+                                                  Segment("centerSegment", 112,  58, 
+                                                           pattern=2*[indigo]),
+                                                  Segment("rightSegment",  170, 140, 
+                                                           pattern=5*[orange], 
+                                                           animation=FlickerAnimation(rate=3)),
+                                                  Segment("farRightSegment", 310, 33, 
+                                                           pattern=5*[orange], 
+                                                           animation=FlickerAnimation()),
                                                  ],
                                         type="light", group="Lights", label="Halloween lights")
     hanukkahLights = HolidayLightControl("hanukkahLights", neopixelInterface, 
-                                        segments=[Segment("leftSegment",     0, 112, pattern=5*[blue]+5*[white]),
-                                                  Segment("centerSegment", 112,  58, pattern=5*[white]),
-                                                  Segment("rightSegment",  170, 173, pattern=5*[blue]+5*[white]),
+                                        segments=[Segment("leftSegment",     0, 200, 
+                                                           pattern=7*[blue]+3*[white]),
+                                                  Segment("darkSegment", 200,  200, 
+                                                           pattern=[off]),
+                                                  Segment("rightSegment",  400, 143, 
+                                                           pattern=7*[blue]+3*[white]),
                                                  ],
                                         type="light", group="Lights", label="Hanukkah lights")
+#    christmasPattern = 3*[red]+1*[white]+6*[green]
+    christmasPattern = 1*[green]+1*[magenta]+1*[blue]+1*[yellow]+1*[red]
+    christmasAnimation = None
+#    treeUpPattern = 5*[c1]+5*[c2]+5*[c3]+5*[c4]+5*[c5]+5*[c6]+5*[c7]+5*[c8]+5*[c9]+5*[c10]+5*[c11]+5*[c12]+5*[c13]
+#    treeDownPattern = 1*[c13]+1*[c12]+1*[c11]+1*[c10]+1*[c9]+1*[c8]+1*[c7]+1*[c6]+1*[c5]+1*[c4]+1*[c3]+1*[c2]+1*[c1]
+#    treeUpPattern = 1*[red]+1*[white]+1*[green]
+    treeUpPattern = [white]
+    treeDownPattern = treeUpPattern
+#    treeUpAnimation = CrawlAnimation(direction=1, rate=5)
+#    treeDownAnimation = CrawlAnimation(direction=-1, rate=25)
+    treeUpAnimation = SparkleAnimation(rate=15, factor=.1)
+    treeDownAnimation = treeUpAnimation
+    starPattern = [white]
+    starAnimation = None
+    windowPattern = 1*[red]+1*[white]+1*[green]
+    windowAnimation = None
+    treeSegments = [  Segment("treeSegment", 303,  65, pattern=treeUpPattern,animation=treeUpAnimation),
+                      Segment("starSegment", 368,  4, pattern=starPattern, animation=starAnimation),
+                      Segment("treeSegment", 372,  13, pattern=treeDownPattern,animation=treeDownAnimation),
+                    ]
+    insideSegments = [Segment("windowSegment", 200,  100, pattern=windowPattern, animation=windowAnimation),
+                      Segment("darkSegment", 300,  3,pattern=[off])] + \
+                      treeSegments + \
+                     [Segment("darkSegment", 385,  3,pattern=[off]),
+                      Segment("windowSegment", 388,  12, pattern=windowPattern, animation=windowAnimation)]
     christmasLights = HolidayLightControl("christmasLights", neopixelInterface, 
-                                        segments=[Segment("leftSegment",     0, 112, pattern=3*[red]+7*[green]),
-                                                  Segment("centerSegment", 112,  58, pattern=5*[white], animation=SparkleAnimation(rate=10, factor=.1)),
-                                                  Segment("rightSegment", 170,  30, pattern=3*[red]+7*[green]),
-#                                                  Segment("windowSegment", 200,  25, pattern=5*[white]),
-#                                                  Segment("treeSegment", 225,  80, pattern=3*[red]+3*[white], animation=CrawlAnimation(direction=1)),
-#                                                  Segment("windowSegment", 305,  95, pattern=5*[white]),
-#                                                  Segment("rightSegment",  400, 143, pattern=3*[red]+7*[green]),
-                                                  Segment("rightSegment",  200, 143, pattern=3*[red]+7*[green]),
-                                                 ],
+                                        segments=[Segment("leftSegment",     0, 112, 
+                                                           pattern=christmasPattern),
+                                                  Segment("centerSegment", 112,  58, 
+                                                           pattern=5*[white], 
+                                                           animation=None),
+                                                  Segment("rightSegment", 170,  30, 
+                                                           pattern=christmasPattern)] + \
+                                                  insideSegments + \
+                                                 [Segment("rightSegment",  400, 143, 
+                                                           pattern=christmasPattern)],
                                         type="light", group="Lights", label="Christmas lights")
+    christmasTree = HolidayLightControl("christmasTree", neopixelInterface, 
+                                        segments=[Segment("darkSegment", 0,  303, 
+                                                           pattern=[off])] + \
+                                                  treeSegments,
+                                        type="light", group="Lights", label="Christmas tree")
     electionLights = HolidayLightControl("electionLights", neopixelInterface, 
-                                        segments=[Segment("leftSegment",     0, 112, pattern=10*[red]+10*[white]+10*[blue], animation=CrawlAnimation(direction=1)),
-                                                  Segment("centerSegment", 112,  58, pattern=1*[red]+1*[white]+1*[blue], animation=SparkleAnimation(rate=1)),
-                                                  Segment("rightSegment",  170, 173, pattern=10*[red]+10*[white]+10*[blue], animation=CrawlAnimation(direction=-1)),
+                                        segments=[Segment("leftSegment",     0, 112, 
+                                                           pattern=10*[red]+10*[white]+10*[blue], 
+                                                           animation=CrawlAnimation(direction=1)),
+                                                  Segment("centerSegment", 112,  58, 
+                                                           pattern=1*[red]+1*[white]+1*[blue], 
+                                                           animation=SparkleAnimation(rate=1)),
+                                                  Segment("rightSegment",  170, 173, 
+                                                           pattern=10*[red]+10*[white]+10*[blue], 
+                                                           animation=CrawlAnimation(direction=-1)),
                                                  ],
                                         type="light", group="Lights", label="Election lights")
     testLights = HolidayLightControl("testLights", neopixelInterface, 
-                                        segments=[Segment("all",     0, 550, pattern=[red]+[orange]+[yellow]+[green]+[blue], animation=CrawlAnimation(direction=1)),
+                                        segments=[Segment("all",     0, 550, 
+                                                           pattern=[red]+[orange]+[yellow]+[green]+[blue], 
+                                                           animation=CrawlAnimation(direction=1)),
                                                  ],
                                         type="light", group="Lights", label="Test lights")
 
     # Resources
-    resources = Collection("resources", resources=[fallLights, halloweenLights, hanukkahLights, christmasLights, electionLights, testLights,
+    resources = Collection("resources", resources=[fallLights, halloweenLights, hanukkahLights, christmasLights, christmasTree, electionLights, testLights,
 #                                                   holidayLightPattern, holidayLightAnimation,
 #                                                   sculptureLights, 
                                                    ])
