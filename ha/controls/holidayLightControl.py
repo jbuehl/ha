@@ -151,6 +151,12 @@ class HolidayLightControl(Control):
             self.segments = segments
         else:
             self.segments = [Segment(self.interface, 0, self.interface.length)]
+        # compute segment positions if not explicitly specified
+        pos = 0
+        for segment in self.segments:
+            if segment.start == 0:
+                segment.start = pos
+            pos += segment.length
         self.running = False
 
     def getState(self):
