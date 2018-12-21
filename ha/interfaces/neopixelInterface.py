@@ -1,11 +1,19 @@
 
 from neopixel import *
 from ha import *
-     
-# color definitions
+
+# convert a RGB tuple to a color     
 def color(r, g, b):
-    return (r<<16)+(g<<8)+b
+    return (r<<16 if r>0 else 0)+(g<<8 if g>0 else 0)+(b if b>0 else 0)
     
+# convert a color to a RGB tuple
+def uncolor(c):
+    r = (c>>16) & 0xff
+    g = (c>>8) & 0xff
+    b = c & 0xff
+    return (r, g, b)
+
+# color definitions
 on = color(255,255,255)
 off = color(0,0,0)
 
