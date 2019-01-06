@@ -132,20 +132,25 @@ if __name__ == "__main__":
                                         type="light", group="Lights", label="Hanukkah lights")
 #    christmasPattern = 3*[red]+1*[white]+6*[green]
     christmasPattern = 1*[green]+1*[magenta]+1*[blue]+1*[yellow]+1*[red]
-    christmasAnimation = SparkleAnimation(rate=15, factor=.1)
+#    christmasAnimation = SparkleAnimation(rate=15, factor=.1)
+#    christmasAnimation = SparkleAnimation(rate=5, factor=.5)
+    christmasAnimation = None
 #    treeUpPattern = 5*[c1]+5*[c2]+5*[c3]+5*[c4]+5*[c5]+5*[c6]+5*[c7]+5*[c8]+5*[c9]+5*[c10]+5*[c11]+5*[c12]+5*[c13]
 #    treeDownPattern = 1*[c13]+1*[c12]+1*[c11]+1*[c10]+1*[c9]+1*[c8]+1*[c7]+1*[c6]+1*[c5]+1*[c4]+1*[c3]+1*[c2]+1*[c1]
-#    treeUpPattern = 1*[red]+1*[white]+1*[green]
-    treeUpPattern = [white]
+    treeUpPattern = 1*[red]+1*[white]+1*[green]
+#    treeUpPattern = [white]
     treeDownPattern = treeUpPattern
     spectrum4Pattern = spectrum(4)
 #    treeUpAnimation = CrawlAnimation(direction=1, rate=5)
 #    treeDownAnimation = CrawlAnimation(direction=-1, rate=25)
-    treeUpAnimation = SparkleAnimation(rate=15, factor=.1)
+#    treeUpAnimation = RandomColorAnimation()
+    treeUpAnimation = None
+#    treeUpAnimation = SparkleAnimation(rate=15, factor=.1)
+#    treeUpAnimation = treeAnimation
     treeDownAnimation = treeUpAnimation
     starPattern = [white]
     starAnimation = None
-    windowPattern = 1*[red]+1*[white]+1*[green]
+    windowPattern = [white]
     windowAnimation = None
     treeSegments = [  Segment("treeSegment", 303,  65, pattern=treeUpPattern,animation=treeUpAnimation),
                       Segment("starSegment", 368,  4, pattern=starPattern, animation=starAnimation),
@@ -158,11 +163,13 @@ if __name__ == "__main__":
                       Segment("windowSegment", 388,  12, pattern=windowPattern, animation=windowAnimation)]
     christmasLights = HolidayLightControl("christmasLights", neopixelInterface, 
                                         segments=[Segment("leftSegment",     0, 200, 
-                                                           pattern=spectrum4Pattern[-8:]+spectrum4Pattern, 
+#                                                           pattern=spectrum4Pattern[-8:]+spectrum4Pattern,
+                                                           pattern=christmasPattern, 
                                                            animation=christmasAnimation)] + \
                                                   insideSegments + \
                                                  [Segment("rightSegment",  400, 143, 
-                                                           pattern=spectrum4Pattern, 
+#                                                           pattern=spectrum4Pattern,
+                                                           pattern=christmasPattern ,
                                                            animation=christmasAnimation)],
                                         type="light", group="Lights", label="Christmas lights")
     christmasTree = HolidayLightControl("christmasTree", neopixelInterface, 
@@ -184,13 +191,13 @@ if __name__ == "__main__":
                                         type="light", group="Lights", label="Election lights")
     testLights = HolidayLightControl("testLights", neopixelInterface, 
                                         segments=[Segment("all",     0, 200, 
-                                                           pattern=spectrum(4), 
+                                                           pattern=spectrum4Pattern[-8:]+spectrum4Pattern, 
                                                            animation=CrawlAnimation(direction=1)),
                                                   Segment("all",     0, 200, 
-                                                           pattern=spectrum(4), 
-                                                           animation=CrawlAnimation(direction=1)),
+                                                           pattern=spectrum4Pattern, 
+                                                           animation=None),
                                                   Segment("all",     0, 150, 
-                                                           pattern=spectrum(4), 
+                                                           pattern=spectrum4Pattern+spectrum4Pattern[0:8], 
                                                            animation=CrawlAnimation(direction=1)),
                                                  ],
                                         type="light", group="Lights", label="Test lights")
