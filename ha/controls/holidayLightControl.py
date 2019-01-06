@@ -6,6 +6,12 @@ import threading
 import random
 from ha import *
 
+def randomPattern(length=1, colors=3):
+    pattern = [0]*length
+    for i in range(length):
+        pattern[i] = int(16777215 * random.random()) # random number between 0 and 256**3-1
+    return pattern
+    
 # define a segment of a string of lights
 class Segment(object):
     def __init__(self, name, start, length, pattern=None, animation=None):
@@ -79,6 +85,13 @@ class Animation(object):
         self.animationCount += 1
         if self.animationCount == self.rate:
             self.animationCount = 0
+
+class RandomColorAnimation(Animation):
+    def __init__(self, name="randomcolor", rate=3):
+        Animation.__init__(self, name, rate)
+                                    
+    def cycle(self):                                    
+        self.segment.fill(randomPattern(len(self.segment.pixels)))
 
 class CrawlAnimation(Animation):
     def __init__(self, name="crawl", rate=3, direction=1):
