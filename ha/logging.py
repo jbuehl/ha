@@ -2,6 +2,7 @@
 
 import syslog
 import os
+import time
 from environment import *
 
 # standard timestamp
