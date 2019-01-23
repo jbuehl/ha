@@ -10,7 +10,7 @@ insideTemp = "diningRoomTemp"
 outsideTemp = "edisonTemp"
 poolTemp = "poolTemp"
 serviceMonitorNotifyNumbers = []
-holidayLights = "christmasLights"
+holidayLights = ""
 
 import time
 from jinja2 import Environment, FileSystemLoader
