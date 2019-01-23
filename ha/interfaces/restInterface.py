@@ -4,7 +4,6 @@ import urllib
 import socket
 import threading
 import sys
-import inspect
 from ha import *
 from ha.rest.restConfig import *
 
@@ -41,9 +40,12 @@ class RestInterface(Interface):
         debug('debugRestStates', self.name, "readStateChange started")
         while self.enabled:
             states = self.readStates("/resources/states/stateChange")
-            if states == {}:    # give up if there is an error
-                break
-            self.notify()
+            if states == {}:    # retry if there is an error
+                debug('debugRestStates', self.name, "readStateChange error")
+                time.sleep(restRetryInterval)
+                debug('debugRestStates', self.name, "readStateChange retrying")
+            else:
+                self.notify()
         debug('debugRestStates', self.name, "readStateChange terminated")
 
     # thread to update the cache when a state notification message is received
@@ -60,6 +62,7 @@ class RestInterface(Interface):
                 (data, addr) = self.socket.recvfrom(8192)
                 msg = json.loads(data)
                 if addr[0]+":"+str(msg["port"]) == self.serviceAddr:   # is this from the correct service
+                    debug('debugRestStates', self.name, "received state notification from", addr[0]+":"+str(msg["port"]), "matches serviceAddr", self.serviceAddr) 
                     # this one is for us
                     debug('debugRestStates', self.name, "readStateNotify", "addr:", addr[0], "data:", data)
                     states = msg["state"]
@@ -67,6 +70,8 @@ class RestInterface(Interface):
                     # update the states
                     self.setStates(states)
                     self.notify()
+                else:
+                   debug('debugRestStates', self.name, "ignoring state notification from", addr[0]+":"+str(msg["port"])) 
             except Exception as exception:
                 # log and ignore exceptions
                 log(self.name, "state notification exception", str(exception))

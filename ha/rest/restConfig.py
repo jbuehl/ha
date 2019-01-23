@@ -8,4 +8,5 @@ restBeaconInterval = 10
 restHeartbeatInterval = 30
 restTimeout = 60
 beaconTimeout = 60
+restRetryInterval = 10
 
