@@ -7,13 +7,14 @@ from ha import *
 
 class ADS1015Interface(Interface):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface=None, addr=0x48, gain=4096, sps=250, event=None):
+    def __init__(self, name, interface=None, addr=0x48, gain=4096, sps=250, ic=0x00, event=None):
         Interface.__init__(self, name, interface)
         self.addr = addr
         self.event = event
         self.gain = gain
         self.sps = sps
-        self.adc = ADS1x15(address=self.addr)
+        self.ic = ic
+        self.adc = ADS1x15(address=self.addr, ic=self.ic)
 
     def read(self, addr):
         debug('debugAds', self.name, "read", addr)
