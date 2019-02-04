@@ -1,0 +1,8 @@
+[Unit]
+Description=Car charger service
+After=multi-user.target
+[Service]
+ExecStart=/usr/bin/python /root/ha/carchargerApp.py
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
