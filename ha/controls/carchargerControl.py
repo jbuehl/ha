@@ -16,6 +16,7 @@ on = 1
 ready = 1
 connected = 2
 charging = 3
+fault = 4
 
 # Voltage thresholds
 maxVolts = 12/3         # 4V
@@ -104,11 +105,12 @@ class CarchargerControl(Control):
                 debug('debugCarcharger', self.name, "charging ", self.pilotVolts, self.chargeCurrent)
             else:
                 # error
-                self.pilotState = off
+                self.pilotState = fault
                 self.gpioWrite(pilotPin, off)
                 self.gpioWrite(relayPin, off)
                 self.gpioWrite(readyLed, off)
                 self.gpioWrite(faultLed, on)
+                self.running = False
                 debug('debugCarcharger', self.name, "fault    ", self.pilotVolts, self.chargeCurrent)
             time.sleep(sampleInterval)
 
