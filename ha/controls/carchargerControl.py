@@ -2,7 +2,7 @@ import pigpio
 import time
 import threading
 from ha import *
-from ha.notification import *
+#from ha.notification import *
 
 # GPIO pins
 pilotPin = 18
@@ -28,7 +28,7 @@ chargingVolts = 4.5/3   # 1.5V
 currentFactor = 10  # = 50A / 5V
 
 # general parameters
-chargingVolts = 240         # volts
+chargingVoltage = 240         # volts
 maxCurrent = 30             # amps
 sampleInterval = 1          # seconds
 pilotFreq = 1000            # Hz
@@ -37,6 +37,7 @@ class VoltageSensor(Sensor):
     def __init__(self, name, interface, addr=None, 
             group="", type="sensor", location=None, label="", interrupt=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
+        self.className = "Sensor"
 
     def getState(self):
         return self.interface.read(self.addr) / 1000
@@ -45,14 +46,21 @@ class CurrentSensor(Sensor):
     def __init__(self, name, interface, addr=None, 
             group="", type="sensor", location=None, label="", interrupt=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
+        self.className = "Sensor"
 
     def getState(self):
-        return chargingVolts * currentFactor * self.interface.read(self.addr) / 1000
+        adcVolts = self.interface.read(self.addr)
+        current = chargingVoltage * currentFactor * adcVolts / 1000
+#        debug('debugCarcharger', self.name, "adcVolts", adcVolts, "current", current)
+        if current > 10.0:
+            return current
+        else:
+            return 0.0
         
-class CarchargerControl(Control):
+class CarChargerControl(Control):
     def __init__(self, name, interface, voltageSensor, currentSensor, addr=None, 
-            group="", type="control", location=None, label="", interrupt=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
+            group="", type="control", location=None, label="", interrupt=None, event=None):
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Control"
         self.eventThread = None
         self.voltageSensor = voltageSensor
@@ -66,6 +74,7 @@ class CarchargerControl(Control):
         self.gpio.write(pin, value)
     
     def start(self):
+        debug('debugCarcharger', self.name, "starting")
         self.pilotState = on
         self.gpioWrite(pilotPin, on)
         self.gpioWrite(relayPin, off)
@@ -88,21 +97,24 @@ class CarchargerControl(Control):
                     self.pilotState = ready
                     self.gpioWrite(pilotPin, on)
                     self.gpioWrite(relayPin, off)
+                    self.notify()
                     debug('debugCarcharger', self.name, "ready", self.pilotVolts, self.chargeCurrent)
             elif self.pilotVolts > connectedVolts:
                 # connected
                 if self.pilotState != connected:
                     self.pilotState = connected
                     dutyCycle = maxCurrent/.6   # percent
-                    gpio.hardware_PWM(pilotPin, pilotFreq, dutyCycle*10000)
+                    self.gpio.hardware_PWM(pilotPin, pilotFreq, dutyCycle*10000)
                     self.gpioWrite(relayPin, off)
+                    self.notify()
                     debug('debugCarcharger', self.name, "connected", self.pilotVolts, self.chargeCurrent)
             elif self.pilotVolts > chargingVolts:
                 # charging
                 if self.pilotState == connected:
                     self.pilotState = charging
                     self.gpioWrite(relayPin, on)
-                debug('debugCarcharger', self.name, "charging ", self.pilotVolts, self.chargeCurrent)
+                    self.notify()
+                    debug('debugCarcharger', self.name, "charging", self.pilotVolts, self.chargeCurrent)
             else:
                 # error
                 self.pilotState = fault
@@ -111,17 +123,20 @@ class CarchargerControl(Control):
                 self.gpioWrite(readyLed, off)
                 self.gpioWrite(faultLed, on)
                 self.running = False
-                debug('debugCarcharger', self.name, "fault    ", self.pilotVolts, self.chargeCurrent)
+                self.notify()
+                debug('debugCarcharger', self.name, "fault", self.pilotVolts, self.chargeCurrent)
             time.sleep(sampleInterval)
 
     def stop(self):
+        debug('debugCarcharger', self.name, "stopping")
         self.running = False
         time.sleep(sampleInterval)
         self.pilotState = off
         self.gpioWrite(pilotPin, off)
         self.gpioWrite(relayPin, off)
         self.gpioWrite(readyLed, off)
-        self.gpioWrite(faultLed, off)    
+        self.gpioWrite(faultLed, off)
+        self.notify()    
 
     def getState(self):
         return self.pilotState
