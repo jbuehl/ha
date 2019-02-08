@@ -388,23 +388,23 @@ td {
     color: Orange;
     }
 
-.carCharger_Off {
+.charger_Off {
     color: SlateGray;
     }
     
-.carCharger_Ready {
+.charger_Ready {
     color: Lime;
     }
     
-.carCharger_Connected {
+.charger_Connected {
     color: Yellow;
     }
     
-.carCharger_Charging {
+.charger_Charging {
     color: Orange;
     }
     
-.carCharger_Fault {
+.charger_Fault {
     color: OrangeRed;
     }
     
