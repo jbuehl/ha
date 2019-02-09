@@ -22,25 +22,25 @@ if __name__ == "__main__":
     ads1015Interface = ADS1015Interface("ads1015Interface", addr=adcAddr, gain=adcGain, sps=adcSps, ic=adcType)
     
     # Sensors
-    voltageSensor = VoltageSensor("voltageSensor", ads1015Interface, 0, group=["Car"], label="Pilot voltage", type="V")
-    currentSensor = CurrentSensor("currentSensor", ads1015Interface, 1, group=["Car", "Power", "Loads"], label="Charging current", type="KVA")
+    pilotVoltage = VoltageSensor("pilotVoltage", ads1015Interface, 0, group=["Car"], label="Pilot voltage", type="V")
+    chargingCurrent = CurrentSensor("chargingCurrent", ads1015Interface, 1, group=["Car", "Power", "Loads"], label="Charging current", type="KVA")
 
     # Spa
-    carCharger = Carcharger("carCharger", None, voltageSensor, currentSensor, group="Car", label="Car charger", type="carCharger")
+    charger = CarChargerControl("charger", None, pilotVoltage, chargingCurrent, event=stateChangeEvent, group="Car", label="Car charger", type="charger")
 
     # Schedules
-    carChargerEnabledTask = Task("carChargerEnabledTask", SchedTime(hour=[20], minute=[0]), carCharger, 1)
-    carChargerDisabledTask = Task("carChargerDisabledTask", SchedTime(hour=[10], minute=[0]), carCharger, 0)
+    carChargerEnabledTask = Task("carChargerEnabledTask", SchedTime(hour=[20], minute=[0]), charger, 1)
+    carChargerDisabledTask = Task("carChargerDisabledTask", SchedTime(hour=[10], minute=[0]), charger, 0)
     schedule = Schedule("schedule", [carChargerEnabledTask, carChargerDisabledTask])
 
     # Resources
-    resources = Collection("resources", [voltageSensor, currentSensor, carCharger,
+    resources = Collection("resources", [pilotVoltage, chargingCurrent, charger,
                                          carChargerEnabledTask, carChargerDisabledTask,
                                         ])
     restServer = RestServer("carcharger", resources, event=stateChangeEvent, label="Car charger")
 
     # Start interfaces
-    carCharger.start()
+#    carCharger.start()
     schedule.start()
     restServer.start()
 
