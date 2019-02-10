@@ -156,10 +156,10 @@ class AliasControl(Control):
         self.control = control
 
     def getState(self):
-        return self.resources[self.control.getState()].getState()
+        return self.resources.getRes(self.control.getState()).getState()
 
     def setState(self, value):
-        return self.resources[self.control.getState()].setState(value)
+        return self.resources.getRes(self.control.getState()).setState(value)
      
 class HolidayLightControl(Control):
     def __init__(self, name, interface, 
@@ -185,7 +185,7 @@ class HolidayLightControl(Control):
     def setState(self, value):
         debug("debugHolidayLights", self.name, "setState", "value:", value)
         def runDisplay():
-            debug("debugHolidayLights", self.name, "runDisplay started", "pattern:", self.pattern, "animation:", self.animation)
+            debug("debugHolidayLights", self.name, "runDisplay started")
             for segment in self.segments:
                 segment.fill()
                 segment.display(self.interface)
