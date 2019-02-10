@@ -147,19 +147,26 @@ class FadeAnimation(Animation):
         if (self.fadeFactor == 0) or (self.fadeFactor == 10):
             self.fadeIncr = -self.fadeIncr
      
+class AliasControl(Control):
+    def __init__(self, name, interface, resources, control,
+                    addr=None, group="", type="control", location=None, label="", event=None):
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, event=event)
+        self.className = "Control"
+        self.resources = resources
+        self.control = control
+
+    def getState(self):
+        return self.resources[self.control.getState()].getState()
+
+    def setState(self, value):
+        return self.resources[self.control.getState()].setState(value)
+     
 class HolidayLightControl(Control):
     def __init__(self, name, interface, 
-#                    patterns={}, animations=[], patternControl=None, animationControl=None, 
                     segments=None,
                     addr=None, group="", type="control", location=None, label="", event=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, event=event)
         self.className = "Control"
-#        self.patterns = patterns
-#        self.animations = animations
-#        self.patternControl = patternControl
-        self.pattern = holidayLightPatternDefault
-#        self.animationControl = animationControl
-        self.animation = holidayLightAnimationDefault
         if segments:
             self.segments = segments
         else:
@@ -178,10 +185,6 @@ class HolidayLightControl(Control):
     def setState(self, value):
         debug("debugHolidayLights", self.name, "setState", "value:", value)
         def runDisplay():
-#            if self.patternControl:
-#                self.setPattern(self.patternControl.getState())
-#            if self.animationControl:
-#                self.setAnimation(self.animationControl.getState())
             debug("debugHolidayLights", self.name, "runDisplay started", "pattern:", self.pattern, "animation:", self.animation)
             for segment in self.segments:
                 segment.fill()
@@ -210,15 +213,4 @@ class HolidayLightControl(Control):
         else:
            self.running = False
                 
-#    def setPattern(self, value):
-#        if value in self.patterns.keys():
-#            self.pattern = value
-#        else:
-#            self.pattern = "off"
-            
-#    def setAnimation(self, value):
-#        if value in self.animations:
-#            self.animation = value
-#        else:
-#            self.animation = "solid"
-    
+
