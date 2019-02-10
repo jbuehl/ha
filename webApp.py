@@ -10,7 +10,6 @@ insideTemp = "diningRoomTemp"
 outsideTemp = "edisonTemp"
 poolTemp = "poolTemp"
 serviceMonitorNotifyNumbers = []
-holidayLights = ""
 
 import time
 from jinja2 import Environment, FileSystemLoader
@@ -242,7 +241,7 @@ if __name__ == "__main__":
     # light groups
     porchLights = ControlGroup("porchLights", ["frontLights",
                                                "sculptureLights",
-                                               holidayLights,
+                                               "holidayLights",
                                                "backLights",
                                                "garageBackDoorLight"],
                                                resources=resources, 
@@ -266,7 +265,7 @@ if __name__ == "__main__":
                                                "deckLights",
                                                "trashLights",
                                                "poolLights",
-                                               holidayLights,
+                                               "holidayLights",
                                                "xmasTree",
                                                "xmasCowTree",
                                                "xmasBackLights"],
