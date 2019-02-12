@@ -26,14 +26,15 @@ patterns = {"onPattern": [on],
             "christmasPattern": 3*[red]+3*[green],
             "hanukkahPattern": 7*[blue]+3*[white],
             "halloweenPattern": 5*[orange]+3*[rust]+2*[purple],
-            "valentinesPattern": [white]+[pink]+[red]+[pink],
+            "valentinesPattern": 3*[white]+3*[pink]+3*[red]+3*[pink],
             "stpatricksPattern": [green],
             "mardigrasPattern": 3*[purple]+3*[yellow]+3*[green],
             "presidentsPattern": 3*[red]+3*[white]+3*[blue],
-            "july4Pattern": 3*[red]+3*[white]+3*[blue],
-            "cincodemayoPattern": [green]+[white]+[red],
+            "july4Pattern": 5*[red]+5*[white]+5*[blue],
+            "bastillePattern": 10*[red]+10*[white]+10*[blue],
+            "cincodemayoPattern": 10*[green]+10*[white]+10*[red],
             "easterPattern": [yellow]+[blue]+[green]+[cyan]+[magenta],
-            "swedenPattern": [blue]+[yellow],
+            "swedenPattern": 5*[blue]+5*[yellow],
             "fallPattern": 5*[red]+5*[orange]+5*[rust]+5*[orange],
             "pridePattern": [pink]+[red]+[orange]+[yellow]+[green]+[blue]+[purple],
             "holiPattern": [red]+[yellow]+[blue]+[green]+[orange]+[purple]+[pink]+[magenta],
@@ -95,8 +96,13 @@ if __name__ == "__main__":
                                         type="light", group=["Lights", "Holiday"], label="Sweden day")
     july4Lights = HolidayLightControl("july4Lights", neopixelInterface, 
                                         segments=[Segment("all",     0, stringLength, 
-                                                           pattern=patterns["july4Pattern"])],
+                                                           pattern=patterns["july4Pattern"],
+                                                           animation=SparkleAnimation(rate=1))],
                                         type="light", group=["Lights", "Holiday"], label="4th of july")
+    bastilleLights = HolidayLightControl("bastilleLights", neopixelInterface, 
+                                        segments=[Segment("all",     0, stringLength, 
+                                                           pattern=patterns["bastillePattern"])],
+                                        type="light", group=["Lights", "Holiday"], label="Bastille day")
     fallLights = HolidayLightControl("fallLights", neopixelInterface, 
                                         segments=[Segment("all",     0, stringLength, 
                                                           pattern=patterns["fallPattern"])],
@@ -140,28 +146,23 @@ if __name__ == "__main__":
     # Tasks
     # 2019
     tasks = [
-            Task("valentinesTask",    SchedTime(year=2019, month=Feb, day=14, hour=12, minute=0), holiday, "valentinesLights"),
-            Task("valentinesOffTask", SchedTime(year=2019, month=Feb, day=15, hour=12, minute=0), holiday, "offLights"),
-            Task("presidentsTask",    SchedTime(year=2019, month=Feb, day=18, hour=12, minute=0), holiday, "presidentsLights"),
-            Task("presidentsOffTask", SchedTime(year=2019, month=Feb, day=19, hour=12, minute=0), holiday, "offLights"),
-            Task("mardigrasTask",     SchedTime(year=2019, month=Mar, day=5,  hour=12, minute=0), holiday, "mardigrasLights"),
-            Task("mardigrasOffTask",  SchedTime(year=2019, month=Mar, day=6,  hour=12, minute=0), holiday, "offLights"),
-            Task("stpatricksTask",    SchedTime(year=2019, month=Mar, day=15, hour=12, minute=0), holiday, "stpatricksLights"),
-            Task("stpatricksOffTask", SchedTime(year=2019, month=Mar, day=16, hour=12, minute=0), holiday, "offLights"),
-            Task("easterTask",        SchedTime(year=2019, month=Apr, day=21, hour=12, minute=0), holiday, "easterLights"),
-            Task("easterOffTask",     SchedTime(year=2019, month=Apr, day=22, hour=12, minute=0), holiday, "offLights"),
-            Task("cincodemayoTask",   SchedTime(year=2019, month=May, day=5,  hour=12, minute=0), holiday, "cincodemayoLights"),
-            Task("cincodemayoOffTask",SchedTime(year=2019, month=May, day=6,  hour=12, minute=0), holiday, "offLights"),
-            Task("swedenTask",        SchedTime(year=2019, month=Jun, day=6,  hour=12, minute=0), holiday, "swedenLights"),
-            Task("swedenOffTask",     SchedTime(year=2019, month=Jun, day=7,  hour=12, minute=0), holiday, "offLights"),
-            Task("july4Task",         SchedTime(year=2019, month=Jul, day=4, hour=12, minute=0), holiday, "july4Lights"),
-            Task("july4OffTask",      SchedTime(year=2019, month=Jul, day=5,  hour=12, minute=0), holiday, "offLights"),
-            Task("halloweenTask",     SchedTime(year=2019, month=Oct, day=31, hour=12, minute=0), holiday, "halloweenLights"),
-            Task("halloweenOffTask",  SchedTime(year=2019, month=Nov, day=1,  hour=12, minute=0), holiday, "offLights"),
-            Task("christmasTask",     SchedTime(year=2019, month=Dec, day=1,  hour=12, minute=0), holiday, "christmasLights"),
-            Task("hanukkahTask",      SchedTime(year=2019, month=Dec, day=22, hour=12, minute=0), holiday, "hanukkahLights"),
-            Task("christmasTask",     SchedTime(year=2019, month=Dec, day=23, hour=12, minute=0), holiday, "christmasLights"),
-            Task("christmasOffTask",  SchedTime(year=2019, month=Dec, day=31, hour=12, minute=0), holiday, "offLights"),
+            Task("OffTask",          SchedTime(hour=11, minute=59), holiday, "offLights"),
+            Task("testTask",         SchedTime(year=2019, month=Feb, day=11, hour=12, minute=0), holiday, "testLights"),
+            Task("valentinesTask",   SchedTime(year=2019, month=Feb, day=[13,14], hour=12, minute=0), holiday, "valentinesLights"),
+            Task("presidentsTask",   SchedTime(year=2019, month=Feb, day=18, hour=12, minute=0), holiday, "presidentsLights"),
+            Task("mardigrasTask",    SchedTime(year=2019, month=Mar, day=[4,5,6],  hour=12, minute=0), holiday, "mardigrasLights"),
+            Task("stpatricksTask",   SchedTime(year=2019, month=Mar, day=[16,17], hour=12, minute=0), holiday, "stpatricksLights"),
+            Task("easterTask",       SchedTime(year=2019, month=Apr, day=[20,21], hour=12, minute=0), holiday, "easterLights"),
+            Task("cincodemayoTask",  SchedTime(year=2019, month=May, day=5,  hour=12, minute=0), holiday, "cincodemayoLights"),
+            Task("swedenTask",       SchedTime(year=2019, month=Jun, day=6,  hour=12, minute=0), holiday, "swedenLights"),
+            Task("flagTask",         SchedTime(year=2019, month=Jun, day=14,  hour=12, minute=0), holiday, "presidentsLights"),     # Flag day
+            Task("july4Task",        SchedTime(year=2019, month=Jul, day=[3,4],  hour=12, minute=0), holiday, "july4Lights"),
+            Task("bastilleTask",     SchedTime(year=2019, month=Jul, day=14,  hour=12, minute=0), holiday, "bastilleLights"),     # Bastille day
+            Task("fallTask",         SchedTime(year=2019, month=Sep, day=21, hour=12, minute=0), holiday, "fallLights"),
+            Task("halloweenTask",    SchedTime(year=2019, month=Oct, day=31, hour=12, minute=0), holiday, "halloweenLights"),
+            Task("thanksgivingTask", SchedTime(year=2019, month=Nov, day=28, hour=12, minute=0), holiday, "fallLights"),
+            Task("christmasTask",    SchedTime(year=2019, month=Dec,         hour=12, minute=0), holiday, "christmasLights"),
+            Task("hanukkahTask",     SchedTime(year=2019, month=Dec, day=22, hour=12, minute=0), holiday, "hanukkahLights"),
             ]
     
     # Schedule
@@ -169,7 +170,7 @@ if __name__ == "__main__":
 
     # Resources
     resources = Collection("resources", resources=[valentinesLights, mardigrasLights, presidentsLights, stpatricksLights, 
-                                                   easterLights, cincodemayoLights, swedenLights, july4Lights,
+                                                   easterLights, cincodemayoLights, swedenLights, july4Lights, bastilleLights,
                                                    fallLights, halloweenLights, electionLights, christmasLights, hanukkahLights, 
                                                    testLights, offLights, holiday
                                                    ])
