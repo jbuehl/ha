@@ -1,3 +1,9 @@
+
+# https://en.wikipedia.org/wiki/SAE_J1772
+# http://abyz.me.uk/rpi/pigpio/python.html
+# https://openev.freshdesk.com/support/home
+# https://www.barbouri.com/2016/06/16/the-diy-open-evse-project/
+
 import pigpio
 import time
 import threading
@@ -34,16 +40,16 @@ sampleInterval = 1          # seconds
 pilotFreq = 1000            # Hz
 
 class VoltageSensor(Sensor):
-    def __init__(self, name, interface, addr=None, 
+    def __init__(self, name, interface, addr=None,
             group="", type="sensor", location=None, label="", interrupt=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.className = "Sensor"
 
     def getState(self):
         return self.interface.read(self.addr) / 1000
-        
+
 class CurrentSensor(Sensor):
-    def __init__(self, name, interface, addr=None, 
+    def __init__(self, name, interface, addr=None,
             group="", type="sensor", location=None, label="", interrupt=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.className = "Sensor"
@@ -56,9 +62,9 @@ class CurrentSensor(Sensor):
             return current
         else:
             return 0.0
-        
+
 class CarChargerControl(Control):
-    def __init__(self, name, interface, voltageSensor, currentSensor, addr=None, 
+    def __init__(self, name, interface, voltageSensor, currentSensor, addr=None,
             group="", type="control", location=None, label="", interrupt=None, event=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Control"
@@ -72,7 +78,7 @@ class CarChargerControl(Control):
 
     def gpioWrite(self, pin, value):
         self.gpio.write(pin, value)
-    
+
     def start(self):
         debug('debugCarcharger', self.name, "starting")
         self.pilotState = on
@@ -136,11 +142,11 @@ class CarChargerControl(Control):
         self.gpioWrite(relayPin, off)
         self.gpioWrite(readyLed, off)
         self.gpioWrite(faultLed, off)
-        self.notify()    
+        self.notify()
 
     def getState(self):
         return self.pilotState
-        
+
     def setState(self, value):
         if value:
             self.start()
