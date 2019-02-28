@@ -28,36 +28,36 @@ templates = None
 resources = None
 stateChangeEvent = threading.Event()
 
-# default - dashboard                
+# default - dashboard
 def index():
     debug('debugWeb', "/")
     return dashboardUI(resources, templates, views)
-    
-# show all resource details or specified group                
+
+# show all resource details or specified group
 def details(group=None):
     debug('debugWeb', "/detail", group)
     try:
         groups = [[group.capitalize(), resources.getGroup(group)]]
         details = False
     except:
-        groups = [[group, resources.getGroup(group)] for group in ["Time", "Weather", "Temperature", 
-                    "Hvac", "Pool", "Lights", "Shades", "Doors", 
-                    "Sprinklers", "Water", "Power", "Solar", "Inverters", "Optimizers", "Cameras", 
+        groups = [[group, resources.getGroup(group)] for group in ["Time", "Weather", "Temperature",
+                    "Hvac", "Pool", "Lights", "Shades", "Doors",
+                    "Sprinklers", "Water", "Power", "Solar", "Inverters", "Optimizers", "Cameras",
                     "Services", "Tasks"]]
         details = True
     with resources.lock:
         screenWidth = 1280
         labelWidth = 220
         widths = [screenWidth, [labelWidth, 160, 260, 120, 100, 120, 240, 60]]
-        return templates.get_template("details.html").render(title=webPageTitle, script="", 
+        return templates.get_template("details.html").render(title=webPageTitle, script="",
                             templates=templates,
                             widths=widths,
                             groups=groups,
                             views=views,
                             details=details,
                             link=False)
-    
-# iPad - 1024x768   
+
+# iPad - 1024x768
 def ipad(location=""):
     debug('debugWeb', "/ipad", cherrypy.request.method)
     with resources.lock:
@@ -74,10 +74,10 @@ def ipad(location=""):
             hvac = templates.get_template("hvacWidget.html").render(label="Inside temp",
                     widths=columnWidths,
                     templates=templates,
-                    tempSensor=resources.getRes("backHouseTemp"), 
-                    heatTargetControl=resources.getRes("backHeatTempTarget"), 
-                    coolTargetControl=resources.getRes("backCoolTempTarget"), 
-                    fanControl=resources.getRes("backFan"), 
+                    tempSensor=resources.getRes("backHouseTemp"),
+                    heatTargetControl=resources.getRes("backHeatTempTarget"),
+                    coolTargetControl=resources.getRes("backCoolTempTarget"),
+                    fanControl=resources.getRes("backFan"),
                     thermostatUnitSensor=resources.getRes("backThermostatUnitSensor"),
                     views=views)
             shadesGroup = []
@@ -87,13 +87,13 @@ def ipad(location=""):
             hvac = templates.get_template("hvacWidget.html").render(label="Inside temp",
                     widths=columnWidths,
                     templates=templates,
-                    tempSensor=resources.getRes("diningRoomTemp"), 
-                    heatTargetControl=resources.getRes("southHeatTempTarget"), 
-                    coolTargetControl=resources.getRes("southCoolTempTarget"), 
+                    tempSensor=resources.getRes("diningRoomTemp"),
+                    heatTargetControl=resources.getRes("southHeatTempTarget"),
+                    coolTargetControl=resources.getRes("southCoolTempTarget"),
                     thermostatUnitSensor=resources.getRes("southThermostatUnitSensor"),
                     views=views)
             shadesGroup=["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])]
-        reply = templates.get_template("ipad.html").render(script="", 
+        reply = templates.get_template("ipad.html").render(script="",
                             templates=templates,
                             widths=widths,
                             location=location,
@@ -108,23 +108,23 @@ def ipad(location=""):
                             spaTempTarget=resources.getRes("spaTempTarget"),
                             poolPumpControl=resources.getRes("poolPump"),
                             poolPumpFlowSensor=resources.getRes("poolPumpFlow"),
-                            lightsGroup=lightsGroup, 
-#                           xmasGroup=["Lights", resources.getResList(["porchLights", "xmasLights", "xmasTree"])], 
-#                                      ["Lights", resources.getResList(["bbqLights", "backYardLights"])], 
-#                                      ["Lights", resources.getResList(["xmasTree", "xmasCowTree", "xmasLights"])], 
-                            shadesGroup=shadesGroup, 
-                            hvac=hvac, 
-                            sprinklersGroup=["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "backBedSequence", 
+                            lightsGroup=lightsGroup,
+#                           xmasGroup=["Lights", resources.getResList(["porchLights", "xmasLights", "xmasTree"])],
+#                                      ["Lights", resources.getResList(["bbqLights", "backYardLights"])],
+#                                      ["Lights", resources.getResList(["xmasTree", "xmasCowTree", "xmasLights"])],
+                            shadesGroup=shadesGroup,
+                            hvac=hvac,
+                            sprinklersGroup=["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "backBedSequence",
                                                                                  "sideBedSequence", "frontLawnSequence", "frontBedSequence"])],
                             views=views)
     return reply
 
-# iPhone 5 - 320x568    
+# iPhone 5 - 320x568
 def iphone5():
     debug('debugWeb', "/iphone5", cherrypy.request.method)
     with resources.lock:
         widths = [[320, [60, 100, 60]], [320, [120, 72, 128]]]
-        reply = templates.get_template("iphone5.html").render(script="", 
+        reply = templates.get_template("iphone5.html").render(script="",
                             templates=templates,
                             widths=widths,
                             time=resources.getRes("theTime"),
@@ -135,15 +135,15 @@ def iphone5():
                             spaTempTarget=resources.getRes("spaTempTarget"),
                             poolPumpControl=resources.getRes("poolPump"),
                             poolPumpFlowSensor=resources.getRes("poolPumpFlow"),
-                            resources=resources.getResList(["porchLights", 
+                            resources=resources.getResList(["porchLights",
 #                                                            "xmasLights", "xmasTree",
-                                                            "shade1", "shade2", "shade3", "shade4", 
+                                                            "shade1", "shade2", "shade3", "shade4",
                                                             "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence", "frontBedSequence"
                                                             ]),
                             views=views)
     return reply
 
-# iPhone 3GS - 320x480    
+# iPhone 3GS - 320x480
 def iphone3gs():
     debug('debugWeb', "/iphone3gs", cherrypy.request.method)
     with resources.lock:
@@ -153,12 +153,12 @@ def iphone3gs():
                             templates=templates,
                             stack=True,
                             resourceTemplate=templates.get_template("resource.html"),
-                            tempSensor=resources.getRes("masterBedroomTemp"), 
-                            heatTargetControl=resources.getRes("northHeatTempTarget"), 
-                            coolTargetControl=resources.getRes("northCoolTempTarget"), 
+                            tempSensor=resources.getRes("masterBedroomTemp"),
+                            heatTargetControl=resources.getRes("northHeatTempTarget"),
+                            coolTargetControl=resources.getRes("northCoolTempTarget"),
                             thermostatUnitSensor=resources.getRes("northThermostatUnitSensor"),
                             views=views)
-        reply = templates.get_template("iphone3gs.html").render(script="", 
+        reply = templates.get_template("iphone3gs.html").render(script="",
                             templates=templates,
                             widths=widths,
                             time=resources.getRes("theTime"),
@@ -166,13 +166,13 @@ def iphone3gs():
                             day=resources.getRes("theDay"),
                             temp=resources.getRes(outsideTemp),
                             hvac=northHvac,
-                            resources=resources.getResList(["porchLights", 
-#                                                            "xmasLights", 
+                            resources=resources.getResList(["porchLights",
+#                                                            "xmasLights",
                                                             "bedroomLights", "recircPump", "garageDoors", "houseDoors", "backHouseDoor"]),
                             views=views)
     return reply
 
-# Solar   
+# Solar
 def solar():
     debug('debugWeb', "/solar", cherrypy.request.method)
     with resources.lock:
@@ -183,22 +183,22 @@ def solar():
                             ampm=resources.getRes("theAmPm"),
                             sunrise=resources.getRes("sunrise"),
                             sunset=resources.getRes("sunset"),
-                            latitude="%7.3f "%(abs(latLong[0])+.0005)+("N" if latLong[0]>0 else "S"), 
-                            longitude="%7.3f "%(abs(latLong[1])+.0005)+("E" if latLong[1]>0 else "W"), 
+                            latitude="%7.3f "%(abs(latLong[0])+.0005)+("N" if latLong[0]>0 else "S"),
+                            longitude="%7.3f "%(abs(latLong[1])+.0005)+("E" if latLong[1]>0 else "W"),
                             elevation="%d ft"%(elevation),
                             airTemp=resources.getRes(outsideTemp),
-                            inverterTemp=resources.getRes("inverterTemp"), 
-                            roofTemp=resources.getRes("roofTemp"), 
-                            currentVoltage=resources.getRes("currentVoltage"), 
-                            currentLoad=resources.getRes("currentLoad"), 
-                            currentPower=resources.getRes("currentPower"), 
-                            todaysEnergy=resources.getRes("todaysEnergy"), 
-                            lifetimeEnergy=resources.getRes("lifetimeEnergy"), 
-                            inverters=resources.getGroup("Inverters"), 
-                            optimizers=resources.getGroup("Optimizers"), 
+                            inverterTemp=resources.getRes("inverterTemp"),
+                            roofTemp=resources.getRes("roofTemp"),
+                            currentVoltage=resources.getRes("currentVoltage"),
+                            currentLoad=resources.getRes("currentLoad"),
+                            currentPower=resources.getRes("currentPower"),
+                            todaysEnergy=resources.getRes("todaysEnergy"),
+                            lifetimeEnergy=resources.getRes("lifetimeEnergy"),
+                            inverters=resources.getGroup("Inverters"),
+                            optimizers=resources.getGroup("Optimizers"),
                             views=views)
 
-# Weather   
+# Weather
 def weather():
     debug('debugWeb', "/weather", cherrypy.request.method)
     with resources.lock:
@@ -214,7 +214,7 @@ pathDict = {"": index,
             "iphone5": iphone5,
             "iphone3gs": iphone3gs,
             }
-                 
+
 if __name__ == "__main__":
     # initialize resources
     try:
@@ -243,18 +243,19 @@ if __name__ == "__main__":
                                                "sculptureLights",
                                                "holidayLights",
                                                "backLights",
+                                               "deckLights",
                                                "garageBackDoorLight"],
-                                               resources=resources, 
+                                               resources=resources,
                                                type="light", group="Lights", label="Porch lights")
     xmasLights = ControlGroup("xmasLights", ["xmasTree",
                                                "xmasCowTree",
                                                "xmasBackLights"],
-                                               resources=resources, 
+                                               resources=resources,
                                                type="light", group=["Lights", "Xmas"], label="Xmas lights")
-    bedroomLights = ControlGroup("bedroomLights", ["bedroomLight", 
+    bedroomLights = ControlGroup("bedroomLights", ["bedroomLight",
                                                "bathroomLight"],
-                                               resources=resources, 
-                                               stateList=[[0, 100, 0], [0, 100, 10]], 
+                                               resources=resources,
+                                               stateList=[[0, 100, 0], [0, 100, 10]],
                                                type="nightLight", group="Lights", label="Night lights")
     outsideLights = ControlGroup("outsideLights", ["frontLights",
                                                "sculptureLights",
@@ -269,13 +270,13 @@ if __name__ == "__main__":
                                                "xmasTree",
                                                "xmasCowTree",
                                                "xmasBackLights"],
-                                               resources=resources, 
+                                               resources=resources,
                                                type="light", group="Lights", label="Outside lights")
     resources.addRes(porchLights)
     resources.addRes(xmasLights)
     resources.addRes(bedroomLights)
     resources.addRes(outsideLights)
-    
+
     # Light tasks
     resources.addRes(Task("bedroomLightsOnSunset", SchedTime(event="sunset"), "bedroomLights", 1, resources=resources))
     resources.addRes(Task("bedroomLightsOffSunrise", SchedTime(event="sunrise"), "bedroomLights", 0, resources=resources))
@@ -286,7 +287,7 @@ if __name__ == "__main__":
     resources.addRes(Task("xmasLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, resources=resources))
     resources.addRes(Task("xmasLightsOffSunrise", SchedTime(event="sunrise"), "xmasLights", 0, resources=resources))
 #        resources.addRes(Task("xmasTreeOnXmas", SchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1, resources=resources))
-    
+
     # Light schedule
     schedule = Schedule("schedule")
     schedule.addTask(resources["bedroomLightsOnSunset"])
@@ -310,16 +311,15 @@ if __name__ == "__main__":
 
     # monitor service states
     watchServices(resources, serviceMonitorNotifyNumbers)
-    
+
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))
     templates = Environment(loader=FileSystemLoader(os.path.join(baseDir, 'templates')))
-    webInit(resources, restCache, stateChangeEvent, httpPort=webPort, 
-#            ssl=True, httpsPort=webSSLPort, domain=webSSLDomain, 
+    webInit(resources, restCache, stateChangeEvent, httpPort=webPort,
+#            ssl=True, httpsPort=webSSLPort, domain=webSSLDomain,
             pathDict=pathDict, baseDir=baseDir, block=not runRestServer)
 
     # start the REST server
     if runRestServer:
         restServer = RestServer("house", resources, port=restServicePort, beacon=False, heartbeat=False, event=stateChangeEvent, label="House")
         restServer.start()
-
