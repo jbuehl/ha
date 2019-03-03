@@ -31,7 +31,7 @@ def validatePassword(realm, username, password):
         return True
     debug('debugWebAuth', "validatePassword", "rejected")
     return False
-        
+
 class WebRoot(object):
     def __init__(self, resources, cache, stateChangeEvent, pathDict):
         self.resources = resources
@@ -40,18 +40,18 @@ class WebRoot(object):
         self.pathDict = pathDict
 
     # convert the path into a request parameter
-    # this function gets called if cherrypy doesn't find a class method that matches the path    
+    # this function gets called if cherrypy doesn't find a class method that matches the path
     def _cp_dispatch(self, vpath):
         debug('debugWeb', "_cp_dispatch", "method:", cherrypy.request.method, "path:", vpath.__str__(), "params:", cherrypy.request.params.__str__())
         if len(vpath) == 1:
             # the path has one element, pop it off and return this root object
-            # cherrypy will then call the index() 
+            # cherrypy will then call the index()
             cherrypy.request.params['path'] = vpath.pop(0)
             return self
         # the request was for a file in the static/ directory, return the path
         return vpath
 
-    # dispatch to the UI requested    
+    # dispatch to the UI requested
     @cherrypy.expose
     def index(self, path="", **params):
         debug('debugWeb', "index", cherrypy.request.method, "path:", path, "params:", params.__str__())
@@ -74,11 +74,12 @@ class WebRoot(object):
                 return reply
             else:
                 if state:
-                    self.resources.getRes(resource).setViewState(state, views)
+                    # self.resources.getRes(resource).setViewState(state, views)
+                    views.setViewState(self.resources.getRes(resource), state)
                     time.sleep(1)   # hack
                 return json.dumps({"state": views.getViewState(self.resources.getRes(resource))})
         except:
-            return "Error"        
+            return "Error"
 
     # Return the value of a resource attribute
     @cherrypy.expose
@@ -108,7 +109,7 @@ class WebRoot(object):
         debug('debugWebUpdate', "/state", cherrypy.request.method)
         cherrypy.response.headers['Content-Type'] = "application/json"
         return self.updateStates(self.resources.getRes("states").getState())
-        
+
     # Update the states of resources that have changed
     @cherrypy.expose
     def stateChange(self, _=None):
@@ -148,8 +149,8 @@ class WebRoot(object):
         debug('debugWebBlink', "/updateStates", blinkerList)
         updates["blinkers"] = blinkerList
         return json.dumps(updates)
-        
-    # change the state of a control    
+
+    # change the state of a control
     @cherrypy.expose
     def submit(self, action=None, resource=None):
         debug('debugWeb', "/submit", cherrypy.request.method, action, resource)
@@ -157,7 +158,7 @@ class WebRoot(object):
         reply = ""
         return reply
 
-    # return a camera image    
+    # return a camera image
     @cherrypy.expose
     def image(self, camera=None, date=None, image=None):
         debug('debugWeb', "/image", cherrypy.request.method, camera)
@@ -181,7 +182,7 @@ class WebRoot(object):
         cherrypy.response.headers['Content-Length'] = len(imageContent)
         return imageContent
 
-    # return a camera video    
+    # return a camera video
     @cherrypy.expose
     def video(self, camera=None, date=None, video=None):
         debug('debugWeb', "/video", cherrypy.request.method, camera)
@@ -236,14 +237,14 @@ def webInit(resources, restCache, stateChangeEvent, httpPort=80, ssl=False, http
                'tools.auth_basic.checkpassword': validatePassword
             }})
 
-    # create a resource state sensor if there isn't one    
+    # create a resource state sensor if there isn't one
     try:
         stateResource = self.resources.getRes("states", dummy=False)
     except:
         debug('debugWeb', "created resource state sensor")
         stateResource = ResourceStateSensor("states", Interface("None"), resources=resources, event=stateChangeEvent)
         resources.addRes(stateResource)
-        
+
     root = WebRoot(resources, restCache, stateChangeEvent, pathDict)
     cherrypy.tree.mount(root, "/", appConfig)
     cherrypy.server.unsubscribe()
@@ -276,4 +277,3 @@ def webInit(resources, restCache, stateChangeEvent, httpPort=80, ssl=False, http
     cherrypy.engine.start()
     if block:
         cherrypy.engine.block()
-        
