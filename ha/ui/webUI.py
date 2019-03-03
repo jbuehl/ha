@@ -74,7 +74,6 @@ class WebRoot(object):
                 return reply
             else:
                 if state:
-                    # self.resources.getRes(resource).setViewState(state, views)
                     views.setViewState(self.resources.getRes(resource), state)
                     time.sleep(1)   # hack
                 return json.dumps({"state": views.getViewState(self.resources.getRes(resource))})
