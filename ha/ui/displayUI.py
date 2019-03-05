@@ -22,6 +22,7 @@ import threading
 import copy
 import webcolors
 import png
+import os
 from ha import *
 from ha.ui.webViews import *
 
@@ -30,7 +31,7 @@ def tempColor(tempString):
     try:
         temp = int(tempString.split(" ")[0])
     except:
-        temp = 0       
+        temp = 0
     if temp > 120:                 # magenta
         red = 252; green = 0; blue = 252
     elif temp > 102:               # red
@@ -83,7 +84,7 @@ def color(colorName):
 def printAttrs(style):
     return ["%s: %s"%(attr, style.__dict__[attr]) for attr in ["name", "xPos", "yPos", "width", "height", "margin"]]
 
-# a Display manages the device upon which the UI is presented        
+# a Display manages the device upon which the UI is presented
 class Display(object):
     def __init__(self, name, displayDevice="/dev/fb0", inputDevice="/dev/input/event0", views=None):
         self.name = name
@@ -112,7 +113,7 @@ class Display(object):
             for event in self.inputDevice.read_loop():
                 debug("debugButton", event.__str__(), evdev.util.categorize(event))
                 if event.type == 1:         # BTN_TOUCH
-                    if event.code == 330:     
+                    if event.code == 330:
                         element = self.findButton(self.curXpos, self.curYpos)
                         if element:
                             if event.value == 0:    # up
@@ -120,7 +121,7 @@ class Display(object):
                             elif event.value == 1:   # down
                                 element.press(self)
                 elif event.type == 3:
-                    if (event.code == 0) or (event.code == 53):     # ABS_X or ABS_MT_POSITION_X 
+                    if (event.code == 0) or (event.code == 53):     # ABS_X or ABS_MT_POSITION_X
                         self.curXpos = event.value
                     elif (event.code == 1) or (event.code == 54):   # ABS_Y or ABS_MT_POSITION_Y
                         self.curYpos = event.value
@@ -137,7 +138,7 @@ class Display(object):
                 time.sleep(updateInterval)
         updateThread = threading.Thread(target=UpdateThread)
         updateThread.start()
-        
+
         if block:
             while True:
                 time.sleep(1)
@@ -180,8 +181,8 @@ class Display(object):
                 face.load_char(char)
                 bitmap = face.glyph.bitmap
                 metrics = face.glyph.metrics
-                self.FrameBuffer.setGrayMap(self.frameBuffer, x, y-metrics.horiBearingY/64, bitmap.width, bitmap.rows, 
-                                    "".join(chr(c) for c in bitmap.buffer), fgColor, bgColor, 
+                self.FrameBuffer.setGrayMap(self.frameBuffer, x, y-metrics.horiBearingY/64, bitmap.width, bitmap.rows,
+                                    "".join(chr(c) for c in bitmap.buffer), fgColor, bgColor,
                                     bgMap, width, height)
                 x += metrics.horiAdvance/64
             self.FrameBuffer.setPixMap(self.frameBuffer, xPos, yPos, width, height, bgMap)
@@ -205,7 +206,7 @@ class Style(object):
         self.name = name
         self.__dict__.update(args)
 
-# an Element is the basic object that is rendered on a Display        
+# an Element is the basic object that is rendered on a Display
 class Element(object):
     def __init__(self, name, style=None, **args):
         self.name = name
@@ -233,32 +234,32 @@ class Element(object):
         debug("debugDisplay", self.name, "Element.render()", printAttrs(self))
         if not style:
             style = self.style
-        display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin, 
-                                  self.width-2*self.margin, self.height-2*self.margin, 
+        display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin,
+                                  self.width-2*self.margin, self.height-2*self.margin,
                                   self.bgColor*(self.width-2*self.margin)*(self.height-2*self.margin))
 
     def fill(self, display, color):
         display.fill(self.xPos, self.yPos, self.width, self.height, color)
-        
+
     def clear(self, display):
         display.fill(self.xPos, self.yPos, self.width, self.height, self.bgColor)
-        
+
     def arrange(self):
         debug("debugArrange", self.name, "arrange()", printAttrs(self))
 
-# a Container is an Element that contains one or more Elements                
+# a Container is an Element that contains one or more Elements
 class Container(Element):
     def __init__(self, name, style=None, itemList=[], **args):
         Element.__init__(self, name, style, **args)
         self.itemList = itemList
-        
+
     def render(self, display):
         debug("debugDisplay", self.name, "Container.render()", printAttrs(self))
         display.fill(self.xPos, self.yPos, self.width, self.height, self.bgColor)
         for item in self.itemList:
             item.render(display)
 
-# a Div is a Container that stacks its Elements vertically      
+# a Div is a Container that stacks its Elements vertically
 class Div(Container):
     def __init__(self, name, style=None, itemList=[], **args):
         Container.__init__(self, name, style, itemList, **args)
@@ -278,7 +279,7 @@ class Div(Container):
         self.height = max(self.height, height)
         debug("debugArrange", self.name, "arrange()", printAttrs(self))
 
-# a Span is a Container that stacks its Elements horizontally      
+# a Span is a Container that stacks its Elements horizontally
 class Span(Container):
     def __init__(self, name, style=None, itemList=[], **args):
         Container.__init__(self, name, style, itemList, **args)
@@ -310,7 +311,7 @@ class Text(Element):
         self.resource = resource
         if display and resource:
             display.addElement(self)
-        
+
     def setValue(self, value):
         self.value = value
 
@@ -330,14 +331,14 @@ class Text(Element):
         debug("debugDisplay", self.name, "Text.render()", printAttrs(renderStyle))
         if not value:
             value = self.value
-        display.renderChars(renderStyle.face, renderStyle.fontSize, value, 
-            self.xPos+self.margin, self.yPos+self.margin, 
-            renderStyle.margin+renderStyle.padding, 2*(renderStyle.height-2*renderStyle.margin)/3, 
+        display.renderChars(renderStyle.face, renderStyle.fontSize, value,
+            self.xPos+self.margin, self.yPos+self.margin,
+            renderStyle.margin+renderStyle.padding, 2*(renderStyle.height-2*renderStyle.margin)/3,
             renderStyle.fgColor, renderStyle.bgColor,
             renderStyle.width-2*renderStyle.margin, renderStyle.height-2*renderStyle.margin)
         del(renderStyle)
 
-# an Element containing a static image        
+# an Element containing a static image
 class Image(Element):
     def __init__(self, name, style=None, imageFile=None, value="", display=None, resource=None, **args):
         Element.__init__(self, name, style, **args)
@@ -352,7 +353,7 @@ class Image(Element):
             self.readImage()
         else:
             self.image = None
-        
+
     def readImage(self):
         debug("debugImage", self.name, "Image.readImage()", self.imageFile)
         pngReader = png.Reader(self.imageFile)
@@ -360,7 +361,7 @@ class Image(Element):
         self.width = pngImage[0] + 2*self.style.margin
         self.height = pngImage[1] + 2*self.style.margin
         self.image = png2fb(pngImage)
-           
+
     def setValue(self, value):
         self.value = value
 
@@ -377,38 +378,40 @@ class Image(Element):
         elif image == None:
             if self.imageFile:
                 self.readImage()
-        display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin, 
-                                  self.width-2*self.margin, self.height-2*self.margin, 
+        display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin,
+                                  self.width-2*self.margin, self.height-2*self.margin,
                                   self.image)
         del(renderStyle)
 
 # display a compass image based on the value of a heading
 class CompassImage(Element):
-    def __init__(self, name, style, hdgSensor=None, compassImgFileNames=None, display=None, resource=None, **args):
+    def __init__(self, name, style, hdgSensor=None, compassImageDir=None, display=None, resource=None, **args):
         Element.__init__(self, name, style, **args)
         self.hdgSensor = hdgSensor
         self.compassImgs = []
+        compassImgFileNames = os.listdir(compassImageDir)
+        compassImgFileNames.sort()
         for compassImgFileName in compassImgFileNames:
-            debug("debugCompass", "reading", compassImgFileName)
-            with open(compassImgFileName) as compassImgFile:
-                pngReader = png.Reader(compassImgFileName)
-                pngImage = pngReader.read()
-                self.width = pngImage[0] + 2*self.style.margin
-                self.height = pngImage[1] + 2*self.style.margin
-                self.compassImgs.append(png2fb(pngImage))
+            debug("debugCompass", "reading", compassImageDir+compassImgFileName)
+            pngReader = png.Reader(compassImageDir+compassImgFileName)
+            pngImage = pngReader.read()
+            self.width = pngImage[0] + 2*self.style.margin
+            self.height = pngImage[1] + 2*self.style.margin
+            self.compassImgs.append(png2fb(pngImage))
         self.display = display
         self.resource = resource
         if display and resource:
             display.addElement(self)
 
     def render(self, display):
-        idx = int((self.hdgSensor.getState()+11.25)%360/22.5)
+        incr = 360./len(self.compassImgs)
+        idx = int((self.hdgSensor.getState()+incr/2)%360/incr)
         debug("debugCompass", "CompassImage.render()", idx)
-        display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin, 
-                                  self.width-2*self.margin, self.height-2*self.margin, 
+        display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin,
+                                  self.width-2*self.margin, self.height-2*self.margin,
                                   self.compassImgs[idx])
-            
-# a Button is a Container that receives input        
+
+# a Button is a Container that receives input
 class Button(Container):
     def __init__(self, name, style=None, content=None, onPress=None, onRelease=None, altContent=None, display=None, **args):
         Container.__init__(self, name, style, [content, altContent], **args)
@@ -437,7 +440,7 @@ class Button(Container):
             self.width = self.content.width + 2*self.margin
             self.height = self.content.height + 2*self.margin
         debug("debugArrange", self.name, "arrange()", printAttrs(self))
-        
+
     def render(self, display):
         debug("debugDisplay", self.name, "Button.render()", printAttrs(self))
         self.clear(display)
@@ -448,11 +451,9 @@ class Button(Container):
             self.onPress()
         elif self.altContent:
             self.altContent.render(display)
-            
+
     def release(self, display):
         if self.onRelease:
             self.onRelease()
         else:
             self.render(display)
-
-        
