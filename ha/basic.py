@@ -25,17 +25,17 @@ On = 1
 # get the value of a variable from a file
 def getValue(fileName, item):
     return json.load(open(fileName))[item]
-    
+
 # turn an item into a list if it is not already
 def listize(x):
     return x if isinstance(x, list) else [x]
-                               
+
 # normalize state values from boolean to integers
 def normalState(value):
     if value == True: return On
     elif value == False: return Off
     else: return value
-    
+
 # Base class for Resources
 class Resource(object):
     def __init__(self, name, persistence=None, defaultAttrs={}):
@@ -58,7 +58,7 @@ class Resource(object):
     def __str__(self, level=0):
         return self.name+" "+self.__class__.__name__
 
-# Base class for Interfaces 
+# Base class for Interfaces
 class Interface(Resource):
     objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None):
@@ -79,13 +79,13 @@ class Interface(Resource):
 
     def start(self):
         return True
-        
+
     def stop(self):
         return True
-        
+
     def read(self, addr):
         return None
-        
+
     def write(self, addr, theValue):
         return True
 
@@ -95,24 +95,24 @@ class Interface(Resource):
         self.sensorAddrs[sensor.addr] = sensor
         self.states[sensor.addr] = None
         sensor.event = self.event
-        
+
     # return the data type of the state of the specified sensor
     def getStateType(self, sensor):
         return int
-        
+
     # Trigger the sending of a state change notification
     def notify(self):
         if self.event:
             self.event.set()
             debug('debugInterrupt', self.name, "set", self.event)
-        
-# Resource collection 
+
+# Resource collection
 
 # todo
 # - load tree
 # - gets traverse tree
 # - delete collection
-       
+
 class Collection(Resource, OrderedDict):
     objectArgs = ["resources"]
     def __init__(self, name, resources=[], aliases={}):
@@ -166,11 +166,11 @@ class Collection(Resource, OrderedDict):
 
     # dictionary of pertinent attributes
     def dict(self):
-        return {"class":self.__class__.__name__, 
-                "name":self.name, 
-                "type": self.type, 
+        return {"class":self.__class__.__name__,
+                "name":self.name,
+                "type": self.type,
                 "resources":self.keys()}
-                    
+
     def __str__(self, level=0):
         msg = self.name+" "+self.__class__.__name__
 #        for resource in self.values():
@@ -219,7 +219,7 @@ class Sensor(Resource):
     # return the data type of the state
     def getStateType(self):
         return self.interface.getStateType(self)
-        
+
     # Wait for the state of the sensor to change if an interrupt routine was specified
     def getStateChange(self):
         if self.event:
@@ -235,8 +235,8 @@ class Sensor(Resource):
         if self.event:
             self.event.set()
             debug('debugInterrupt', self.name, "set", self.event)
-        
-    # Define this function for sensors even though it does nothing        
+
+    # Define this function for sensors even though it does nothing
     def setState(self, state, wait=False):
         return False
 
@@ -248,7 +248,7 @@ class Sensor(Resource):
             return self.getStateChange()
         else:
             return Resource.__getattribute__(self, attr)
-            
+
     # override to handle special case of state
     def __setattr__(self, attr, value):
         if attr == "state":
@@ -258,16 +258,16 @@ class Sensor(Resource):
 
     # dictionary of pertinent attributes
     def dict(self):
-        return {"class":self.className, # FIXME __class__.__name__, 
-                "name":self.name, 
-                "type":self.type, 
-                "label":self.label, 
+        return {"class":self.className, # FIXME __class__.__name__,
+                "name":self.name,
+                "type":self.type,
+                "label":self.label,
                 "interface":self.interface.name,
-                "addr":self.addr.__str__(), 
-                "group":self.group, 
+                "addr":self.addr.__str__(),
+                "group":self.group,
                 "location":self.location}
-                    
-# A Control is a Sensor whose state can be set        
+
+# A Control is a Sensor whose state can be set
 class Control(Sensor):
     objectArgs = ["interface", "event"]
     def __init__(self, name, interface, addr=None, group="", type="control", location=None, label="", interrupt=None, event=None):
@@ -276,8 +276,7 @@ class Control(Sensor):
 
     # Set the state of the control by writing the value to the address on the interface.
     def setState(self, state, wait=False):
-        debug('debugState', self.name, "setState ", state)
+        debug('debugState', "Control", self.name, "setState ", state)
         self.interface.write(self.addr, state)
         self.notify()
         return True
- 

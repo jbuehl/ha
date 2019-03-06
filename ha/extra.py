@@ -16,7 +16,7 @@ class Cycle(object):
 
     def __str__(self):
         return self.control.name+" "+self.duration.__str__()+" "+self.delay.__str__()+" "+self.startState.__str__()+" "+self.endState.__str__()
-                            
+
 # a Sequence is a Control that consists of a list of Cycles that are run in the specified order
 
 sequenceStop = 0
@@ -36,7 +36,7 @@ class Sequence(Control):
             return normalState(self.running)
         else:
             return Control.getState(self)
-        
+
     def setState(self, state, wait=False):
         if self.interface.name == "None":
             debug('debugState', self.name, "setState ", state, wait)
@@ -47,7 +47,7 @@ class Sequence(Control):
             return True
         else:
             return Control.setState(self, state)
-            
+
     # Run the Cycles in the list
     def runCycles(self, wait=False):
         debug('debugState', self.name, "runCycles", wait)
@@ -103,13 +103,13 @@ class Sequence(Control):
             if not self.running:
                 break
             time.sleep(1)
-    
+
     def __str__(self):
         msg = ""
         for cycle in self.cycleList:
             msg += cycle.__str__()+"\n"
         return msg
-            
+
 # A collection of sensors whose state is on if any one of them is on
 class SensorGroup(Sensor):
     objectArgs = ["interface", "event", "sensorList", "resources"]
@@ -143,7 +143,7 @@ class SensorGroup(Sensor):
 # A set of Controls whose state can be changed together
 class ControlGroup(SensorGroup, Control):
     objectArgs = ["interface", "event", "controlList", "resources"]
-    def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False, interface=None, addr=None, 
+    def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False, interface=None, addr=None,
                  group="", type="controlGroup", label=""):
         SensorGroup.__init__(self, name, controlList, resources, interface, addr, group=group, type=type, label=label)
         Control.__init__(self, name, interface, addr, group=group, type=type, label=label)
@@ -207,7 +207,7 @@ class CalcSensor(Sensor):
             if self.function == "avg":
                 value /+ len(self.sensors)
         return value
-        
+
 # Sensor that returns the states of all sensors in a list of resources
 class ResourceStateSensor(Sensor):
     objectArgs = ["interface", "event", "resources"]
@@ -232,7 +232,7 @@ class ResourceStateSensor(Sensor):
                     self.states[sensor.name] = sensor.getState()
                 else:                                   # sensor has a complex state
                     self.states[sensor.name] = sensor.getState()["contentType"]
-    
+
     # return the state of any sensors that have changed since the last getState() call
     def getStateChange(self):
         debug('debugInterrupt', self.name, "getStateChange")
@@ -270,6 +270,8 @@ class MinMaxControl(Control):
         self.setMinMax(minValue, maxValue)
 
     def setState(self, state, wait=False):
+        state = int(state)
+        debug("debugState", "MinMaxControl", self.name, "setState", state, self.minValue, self.maxValue)
         if state < self.minValue:
             value = self.minValue
         elif state > self.maxValue:
@@ -280,7 +282,7 @@ class MinMaxControl(Control):
 
     def setMinMax(self, minValue, maxValue):
         self.minValue = minValue
-        self.maxValue = maxValue    
+        self.maxValue = maxValue
 
 # Sensor that captures the minimum state value of the specified sensor
 class MinSensor(Sensor):
@@ -307,7 +309,7 @@ class MinSensor(Sensor):
         self.minState = value
         if self.interface:
             self.interface.write(self.name, self.minState)
-        
+
 # Sensor that captures the maximum state value of the specified sensor
 class MaxSensor(Sensor):
     def __init__(self, name, interface, sensor, event=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None):
@@ -332,7 +334,7 @@ class MaxSensor(Sensor):
         self.maxState = value
         if self.interface:
             self.interface.write(self.name, self.maxState)
-            
+
 # Sensor that captures the accumulated state values of the specified sensor
 class AccumSensor(Sensor):
     def __init__(self, name, interface, sensor, multiplier=1, event=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None):
@@ -366,4 +368,3 @@ class AttributeSensor(Sensor):
 
     def getState(self):
         return getattr(self.sensor, self.attr)
-        
