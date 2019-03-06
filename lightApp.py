@@ -72,7 +72,8 @@ if __name__ == "__main__":
                                         type="light", group=["Lights", "Holiday"], label="Valentines day")
     mardigrasLights = HolidayLightControl("mardigrasLights", neopixelInterface,
                                         segments=[Segment("all",     0, stringLength,
-                                                           pattern=patterns["mardigrasPattern"])],
+                                                           pattern=patterns["mardigrasPattern"],
+                                                           animation=SparkleAnimation(rate=5))],
                                         type="light", group=["Lights", "Holiday"], label="Mardi gras")
     presidentsLights = HolidayLightControl("presidentsLights", neopixelInterface,
                                         segments=[Segment("all",     0, stringLength,
@@ -153,7 +154,7 @@ if __name__ == "__main__":
             Task("OffTask",          SchedTime(                              hour=12, minute=00), holiday, "offLights"),
             Task("valentinesTask",   SchedTime(year=2019, month=Feb, day=[13,14], hour=12, minute=0), holiday, "valentinesLights"),
             Task("presidentsTask",   SchedTime(year=2019, month=Feb, day=18, hour=12, minute=0), holiday, "presidentsLights"),
-            Task("mardigrasTask",    SchedTime(year=2019, month=Mar, day=[2,3,4,5,6],  hour=12, minute=0), holiday, "mardigrasLights"),
+            Task("mardigrasTask",    SchedTime(year=2019, month=Mar, day=[2,3,4,5],  hour=12, minute=0), holiday, "mardigrasLights"),
             Task("stpatricksTask",   SchedTime(year=2019, month=Mar, day=[16,17], hour=12, minute=0), holiday, "stpatricksLights"),
             Task("easterTask",       SchedTime(year=2019, month=Apr, day=[20,21], hour=12, minute=0), holiday, "easterLights"),
             Task("cincodemayoTask",  SchedTime(year=2019, month=May, day=5,  hour=12, minute=0), holiday, "cincodemayoLights"),
