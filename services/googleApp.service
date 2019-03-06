@@ -1,0 +1,8 @@
+[Unit]
+Description=Home Automation Google Assistant fulfillment
+After=syslog.target
+[Service]
+ExecStart=/usr/bin/python /root/ha/googleApp.py
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
