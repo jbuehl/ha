@@ -15,7 +15,7 @@ class View(object):
         else:
             self.setValues = OrderedDict(setValues) # preserve the order of set values for display purposes
         self.toggle = toggle
- 
+
     # Return the printable string value for the state of the sensor
     def getViewState(self, sensor):
         state = sensor.getState()
@@ -39,18 +39,24 @@ class View(object):
         try:
             value = self.setValues.keys()[self.setValues.values().index(dispValue)]
             if dispValue in ["-", "v", "+", "^"]:   # increment or decrement current state by the value
+                debug("debugState", "View", "setViewState", "incrementing", control.name, str(value))
                 control.setState(control.getState() + value)
-            else:                                   # set it to the value
+            else:
+                debug("debugState", "View", "setViewState", "setting", control.name, str(value))                                   # set it to the value
                 control.setState(value)
-        except:
-            control.setState(0)
+        except ValueError:                      # display value isn't in the list of valid states for the control
+            debug("debugState", "View", "setViewState", "setting", control.name, str(dispValue))
+            try:                                # attempt to use it as a number
+                control.setState(int(dispValue))
+            except ValueError:                  # use the value that was passed
+                control.setState(dispValue)
 
 # Dictionary of views keyed by sensor type
 class ViewDict(dict):
     def __init__(self, views):
         dict.__init__(self, views)
         self.__setitem__("", View())    # default View
-                
+
     # Return the printable string value for the state of the sensor
     def getViewState(self, sensor):
         try:
@@ -71,17 +77,17 @@ class ViewDict(dict):
             return self.__getitem__(control.type).setViewState(control, value)
         except KeyError:
             return self.__getitem__("").setViewState(control, value)
-         
+
 # transform functions
 def intFormat(value):
     return int(value+.5)
-    
+
 def ctofFormat(value):
     return tempFormat(value*9/5+32)
 
 def kiloFormat(value):
     return value/1000.0
-    
+
 def megaFormat(value):
     return value/1000000.0
 
@@ -98,19 +104,19 @@ def secsFormat(value):
     (m, s) = divmod(value, 60)
     (h, m) = divmod(m, 60)
     return "%d:%02d:%02d" % (h, m, s)
-            
+
 def latFormat(value):
     return "%7.3f %s" % (abs(value), "N" if value > 0.0 else "S")
-            
+
 def longFormat(value):
     return "%7.3f %s" % (abs(value), "E" if value > 0.0 else "W")
-            
+
 def hdgFormat(value):
     dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
     direction = dirs[int((value+11.25)%360/22.5)]
     return "%03d %s" % (int(value), direction)
-        
-# view definitions    
+
+# view definitions
 views = ViewDict(  {"none": View(),
 #         "tempC": View({}, "%d °", ctofFormat),
 #         "tempF": View({}, "%d °", tempFormat),
@@ -172,4 +178,3 @@ views = ViewDict(  {"none": View(),
 # these types are the exceptions
 staticTypes = ["time", "ampm", "date", "KVA", "W", "V", "KW", "MW", "KWh"]          # types whose class does not depend on their value
 tempTypes = ["tempF", "tempFControl", "tempC", "spaTemp"]       # temperatures
-                            
