@@ -12,8 +12,8 @@ from ha import *
 # a temperature controlled heating or cooling unit
 class TempControl(Control):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface, unitControl, tempSensor, 
-                tempTargetControl=None, unitType=0, hysteresis=[1, 1], 
+    def __init__(self, name, interface, unitControl, tempSensor,
+                tempTargetControl=None, unitType=0, hysteresis=[1, 1],
                 addr=None, group="", type="control", location=None, label="", interrupt=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.className = "Control"
@@ -25,7 +25,7 @@ class TempControl(Control):
         self.hysteresis = hysteresis                # how much to overshoot or undershoot the temp target [-low, +high]
         self.controlState = off                     # state of this control
         self.inhibited = False                      # this control is inhibited
-        
+
     def getState(self, wait=False):
         debug('debugState', self.name, "getState ", self.controlState)
         return self.controlState
@@ -40,7 +40,10 @@ class TempControl(Control):
                 currentTemp = int(self.tempSensor.getState() + .5)
                 if currentTemp > 0:                 # don't do anything if no temp reading
                     if self.tempTargetControl:
-                        self.tempTarget = self.tempTargetControl.getState()
+                        try:
+                            self.tempTarget = int(self.tempTargetControl.getState())
+                        except ValueError:
+                            self.tempTarget = 0
                     debug('debugTempControlTemp', self.name, "currentTemp:", currentTemp, "targetTemp:", self.tempTarget, "inhibit:", self.inhibited)
                     if self.inhibited or \
                         ((self.unitType == unitTypeHeater) and (currentTemp >= self.tempTarget + self.hysteresis[1])) or \
