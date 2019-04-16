@@ -3,6 +3,8 @@ haUrl = "http://localhost:81/cmd/"
 debug = True
 debugData = True
 
+# https://console.dialogflow.com
+
 from BaseHTTPServer import HTTPServer
 from BaseHTTPServer import BaseHTTPRequestHandler
 import json
