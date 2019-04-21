@@ -2,15 +2,17 @@ webLogging = False
 webReload = False
 blinkers = []
 imageBase = "/var/ftp/images/"
-
 import json
 import subprocess
 import cherrypy
 import time
 from cherrypy.lib import auth_basic
 import requests
+from twilio.rest import Client
 from ha import *
 from ha.ui.webViews import *
+
+twilioKey = keyDir+"twilio.key"
 
 # https://cherrypy.readthedocs.io/en/3.2.6/progguide/extending/customtools.html
 # https://bitbucket.org/cherrypy/cherrypy/src/ea210e8ef58a3a6ca289a8564c389e38de13d3d5/cherrypy/lib/auth_basic.py?at=default&fileviewer=file-view-default
@@ -204,6 +206,26 @@ class WebRoot(object):
         cherrypy.response.headers['Content-Type'] = "video/mp4"
         cherrypy.response.headers['Content-Length'] = len(videoContent)
         return videoContent
+
+    # return a sound
+    @cherrypy.expose
+    def sound(self, sound=None):
+        debug('debugWeb', "/sound", cherrypy.request.method, sound)
+        debug('debugSound', "sound = ", sound)
+        with open(soundDir+sound) as soundFile:
+            soundContent = soundFile.read()
+        debug('debugSound', "length = ", len(soundContent))
+        cherrypy.response.headers['Content-Type'] = "audio/wav"
+        cherrypy.response.headers['Content-Length'] = len(soundContent)
+        return soundContent
+
+    # send an sms notification
+    @cherrypy.expose
+    def notify(self, number, message, sender=""):
+        smsClient = Client(getValue(twilioKey, "sid"), getValue(twilioKey, "token"))
+        if sender == "":
+            sender = notifyFromNumber
+        smsClient.messages.create(to=number, from_=sender, body=message)
 
 def webInit(resources, restCache, stateChangeEvent, httpPort=80, ssl=False, httpsPort=443, domain="", pathDict=None, baseDir="/", block=False):
     # set up the web server

@@ -1,21 +1,22 @@
 $(document).ready(function() {
     var blinkers = [];
     var cacheTime = 0;      // timestamp of resource cache
-    
+    var soundPlaying = 0;
+
     // set color of temp elements based on temp value
     var tempColor = function(tempString){
         temp = parseInt(tempString);
-        if      (temp > 120) {red = 252; green = 0; blue = 252;}            // magenta 
-        else if (temp > 102) {red = 252; green = 0; blue = (temp-102)*14;}  // red 
-        else if (temp > 84)  {red = 252; green = (102-temp)*14; blue = 0;}  // yellow 
-        else if (temp > 66)  {red = (temp-66)*14; green = 252; blue = 0;}   // green 
-        else if (temp > 48)  {red = 0; green = 252; blue = (66-temp)*14;}   // cyan 
-        else if (temp > 30)  {red = 0; green = (temp-30)*14; blue = 252;}   // blue 
+        if      (temp > 120) {red = 252; green = 0; blue = 252;}            // magenta
+        else if (temp > 102) {red = 252; green = 0; blue = (temp-102)*14;}  // red
+        else if (temp > 84)  {red = 252; green = (102-temp)*14; blue = 0;}  // yellow
+        else if (temp > 66)  {red = (temp-66)*14; green = 252; blue = 0;}   // green
+        else if (temp > 48)  {red = 0; green = 252; blue = (66-temp)*14;}   // cyan
+        else if (temp > 30)  {red = 0; green = (temp-30)*14; blue = 252;}   // blue
         else if (temp > 0)   { red = 0; green = 0; blue = 252;}
         else                 {red = 112; green = 128; blue = 144;}
         return "rgb("+red.toString()+","+green.toString()+","+blue.toString()+")";
         }
-        
+
     // submit a data change
     $(".button").click(function() {
         event.preventDefault();
@@ -27,7 +28,7 @@ $(document).ready(function() {
             });
         return false;
         });
-        
+
     // update the attributes of one data item
     var update = function(key, val) {
 //        $('#'+key).attr('value', val[1]);     // set the button value
@@ -35,12 +36,24 @@ $(document).ready(function() {
             $('.'+key).text(val[1]);            // set the value
             $('.'+key).css('color', tempColor(val[1]));
             }
+        else if (val[0] == 'sound') {           // play a sound if one is specified
+            if (val[1] == 'On') {
+                if (!soundPlaying) {            // only play the sound once when transitioning to On
+                    soundPlaying = 1;
+                    var audio = new Audio('/sound/' + val[1]);
+                    audio.play();
+                }
+            else {
+                soundPlaying = 0;
+                }
+            }
+        }
         else {                                  // change the class
             $('#'+key).text(val[1]);            // set the value
             $('#'+key).attr('class', val[0]);
             };
         }
-        
+
     // update the attributes of all the data items
     var updateAll = function(data) {
         blinkers = data["blinkers"];
@@ -53,7 +66,7 @@ $(document).ready(function() {
                 });
             };
         }
-        
+
     var pending = false;    // true while an stateChange request is pending
     var count = 0;
     var blinkToggle = false;
@@ -92,4 +105,3 @@ $(document).ready(function() {
         updateAll(data);
         });
     });
-
