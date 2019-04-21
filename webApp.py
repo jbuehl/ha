@@ -243,7 +243,7 @@ if __name__ == "__main__":
                                                "sculptureLights",
                                                "holidayLights",
                                                "backLights",
-                                               "deckLights",
+                                               # "deckLights",
                                                "garageBackDoorLight"],
                                                resources=resources,
                                                type="light", group="Lights", label="Porch lights")
