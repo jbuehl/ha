@@ -264,23 +264,27 @@ class DependentControl(Control):
 
 # Control that can be set on but reverts to off after a specified time
 class OneShotControl(Control):
-    def __init__(self, name, interface, addr=None, group="", type="control", location=None, label="", event=None, interrupt=None):
+    def __init__(self, name, interface, addr=None, duration=1, group="", type="control", location=None, label="", event=None, interrupt=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, event=event, interrupt=interrupt)
         self.className = "Control"
+        self.duration = duration
         self.timedState = 0
         self.timer = None
 
-    def setState(self, state, wait=False, timeout=1):
+    def setState(self, state, wait=False):
         # timeout is the length of time the control will stay on
-        debug("debugState", "OneShotControl", self.name, "setState", state, timeout)
-        if not self.timer:
+        debug("debugState", "OneShotControl", self.name, "setState", state)
+        if not self.timedState:
             self.timedState = state
-            self.timer = threading.Timer(timeout, self.timeout)
+            self.timer = threading.Timer(self.duration, self.timeout)
             self.timer.start()
+            debug("debugState", "OneShotControl", self.name, "timer", self.timedState)
+            self.notify()
 
     def timeout(self):
         self.timedState = 0
         debug("debugState", "OneShotControl", self.name, "timeout", self.timedState)
+        self.notify()
 
     def getState(self):
         return self.timedState
