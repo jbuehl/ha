@@ -53,7 +53,7 @@ class RestServer(object):
             self.beaconSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             if multicast:
-                self.beaconSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, 
+                self.beaconSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
                         struct.pack("4sl", socket.inet_aton(multicastGroup), socket.INADDR_ANY))
             else:
                 self.beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -66,14 +66,14 @@ class RestServer(object):
                     if not self.beaconSocket:
                         self.beaconSocket = openBroadcastSocket()
                     try:
-                        self.beaconSocket.sendto(json.dumps({"hostname": self.hostname, 
+                        self.beaconSocket.sendto(json.dumps({"hostname": self.hostname,
                                                              "port": self.port,
-                                                             "resources": [self.server.resources.name], 
-                                                             "timestamp": self.timeStamp, 
+                                                             "resources": [self.server.resources.name],
+                                                             "timestamp": self.timeStamp,
                                                              "label": self.label,
                                                              "name": self.name,
                                                              "statechange": self.stateChange,
-                                                             "seq": beaconSequence}), 
+                                                             "seq": beaconSequence}),
                                                         (self.restAddr, restBeaconPort))
                     except socket.error as exception:
                         log("socket error", str(exception))
@@ -82,7 +82,7 @@ class RestServer(object):
                     time.sleep(restBeaconInterval)
             beaconThread = threading.Thread(target=beacon)
             beaconThread.start()
-            
+
         # start the heartbeat to periodically send the state of all resources
         if self.heartbeat:
             debug('debugRestServer', self.name, "REST heartbeat started")
@@ -90,7 +90,7 @@ class RestServer(object):
             self.heartbeatSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.heartbeatSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             if multicast:
-                self.heartbeatSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, 
+                self.heartbeatSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
                         struct.pack("4sl", socket.inet_aton(multicastGroup), socket.INADDR_ANY))
             else:
                 self.heartbeatSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -107,10 +107,10 @@ class RestServer(object):
                     if not self.heartbeatSocket:
                         self.heartbeatSocket = openBroadcastSocket()
                     try:
-                        self.heartbeatSocket.sendto(json.dumps({"state": stateResource.states, 
-                                                                "hostname": self.hostname, 
-                                                                "port": self.port, 
-                                                                "seq": stateSequence}), 
+                        self.heartbeatSocket.sendto(json.dumps({"state": stateResource.states,
+                                                                "hostname": self.hostname,
+                                                                "port": self.port,
+                                                                "seq": stateSequence}),
                                                             (self.restAddr, restStatePort))
                         if self.event:
                             # set the state event so the stateChange request returns
@@ -123,7 +123,7 @@ class RestServer(object):
                     time.sleep(restHeartbeatInterval)
             heartbeatThread = threading.Thread(target=heartbeat)
             heartbeatThread.start()
-            
+
         # start the HTTP server
         self.server.serve_forever()
 
@@ -205,7 +205,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
     # this suppresses logging from BaseHTTPServer
     def log_message(self, format, *args):
         return
-        
+
     # Locate the resource or attribute specified by the path
     def getResFromPath(self, resource, path):
         (name, sep, path) = path.partition("/")
@@ -227,4 +227,3 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                         if name in dir(resource):
                             return (resource, name) # path matches resource and attr
         return (None, None)         # no match
-
