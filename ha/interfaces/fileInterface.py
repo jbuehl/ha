@@ -8,11 +8,12 @@ import time
 
 class FileInterface(Interface):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface=None, event=None, fileName="", readOnly=False, changeMonitor=True):
+    def __init__(self, name, interface=None, event=None, fileName="", readOnly=False, changeMonitor=True, defaultValue=None):
         Interface.__init__(self, name, interface=interface, event=event)
         self.fileName = fileName
         self.readOnly = readOnly
         self.changeMonitor = changeMonitor
+        self.defaultValue = defaultValue
 
     def start(self):
         try:
@@ -41,8 +42,8 @@ class FileInterface(Interface):
     def read(self, addr):
         try:
             return self.data[addr]
-        except:
-            return None
+        except KeyError:
+            return self.defaultValue
 
     def write(self, addr, value):
         if not self.readOnly:
@@ -64,7 +65,7 @@ class FileInterface(Interface):
             return True
         else:
             return False
-    
+
     def readData(self):
         try:
             with open(self.fileName) as dataFile:
@@ -78,4 +79,3 @@ class FileInterface(Interface):
         with open(self.fileName, "w") as dataFile:
             json.dump(self.data, dataFile)
         self.mtime = time.time()
-
