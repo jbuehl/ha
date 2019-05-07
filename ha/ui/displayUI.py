@@ -326,8 +326,10 @@ class Text(Element):
                     self.setValue(resState[0:8])
                     self.fgColor = color("OrangeRed")
             elif self.resource.type == "nSats":
-                if int(resState[0]) < 4:
+                if (resState == "--") or (int(resState) < 4):
                     self.fgColor = color("OrangeRed")
+                else:
+                    self.fgColor = color("LightYellow")
         renderStyle = copy.copy(self)
         if style:
             renderStyle.__dict__.update(style.__dict__)
