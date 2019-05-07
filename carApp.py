@@ -15,6 +15,9 @@ compassImageDir = "/root/compass/"
 dashCamImageDir = "/root/data/photos/"
 dashCamVideoDir = "/root/data/videos/"
 dashCamInterval = 10
+dashCamStillResolution = (2592, 1944)    # V1
+#dashCamStillResolution = (3280, 2464)    # V2
+dashCamVideoResolution = (1920, 1080)
 
 import time
 import threading
@@ -32,41 +35,42 @@ from ha.interfaces.audioInterface import *
 resources = None
 stateChangeEvent = threading.Event()
 resourceLock = threading.Lock()
-# compassImgFileNames = ["/root/compass/hdg "+hdg+".png" for hdg in ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]]
-dashCam=picamera.PiCamera()
-dashCam.resolution = (3280, 2464)
+try:
+    dashCam=picamera.PiCamera()
+except:
+    dashCam = None
 
 # dash cam preview
 def dashCamPreview(container):
-    dashCam.start_preview(fullscreen=False, window = container.getSizePos())
+    if dashCam:
+        dashCam.resolution = dashCamStillResolution
+        dashCam.start_preview(fullscreen=False, window = container.getSizePos())
 
 # dash cam capture
 def dashCamCapture():
-    dashCam.capture(dashCamImageDir+time.strftime("%Y%m%d%H%M%S")+".jpg")
+    if dashCam:
+        dashCam.capture(dashCamImageDir+time.strftime("%Y%m%d%H%M%S")+".jpg")
 
 # dash cam start recording
 def dashCamStartRec():
-    dashCam.resolution = (1920, 1080)
-    dashCam.start_recording(dashCamVideoDir+time.strftime("%Y%m%d%H%M%S")+".h264")
+    if dashCam:
+        dashCam.resolution = dashCamVideoResolution
+        dashCam.start_recording(dashCamVideoDir+time.strftime("%Y%m%d%H%M%S")+".h264")
 #    dashCam.annotate_size = 120
 #    dashCam.annotate_foreground = picamera.Color('red')
 #    dashCam.annotate_text = time.strftime("%Y %m %d %H:%M:%S")
 
 # dash cam stop recording
 def dashCamStopRec():
-    dashCam.stop_recording()
-    dashCam.resolution = (3280, 2464)
+    if dashCam:
+        dashCam.stop_recording()
+        dashCam.resolution = dashCamStillResolution
 #    dashCam.annotate_text = ""
-
-#def dashCamImage():
-#    while True:
-#        os.popen("/usr/bin/raspistill -e png -o "+dashCamFile+" -w 400 -h 300 -n")
-#        time.sleep(dashCamInterval)
 
 if __name__ == "__main__":
 
     # interfaces
-    gpsInterface = FileInterface("gpsInterface", fileName=gpsFileName, readOnly=True, event=stateChangeEvent)
+    gpsInterface = FileInterface("gpsInterface", fileName=gpsFileName, readOnly=True, event=stateChangeEvent, defaultValue=0.0)
     timeInterface = TimeInterface("timeInterface", gpsInterface, clock="utc")
     diagInterface = FileInterface("diagInterface", fileName=diagFileName, readOnly=True, event=stateChangeEvent)
     i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
@@ -92,8 +96,9 @@ if __name__ == "__main__":
         Sensor("latitude", gpsInterface, "Lat", label="Latitude", type="Lat"),
         Sensor("longitude", gpsInterface, "Long", label="Longitude", type="Long"),
         Sensor("altitude", gpsInterface, "Alt", label="Elevation", type="Ft"),
-        Sensor("nSats", gpsInterface, "Nsats", label="Satellites"),
+        Sensor("nSats", gpsInterface, "Nsats", label="Satellites", type="nSats"),
     ]
+    gpsDevice = Sensor("gpsDevice", gpsInterface, "GPSDevice", label="GPS device")
 
     # engine sensors
     engineSensors = [
@@ -104,7 +109,7 @@ if __name__ == "__main__":
         Sensor("coolantTemp", diagInterface, "WaterTemp", label="Water temp", type="tempC"),
 #        Sensor("airPressure", diagInterface, "Barometer", label="Barometer", type="barometer"),
         Sensor("runTime", diagInterface, "RunTime", label="Run time", type="Secs"),
-        Sensor("diagCodes", diagInterface, "DiagCodes", label="Diag codes",type="diagCode"),
+        Sensor("diagCodes", diagInterface, "DiagCodes", label="Diag codes", type="diagCode"),
     ]
     outsideTemp = Sensor("outsideTemp", tempInterface, 0x4e, label="Outside temp", type="tempF")
 
@@ -127,10 +132,10 @@ if __name__ == "__main__":
     # styles
     defaultStyle = Style("defaultStyle", bgColor=bgColor, fgColor=fgColor)
     textStyle = Style("textStyle", defaultStyle, face=face, fontSize=24, fgColor=color("Cyan"))
-    timeStyle = Style("timeStyle", textStyle, fontSize=80, width=220, height=90, fgColor=color("Yellow"))
+    timeStyle = Style("timeStyle", textStyle, fontSize=80, width=240, height=90, fgColor=color("Yellow"))
     ampmStyle = Style("ampmStyle", timeStyle, fontSize=32, width=60, height=90)
     tzStyle = Style("tzStyle", timeStyle, fontSize=32, width=80, height=90)
-    dateStyle = Style("dateStyle", textStyle, fontSize=24, width=260, height=36)
+    dateStyle = Style("dateStyle", textStyle, fontSize=24, width=220, height=36)
     tempStyle = Style("tempStyle", textStyle, fontSize=72, width=180, height=90)
     labelStyle = Style("labelStyle", textStyle, fontSize=32, width=170, height=50, fgColor=color("Cyan"))
     valueStyle = Style("valueStyle", textStyle, fontSize=32, width=230, height=50, fgColor=color("LightYellow"))
@@ -139,7 +144,7 @@ if __name__ == "__main__":
     containerStyle = Style("containerStyle", defaultStyle)
     buttonStyle = Style("buttonStyle", defaultStyle, width=100, height=90, margin=2, bgColor=color("White"))
     buttonTextStyle = Style("buttonText", textStyle, fontSize=18, bgColor=color("black"), fgColor=color("white"), padding=8)
-    buttonAltStyle = Style("buttonAlt", buttonTextStyle, bgColor=color("blue"), fgColor=color("white"))
+    buttonAltStyle = Style("buttonAlt", buttonTextStyle, bgColor=color("white"), fgColor=color("black"))
 
     # button callback routines
     def doNothing(button, display):
@@ -152,6 +157,7 @@ if __name__ == "__main__":
                             Text("time", timeStyle, display=display, resource=timeResource),
                             Text("ampm", ampmStyle, display=display, resource=ampmResource),
                             Text("timeZone", tzStyle, display=display, resource=timeZoneResource),
+                            Element("filler", Style("fillerStyle", defaultStyle, width=20, height=90), display=display),
                             Div("text", containerStyle, [
                                 Text("dayOfWeek", dateStyle, display=display, resource=dayOfWeekResource),
                                 Text("date", dateStyle, display=display, resource=dateResource),
@@ -185,44 +191,38 @@ if __name__ == "__main__":
 #                                ],
 #                            )
 #                            for sensor in engineSensors]),
-#                        Image("dashCam", display=display, resource=dashCam),
                         dashCamWindow,
                         ]),
                     Span("buttons", containerStyle, [
                         Button("captureButton", buttonStyle, display=display,
                             content=Text("button0Content", buttonTextStyle, "Capture", width=96, height=86),
                             onPress=dashCamCapture,
-#                            altContent=Image("volDownImageInvert", imageFile=imageDir+"icons_volumedown-02.png"),
+                            altContent=Text("button0Content", buttonAltStyle, "Capture", width=96, height=86),
                             ),
                         Button("startRecButton", buttonStyle, display=display,
                             content=Text("button1Content", buttonTextStyle, "Start rec", width=96, height=86),
                             onPress=dashCamStartRec,
-#                            altContent=Image("volUpImageInvert", imageFile=imageDir+"icons_volumeup-02.png"),
+                            altContent=Text("button1Content", buttonAltStyle, "Start rec", width=96, height=86),
                             ),
                         Button("stopRecButton", buttonStyle, display=display,
                             content=Text("button2Content", buttonTextStyle, "Stop rec", width=96, height=86),
                             onPress=dashCamStopRec,
-#                            altContent=Image("rewImageInvert", imageFile=imageDir+"icons_rew-02.png"),
+                            altContent=Text("button2Content", buttonAltStyle, "Stop rec", width=96, height=86),
                             ),
                         Button("button3", buttonStyle, display=display,
                             content=Text("button3Content", buttonTextStyle, "", width=96, height=86),
-#                            altContent=Image("playImageInvert", imageFile=imageDir+"icons_play-02.png"),
                             ),
                         Button("button4", buttonStyle, display=display,
                             content=Text("button4Content", buttonTextStyle, "", width=96, height=86),
-#                            altContent=Image("pauseImageInvert", imageFile=imageDir+"icons_pause-02.png"),
                             ),
                         Button("button5", buttonStyle, display=display,
                             content=Text("button5Content", buttonTextStyle, "", width=96, height=86),
-#                            altContent=Image("ffImageInvert", imageFile=imageDir+"icons_ff-02.png"),
                             ),
                         Button("button6", buttonStyle, display=display,
                             content=Text("button6Content", buttonTextStyle, "", width=96, height=86),
-#                            altContent=Image("sourceImageInvert", imageFile=imageDir+"icons_source-02.png"),
                             ),
-                        Button("button7", buttonStyle, display=display,
-                            content=Text("button7Content", buttonTextStyle, "", width=96, height=86),
-#                            altContent=Image("wifiImageInvert", imageFile=imageDir+"icons_wifi-02.png"),
+                        Button("gpsButton", buttonStyle, display=display,
+                            content=Text("gpsDevice", buttonTextStyle, resource=gpsDevice, width=96, height=86),
                             ),
                         ]),
                      ])
