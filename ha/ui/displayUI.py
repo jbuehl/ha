@@ -10,7 +10,7 @@
 # text string bbox size
 # frame buffer python module
 
-updateInterval = 10
+updateInterval = 1
 
 fbLib = "/root/ha/ha/ui/fb/libfb.so"
 
@@ -324,6 +324,9 @@ class Text(Element):
             elif self.resource.type == "diagCode":
                 if resState[0] != "0":
                     self.setValue(resState[0:8])
+                    self.fgColor = color("OrangeRed")
+            elif self.resource.type == "nSats":
+                if int(resState[0]) < 4:
                     self.fgColor = color("OrangeRed")
         renderStyle = copy.copy(self)
         if style:
