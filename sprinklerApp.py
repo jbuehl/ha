@@ -53,38 +53,38 @@ if __name__ == "__main__":
     backBedHotterTask = Task("backBedHotterTask", SchedTime(hour=16, minute=00, month=[Jun, Jul, Aug, Sep]), backBedHotterSequence, 1, enabled=True)
 
     scheduleHour = 18
-    frontLawnTask = Task("frontLawnTask", SchedTime(hour=scheduleHour, minute=00, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), 
+    frontLawnTask = Task("frontLawnTask", SchedTime(hour=scheduleHour, minute=00, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]),
                         frontLawnSequence, 1, enabled=True)
-    frontLawnHotTask = Task("frontLawnHotTask", SchedTime(hour=scheduleHour, minute=00, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep, Oct]), 
+    frontLawnHotTask = Task("frontLawnHotTask", SchedTime(hour=scheduleHour, minute=00, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep, Oct]),
                         frontLawnHotSequence, 1, enabled=True)
-    frontBedTask = Task("frontBedTask", SchedTime(hour=scheduleHour-1, minute=00, weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), 
+    frontBedTask = Task("frontBedTask", SchedTime(hour=scheduleHour-1, minute=00, weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]),
                         frontBedSequence, 1, enabled=True)
-    backLawnTask = Task("backLawnTask", SchedTime(hour=scheduleHour, minute=20, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), 
-                        backLawnSequence, 1, enabled=True)
-    backLawnHotTask = Task("backLawnHotTask", SchedTime(hour=scheduleHour, minute=20, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep, Oct]), 
-                        backLawnHotSequence, 1, enabled=True)
-    gardenTask = Task("gardenTask", SchedTime(hour=scheduleHour, minute=40, month=[May, Jun, Jul, Aug, Sep]), 
+    backLawnTask = Task("backLawnTask", SchedTime(hour=scheduleHour, minute=20, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]),
+                        backLawnSequence, 1, enabled=False)
+    backLawnHotTask = Task("backLawnHotTask", SchedTime(hour=scheduleHour, minute=20, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep, Oct]),
+                        backLawnHotSequence, 1, enabled=False)
+    gardenTask = Task("gardenTask", SchedTime(hour=scheduleHour, minute=40, month=[May, Jun, Jul, Aug, Sep]),
                         gardenSequence, 1, enabled=False)
-    backBedTask = Task("backBedTask", SchedTime(hour=scheduleHour, minute=50, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), 
+    backBedTask = Task("backBedTask", SchedTime(hour=scheduleHour, minute=50, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]),
                         backBedSequence, 1, enabled=True)
-    sideBedTask = Task("sideBedTask", SchedTime(hour=scheduleHour+1, minute=00, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]), 
+    sideBedTask = Task("sideBedTask", SchedTime(hour=scheduleHour+1, minute=00, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]),
                         sideBedSequence, 1, enabled=True)
 
-    schedule = Schedule("schedule", tasks=[resetMinTempTask, resetMaxTempTask, 
-                                           frontLawnTask, frontLawnHotTask, frontBedTask, gardenTask, 
-                                           backLawnTask, backLawnHotTask, 
+    schedule = Schedule("schedule", tasks=[resetMinTempTask, resetMaxTempTask,
+                                           frontLawnTask, frontLawnHotTask, frontBedTask, gardenTask,
+                                           backLawnTask, backLawnHotTask,
                                            sideBedTask, backBedTask, backBedHotTask, backBedHotterTask])
 
     # Resources
     resources = Collection("resources", resources=[minTemp, maxTemp,
-                                                   frontLawn, frontBeds, garden, backLawn, sideBeds, backBeds, 
-                                                   frontLawnSequence, frontLawnHotSequence, frontBedSequence, gardenSequence, 
-                                                   backLawnSequence, backLawnHotSequence, sideBedSequence, backBedSequence, 
+                                                   frontLawn, frontBeds, garden, backLawn, sideBeds, backBeds,
+                                                   frontLawnSequence, frontLawnHotSequence, frontBedSequence, gardenSequence,
+                                                   backLawnSequence, backLawnHotSequence, sideBedSequence, backBedSequence,
                                                    backBedHotSequence, backBedHotterSequence,
-                                                   resetMinTempTask, resetMaxTempTask, 
+                                                   resetMinTempTask, resetMaxTempTask,
                                                    backBedHotTask, backBedHotterTask,
                                                    frontLawnTask, frontLawnHotTask, frontBedTask,
-                                                   backLawnTask, backLawnHotTask, 
+                                                   backLawnTask, backLawnHotTask,
                                                    gardenTask, backBedTask, sideBedTask])
     restServer = RestServer("sprinklers", resources, event=stateChangeEvent, label="Sprinklers")
 
@@ -92,4 +92,3 @@ if __name__ == "__main__":
     gpioInterface.start()
     schedule.start()
     restServer.start()
-
