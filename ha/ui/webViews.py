@@ -26,7 +26,7 @@ class View(object):
         try:    # look it up in the values table
             return self.format % (self.values[state])
         except:
-            if state:
+            if state != None:
                 try:    # apply the format
                     return self.format % (state)
                 except: # worst case, return the string of the state
@@ -159,6 +159,7 @@ views = ViewDict(  {"none": View(),
          "Lat": View({}, "%s", latFormat),
          "Long": View({}, "%s", longFormat),
          "Deg": View({}, "%s", hdgFormat),
+         "nSats": View({}, "%d", intFormat),
          "power": View({}, "%d W"),
          "KVA": View({}, "%7.3f KVA", kiloFormat),
          "W": View({}, "%7.1f W"),
