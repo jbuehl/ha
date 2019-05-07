@@ -28,6 +28,7 @@ patterns = {"onPattern": [on],
             "halloweenPattern": 5*[orange]+3*[rust]+2*[purple],
             "valentinesPattern": 1*[white]+2*[pink]+5*[red]+2*[pink],
             "stpatricksPattern": [green],
+            "maydayPattern": [red],
             "mardigrasPattern": 3*[purple]+3*[yellow]+3*[green],
             "presidentsPattern": 3*[red]+3*[white]+3*[blue],
             "july4Pattern": 5*[red]+5*[white]+5*[blue],
@@ -83,6 +84,10 @@ if __name__ == "__main__":
                                         segments=[Segment("all",     0, stringLength,
                                                            pattern=patterns["stpatricksPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="St Patricks day")
+    maydayLights = HolidayLightControl("maydayLights", neopixelInterface,
+                                        segments=[Segment("all",     0, stringLength,
+                                                           pattern=patterns["maydayPattern"])],
+                                        type="light", group=["Lights", "Holiday"], label="May day")
     easterLights = HolidayLightControl("easterLights", neopixelInterface,
                                         segments=[Segment("all",     0, stringLength,
                                                            pattern=patterns["easterPattern"])],
@@ -157,6 +162,7 @@ if __name__ == "__main__":
             Task("mardigrasTask",    SchedTime(year=2019, month=Mar, day=[2,3,4,5],  hour=12, minute=0), holiday, "mardigrasLights"),
             Task("stpatricksTask",   SchedTime(year=2019, month=Mar, day=[16,17], hour=12, minute=0), holiday, "stpatricksLights"),
             Task("easterTask",       SchedTime(year=2019, month=Apr, day=[20,21], hour=12, minute=0), holiday, "easterLights"),
+            Task("maydayTask",       SchedTime(year=2019, month=May, day=1,  hour=12, minute=0), holiday, "maydayLights"),
             Task("cincodemayoTask",  SchedTime(year=2019, month=May, day=5,  hour=12, minute=0), holiday, "cincodemayoLights"),
             Task("swedenTask",       SchedTime(year=2019, month=Jun, day=6,  hour=12, minute=0), holiday, "swedenLights"),
             Task("flagTask",         SchedTime(year=2019, month=Jun, day=14,  hour=12, minute=0), holiday, "flagLights"),
@@ -173,7 +179,7 @@ if __name__ == "__main__":
     schedule = Schedule("schedule", tasks=tasks)
 
     # Resources
-    resources = Collection("resources", resources=[valentinesLights, mardigrasLights, presidentsLights, stpatricksLights,
+    resources = Collection("resources", resources=[valentinesLights, mardigrasLights, presidentsLights, stpatricksLights, maydayLights,
                                                    easterLights, cincodemayoLights, swedenLights, july4Lights, bastilleLights,
                                                    fallLights, halloweenLights, electionLights, christmasLights, hanukkahLights,
                                                    testLights, offLights, holiday
