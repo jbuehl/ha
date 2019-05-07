@@ -36,14 +36,18 @@ class TimeInterface(Interface):
                 self.tz = '/'.join(os.readlink('/etc/localtime').split('/')[-2:])
             else:
                 self.tz = "UTC"
-        
+
         debug('debugTime', self.name, "clock:", self.clock, "latLong:", self.latLong, "tz:", self.tz)
 
     def read(self, addr=None):
         # get gps location and figure out the time zone
         if self.interface:
             self.latLong = (self.interface.read("Lat"), self.interface.read("Long"))
-            self.tz = self.timeZoneFinder.timezone_at(lat=self.latLong[0], lng=self.latLong[1])
+            if self.latLong == (0, 0):
+                self.tz = "UTC"
+            else:
+                self.tz = self.timeZoneFinder.timezone_at(lat=self.latLong[0], lng=self.latLong[1])
+            debug('debugTime', self.name, "lat:", self.latLong[0], "long:", self.latLong[1], "tz:", self.tz)
         # get the naive UTC time
         if self.clock == "gps":                 # from file
             utcNow = datetime.datetime(*time.strptime(self.interface.read("Time"), "%Y-%m-%d %H:%M:%S")[0:6])
@@ -68,4 +72,3 @@ class TimeInterface(Interface):
                 return time.strftime(addr, localNow.timetuple()).lstrip("0")
         else:
             return time.asctime()
-
