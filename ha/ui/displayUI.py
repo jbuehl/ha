@@ -171,20 +171,31 @@ class Display(object):
             self.FrameBuffer.setPixMap(self.frameBuffer, xPos, yPos, width, height, pixMap)
 
     # render text on the display
-    def renderChars(self, face, fontSize, chars, xPos, yPos, xOffset, yOffset, fgColor, bgColor, width, height):
+    def renderChars(self, face, fontSize, chars, xPos, yPos, xOffset, yOffset, fgColor, bgColor, width, height, just=0):
         with self.lock:
-            x = xOffset
             y = yOffset
             face.set_pixel_sizes(0, fontSize)
             bgMap = self.FrameBuffer.getMap(width*height*self.bitsPerPix, bgColor)
-            for char in chars:
-                face.load_char(char)
-                bitmap = face.glyph.bitmap
-                metrics = face.glyph.metrics
-                self.FrameBuffer.setGrayMap(self.frameBuffer, x, y-metrics.horiBearingY/64, bitmap.width, bitmap.rows,
-                                    "".join(chr(c) for c in bitmap.buffer), fgColor, bgColor,
-                                    bgMap, width, height)
-                x += metrics.horiAdvance/64
+            if just == 0:   # left justified
+                x = xOffset
+                for char in chars:
+                    face.load_char(char)
+                    bitmap = face.glyph.bitmap
+                    metrics = face.glyph.metrics
+                    self.FrameBuffer.setGrayMap(self.frameBuffer, x, y-metrics.horiBearingY/64, bitmap.width, bitmap.rows,
+                                        "".join(chr(c) for c in bitmap.buffer), fgColor, bgColor,
+                                        bgMap, width, height)
+                    x += metrics.horiAdvance/64
+            else:           # right justified
+                x = xOffset + width
+                for char in reversed(chars):
+                    face.load_char(char)
+                    bitmap = face.glyph.bitmap
+                    metrics = face.glyph.metrics
+                    x -= metrics.horiAdvance/64
+                    self.FrameBuffer.setGrayMap(self.frameBuffer, x, y-metrics.horiBearingY/64, bitmap.width, bitmap.rows,
+                                        "".join(chr(c) for c in bitmap.buffer), fgColor, bgColor,
+                                        bgMap, width, height)
             self.FrameBuffer.setPixMap(self.frameBuffer, xPos, yPos, width, height, bgMap)
             self.FrameBuffer.freeMap(bgMap)
 
@@ -199,6 +210,7 @@ class Style(object):
         self.margin = 0
         self.bgColor = color("white")
         self.fgColor = color("black")
+        self.just = 0
         # inherit parent style attributes
         if style:
             self.__dict__.update(style.__dict__)
@@ -327,7 +339,7 @@ class Text(Element):
                     self.fgColor = color("OrangeRed")
             elif self.resource.type == "nSats":
                 if (resState == "--") or (int(resState) < 4):
-                    self.fgColor = color("OrangeRed")
+                    self.fgColor = color("Red")
                 else:
                     self.fgColor = color("LightYellow")
         renderStyle = copy.copy(self)
@@ -340,14 +352,15 @@ class Text(Element):
             self.xPos+self.margin, self.yPos+self.margin,
             renderStyle.margin+renderStyle.padding, 2*(renderStyle.height-2*renderStyle.margin)/3,
             renderStyle.fgColor, renderStyle.bgColor,
-            renderStyle.width-2*renderStyle.margin, renderStyle.height-2*renderStyle.margin)
+            renderStyle.width-2*renderStyle.margin, renderStyle.height-2*renderStyle.margin,
+            renderStyle.just)
         del(renderStyle)
 
 # an Element containing a static image
 class Image(Element):
     def __init__(self, name, style=None, imageFile=None, value="", display=None, resource=None, **args):
         Element.__init__(self, name, style, **args)
-        debug("debugImage", self.name, "Image()", self.name, display.name, resource.name)
+        debug("debugImage", self.name, "Image()", self.name)
         self.imageFile = imageFile
         self.value = value
         self.display = display
@@ -453,12 +466,8 @@ class Button(Container):
 
     def press(self, display):
         if self.onPress:
-            self.onPress()
-        elif self.altContent:
-            self.altContent.render(display)
+            self.onPress(self)
 
     def release(self, display):
         if self.onRelease:
-            self.onRelease()
-        else:
-            self.render(display)
+            self.onRelease(self)
