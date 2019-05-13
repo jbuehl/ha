@@ -15,8 +15,8 @@ compassImageDir = "/root/compass/"
 dashCamImageDir = "/root/data/photos/"
 dashCamVideoDir = "/root/data/videos/"
 dashCamInterval = 10
-dashCamStillResolution = (2592, 1944)    # V1
-#dashCamStillResolution = (3280, 2464)    # V2
+# dashCamStillResolution = (2592, 1944)    # V1
+dashCamStillResolution = (3280, 2464)    # V2
 dashCamVideoResolution = (1920, 1080)
 
 import time
@@ -35,10 +35,12 @@ from ha.interfaces.audioInterface import *
 resources = None
 stateChangeEvent = threading.Event()
 resourceLock = threading.Lock()
+display = Display("display", displayDevice, inputDevice, views)
 try:
     dashCam=picamera.PiCamera()
 except:
     dashCam = None
+recording = False
 
 # dash cam preview
 def dashCamPreview(container):
@@ -47,21 +49,34 @@ def dashCamPreview(container):
         dashCam.start_preview(fullscreen=False, window = container.getSizePos())
 
 # dash cam capture
-def dashCamCapture():
+def dashCamCapture(button):
     if dashCam:
+        if button.altContent:
+            button.altContent.render(display)
         dashCam.capture(dashCamImageDir+time.strftime("%Y%m%d%H%M%S")+".jpg")
+        button.content.render(display)
 
-# dash cam start recording
-def dashCamStartRec():
+# dash cam recording
+def dashCamRecord(button):
+    global recording
     if dashCam:
-        dashCam.resolution = dashCamVideoResolution
-        dashCam.start_recording(dashCamVideoDir+time.strftime("%Y%m%d%H%M%S")+".h264")
+        if recording:
+            dashCam.stop_recording()
+            dashCam.resolution = dashCamStillResolution
+            button.content.render(display)
+            recording = False
+        else:
+            dashCam.resolution = dashCamVideoResolution
+            dashCam.start_recording(dashCamVideoDir+time.strftime("%Y%m%d%H%M%S")+".h264")
+            if button.altContent:
+                button.altContent.render(display)
+            recording = True
 #    dashCam.annotate_size = 120
 #    dashCam.annotate_foreground = picamera.Color('red')
 #    dashCam.annotate_text = time.strftime("%Y %m %d %H:%M:%S")
 
 # dash cam stop recording
-def dashCamStopRec():
+def dashCamStopRec(button):
     if dashCam:
         dashCam.stop_recording()
         dashCam.resolution = dashCamStillResolution
@@ -95,10 +110,11 @@ if __name__ == "__main__":
     positionSensors = [
         Sensor("latitude", gpsInterface, "Lat", label="Latitude", type="Lat"),
         Sensor("longitude", gpsInterface, "Long", label="Longitude", type="Long"),
-        Sensor("altitude", gpsInterface, "Alt", label="Elevation", type="Ft"),
+        Sensor("altitude", gpsInterface, "GPSAlt", label="Elevation", type="Ft"),
         Sensor("nSats", gpsInterface, "Nsats", label="Satellites", type="nSats"),
     ]
     gpsDevice = Sensor("gpsDevice", gpsInterface, "GPSDevice", label="GPS device")
+    gpsAltitude = Sensor("gpsAltitude", gpsInterface, "Alt", label="GPS elevation", type="Ft")
 
     # engine sensors
     engineSensors = [
@@ -125,14 +141,13 @@ if __name__ == "__main__":
     # initialization
     fgColor = color("Yellow")
     bgColor = color("Black")
-    display = Display("display", displayDevice, inputDevice, views)
     display.clear(bgColor)
     face = freetype.Face(fontPath+fontName)
 
     # styles
     defaultStyle = Style("defaultStyle", bgColor=bgColor, fgColor=fgColor)
     textStyle = Style("textStyle", defaultStyle, face=face, fontSize=24, fgColor=color("Cyan"))
-    timeStyle = Style("timeStyle", textStyle, fontSize=80, width=240, height=90, fgColor=color("Yellow"))
+    timeStyle = Style("timeStyle", textStyle, fontSize=80, width=240, height=90, fgColor=color("Yellow"), just=1)
     ampmStyle = Style("ampmStyle", timeStyle, fontSize=32, width=60, height=90)
     tzStyle = Style("tzStyle", timeStyle, fontSize=32, width=80, height=90)
     dateStyle = Style("dateStyle", textStyle, fontSize=24, width=220, height=36)
@@ -195,19 +210,17 @@ if __name__ == "__main__":
                         ]),
                     Span("buttons", containerStyle, [
                         Button("captureButton", buttonStyle, display=display,
-                            content=Text("button0Content", buttonTextStyle, "Capture", width=96, height=86),
+                            content=Image("button0Content", buttonTextStyle, imageDir+"capture.png", width=96, height=86),
+                            altContent=Image("button0AltContent", buttonAltStyle, imageDir+"capture-invert.png", width=96, height=86),
                             onPress=dashCamCapture,
-                            altContent=Text("button0Content", buttonAltStyle, "Capture", width=96, height=86),
                             ),
-                        Button("startRecButton", buttonStyle, display=display,
-                            content=Text("button1Content", buttonTextStyle, "Start rec", width=96, height=86),
-                            onPress=dashCamStartRec,
-                            altContent=Text("button1Content", buttonAltStyle, "Start rec", width=96, height=86),
+                        Button("recordButton", buttonStyle, display=display,
+                            content=Image("button1Content", buttonTextStyle, imageDir+"record.png", width=96, height=86),
+                            altContent=Image("button1AltContent", buttonAltStyle, imageDir+"stop-record.png", width=96, height=86),
+                            onPress=dashCamRecord,
                             ),
-                        Button("stopRecButton", buttonStyle, display=display,
-                            content=Text("button2Content", buttonTextStyle, "Stop rec", width=96, height=86),
-                            onPress=dashCamStopRec,
-                            altContent=Text("button2Content", buttonAltStyle, "Stop rec", width=96, height=86),
+                        Button("button2", buttonStyle, display=display,
+                            content=Text("button2Content", buttonTextStyle, "", width=96, height=86),
                             ),
                         Button("button3", buttonStyle, display=display,
                             content=Text("button3Content", buttonTextStyle, "", width=96, height=86),
@@ -218,8 +231,8 @@ if __name__ == "__main__":
                         Button("button5", buttonStyle, display=display,
                             content=Text("button5Content", buttonTextStyle, "", width=96, height=86),
                             ),
-                        Button("button6", buttonStyle, display=display,
-                            content=Text("button6Content", buttonTextStyle, "", width=96, height=86),
+                        Button("gpsAltButton", buttonStyle, display=display,
+                            content=Text("gpsAltitude", buttonTextStyle, resource=gpsAltitude, width=96, height=86),
                             ),
                         Button("gpsButton", buttonStyle, display=display,
                             content=Text("gpsDevice", buttonTextStyle, resource=gpsDevice, width=96, height=86),
