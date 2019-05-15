@@ -53,6 +53,17 @@ state = {
 gpsAltitude = None
 strmAltitude = None
 
+def readState():
+    try:
+        with open(stateFileName) as stateFile:
+            state = json.load(stateFile)
+    except:
+        pass
+
+def writeState():
+    with open(stateFileName, "w") as stateFile:
+        json.dump(state, stateFile)
+
 # dash cam preview
 def dashCamPreview(container):
     if dashCam:
@@ -96,6 +107,15 @@ def getSSID():
 
 # turn wifi on and off
 def toggleWifi(button):
+    def checkWifi():
+        while state["wifiOn"] == True:
+            ssid = getSSID()
+            if ssid == "off":
+                button.setFront(2)
+            else:
+                button.setFront(1)
+            button.elementList[button.frontElement].render()
+            time.sleep(1)
     if state["wifiOn"]:
         os.system("ifconfig "+wlan+" down")
         state["wifiOn"] = False
@@ -104,12 +124,9 @@ def toggleWifi(button):
     else:
         os.system("ifconfig "+wlan+" up")
         state["wifiOn"] = True
-        ssid = getSSID()
-        if ssid == "off":
-            button.setFront(2)
-        else:
-            button.setFront(1)
-        button.render()
+        wifiThread = threading.Thread(target=checkWifi)
+        wifiThread.start()
+    writeState()
 
 # change the type of elevation that is displayed
 def toggleElevation(button):
@@ -118,13 +135,13 @@ def toggleElevation(button):
             elevation.sensor = srtmAltitude
         state["elevationMode"] = "srtm"
         button.setFront(1)
-        button.render()
     else:
         with resourceLock:
             elevation.sensor = gpsAltitude
         state["elevationMode"] = "gps"
         button.setFront(0)
-        button.render()
+    button.elementList[button.frontElement].render()
+    writeState()
 
 # upload data
 def uploadData(button):
@@ -146,11 +163,7 @@ class LinkSensor(Sensor):
 
 if __name__ == "__main__":
     # get the persistent state
-    try:
-        with open(stateFileName) as stateFile:
-            state = json.load(stateFile)
-    except:
-        pass
+    readState()
 
     # interfaces
     gpsInterface = FileInterface("gpsInterface", fileName=gpsFileName, readOnly=True, event=stateChangeEvent, defaultValue=0.0)
@@ -174,9 +187,13 @@ if __name__ == "__main__":
         Sensor("speed", gpsInterface, "Speed", label="Speed", type="MPH"),
         headingSensor,
     ]
-    gpsAltitude = Sensor("gpsAltitude", gpsInterface, "Alt")
-    srtmAltitude = Sensor("srtmAltitude", gpsInterface, "GPSAlt")
-    elevation = LinkSensor("elevation", None, None, gpsAltitude, label="Elevation", type="Ft")
+    gpsAltitude = Sensor("gpsAltitude", gpsInterface, "GPSAlt")
+    srtmAltitude = Sensor("srtmAltitude", gpsInterface, "Alt")
+    elevation = LinkSensor("elevation", None, None, None, label="Elevation", type="Ft")
+    if state["elevationMode"] == "gps":
+        elevation.sensor = gpsAltitude
+    else:
+        elevation.sensor = srtmAltitude
     positionSensors = [
         Sensor("latitude", gpsInterface, "Lat", label="Latitude", type="Lat"),
         Sensor("longitude", gpsInterface, "Long", label="Longitude", type="Long"),
@@ -227,20 +244,21 @@ if __name__ == "__main__":
     compassStyle = Style("compassStyle", defaultStyle, width=100, height=50)
     containerStyle = Style("containerStyle", defaultStyle)
     buttonStyle = Style("buttonStyle", defaultStyle, width=100, height=90, margin=2, bgColor=color("Gray"))
-    buttonTextStyle = Style("buttonText", textStyle, fontSize=18, bgColor=color("black"), fgColor=color("white"), padding=8)
+    buttonTextStyle = Style("buttonTextStyle", textStyle, fontSize=18, width=96, height=86, bgColor=color("black"), fgColor=color("white"), padding=8)
+    buttonImageStyle = Style("buttonImageStyle", defaultStyle, width=96, height=86)
 
     # button icons
-    captureIcon = Image("captureIcon", defaultStyle, imageDir+"capture.png", width=96, height=86)
-    captureInvertIcon = Image("captureInvertIcon", defaultStyle, imageDir+"capture-invert.png", width=96, height=86)
-    recordIcon = Image("recordIcon", defaultStyle, imageDir+"record.png", width=96, height=86)
-    recordInvertIcon = Image("recordInvertIcon", defaultStyle, imageDir+"stop-record.png", width=96, height=86)
-    elevationGpsIcon = Image("elevationGpsIcon", defaultStyle, imageDir+"elevation-gps.png", width=96, height=86)
-    elevationSrtmIcon = Image("elevationSrtmIcon", defaultStyle, imageDir+"elevation-srtm.png", width=96, height=86)
-    uploadIcon = Image("uploadIcon", defaultStyle, imageDir+"upload.png", width=96, height=86)
-    uploadInvertIcon = Image("uploadInvertIcon", defaultStyle, imageDir+"upload-invert.png", width=96, height=86)
-    wifiOffIcon = Image("wifiOffIcon", defaultStyle, imageDir+"wifi-off.png", width=96, height=86)
-    wifiConnectIcon = Image("wifiConnectIcon", defaultStyle, imageDir+"wifi-connect.png", width=96, height=86)
-    wifiDisconnectIcon = Image("wifiDisconnectIcon", defaultStyle, imageDir+"wifi-disconnect.png", width=96, height=86)
+    captureIcon = Image("captureIcon", buttonImageStyle, imageDir+"capture.png")
+    captureInvertIcon = Image("captureInvertIcon", buttonImageStyle, imageDir+"capture-invert.png")
+    recordIcon = Image("recordIcon", buttonImageStyle, imageDir+"record.png")
+    recordInvertIcon = Image("recordInvertIcon", buttonImageStyle, imageDir+"stop-record.png")
+    elevationGpsIcon = Image("elevationGpsIcon", buttonImageStyle, imageDir+"elevation-gps.png")
+    elevationSrtmIcon = Image("elevationSrtmIcon", buttonImageStyle, imageDir+"elevation-srtm.png")
+    uploadIcon = Image("uploadIcon", buttonImageStyle, imageDir+"upload.png")
+    uploadInvertIcon = Image("uploadInvertIcon", buttonImageStyle, imageDir+"upload-invert.png")
+    wifiOffIcon = Image("wifiOffIcon", buttonImageStyle, imageDir+"wifi-off.png")
+    wifiConnectIcon = Image("wifiConnectIcon", buttonImageStyle, imageDir+"wifi-connect.png")
+    wifiDisconnectIcon = Image("wifiDisconnectIcon", buttonImageStyle, imageDir+"wifi-disconnect.png")
 
     # lay out the screen
     dashCamWindow = Div("dashCamWindow", containerStyle, width=396, height=296, margin=2)
@@ -297,13 +315,13 @@ if __name__ == "__main__":
                             onPress=dashCamRecord,
                             ),
                         Button("button2", buttonStyle,
-                            [Text("button2Content", buttonTextStyle, "", width=96, height=86)],
+                            [Text("button2Content", buttonTextStyle, "")],
                             ),
                         Button("button3", buttonStyle,
-                            [Text("button3Content", buttonTextStyle, "", width=96, height=86)],
+                            [Text("button3Content", buttonTextStyle, "")],
                             ),
                         Button("button4", buttonStyle,
-                            [Text("button4Content", buttonTextStyle, "", width=96, height=86)],
+                            [Text("button4Content", buttonTextStyle, "")],
                             ),
                         # elevation source
                         Button("gpsAltButton", buttonStyle,
