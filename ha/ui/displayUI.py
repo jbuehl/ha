@@ -267,7 +267,7 @@ class Container(Element):
 
     def render(self, display):
         debug("debugDisplay", self.name, "Container.render()", printAttrs(self))
-        display.clear(display)
+        self.clear(display)
         for item in self.itemList:
             item.render(display)
 
@@ -333,7 +333,7 @@ class Overlay(Container):
         self.height += 2*self.margin
         debug("debugArrange", self.name, "arrange()", printAttrs(self))
 
-    def setFront(frontItem):
+    def setFront(self, frontItem):
         if frontItem in range(len(self.itemList)):
             self.frontItem = frontItem
         else:
@@ -341,7 +341,7 @@ class Overlay(Container):
 
     def render(self, display):
         debug("debugDisplay", self.name, "Container.render()", printAttrs(self))
-        display.clear(display)
+        self.clear(display)
         # only render the item designated as being in front
         self.itemList[self.frontItem].render(display)
 
