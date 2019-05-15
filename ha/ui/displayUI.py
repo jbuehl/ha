@@ -263,31 +263,31 @@ class Element(object):
 
 # a Container is an Element that contains one or more Elements
 class Container(Element):
-    def __init__(self, name, style=None, itemList=[], **args):
+    def __init__(self, name, style=None, elementList=[], **args):
         Element.__init__(self, name, style, **args)
-        self.itemList = itemList
-        for item in self.itemList:
-            item.container = self
+        self.elementList = elementList
+        for element in self.elementList:
+            element.container = self
 
     def render(self):
         debug("debugDisplay", self.name, "Container.render()", printAttrs(self))
         self.clear()
-        for item in self.itemList:
-            item.render()
+        for element in self.elementList:
+            element.render()
 
 # a Div is a Container that stacks its Elements vertically
 class Div(Container):
-    def __init__(self, name, style=None, itemList=[], **args):
-        Container.__init__(self, name, style, itemList, **args)
+    def __init__(self, name, style=None, elementList=[], **args):
+        Container.__init__(self, name, style, elementList, **args)
 
     def arrange(self, display, xPos=0, yPos=0):
         Element.arrange(self, display, xPos, yPos)
         height = 2*self.margin
-        for item in self.itemList:
+        for element in self.elementList:
             # arrange the content
-            item.arrange(self.display, self.xPos + self.margin, self.yPos + self.margin + height)
-            height += item.height
-            self.width = max(self.width, item.width)
+            element.arrange(self.display, self.xPos + self.margin, self.yPos + self.margin + height)
+            height += element.height
+            self.width = max(self.width, element.width)
         # set the size of this element
         self.width += 2*self.margin
         self.height = max(self.height, height)
@@ -295,17 +295,17 @@ class Div(Container):
 
 # a Span is a Container that stacks its Elements horizontally
 class Span(Container):
-    def __init__(self, name, style=None, itemList=[], **args):
-        Container.__init__(self, name, style, itemList, **args)
+    def __init__(self, name, style=None, elementList=[], **args):
+        Container.__init__(self, name, style, elementList, **args)
 
     def arrange(self, display, xPos=0, yPos=0):
         Element.arrange(self, display, xPos, yPos)
         width = 2*self.margin
-        for item in self.itemList:
+        for element in self.elementList:
             # arrange the content
-            item.arrange(self.display, self.xPos + self.margin + width, self.yPos + self.margin)
-            width += item.width
-            self.height = max(self.height, item.height)
+            element.arrange(self.display, self.xPos + self.margin + width, self.yPos + self.margin)
+            width += element.width
+            self.height = max(self.height, element.height)
         # set the size of this element
         self.height += 2*self.margin
         self.width = max(self.width, width)
@@ -313,35 +313,35 @@ class Span(Container):
 
 # an Overlay is a Container that overlays its Elements
 class Overlay(Container):
-    def __init__(self, name, style=None, itemList=[], **args):
-        Container.__init__(self, name, style, itemList, **args)
-        self.frontItem =  0
+    def __init__(self, name, style=None, elementList=[], **args):
+        Container.__init__(self, name, style, elementList, **args)
+        self.frontElement =  0
 
     def arrange(self, display, xPos=0, yPos=0):
         Element.arrange(self, display, xPos, yPos)
         self.width = 0
         self.height = 0
-        for item in self.itemList:
+        for element in self.elementList:
             # arrange the content
-            item.arrange(self.display, self.xPos + self.margin, self.yPos + self.margin)
-            self.width = max(self.width, item.width)
-            self.height = max(self.height, item.height)
+            element.arrange(self.display, self.xPos + self.margin, self.yPos + self.margin)
+            self.width = max(self.width, element.width)
+            self.height = max(self.height, element.height)
         # set the size of this element
         self.width += 2*self.margin
         self.height += 2*self.margin
         debug("debugArrange", self.name, "arrange()", printAttrs(self))
 
-    def setFront(self, frontItem):
-        if frontItem in range(len(self.itemList)):
-            self.frontItem = frontItem
+    def setFront(self, frontElement):
+        if frontElement in range(len(self.elementList)):
+            self.frontElement = frontElement
         else:
-            self.frontItem = 0
+            self.frontElement = 0
 
     def render(self):
         debug("debugDisplay", self.name, "Container.render()", printAttrs(self))
         self.clear()
-        # only render the item designated as being in front
-        self.itemList[self.frontItem].render()
+        # only render the element designated as being in front
+        self.elementList[self.frontElement].render()
 
 # an Element containing text
 # https://github.com/rougier/freetype-py/
@@ -353,8 +353,6 @@ class Text(Element):
         self.value = value
         self.display = display
         self.resource = resource
-        if display and resource:
-            display.addElement(self)
 
     def setValue(self, value):
         self.value = value
@@ -397,8 +395,6 @@ class Image(Element):
         self.value = value
         self.display = display
         self.resource = resource
-        if display and resource:
-            display.addElement(self)
         if self.imageFile:
             self.readImage()
         else:
@@ -450,8 +446,6 @@ class CompassImage(Element):
             self.compassImgs.append(png2fb(pngImage))
         self.display = display
         self.resource = resource
-        if display and resource:
-            display.addElement(self)
 
     def render(self):
         incr = 360./len(self.compassImgs)
@@ -463,9 +457,9 @@ class CompassImage(Element):
 
 # a Button is an Overlay that receives input
 class Button(Overlay):
-    def __init__(self, name, style=None, itemList=[], onPress=None, onRelease=None, display=None, **args):
-        Overlay.__init__(self, name, style, itemList, **args)
-        self.itemList = itemList
+    def __init__(self, name, style=None, elementList=[], onPress=None, onRelease=None, display=None, **args):
+        Overlay.__init__(self, name, style, elementList, **args)
+        self.elementList = elementList
         self.onPress = onPress
         self.onRelease = onRelease
         self.resource = None
