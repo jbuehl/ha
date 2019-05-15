@@ -63,10 +63,10 @@ def dashCamPreview(container):
 def dashCamCapture(button):
     if dashCam:
         button.setFront(1)
-        button.render(display)
+        button.render()
         dashCam.capture(dashCamImageDir+time.strftime("%Y%m%d%H%M%S")+".jpg")
         button.setFront(0)
-        button.render(display)
+        button.render()
 
 # dash cam recording
 def dashCamRecord(button):
@@ -76,14 +76,14 @@ def dashCamRecord(button):
             dashCam.stop_recording()
             dashCam.resolution = dashCamStillResolution
             button.setFront(0)
-            button.render(display)
+            button.render()
             recording = False
 #    dashCam.annotate_text = ""
         else:
             dashCam.resolution = dashCamVideoResolution
             dashCam.start_recording(dashCamVideoDir+time.strftime("%Y%m%d%H%M%S")+".h264")
             button.setFront(1)
-            button.render(display)
+            button.render()
             recording = True
 #    dashCam.annotate_size = 120
 #    dashCam.annotate_foreground = picamera.Color('red')
@@ -100,7 +100,7 @@ def toggleWifi(button):
         os.system("ifconfig "+wlan+" down")
         state["wifiOn"] = False
         button.setFront(0)
-        button.render(display)
+        button.render()
     else:
         os.system("ifconfig "+wlan+" up")
         state["wifiOn"] = True
@@ -109,7 +109,7 @@ def toggleWifi(button):
             button.setFront(2)
         else:
             button.setFront(1)
-        button.render(display)
+        button.render()
 
 # change the type of elevation that is displayed
 def toggleElevation(button):
@@ -118,22 +118,22 @@ def toggleElevation(button):
             elevation.sensor = srtmAltitude
         state["elevationMode"] = "srtm"
         button.setFront(1)
-        button.render(display)
+        button.render()
     else:
         with resourceLock:
             elevation.sensor = gpsAltitude
         state["elevationMode"] = "gps"
         button.setFront(0)
-        button.render(display)
+        button.render()
 
 # upload data
 def uploadData(button):
     button.setFront(1)
-    button.render(display)
+    button.render()
     cmd = "rsync -av "+dataDir+"* "+uploadServer+":"+uploadDir
     uplog = subprocess.check_output(cmd, shell=True)
     button.setFront(0)
-    button.render(display)
+    button.render()
 
 # sensor that is a link to another sensor
 class LinkSensor(Sensor):
@@ -246,15 +246,15 @@ if __name__ == "__main__":
     dashCamWindow = Div("dashCamWindow", containerStyle, width=396, height=296, margin=2)
     screen = Div("screen", containerStyle, [
                     Span("heading", containerStyle, [
-                            Text("time", timeStyle, display=display, resource=timeResource),
-                            Text("ampm", ampmStyle, display=display, resource=ampmResource),
-                            Text("timeZone", tzStyle, display=display, resource=timeZoneResource),
-                            Element("filler", Style("fillerStyle", defaultStyle, width=20, height=90), display=display),
+                            Text("time", timeStyle, resource=timeResource),
+                            Text("ampm", ampmStyle, resource=ampmResource),
+                            Text("timeZone", tzStyle, resource=timeZoneResource),
+                            Element("filler", Style("fillerStyle", defaultStyle, width=20, height=90)),
                             Div("text", containerStyle, [
-                                Text("dayOfWeek", dateStyle, display=display, resource=dayOfWeekResource),
-                                Text("date", dateStyle, display=display, resource=dateResource),
+                                Text("dayOfWeek", dateStyle, resource=dayOfWeekResource),
+                                Text("date", dateStyle, resource=dateResource),
                                 ]),
-                            Text("temp", tempStyle, display=display, resource=outsideTemp),
+                            Text("temp", tempStyle, resource=outsideTemp),
                             ]),
                     Span("body", containerStyle, [
                         Div("sensors", containerStyle, [
@@ -262,16 +262,16 @@ if __name__ == "__main__":
                                 Div("velocitySensors", containerStyle, [
                                     Span(sensor.name, containerStyle, [
                                         Text(sensor.name+"Label", labelStyle, sensor.label),
-                                        Text(sensor.name+"Value", velocityStyle, display=display, resource=sensor),
+                                        Text(sensor.name+"Value", velocityStyle, resource=sensor),
                                         ],
                                     )
                                     for sensor in velocitySensors]),
-                                CompassImage("compassImage", defaultStyle, headingSensor, compassImageDir, display=display, resource=headingSensor),
+                                CompassImage("compassImage", defaultStyle, headingSensor, compassImageDir, resource=headingSensor),
                                 ]),
                             Div("positionSensors", containerStyle, [
                                 Span(sensor.name, containerStyle, [
                                     Text(sensor.name+"Label", labelStyle, sensor.label),
-                                    Text(sensor.name+"Value", valueStyle, display=display, resource=sensor),
+                                    Text(sensor.name+"Value", valueStyle, resource=sensor),
                                     ],
                                 )
                                 for sensor in positionSensors]),
@@ -279,7 +279,7 @@ if __name__ == "__main__":
 #                        Div("engineSensors", containerStyle, [
 #                            Span(sensor.name, containerStyle, [
 #                                Text(sensor.name+"Label", labelStyle, sensor.label),
-#                                Text(sensor.name+"Value", valueStyle, display=display, resource=sensor),
+#                                Text(sensor.name+"Value", valueStyle, resource=sensor),
 #                                ],
 #                            )
 #                            for sensor in engineSensors]),
@@ -289,45 +289,42 @@ if __name__ == "__main__":
                         # dashcam capture
                         Button("captureButton", buttonStyle,
                             [captureIcon, captureInvertIcon],
-                            onPress=dashCamCapture, display=display,
+                            onPress=dashCamCapture,
                             ),
                         # dashcam record
                         Button("recordButton", buttonStyle,
                             [recordIcon, recordInvertIcon],
-                            onPress=dashCamRecord, display=display,
+                            onPress=dashCamRecord,
                             ),
                         Button("button2", buttonStyle,
                             [Text("button2Content", buttonTextStyle, "", width=96, height=86)],
-                            display=display,
                             ),
                         Button("button3", buttonStyle,
                             [Text("button3Content", buttonTextStyle, "", width=96, height=86)],
-                            display=display,
                             ),
                         Button("button4", buttonStyle,
                             [Text("button4Content", buttonTextStyle, "", width=96, height=86)],
-                            display=display,
                             ),
                         # elevation source
                         Button("gpsAltButton", buttonStyle,
                             [elevationGpsIcon, elevationSrtmIcon],
-                            onPress=toggleElevation, display=display,
+                            onPress=toggleElevation,
                             ),
                         # upload data
                         Button("uploadButton", buttonStyle,
                             [uploadIcon, uploadInvertIcon],
-                            onPress=uploadData, display=display,
+                            onPress=uploadData,
                             ),
                         # wifi enable
                         Button("wifiButton", buttonStyle,
                             [wifiOffIcon, wifiConnectIcon, wifiDisconnectIcon],
-                            onPress=toggleWifi, display=display,
+                            onPress=toggleWifi,
                             ),
                         ]),
                      ])
 
-    screen.arrange()
-    screen.render(display)
+    screen.arrange(display)
+    screen.render()
 
     # start the dash cam
     dashCamPreview(dashCamWindow)

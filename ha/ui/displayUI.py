@@ -117,9 +117,9 @@ class Display(object):
                         element = self.findButton(self.curXpos, self.curYpos)
                         if element:
                             if event.value == 0:    # up
-                                element.release(self)
+                                element.release()
                             elif event.value == 1:   # down
-                                element.press(self)
+                                element.press()
                 elif event.type == 3:
                     if (event.code == 0) or (event.code == 53):     # ABS_X or ABS_MT_POSITION_X
                         self.curXpos = event.value
@@ -134,7 +134,7 @@ class Display(object):
                 for element in self.elements:
                     debug("debugUpdate", self.name, "Display.update()", element.name)
                     if element.resource:
-                        element.render(self)
+                        element.render()
                 time.sleep(updateInterval)
         updateThread = threading.Thread(target=UpdateThread)
         updateThread.start()
@@ -148,7 +148,9 @@ class Display(object):
         self.elements.append((element))
 
     def findButton(self, xPos, yPos):
+        debug("debugButton", self.name, xPos, yPos)
         for element in self.elements:
+            debug("debugButton", element.name, element.__class__.__name__, element.xPos, element.yPos)
             if element.__class__.__name__ == "Button":
                 if (xPos >= element.xPos) and (xPos <= element.xPos+element.width) and \
                    (yPos >= element.yPos) and (yPos <= element.yPos+element.height):
@@ -220,12 +222,15 @@ class Style(object):
 
 # an Element is the basic object that is rendered on a Display
 class Element(object):
-    def __init__(self, name, style=None, **args):
+    def __init__(self, name, style=None, container=None, display=None, **args):
         self.name = name
         if style:
             self.style = style
         else:
             self.style = Style("style")
+        self.container = container
+        self.display = display
+        self.resource = None
         # set defaults
         self.xPos = 0
         self.yPos = 0
@@ -235,55 +240,52 @@ class Element(object):
         self.name = name
         self.__dict__.update(args)
 
-    def setPos(self, xPos, yPos):
-        self.xPos = xPos
-        self.yPos = yPos
-
     def getSizePos(self):
         return (self.xPos, self.yPos, self.width, self.height)
 
-    def render(self, display, style=None):
-        debug("debugDisplay", self.name, "Element.render()", printAttrs(self))
-        if not style:
-            style = self.style
-        display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin,
-                                  self.width-2*self.margin, self.height-2*self.margin,
-                                  self.bgColor*(self.width-2*self.margin)*(self.height-2*self.margin))
+    # calculate the absolute position of the element on the display
+    def arrange(self, display, xPos=0, yPos=0):
+        self.display = display
+        self.display.addElement(self)
+        self.xPos = xPos
+        self.yPos = yPos
 
-    def fill(self, display, color):
-        display.fill(self.xPos, self.yPos, self.width, self.height, color)
+    def render(self):
+        debug("debugDisplay", self.name, "Elemant.render()", printAttrs(self))
 
-    def clear(self, display):
-        display.fill(self.xPos, self.yPos, self.width, self.height, self.bgColor)
+    def fill(self, color):
+        if self.display:
+            self.display.fill(self.xPos, self.yPos, self.width, self.height, color)
 
-    def arrange(self):
-        debug("debugArrange", self.name, "arrange()", printAttrs(self))
+    def clear(self):
+        if self.display:
+            self.display.fill(self.xPos, self.yPos, self.width, self.height, self.bgColor)
 
 # a Container is an Element that contains one or more Elements
 class Container(Element):
     def __init__(self, name, style=None, itemList=[], **args):
         Element.__init__(self, name, style, **args)
         self.itemList = itemList
-
-    def render(self, display):
-        debug("debugDisplay", self.name, "Container.render()", printAttrs(self))
-        self.clear(display)
         for item in self.itemList:
-            item.render(display)
+            item.container = self
+
+    def render(self):
+        debug("debugDisplay", self.name, "Container.render()", printAttrs(self))
+        self.clear()
+        for item in self.itemList:
+            item.render()
 
 # a Div is a Container that stacks its Elements vertically
 class Div(Container):
     def __init__(self, name, style=None, itemList=[], **args):
         Container.__init__(self, name, style, itemList, **args)
 
-    def arrange(self):
+    def arrange(self, display, xPos=0, yPos=0):
+        Element.arrange(self, display, xPos, yPos)
         height = 2*self.margin
         for item in self.itemList:
-            # set the position of the content
-            item.xPos = self.xPos + self.margin
-            item.yPos = self.yPos + self.margin + height
-            # compute the size of the content
-            item.arrange()
+            # arrange the content
+            item.arrange(self.display, self.xPos + self.margin, self.yPos + self.margin + height)
             height += item.height
             self.width = max(self.width, item.width)
         # set the size of this element
@@ -296,14 +298,12 @@ class Span(Container):
     def __init__(self, name, style=None, itemList=[], **args):
         Container.__init__(self, name, style, itemList, **args)
 
-    def arrange(self):
+    def arrange(self, display, xPos=0, yPos=0):
+        Element.arrange(self, display, xPos, yPos)
         width = 2*self.margin
         for item in self.itemList:
-            # set the position of the content
-            item.yPos = self.yPos + self.margin
-            item.xPos = self.xPos + self.margin + width
-            # compute the size of the content
-            item.arrange()
+            # arrange the content
+            item.arrange(self.display, self.xPos + self.margin + width, self.yPos + self.margin)
             width += item.width
             self.height = max(self.height, item.height)
         # set the size of this element
@@ -317,15 +317,13 @@ class Overlay(Container):
         Container.__init__(self, name, style, itemList, **args)
         self.frontItem =  0
 
-    def arrange(self):
+    def arrange(self, display, xPos=0, yPos=0):
+        Element.arrange(self, display, xPos, yPos)
         self.width = 0
         self.height = 0
         for item in self.itemList:
-            # set the position of the content
-            item.yPos = self.yPos + self.margin
-            item.xPos = self.xPos + self.margin
-            # compute the size of the content
-            item.arrange()
+            # arrange the content
+            item.arrange(self.display, self.xPos + self.margin, self.yPos + self.margin)
             self.width = max(self.width, item.width)
             self.height = max(self.height, item.height)
         # set the size of this element
@@ -339,11 +337,11 @@ class Overlay(Container):
         else:
             self.frontItem = 0
 
-    def render(self, display):
+    def render(self):
         debug("debugDisplay", self.name, "Container.render()", printAttrs(self))
-        self.clear(display)
+        self.clear()
         # only render the item designated as being in front
-        self.itemList[self.frontItem].render(display)
+        self.itemList[self.frontItem].render()
 
 # an Element containing text
 # https://github.com/rougier/freetype-py/
@@ -361,9 +359,9 @@ class Text(Element):
     def setValue(self, value):
         self.value = value
 
-    def render(self, display, style=None, value=None):
+    def render(self, style=None, value=None):
         if self.resource:
-            resState = display.views.getViewState(self.resource)
+            resState = self.display.views.getViewState(self.resource)
             self.setValue(resState)
             if self.resource.type in tempTypes:
                 self.fgColor = rgb2fb(eval(tempColor(resState).lstrip("rgb")))
@@ -382,7 +380,7 @@ class Text(Element):
         debug("debugDisplay", self.name, "Text.render()", printAttrs(renderStyle))
         if not value:
             value = self.value
-        display.renderChars(renderStyle.face, renderStyle.fontSize, value,
+        self.display.renderChars(renderStyle.face, renderStyle.fontSize, value,
             self.xPos+self.margin, self.yPos+self.margin,
             renderStyle.margin+renderStyle.padding, 2*(renderStyle.height-2*renderStyle.margin)/3,
             renderStyle.fgColor, renderStyle.bgColor,
@@ -420,7 +418,7 @@ class Image(Element):
     def setImage(self, image):
         self.image = image
 
-    def render(self, display, style=None, image=None):
+    def render(self, style=None, image=None):
         renderStyle = copy.copy(self)
         if style:
             renderStyle.__dict__.update(style.__dict__)
@@ -430,7 +428,7 @@ class Image(Element):
         elif image == None:
             if self.imageFile:
                 self.readImage()
-        display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin,
+        self.display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin,
                                   self.width-2*self.margin, self.height-2*self.margin,
                                   self.image)
         del(renderStyle)
@@ -455,11 +453,11 @@ class CompassImage(Element):
         if display and resource:
             display.addElement(self)
 
-    def render(self, display):
+    def render(self):
         incr = 360./len(self.compassImgs)
         idx = int((self.hdgSensor.getState()+incr/2)%360/incr)
         debug("debugCompass", "CompassImage.render()", idx)
-        display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin,
+        self.display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin,
                                   self.width-2*self.margin, self.height-2*self.margin,
                                   self.compassImgs[idx])
 
@@ -471,36 +469,11 @@ class Button(Overlay):
         self.onPress = onPress
         self.onRelease = onRelease
         self.resource = None
-        if display:
-            display.addElement(self)
 
-    # def arrange(self):
-    #     # set the position of the content
-    #     self.content.xPos = self.xPos + self.margin
-    #     self.content.yPos = self.yPos + self.margin
-    #     self.content.arrange()
-    #     if self.altContent:
-    #         self.altContent.xPos = self.xPos + self.margin
-    #         self.altContent.yPos = self.yPos + self.margin
-    #         self.altContent.arrange()
-    #     # set the size of this element
-    #     if self.altContent:
-    #         self.width = max(self.content.width, self.altContent.width) + 2*self.margin
-    #         self.height = max(self.content.height, self.altContent.height) + 2*self.margin
-    #     else:
-    #         self.width = self.content.width + 2*self.margin
-    #         self.height = self.content.height + 2*self.margin
-    #     debug("debugArrange", self.name, "arrange()", printAttrs(self))
-    #
-    # def render(self, display):
-    #     debug("debugDisplay", self.name, "Button.render()", printAttrs(self))
-    #     self.clear(display)
-    #     self.content.render(display)
-
-    def press(self, display):
+    def press(self):
         if self.onPress:
             self.onPress(self)
 
-    def release(self, display):
+    def release(self):
         if self.onRelease:
             self.onRelease(self)
