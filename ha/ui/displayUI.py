@@ -311,6 +311,27 @@ class Span(Container):
         self.width = max(self.width, width)
         debug("debugArrange", self.name, "arrange()", printAttrs(self))
 
+# an Overlay is a Container that overlays its Elements
+class Overlay(Container):
+    def __init__(self, name, style=None, itemList=[], **args):
+        Container.__init__(self, name, style, itemList, **args)
+
+    def arrange(self):
+        self.width = 0
+        self.height = 0
+        for item in self.itemList:
+            # set the position of the content
+            item.yPos = self.yPos + self.margin
+            item.xPos = self.xPos + self.margin + width
+            # compute the size of the content
+            item.arrange()
+            self.width = max(self.width, item.width)
+            self.height = max(self.height, item.height)
+        # set the size of this element
+        self.width += 2*self.margin
+        self.height += 2*self.margin
+        debug("debugArrange", self.name, "arrange()", printAttrs(self))
+
 # an Element containing text
 # https://github.com/rougier/freetype-py/
 # http://freetype-py.readthedocs.io/en/latest/glyph_slot.html
