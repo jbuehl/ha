@@ -267,7 +267,7 @@ class Container(Element):
 
     def render(self, display):
         debug("debugDisplay", self.name, "Container.render()", printAttrs(self))
-        display.fill(self.xPos, self.yPos, self.width, self.height, self.bgColor)
+        display.clear(display)
         for item in self.itemList:
             item.render(display)
 
@@ -315,6 +315,7 @@ class Span(Container):
 class Overlay(Container):
     def __init__(self, name, style=None, itemList=[], **args):
         Container.__init__(self, name, style, itemList, **args)
+        self.frontItem =  0
 
     def arrange(self):
         self.width = 0
@@ -322,7 +323,7 @@ class Overlay(Container):
         for item in self.itemList:
             # set the position of the content
             item.yPos = self.yPos + self.margin
-            item.xPos = self.xPos + self.margin + width
+            item.xPos = self.xPos + self.margin
             # compute the size of the content
             item.arrange()
             self.width = max(self.width, item.width)
@@ -331,6 +332,18 @@ class Overlay(Container):
         self.width += 2*self.margin
         self.height += 2*self.margin
         debug("debugArrange", self.name, "arrange()", printAttrs(self))
+
+    def setFront(frontItem):
+        if frontItem in range(len(self.itemList)):
+            self.frontItem = frontItem
+        else:
+            self.frontItem = 0
+
+    def render(self, display):
+        debug("debugDisplay", self.name, "Container.render()", printAttrs(self))
+        display.clear(display)
+        # only render the item designated as being in front
+        self.itemList[self.frontItem].render(display)
 
 # an Element containing text
 # https://github.com/rougier/freetype-py/
@@ -450,40 +463,39 @@ class CompassImage(Element):
                                   self.width-2*self.margin, self.height-2*self.margin,
                                   self.compassImgs[idx])
 
-# a Button is a Container that receives input
-class Button(Container):
-    def __init__(self, name, style=None, content=None, onPress=None, onRelease=None, altContent=None, display=None, **args):
-        Container.__init__(self, name, style, [content, altContent], **args)
-        self.content = content
+# a Button is an Overlay that receives input
+class Button(Overlay):
+    def __init__(self, name, style=None, itemList=[], onPress=None, onRelease=None, display=None, **args):
+        Overlay.__init__(self, name, style, itemList, **args)
+        self.itemList = itemList
         self.onPress = onPress
         self.onRelease = onRelease
-        self.altContent = altContent
         self.resource = None
         if display:
             display.addElement(self)
 
-    def arrange(self):
-        # set the position of the content
-        self.content.xPos = self.xPos + self.margin
-        self.content.yPos = self.yPos + self.margin
-        self.content.arrange()
-        if self.altContent:
-            self.altContent.xPos = self.xPos + self.margin
-            self.altContent.yPos = self.yPos + self.margin
-            self.altContent.arrange()
-        # set the size of this element
-        if self.altContent:
-            self.width = max(self.content.width, self.altContent.width) + 2*self.margin
-            self.height = max(self.content.height, self.altContent.height) + 2*self.margin
-        else:
-            self.width = self.content.width + 2*self.margin
-            self.height = self.content.height + 2*self.margin
-        debug("debugArrange", self.name, "arrange()", printAttrs(self))
-
-    def render(self, display):
-        debug("debugDisplay", self.name, "Button.render()", printAttrs(self))
-        self.clear(display)
-        self.content.render(display)
+    # def arrange(self):
+    #     # set the position of the content
+    #     self.content.xPos = self.xPos + self.margin
+    #     self.content.yPos = self.yPos + self.margin
+    #     self.content.arrange()
+    #     if self.altContent:
+    #         self.altContent.xPos = self.xPos + self.margin
+    #         self.altContent.yPos = self.yPos + self.margin
+    #         self.altContent.arrange()
+    #     # set the size of this element
+    #     if self.altContent:
+    #         self.width = max(self.content.width, self.altContent.width) + 2*self.margin
+    #         self.height = max(self.content.height, self.altContent.height) + 2*self.margin
+    #     else:
+    #         self.width = self.content.width + 2*self.margin
+    #         self.height = self.content.height + 2*self.margin
+    #     debug("debugArrange", self.name, "arrange()", printAttrs(self))
+    #
+    # def render(self, display):
+    #     debug("debugDisplay", self.name, "Button.render()", printAttrs(self))
+    #     self.clear(display)
+    #     self.content.render(display)
 
     def press(self, display):
         if self.onPress:
