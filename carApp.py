@@ -1,19 +1,22 @@
 rootDir = "/root/"
+stateDir = rootDir+"state/"
 dataDir = rootDir+"data/"
-audioDir = "audio/"
+stateFileName = stateDir+"state.json"
 gpsFileName = dataDir+"gps.json"
 diagFileName = dataDir+"diags.json"
 imuFileName = dataDir+"9dof.json"
-audioFileName = audioDir+"audio.json"
 
 displayDevice = "/dev/fb0"
 inputDevice = "/dev/input/event0"
+wlan = "wlan0"
+uploadServer = "shadyglade.thebuehls.com"
+uploadDir = "/backups/carputer/data/"
 fontName = "FreeSansBold.ttf"
 fontPath = "/root/.fonts/"
 imageDir = "/root/images/"
 compassImageDir = "/root/compass/"
-dashCamImageDir = "/root/data/photos/"
-dashCamVideoDir = "/root/data/videos/"
+dashCamImageDir = dataDir+"photos/"
+dashCamVideoDir = dataDir+"videos/"
 dashCamInterval = 10
 # dashCamStillResolution = (2592, 1944)    # V1
 dashCamStillResolution = (3280, 2464)    # V2
@@ -22,6 +25,8 @@ dashCamVideoResolution = (1920, 1080)
 import time
 import threading
 import picamera
+import os
+import subprocess
 from ha import *
 from ha.ui.displayUI import *
 from ha.interfaces.fileInterface import *
@@ -41,6 +46,12 @@ try:
 except:
     dashCam = None
 recording = False
+state = {
+    "wifiOn": True,
+    "elevationMode": "gps",
+    }
+gpsAltitude = None
+strmAltitude = None
 
 # dash cam preview
 def dashCamPreview(container):
@@ -51,10 +62,11 @@ def dashCamPreview(container):
 # dash cam capture
 def dashCamCapture(button):
     if dashCam:
-        if button.altContent:
-            button.altContent.render(display)
+        button.setFront(1)
+        button.render(display)
         dashCam.capture(dashCamImageDir+time.strftime("%Y%m%d%H%M%S")+".jpg")
-        button.content.render(display)
+        button.setFront(0)
+        button.render(display)
 
 # dash cam recording
 def dashCamRecord(button):
@@ -63,26 +75,82 @@ def dashCamRecord(button):
         if recording:
             dashCam.stop_recording()
             dashCam.resolution = dashCamStillResolution
-            button.content.render(display)
+            button.setFront(0)
+            button.render(display)
             recording = False
+#    dashCam.annotate_text = ""
         else:
             dashCam.resolution = dashCamVideoResolution
             dashCam.start_recording(dashCamVideoDir+time.strftime("%Y%m%d%H%M%S")+".h264")
-            if button.altContent:
-                button.altContent.render(display)
+            button.setFront(1)
+            button.render(display)
             recording = True
 #    dashCam.annotate_size = 120
 #    dashCam.annotate_foreground = picamera.Color('red')
 #    dashCam.annotate_text = time.strftime("%Y %m %d %H:%M:%S")
 
-# dash cam stop recording
-def dashCamStopRec(button):
-    if dashCam:
-        dashCam.stop_recording()
-        dashCam.resolution = dashCamStillResolution
-#    dashCam.annotate_text = ""
+# return the current wifi SSID
+def getSSID():
+    ssid = subprocess.check_output("iwconfig "+wlan+"|grep ESSID", shell=True).strip("\n").split(":")[-1].split("/")[0].strip().strip('"')
+    return ssid
+
+# turn wifi on and off
+def toggleWifi(button):
+    if state["wifiOn"]:
+        os.system("ifconfig "+wlan+" down")
+        state["wifiOn"] = False
+        button.setFront(0)
+        button.render(display)
+    else:
+        os.system("ifconfig "+wlan+" up")
+        state["wifiOn"] = True
+        ssid = getSSID()
+        if ssid == "off":
+            button.setFront(2)
+        else:
+            button.setFront(1)
+        button.render(display)
+
+# change the type of elevation that is displayed
+def toggleElevation(button):
+    if state["elevationMode"] == "gps":
+        with resourceLock:
+            elevation.sensor = srtmAltitude
+        state["elevationMode"] = "srtm"
+        button.setFront(1)
+        button.render(display)
+    else:
+        with resourceLock:
+            elevation.sensor = gpsAltitude
+        state["elevationMode"] = "gps"
+        button.setFront(0)
+        button.render(display)
+
+# upload data
+def uploadData(button):
+    button.setFront(1)
+    button.render(display)
+    cmd = "rsync -av "+dataDir+"* "+uploadServer+":"+uploadDir
+    uplog = subprocess.check_output(cmd, shell=True)
+    button.setFront(0)
+    button.render(display)
+
+# sensor that is a link to another sensor
+class LinkSensor(Sensor):
+    def __init__(self, name, interface, addr, sensor, group="", type="sensor", location=None, label="", interrupt=None, event=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+        self.sensor = sensor
+
+    def getState(self):
+        return self.sensor.getState()
 
 if __name__ == "__main__":
+    # get the persistent state
+    try:
+        with open(stateFileName) as stateFile:
+            state = json.load(stateFile)
+    except:
+        pass
 
     # interfaces
     gpsInterface = FileInterface("gpsInterface", fileName=gpsFileName, readOnly=True, event=stateChangeEvent, defaultValue=0.0)
@@ -91,7 +159,6 @@ if __name__ == "__main__":
     i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
     tc74Interface = TC74Interface("tc74Interface", i2cInterface)
     tempInterface = TempInterface("tempInterface", tc74Interface, sample=1)
-    audioInterface = AudioInterface("audioInterface", event=stateChangeEvent)
 #    dashCamInterface = FileInterface("dashCamInterface", fileName=dashCamFile, event=stateChangeEvent)
 
     # time sensors
@@ -107,14 +174,16 @@ if __name__ == "__main__":
         Sensor("speed", gpsInterface, "Speed", label="Speed", type="MPH"),
         headingSensor,
     ]
+    gpsAltitude = Sensor("gpsAltitude", gpsInterface, "Alt")
+    srtmAltitude = Sensor("srtmAltitude", gpsInterface, "GPSAlt")
+    elevation = LinkSensor("elevation", None, None, gpsAltitude, label="Elevation", type="Ft")
     positionSensors = [
         Sensor("latitude", gpsInterface, "Lat", label="Latitude", type="Lat"),
         Sensor("longitude", gpsInterface, "Long", label="Longitude", type="Long"),
-        Sensor("altitude", gpsInterface, "GPSAlt", label="Elevation", type="Ft"),
+        elevation,
         Sensor("nSats", gpsInterface, "Nsats", label="Satellites", type="nSats"),
     ]
     gpsDevice = Sensor("gpsDevice", gpsInterface, "GPSDevice", label="GPS device")
-    gpsAltitude = Sensor("gpsAltitude", gpsInterface, "Alt", label="GPS elevation", type="Ft")
 
     # engine sensors
     engineSensors = [
@@ -141,8 +210,8 @@ if __name__ == "__main__":
     # initialization
     fgColor = color("Yellow")
     bgColor = color("Black")
-    display.clear(bgColor)
     face = freetype.Face(fontPath+fontName)
+    display.clear(bgColor)
 
     # styles
     defaultStyle = Style("defaultStyle", bgColor=bgColor, fgColor=fgColor)
@@ -157,15 +226,23 @@ if __name__ == "__main__":
     velocityStyle = Style("velocityStyle", valueStyle, width=130)
     compassStyle = Style("compassStyle", defaultStyle, width=100, height=50)
     containerStyle = Style("containerStyle", defaultStyle)
-    buttonStyle = Style("buttonStyle", defaultStyle, width=100, height=90, margin=2, bgColor=color("White"))
+    buttonStyle = Style("buttonStyle", defaultStyle, width=100, height=90, margin=2, bgColor=color("Gray"))
     buttonTextStyle = Style("buttonText", textStyle, fontSize=18, bgColor=color("black"), fgColor=color("white"), padding=8)
-    buttonAltStyle = Style("buttonAlt", buttonTextStyle, bgColor=color("white"), fgColor=color("black"))
 
-    # button callback routines
-    def doNothing(button, display):
-        return
+    # button icons
+    captureIcon = Image("captureIcon", defaultStyle, imageDir+"capture.png", width=96, height=86)
+    captureInvertIcon = Image("captureInvertIcon", defaultStyle, imageDir+"capture-invert.png", width=96, height=86)
+    recordIcon = Image("recordIcon", defaultStyle, imageDir+"record.png", width=96, height=86)
+    recordInvertIcon = Image("recordInvertIcon", defaultStyle, imageDir+"stop-record.png", width=96, height=86)
+    elevationGpsIcon = Image("elevationGpsIcon", defaultStyle, imageDir+"elevation-gps.png", width=96, height=86)
+    elevationSrtmIcon = Image("elevationSrtmIcon", defaultStyle, imageDir+"elevation-srtm.png", width=96, height=86)
+    uploadIcon = Image("uploadIcon", defaultStyle, imageDir+"upload.png", width=96, height=86)
+    uploadInvertIcon = Image("uploadInvertIcon", defaultStyle, imageDir+"upload-invert.png", width=96, height=86)
+    wifiOffIcon = Image("wifiOffIcon", defaultStyle, imageDir+"wifi-off.png", width=96, height=86)
+    wifiConnectIcon = Image("wifiConnectIcon", defaultStyle, imageDir+"wifi-connect.png", width=96, height=86)
+    wifiDisconnectIcon = Image("wifiDisconnectIcon", defaultStyle, imageDir+"wifi-disconnect.png", width=96, height=86)
 
-    # layout
+    # lay out the screen
     dashCamWindow = Div("dashCamWindow", containerStyle, width=396, height=296, margin=2)
     screen = Div("screen", containerStyle, [
                     Span("heading", containerStyle, [
@@ -209,33 +286,42 @@ if __name__ == "__main__":
                         dashCamWindow,
                         ]),
                     Span("buttons", containerStyle, [
-                        Button("captureButton", buttonStyle, display=display,
-                            content=Image("button0Content", buttonTextStyle, imageDir+"capture.png", width=96, height=86),
-                            altContent=Image("button0AltContent", buttonAltStyle, imageDir+"capture-invert.png", width=96, height=86),
-                            onPress=dashCamCapture,
+                        # dashcam capture
+                        Button("captureButton", buttonStyle,
+                            [captureIcon, captureInvertIcon],
+                            onPress=dashCamCapture, display=display,
                             ),
-                        Button("recordButton", buttonStyle, display=display,
-                            content=Image("button1Content", buttonTextStyle, imageDir+"record.png", width=96, height=86),
-                            altContent=Image("button1AltContent", buttonAltStyle, imageDir+"stop-record.png", width=96, height=86),
-                            onPress=dashCamRecord,
+                        # dashcam record
+                        Button("recordButton", buttonStyle,
+                            [recordIcon, recordInvertIcon],
+                            onPress=dashCamRecord, display=display,
                             ),
-                        Button("button2", buttonStyle, display=display,
-                            content=Text("button2Content", buttonTextStyle, "", width=96, height=86),
+                        Button("button2", buttonStyle,
+                            [Text("button2Content", buttonTextStyle, "", width=96, height=86)],
+                            display=display,
                             ),
-                        Button("button3", buttonStyle, display=display,
-                            content=Text("button3Content", buttonTextStyle, "", width=96, height=86),
+                        Button("button3", buttonStyle,
+                            [Text("button3Content", buttonTextStyle, "", width=96, height=86)],
+                            display=display,
                             ),
-                        Button("button4", buttonStyle, display=display,
-                            content=Text("button4Content", buttonTextStyle, "", width=96, height=86),
+                        Button("button4", buttonStyle,
+                            [Text("button4Content", buttonTextStyle, "", width=96, height=86)],
+                            display=display,
                             ),
-                        Button("button5", buttonStyle, display=display,
-                            content=Text("button5Content", buttonTextStyle, "", width=96, height=86),
+                        # elevation source
+                        Button("gpsAltButton", buttonStyle,
+                            [elevationGpsIcon, elevationSrtmIcon],
+                            onPress=toggleElevation, display=display,
                             ),
-                        Button("gpsAltButton", buttonStyle, display=display,
-                            content=Text("gpsAltitude", buttonTextStyle, resource=gpsAltitude, width=96, height=86),
+                        # upload data
+                        Button("uploadButton", buttonStyle,
+                            [uploadIcon, uploadInvertIcon],
+                            onPress=uploadData, display=display,
                             ),
-                        Button("gpsButton", buttonStyle, display=display,
-                            content=Text("gpsDevice", buttonTextStyle, resource=gpsDevice, width=96, height=86),
+                        # wifi enable
+                        Button("wifiButton", buttonStyle,
+                            [wifiOffIcon, wifiConnectIcon, wifiDisconnectIcon],
+                            onPress=toggleWifi, display=display,
                             ),
                         ]),
                      ])
