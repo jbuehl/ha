@@ -184,6 +184,8 @@ class Display(object):
                     face.load_char(char)
                     bitmap = face.glyph.bitmap
                     metrics = face.glyph.metrics
+                    if x+metrics.horiAdvance/64 > width:   # truncate if too big
+                        break
                     self.FrameBuffer.setGrayMap(self.frameBuffer, x, y-metrics.horiBearingY/64, bitmap.width, bitmap.rows,
                                         "".join(chr(c) for c in bitmap.buffer), fgColor, bgColor,
                                         bgMap, width, height)
@@ -195,6 +197,8 @@ class Display(object):
                     bitmap = face.glyph.bitmap
                     metrics = face.glyph.metrics
                     x -= metrics.horiAdvance/64
+                    if x < 0: # truncate if too big
+                        break
                     self.FrameBuffer.setGrayMap(self.frameBuffer, x, y-metrics.horiBearingY/64, bitmap.width, bitmap.rows,
                                         "".join(chr(c) for c in bitmap.buffer), fgColor, bgColor,
                                         bgMap, width, height)
