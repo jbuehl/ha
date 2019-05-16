@@ -213,6 +213,10 @@ if __name__ == "__main__":
     # get the persistent state
     readState()
 
+    # turn off wifi if it should be off
+    if not state["wifiOn"]:
+        wifiOff()
+
     # interfaces
     gpsInterface = FileInterface("gpsInterface", fileName=gpsFileName, readOnly=True, event=stateChangeEvent, defaultValue=0.0)
     timeInterface = TimeInterface("timeInterface", gpsInterface, clock="utc")
