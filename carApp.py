@@ -151,7 +151,7 @@ def getIPAddr():
 # return the up time
 def getUptime():
     try:
-        return subprocess.check_output("uptime", shell=True).strip("\n").split()[2].strip(",")
+        return " ".join(c for c in subprocess.check_output("uptime", shell=True).strip("\n").split(",")[0].split()[2:])
     except:
         return ""
 
@@ -293,7 +293,7 @@ if __name__ == "__main__":
     buttonStyle = Style("buttonStyle", defaultStyle, width=100, height=90, margin=2, bgColor=color("Gray"))
     buttonTextStyle = Style("buttonTextStyle", textStyle, fontSize=18, width=96, height=86, bgColor=color("black"), fgColor=color("white"), padding=8)
     buttonImageStyle = Style("buttonImageStyle", defaultStyle, width=96, height=86)
-    osStatStyle = Style("networkStatStyle", buttonTextStyle, width=200, height=30, fgColor=color("gray"))
+    osStatStyle = Style("networkStatStyle", textStyle, fontSize=18, width=200, height=30, margin=1, fgColor=color("gray"))
 
     # button icons
     captureIcon = Image("captureIcon", buttonImageStyle, imageDir+"capture.png")
