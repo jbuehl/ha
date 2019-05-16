@@ -49,6 +49,7 @@ recording = False
 state = {
     "wifiOn": True,
     "elevationMode": "gps",
+    "framerate": 0,
     }
 gpsAltitude = None
 strmAltitude = None
@@ -102,6 +103,18 @@ def dashCamRecord(button):
 #    dashCam.annotate_size = 120
 #    dashCam.annotate_foreground = picamera.Color('red')
 #    dashCam.annotate_text = time.strftime("%Y %m %d %H:%M:%S")
+
+# change the frame rate
+def framerate(button):
+    frameRates = [0, 1, 2, 3, 4, 6, 10, 20, 30, 60]
+    framerate = state["framerate"]
+    framerate += 1
+    if framerate == len(frameRates):
+        framerate = 0
+    button.setFront(framerate)
+    button.elementList[button.frontElement].render()
+    state["framerate"] = framerate
+    writeState()
 
 # change the type of elevation that is displayed
 def toggleElevation(button):
@@ -306,13 +319,23 @@ if __name__ == "__main__":
     buttonStyle = Style("buttonStyle", defaultStyle, width=100, height=90, margin=2, bgColor=color("Gray"))
     buttonTextStyle = Style("buttonTextStyle", textStyle, fontSize=18, width=96, height=86, bgColor=color("black"), fgColor=color("white"), padding=8)
     buttonImageStyle = Style("buttonImageStyle", defaultStyle, width=96, height=86)
-    osStatStyle = Style("networkStatStyle", textStyle, fontSize=18, width=200, height=30, margin=1, fgColor=color("gray"))
+    osStatStyle = Style("networkStatStyle", textStyle, fontSize=18, width=200, height=30, margin=2, fgColor=color("gray"))
 
     # button icons
     captureIcon = Image("captureIcon", buttonImageStyle, imageDir+"capture.png")
     captureInvertIcon = Image("captureInvertIcon", buttonImageStyle, imageDir+"capture-invert.png")
     recordIcon = Image("recordIcon", buttonImageStyle, imageDir+"record.png")
     recordInvertIcon = Image("recordInvertIcon", buttonImageStyle, imageDir+"stop-record.png")
+    framerateIcon = Image("framerateIcon", buttonImageStyle, imageDir+"framerate.png")
+    framerate1Icon = Image("framerate1Icon", buttonImageStyle, imageDir+"framerate-1.png")
+    framerate2Icon = Image("framerate2Icon", buttonImageStyle, imageDir+"framerate-2.png")
+    framerate3Icon = Image("framerate3Icon", buttonImageStyle, imageDir+"framerate-3.png")
+    framerate4Icon = Image("framerate4Icon", buttonImageStyle, imageDir+"framerate-4.png")
+    framerate6Icon = Image("framerate6Icon", buttonImageStyle, imageDir+"framerate-6.png")
+    framerate10Icon = Image("framerate10Icon", buttonImageStyle, imageDir+"framerate-10.png")
+    framerate20Icon = Image("framerate20Icon", buttonImageStyle, imageDir+"framerate-20.png")
+    framerate30Icon = Image("framerate30Icon", buttonImageStyle, imageDir+"framerate-30.png")
+    framerate60Icon = Image("framerate60Icon", buttonImageStyle, imageDir+"framerate-60.png")
     elevationGpsIcon = Image("elevationGpsIcon", buttonImageStyle, imageDir+"elevation-gps.png")
     elevationSrtmIcon = Image("elevationSrtmIcon", buttonImageStyle, imageDir+"elevation-srtm.png")
     uploadIcon = Image("uploadIcon", buttonImageStyle, imageDir+"upload.png")
@@ -379,8 +402,13 @@ if __name__ == "__main__":
                             [recordIcon, recordInvertIcon],
                             onPress=dashCamRecord,
                             ),
-                        Button("button2", buttonStyle,
-                            [Text("button2Content", buttonTextStyle, "")],
+                        Button("framerateButton", buttonStyle,
+                            [framerateIcon,
+                             framerate1Icon, framerate2Icon, framerate3Icon,
+                             framerate4Icon, framerate6Icon, framerate10Icon,
+                             framerate20Icon, framerate30Icon, framerate60Icon,
+                             ],
+                            onPress=framerate,
                             ),
                         # elevation source
                         Button("elevationModeButton", buttonStyle,
