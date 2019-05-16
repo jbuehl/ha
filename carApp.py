@@ -148,6 +148,13 @@ def getIPAddr():
     except:
         return ""
 
+# return the up time
+def getUptime():
+    try:
+        return subprocess.check_output("uptime", shell=True).strip("\n").split()[2].strip(",")
+    except:
+        return ""
+
 def watchWifi(button):
     def checkWifi():
         while True:
@@ -180,21 +187,20 @@ class LinkSensor(Sensor):
     def getState(self):
         return self.sensor.getState()
 
-# sensor that returns the wifi SSID
-class SSIDSensor(Sensor):
+# sensor that returns an OS stat
+class OSSensor(Sensor):
     def __init__(self, name, interface, addr, group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
 
     def getState(self):
-        return getSSID()
-
-# sensor that returns the IP address
-class IPAddrSensor(Sensor):
-    def __init__(self, name, interface, addr, group="", type="sensor", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
-
-    def getState(self):
-        return getIPAddr()
+        if self.addr == "ssid":
+            return getSSID()
+        elif self.addr == "ipAddr":
+            return getIPAddr()
+        elif self.addr == "uptime":
+            return getUptime()
+        else:
+            return ""
 
 if __name__ == "__main__":
     # get the persistent state
@@ -237,10 +243,11 @@ if __name__ == "__main__":
     ]
     gpsDevice = Sensor("gpsDevice", gpsInterface, "GPSDevice", label="GPS device")
 
-    # network stat sensors
-    networkStatSensors = [
-        SSIDSensor("SSID", None, None),
-        IPAddrSensor("IPAddr", None, None),
+    # OS stat sensors
+    osStatSensors = [
+        OSSensor("SSID", None, "ssid"),
+        OSSensor("IPAddr", None, "ipAddr"),
+        OSSensor("uptime", None, "uptime"),
     ]
     # engine sensors
     engineSensors = [
@@ -286,7 +293,7 @@ if __name__ == "__main__":
     buttonStyle = Style("buttonStyle", defaultStyle, width=100, height=90, margin=2, bgColor=color("Gray"))
     buttonTextStyle = Style("buttonTextStyle", textStyle, fontSize=18, width=96, height=86, bgColor=color("black"), fgColor=color("white"), padding=8)
     buttonImageStyle = Style("buttonImageStyle", defaultStyle, width=96, height=86)
-    networkStatStyle = Style("networkStatStyle", buttonTextStyle, width=200, height=30, fgColor=color("gray"))
+    osStatStyle = Style("networkStatStyle", buttonTextStyle, width=200, height=30, fgColor=color("gray"))
 
     # button icons
     captureIcon = Image("captureIcon", buttonImageStyle, imageDir+"capture.png")
@@ -374,9 +381,9 @@ if __name__ == "__main__":
                             ),
                         # wifi status
                         wifiButton,
-                        Div("networkStats", containerStyle, [
-                            Text(sensor.name+"Value", networkStatStyle, resource=sensor)
-                            for sensor in networkStatSensors]
+                        Div("osStats", containerStyle, [
+                            Text(sensor.name+"Value", osStatStyle, resource=sensor)
+                            for sensor in osStatSensors]
                             )
                         ])
                      ])
