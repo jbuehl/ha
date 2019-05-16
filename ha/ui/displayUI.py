@@ -117,9 +117,11 @@ class Display(object):
                         element = self.findButton(self.curXpos, self.curYpos)
                         if element:
                             if event.value == 0:    # up
-                                element.release()
+                                element.releaseThread = threading.Thread(target=element.release)
+                                element.releaseThread.start()
                             elif event.value == 1:   # down
-                                element.press()
+                                element.pressThread = threading.Thread(target=element.press)
+                                element.pressThread.start()
                 elif event.type == 3:
                     if (event.code == 0) or (event.code == 53):     # ABS_X or ABS_MT_POSITION_X
                         self.curXpos = event.value
@@ -255,7 +257,7 @@ class Element(object):
         self.yPos = yPos
 
     def render(self):
-        debug("debugDisplay", self.name, "Elemant.render()", printAttrs(self))
+        debug("debugDisplay", self.name, "Element.render()", printAttrs(self))
 
     def fill(self, color):
         if self.display:
