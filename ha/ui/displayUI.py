@@ -23,6 +23,7 @@ import copy
 import webcolors
 import png
 import os
+import struct
 from ha import *
 from ha.ui.webViews import *
 
@@ -68,6 +69,28 @@ def png2fb(pngImage):
         except IndexError:
             pass
     return fbPixMap
+
+# read an image file
+def readImage(imageFileName):
+    debug("debugImage", "readImage()", imageFileName)
+    (imageName, ext) = imageFileName.split(".")
+    try:
+        # attempt to read the .fb file
+        with open(imageName+".fb") as imageFile:
+            fbData = imageFile.read()
+            (width, height) = struct.unpack("!hh", fbData[0:4])
+            return (width, height, fbData[4:])
+    except IOError:
+        # read the .png file
+        pngReader = png.Reader(imageFileName)
+        pngImage = pngReader.read()
+        width = pngImage[0]
+        height = pngImage[1]
+        image = png2fb(pngImage)
+        # save the fb image for next time
+        with open(imageName+".fb", "w") as imageFile:
+            imageFile.write(struct.pack("!hh", width, height)+image)
+        return (width, height, image)
 
 # convert RGB pixmp to frame buffer
 def rgb2fb(rgbPixMap):
@@ -402,17 +425,11 @@ class Image(Element):
         self.display = display
         self.resource = resource
         if self.imageFile:
-            self.readImage()
+            (self.width, self.height, self.image) = readImage(self.imageFile)
+            self.width += 2*self.style.margin
+            self.height += 2*self.style.margin
         else:
             self.image = None
-
-    def readImage(self):
-        debug("debugImage", self.name, "Image.readImage()", self.imageFile)
-        pngReader = png.Reader(self.imageFile)
-        pngImage = pngReader.read()
-        self.width = pngImage[0] + 2*self.style.margin
-        self.height = pngImage[1] + 2*self.style.margin
-        self.image = png2fb(pngImage)
 
     def setValue(self, value):
         self.value = value
@@ -429,7 +446,7 @@ class Image(Element):
             self.image = self.resource.getState()
         elif image == None:
             if self.imageFile:
-                self.readImage()
+                (self.width, self.height, self.image) = readImage(self.imageFile)
         self.display.renderPixMap(self.xPos+self.margin, self.yPos+self.margin,
                                   self.width-2*self.margin, self.height-2*self.margin,
                                   self.image)
@@ -444,12 +461,10 @@ class CompassImage(Element):
         compassImgFileNames = os.listdir(compassImageDir)
         compassImgFileNames.sort()
         for compassImgFileName in compassImgFileNames:
-            debug("debugCompass", "reading", compassImageDir+compassImgFileName)
-            pngReader = png.Reader(compassImageDir+compassImgFileName)
-            pngImage = pngReader.read()
-            self.width = pngImage[0] + 2*self.style.margin
-            self.height = pngImage[1] + 2*self.style.margin
-            self.compassImgs.append(png2fb(pngImage))
+            (self.width, self.height, image) = readImage(compassImageDir+compassImgFileName)
+            self.width += 2*self.style.margin
+            self.height += 2*self.style.margin
+            self.compassImgs.append(image)
         self.display = display
         self.resource = resource
 
