@@ -282,7 +282,7 @@ if __name__ == "__main__":
     buttonStyle = Style("buttonStyle", defaultStyle, width=100, height=90, margin=2, bgColor=color("Gray"))
     buttonTextStyle = Style("buttonTextStyle", textStyle, fontSize=18, width=96, height=86, bgColor=color("black"), fgColor=color("white"), padding=8)
     buttonImageStyle = Style("buttonImageStyle", defaultStyle, width=96, height=86)
-    networkStatStyle = Style("networkStatStyle", buttonTextStyle, width=200, height=30)
+    networkStatStyle = Style("networkStatStyle", buttonTextStyle, width=200, height=30, fgColor=color("gray"))
 
     # button icons
     captureIcon = Image("captureIcon", buttonImageStyle, imageDir+"capture.png")
@@ -371,8 +371,8 @@ if __name__ == "__main__":
                         # wifi status
                         wifiButton,
                         Div("networkStats", containerStyle, [
-                            Text(sensor.name+"Value", networkStatStyle, sensor.value())
-                            for sensor in positionSensors]
+                            Text(sensor.name+"Value", networkStatStyle, resource=sensor)
+                            for sensor in networkStatSensors]
                             )
                         ])
                      ])
