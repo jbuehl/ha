@@ -136,13 +136,17 @@ def wifiOff():
 
 # return the current wifi SSID
 def getSSID():
-    ssid = subprocess.check_output("iwconfig "+wlan+"|grep ESSID", shell=True).strip("\n").split(":")[-1].split("/")[0].strip().strip('"')
-    return ssid
+    try:
+        return subprocess.check_output("iwconfig "+wlan+"|grep ESSID", shell=True).strip("\n").split(":")[-1].split("/")[0].strip().strip('"')
+    except:
+        return ""
 
 # return the current wifi IP addr
 def getIPAddr():
-    ssid = subprocess.check_output("ifconfig "+wlan+"|grep inet\ ", shell=True).strip("\n").split()[1]
-    return ssid
+    try:
+        return subprocess.check_output("ifconfig "+wlan+"|grep inet\ ", shell=True).strip("\n").split()[1]
+    except:
+        return ""
 
 def watchWifi(button):
     def checkWifi():
