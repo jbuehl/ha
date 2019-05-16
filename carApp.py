@@ -100,34 +100,6 @@ def dashCamRecord(button):
 #    dashCam.annotate_foreground = picamera.Color('red')
 #    dashCam.annotate_text = time.strftime("%Y %m %d %H:%M:%S")
 
-# return the current wifi SSID
-def getSSID():
-    ssid = subprocess.check_output("iwconfig "+wlan+"|grep ESSID", shell=True).strip("\n").split(":")[-1].split("/")[0].strip().strip('"')
-    return ssid
-
-# turn wifi on and off
-def toggleWifi(button):
-    def checkWifi():
-        while state["wifiOn"] == True:
-            ssid = getSSID()
-            if ssid == "off":
-                button.setFront(2)
-            else:
-                button.setFront(1)
-            button.elementList[button.frontElement].render()
-            time.sleep(1)
-    if state["wifiOn"]:
-        os.system("ifconfig "+wlan+" down")
-        state["wifiOn"] = False
-        button.setFront(0)
-        button.render()
-    else:
-        os.system("ifconfig "+wlan+" up")
-        state["wifiOn"] = True
-        wifiThread = threading.Thread(target=checkWifi)
-        wifiThread.start()
-    writeState()
-
 # change the type of elevation that is displayed
 def toggleElevation(button):
     if state["elevationMode"] == "gps":
@@ -152,6 +124,49 @@ def uploadData(button):
     button.setFront(0)
     button.render()
 
+def wifiOn():
+    os.system("ifconfig "+wlan+" up")
+    state["wifiOn"] = True
+    writeState()
+
+def wifiOff():
+    os.system("ifconfig "+wlan+" down")
+    state["wifiOn"] = False
+    writeState()
+
+# return the current wifi SSID
+def getSSID():
+    ssid = subprocess.check_output("iwconfig "+wlan+"|grep ESSID", shell=True).strip("\n").split(":")[-1].split("/")[0].strip().strip('"')
+    return ssid
+
+# return the current wifi IP addr
+def getIPAddr():
+    ssid = subprocess.check_output("ifconfig "+wlan+"|grep inet\ ", shell=True).strip("\n").split()[1]
+    return ssid
+
+def watchWifi(button):
+    def checkWifi():
+        while True:
+            if state["wifiOn"]:
+                ssid = getSSID()
+                if ssid == "off":
+                    button.setFront(2)
+                else:
+                    button.setFront(1)
+            else:
+                button.setFront(0)
+            button.elementList[button.frontElement].render()
+            time.sleep(1)
+    wifiThread = threading.Thread(target=checkWifi)
+    wifiThread.start()
+
+# turn wifi on and off
+def toggleWifi(button):
+    if state["wifiOn"]:
+        wifiOff()
+    else:
+        wifiOn()
+
 # sensor that is a link to another sensor
 class LinkSensor(Sensor):
     def __init__(self, name, interface, addr, sensor, group="", type="sensor", location=None, label="", interrupt=None, event=None):
@@ -160,6 +175,22 @@ class LinkSensor(Sensor):
 
     def getState(self):
         return self.sensor.getState()
+
+# sensor that returns the wifi SSID
+class SSIDSensor(Sensor):
+    def __init__(self, name, interface, addr, group="", type="sensor", location=None, label="", interrupt=None, event=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+
+    def getState(self):
+        return getSSID()
+
+# sensor that returns the IP address
+class IPAddrSensor(Sensor):
+    def __init__(self, name, interface, addr, group="", type="sensor", location=None, label="", interrupt=None, event=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+
+    def getState(self):
+        return getIPAddr()
 
 if __name__ == "__main__":
     # get the persistent state
@@ -202,6 +233,11 @@ if __name__ == "__main__":
     ]
     gpsDevice = Sensor("gpsDevice", gpsInterface, "GPSDevice", label="GPS device")
 
+    # network stat sensors
+    networkStatSensors = [
+        SSIDSensor("SSID", None, None),
+        IPAddrSensor("IPAddr", None, None),
+    ]
     # engine sensors
     engineSensors = [
 #        Sensor("speed", diagInterface, "Speed", label="Speed", type="MPH"),
@@ -246,6 +282,7 @@ if __name__ == "__main__":
     buttonStyle = Style("buttonStyle", defaultStyle, width=100, height=90, margin=2, bgColor=color("Gray"))
     buttonTextStyle = Style("buttonTextStyle", textStyle, fontSize=18, width=96, height=86, bgColor=color("black"), fgColor=color("white"), padding=8)
     buttonImageStyle = Style("buttonImageStyle", defaultStyle, width=96, height=86)
+    networkStatStyle = Style("networkStatStyle", buttonTextStyle, width=200, height=30)
 
     # button icons
     captureIcon = Image("captureIcon", buttonImageStyle, imageDir+"capture.png")
@@ -262,6 +299,10 @@ if __name__ == "__main__":
 
     # lay out the screen
     dashCamWindow = Div("dashCamWindow", containerStyle, width=396, height=296, margin=2)
+    wifiButton = Button("wifiButton", buttonStyle,
+                            [wifiOffIcon, wifiConnectIcon, wifiDisconnectIcon],
+                            onPress=toggleWifi,
+                            )
     screen = Div("screen", containerStyle, [
                     Span("heading", containerStyle, [
                             Text("time", timeStyle, resource=timeResource),
@@ -317,12 +358,6 @@ if __name__ == "__main__":
                         Button("button2", buttonStyle,
                             [Text("button2Content", buttonTextStyle, "")],
                             ),
-                        Button("button3", buttonStyle,
-                            [Text("button3Content", buttonTextStyle, "")],
-                            ),
-                        Button("button4", buttonStyle,
-                            [Text("button4Content", buttonTextStyle, "")],
-                            ),
                         # elevation source
                         Button("gpsAltButton", buttonStyle,
                             [elevationGpsIcon, elevationSrtmIcon],
@@ -333,12 +368,13 @@ if __name__ == "__main__":
                             [uploadIcon, uploadInvertIcon],
                             onPress=uploadData,
                             ),
-                        # wifi enable
-                        Button("wifiButton", buttonStyle,
-                            [wifiOffIcon, wifiConnectIcon, wifiDisconnectIcon],
-                            onPress=toggleWifi,
-                            ),
-                        ]),
+                        # wifi status
+                        wifiButton,
+                        Div("networkStats", containerStyle, [
+                            Text(sensor.name+"Value", networkStatStyle, sensor.value())
+                            for sensor in positionSensors]
+                            )
+                        ])
                      ])
 
     screen.arrange(display)
@@ -346,6 +382,9 @@ if __name__ == "__main__":
 
     # start the dash cam
     dashCamPreview(dashCamWindow)
+
+    # start the wifi thread
+    watchWifi(wifiButton)
 
     # start the display
     display.start(block=True)
