@@ -319,9 +319,9 @@ class Span(Container):
 
 # an Overlay is a Container that overlays its Elements
 class Overlay(Container):
-    def __init__(self, name, style=None, elementList=[], **args):
+    def __init__(self, name, style=None, elementList=[], frontElement=0, **args):
         Container.__init__(self, name, style, elementList, **args)
-        self.frontElement =  0
+        self.frontElement =  frontElement
 
     def arrange(self, display, xPos=0, yPos=0):
         Element.arrange(self, display, xPos, yPos)
@@ -463,8 +463,8 @@ class CompassImage(Element):
 
 # a Button is an Overlay that receives input
 class Button(Overlay):
-    def __init__(self, name, style=None, elementList=[], onPress=None, onRelease=None, display=None, **args):
-        Overlay.__init__(self, name, style, elementList, **args)
+    def __init__(self, name, style=None, elementList=[], frontElement=0, onPress=None, onRelease=None, display=None, **args):
+        Overlay.__init__(self, name, style, elementList, frontElement, **args)
         self.elementList = elementList
         self.onPress = onPress
         self.onRelease = onRelease

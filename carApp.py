@@ -54,13 +54,16 @@ gpsAltitude = None
 strmAltitude = None
 
 def readState():
+    global state
     try:
         with open(stateFileName) as stateFile:
             state = json.load(stateFile)
     except:
         pass
+    debug("debugCarState", "readState", str(state))
 
 def writeState():
+    debug("debugCarState", "writeState", str(state))
     with open(stateFileName, "w") as stateFile:
         json.dump(state, stateFile)
 
@@ -119,8 +122,12 @@ def toggleElevation(button):
 def uploadData(button):
     button.setFront(1)
     button.render()
-    cmd = "rsync -av "+dataDir+"* "+uploadServer+":"+uploadDir
-    uplog = subprocess.check_output(cmd, shell=True)
+    if state["wifiOn"]:
+        try:
+            cmd = "rsync -av "+dataDir+"* "+uploadServer+":"+uploadDir
+            uplog = subprocess.check_output(cmd, shell=True)
+        except:
+            pass
     button.setFront(0)
     button.render()
 
@@ -233,8 +240,10 @@ if __name__ == "__main__":
     elevation = LinkSensor("elevation", None, None, None, label="Elevation", type="Ft")
     if state["elevationMode"] == "gps":
         elevation.sensor = gpsAltitude
+        elevationModeButtonFront = 0
     else:
         elevation.sensor = srtmAltitude
+        elevationModeButtonFront = 1
     positionSensors = [
         Sensor("latitude", gpsInterface, "Lat", label="Latitude", type="Lat"),
         Sensor("longitude", gpsInterface, "Long", label="Longitude", type="Long"),
@@ -370,8 +379,8 @@ if __name__ == "__main__":
                             [Text("button2Content", buttonTextStyle, "")],
                             ),
                         # elevation source
-                        Button("gpsAltButton", buttonStyle,
-                            [elevationGpsIcon, elevationSrtmIcon],
+                        Button("elevationModeButton", buttonStyle,
+                            [elevationGpsIcon, elevationSrtmIcon], frontElement=elevationModeButtonFront,
                             onPress=toggleElevation,
                             ),
                         # upload data
