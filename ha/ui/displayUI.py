@@ -282,7 +282,7 @@ class Element(object):
 
     def setVisible(self, visible):
         self.visible = visible
-        debug("debugDisplay", self.name, "Element.setVisible()", printAttrs(self))
+        debug("debugVisible", self.name, "Element.setVisible()", visible)
 
     def render(self):
         debug("debugDisplay", self.name, "Element.render()", printAttrs(self))
@@ -305,7 +305,7 @@ class Container(Element):
 
     def setVisible(self, visible):
         self.visible = visible
-        debug("debugDisplay", self.name, "Container.setVisible()", printAttrs(self))
+        debug("debugVisible", self.name, "Container.setVisible()", visible)
         for element in self.elementList:
             element.setVisible(visible)
 
@@ -376,9 +376,9 @@ class Overlay(Container):
 
     def setFront(self, frontElement):
         if frontElement in range(len(self.elementList)):
-            self.elementList[frontElement].setVisible(False)
+            self.elementList[self.frontElement].setVisible(False)
             self.frontElement = frontElement
-            self.elementList[frontElement].setVisible(True)
+            self.elementList[self.frontElement].setVisible(True)
         else:
             self.frontElement = 0
 
