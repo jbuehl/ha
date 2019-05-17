@@ -251,14 +251,14 @@ class Style(object):
 
 # an Element is the basic object that is rendered on a Display
 class Element(object):
-    def __init__(self, name, style=None, container=None, display=None, **args):
+    def __init__(self, name, style=None, container=None, **args):
         self.name = name
         if style:
             self.style = style
         else:
             self.style = Style("style")
         self.container = container
-        self.display = display
+        self.display = None
         self.resource = None
         self.visible = True
         # set defaults
@@ -393,10 +393,9 @@ class Overlay(Container):
 # http://freetype-py.readthedocs.io/en/latest/glyph_slot.html
 # https://www.freetype.org/freetype2/docs/tutorial/step2.html#section-4
 class Text(Element):
-    def __init__(self, name, style=None, value="", display=None, resource=None, **args):
+    def __init__(self, name, style=None, value="", resource=None, **args):
         Element.__init__(self, name, style, **args)
         self.value = value
-        self.display = display
         self.resource = resource
 
     def setValue(self, value):
@@ -433,12 +432,11 @@ class Text(Element):
 
 # an Element containing a static image
 class Image(Element):
-    def __init__(self, name, style=None, imageFile=None, value="", display=None, resource=None, **args):
+    def __init__(self, name, style=None, imageFile=None, value="", resource=None, **args):
         Element.__init__(self, name, style, **args)
         debug("debugImage", self.name, "Image()", self.name)
         self.imageFile = imageFile
         self.value = value
-        self.display = display
         self.resource = resource
         if self.imageFile:
             (self.width, self.height, self.image) = readImage(self.imageFile)
@@ -470,7 +468,7 @@ class Image(Element):
 
 # display a compass image based on the value of a heading
 class CompassImage(Element):
-    def __init__(self, name, style, hdgSensor=None, compassImageDir=None, display=None, resource=None, **args):
+    def __init__(self, name, style, hdgSensor=None, compassImageDir=None, resource=None, **args):
         Element.__init__(self, name, style, **args)
         self.hdgSensor = hdgSensor
         self.compassImgs = []
@@ -481,7 +479,6 @@ class CompassImage(Element):
             self.width += 2*self.style.margin
             self.height += 2*self.style.margin
             self.compassImgs.append(image)
-        self.display = display
         self.resource = resource
 
     def render(self):
@@ -494,7 +491,7 @@ class CompassImage(Element):
 
 # a Button is an Overlay that receives input
 class Button(Overlay):
-    def __init__(self, name, style=None, elementList=[], frontElement=0, onPress=None, onRelease=None, display=None, **args):
+    def __init__(self, name, style=None, elementList=[], frontElement=0, onPress=None, onRelease=None, **args):
         Overlay.__init__(self, name, style, elementList, frontElement, **args)
         self.elementList = elementList
         self.onPress = onPress
