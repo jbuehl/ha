@@ -76,6 +76,11 @@ def dashCamPreview(container):
         dashCam.resolution = dashCamStillResolution
         dashCam.start_preview(fullscreen=False, window = container.getSizePos())
 
+# toggle between gps and engine sensors
+def toggleSensors(button):
+    button.setFront(1-button.frontElement)
+    button.render()
+
 # dash cam capture
 def dashCamCapture(button):
     if dashCam:
@@ -106,7 +111,6 @@ def timelapse():
         dashCam.capture(frame)
         time.sleep(60/framerate)
     debug("debugVideo", "stop timelapse")
-
 
 # dash cam recording
 def dashCamRecord(button):
@@ -145,7 +149,6 @@ def setFramerate(button):
         button.elementList[button.frontElement].render()
         writeState()
         debug("debugVideo", "framerate", framerate)
-
 
 # change the type of elevation that is displayed
 def toggleElevation(button):
@@ -271,7 +274,6 @@ if __name__ == "__main__":
     i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
     tc74Interface = TC74Interface("tc74Interface", i2cInterface)
     tempInterface = TempInterface("tempInterface", tc74Interface, sample=1)
-#    dashCamInterface = FileInterface("dashCamInterface", fileName=dashCamFile, event=stateChangeEvent)
 
     # time sensors
     timeResource = Sensor("time", timeInterface, "%-I:%M", type="time", label="Time")
@@ -322,13 +324,9 @@ if __name__ == "__main__":
     ]
     outsideTemp = Sensor("outsideTemp", tempInterface, 0x4e, label="Outside temp", type="tempF")
 
-    # dash cam
-#    dashCam = Sensor("dashCam", dashCamInterface, type="image")
-
     # Start interfaces
     gpsInterface.start()
     diagInterface.start()
-#    ndofInterface.start()
     tempInterface.start()
 
     # initialization
@@ -397,7 +395,7 @@ if __name__ == "__main__":
                             Text("temp", tempStyle, resource=outsideTemp),
                             ]),
                     Span("body", containerStyle, [
-                        Overlay("sensors", containerStyle, [
+                        Button("sensors", containerStyle, [
                             Div("gpsSensors", containerStyle, [
                                 Span("velocity", containerStyle, [
                                     Div("velocitySensors", containerStyle, [
@@ -417,14 +415,14 @@ if __name__ == "__main__":
                                     )
                                     for sensor in positionSensors]),
                                 ]),
-                           # Div("engineSensors", containerStyle, [
-                           #     Span(sensor.name, containerStyle, [
-                           #         Text(sensor.name+"Label", labelStyle, sensor.label),
-                           #         Text(sensor.name+"Value", valueStyle, resource=sensor),
-                           #         ],
-                           #     )
-                           #     for sensor in engineSensors]),
-                            ]),
+                           Div("engineSensors", containerStyle, [
+                               Span(sensor.name, containerStyle, [
+                                   Text(sensor.name+"Label", labelStyle, sensor.label),
+                                   Text(sensor.name+"Value", valueStyle, resource=sensor),
+                                   ],
+                               )
+                               for sensor in engineSensors]),
+                            ], onPress=toggleSensors),
                         dashCamWindow,
                         ]),
                     Span("buttons", containerStyle, [
