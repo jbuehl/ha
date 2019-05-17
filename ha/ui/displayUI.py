@@ -157,8 +157,8 @@ class Display(object):
         def UpdateThread():
             while True:
                 for element in self.elements:
-                    debug("debugUpdate", self.name, "Display.update()", element.name)
-                    if element.resource:
+                    debug("debugUpdate", self.name, "Display.update()", element.name, element.visible)
+                    if (element.resource) and (element.visible):
                         element.render()
                 time.sleep(updateInterval)
         updateThread = threading.Thread(target=UpdateThread)
@@ -260,6 +260,7 @@ class Element(object):
         self.container = container
         self.display = display
         self.resource = None
+        self.visible = True
         # set defaults
         self.xPos = 0
         self.yPos = 0
@@ -279,6 +280,10 @@ class Element(object):
         self.xPos = xPos
         self.yPos = yPos
 
+    def setVisible(self, visible):
+        self.visible = visible
+        debug("debugDisplay", self.name, "Element.setVisible()", printAttrs(self))
+
     def render(self):
         debug("debugDisplay", self.name, "Element.render()", printAttrs(self))
 
@@ -297,6 +302,12 @@ class Container(Element):
         self.elementList = elementList
         for element in self.elementList:
             element.container = self
+
+    def setVisible(self, visible):
+        self.visible = visible
+        debug("debugDisplay", self.name, "Container.setVisible()", printAttrs(self))
+        for element in self.elementList:
+            element.setVisible(visible)
 
     def render(self):
         debug("debugDisplay", self.name, "Container.render()", printAttrs(self))
@@ -344,13 +355,16 @@ class Span(Container):
 class Overlay(Container):
     def __init__(self, name, style=None, elementList=[], frontElement=0, **args):
         Container.__init__(self, name, style, elementList, **args)
-        self.frontElement =  frontElement
+        self.frontElement = frontElement
 
     def arrange(self, display, xPos=0, yPos=0):
         Element.arrange(self, display, xPos, yPos)
         self.width = 0
         self.height = 0
-        for element in self.elementList:
+        for elementIndex in range(len(self.elementList)):
+            element = self.elementList[elementIndex]
+            # set the visibility of the elements
+            element.setVisible(elementIndex == self.frontElement)
             # arrange the content
             element.arrange(self.display, self.xPos + self.margin, self.yPos + self.margin)
             self.width = max(self.width, element.width)
@@ -362,7 +376,9 @@ class Overlay(Container):
 
     def setFront(self, frontElement):
         if frontElement in range(len(self.elementList)):
+            self.elementList[frontElement].setVisible(False)
             self.frontElement = frontElement
+            self.elementList[frontElement].setVisible(True)
         else:
             self.frontElement = 0
 
