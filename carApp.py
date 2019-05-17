@@ -343,10 +343,10 @@ if __name__ == "__main__":
     tzStyle = Style("tzStyle", timeStyle, fontSize=32, width=80, height=90)
     dateStyle = Style("dateStyle", textStyle, fontSize=24, width=220, height=36)
     tempStyle = Style("tempStyle", textStyle, fontSize=72, width=180, height=90)
-    labelStyle = Style("labelStyle", textStyle, fontSize=32, width=170, height=50, fgColor=color("Cyan"))
-    valueStyle = Style("valueStyle", textStyle, fontSize=32, width=230, height=50, fgColor=color("LightYellow"))
-    velocityStyle = Style("velocityStyle", valueStyle, width=130)
-    compassStyle = Style("compassStyle", defaultStyle, width=100, height=50)
+    labelStyle = Style("labelStyle", textStyle, fontSize=32, width=190, height=50, fgColor=color("Cyan"))
+    valueStyle = Style("valueStyle", textStyle, fontSize=32, width=210, height=50, fgColor=color("LightYellow"))
+    velocityStyle = Style("velocityStyle", valueStyle, width=110)
+    compassStyle = Style("compassStyle", defaultStyle, width=100, height=100)
     containerStyle = Style("containerStyle", defaultStyle)
     buttonStyle = Style("buttonStyle", defaultStyle, width=100, height=90, margin=2, bgColor=color("Gray"))
     buttonTextStyle = Style("buttonTextStyle", textStyle, fontSize=18, width=96, height=86, bgColor=color("black"), fgColor=color("white"), padding=8)
@@ -405,7 +405,7 @@ if __name__ == "__main__":
                                             ],
                                         )
                                         for sensor in velocitySensors]),
-                                    CompassImage("compassImage", defaultStyle, headingSensor, compassImageDir, resource=headingSensor),
+                                    CompassImage("compassImage", compassStyle, headingSensor, compassImageDir, resource=headingSensor),
                                     ]),
                                 Div("positionSensors", containerStyle, [
                                     Span(sensor.name, containerStyle, [

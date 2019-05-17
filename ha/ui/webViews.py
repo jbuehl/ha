@@ -106,10 +106,10 @@ def secsFormat(value):
     return "%d:%02d:%02d" % (h, m, s)
 
 def latFormat(value):
-    return "%10.6f %s" % (abs(value), "N" if value > 0.0 else "S")
+    return "%9.5f %s" % (abs(value), "N" if value > 0.0 else "S")
 
 def longFormat(value):
-    return "%10.6f %s" % (abs(value), "E" if value > 0.0 else "W")
+    return "%9.5f %s" % (abs(value), "E" if value > 0.0 else "W")
 
 def hdgFormat(value):
     dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
