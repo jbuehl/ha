@@ -46,27 +46,29 @@ try:
 except:
     dashCam = None
 recording = False
-state = {
-    "wifiOn": True,
-    "elevationMode": "gps",
-    "framerate": 0,
-    }
+wifiEnabled = False
+elevationMode = "gps"
+framerates = [0, 1, 2, 3, 4, 6, 10, 20, 30, 60] # time lapse frames per minute
+framerate = 0
 gpsAltitude = None
 strmAltitude = None
 
 def readState():
-    global state
+    global wifiEnabled, elevationMode, framerate
     try:
         with open(stateFileName) as stateFile:
             state = json.load(stateFile)
+        wifiEnabled = state["wifiEnabled"]
+        elevationMode = state["elevationMode"]
+        framerate = state["framerate"]
     except:
         pass
-    debug("debugCarState", "readState", str(state))
+    debug("debugCarState", "readState")
 
 def writeState():
-    debug("debugCarState", "writeState", str(state))
+    debug("debugCarState", "writeState")
     with open(stateFileName, "w") as stateFile:
-        json.dump(state, stateFile)
+        json.dump({"wifiEnabled": wifiEnabled, "elevationMode": elevationMode, "framerate": framerate}, stateFile)
 
 # dash cam preview
 def dashCamPreview(container):
@@ -83,50 +85,80 @@ def dashCamCapture(button):
         button.setFront(0)
         button.render()
 
+def startVideo():
+    debug("debugVideo", "start video")
+    dashCam.resolution = dashCamVideoResolution
+    dashCam.start_recording(dashCamVideoDir+time.strftime("%Y%m%d%H%M%S")+".h264")
+
+def stopVideo():
+    debug("debugVideo", "stop video")
+    dashCam.stop_recording()
+    dashCam.resolution = dashCamStillResolution
+
+def timelapse():
+    debug("debugVideo", "start timelapse")
+    timelapseDir = dashCamVideoDir+time.strftime("%Y%m%d%H%M%S")+"/"
+    os.system("mkdir "+timelapseDir)
+    debug("debugVideo", "created", timelapseDir)
+    while recording:
+        frame = timelapseDir+time.strftime("%Y%m%d%H%M%S")+".jpg"
+        debug("debugVideo", "frame", frame)
+        dashCam.capture(frame)
+        time.sleep(60/framerate)
+    debug("debugVideo", "stop timelapse")
+
+
 # dash cam recording
 def dashCamRecord(button):
     global recording
     if dashCam:
         if recording:
-            dashCam.stop_recording()
-            dashCam.resolution = dashCamStillResolution
+            if framerate == 0:
+                stopVideo()
+            recording = False
             button.setFront(0)
             button.render()
-            recording = False
 #    dashCam.annotate_text = ""
         else:
-            dashCam.resolution = dashCamVideoResolution
-            dashCam.start_recording(dashCamVideoDir+time.strftime("%Y%m%d%H%M%S")+".h264")
+            recording = True
+            if framerate == 0:
+                startVideo()
+            else:
+                timelapseThread = threading.Thread(target=timelapse)
+                timelapseThread.start()
             button.setFront(1)
             button.render()
-            recording = True
 #    dashCam.annotate_size = 120
 #    dashCam.annotate_foreground = picamera.Color('red')
 #    dashCam.annotate_text = time.strftime("%Y %m %d %H:%M:%S")
 
 # change the frame rate
-def framerate(button):
-    frameRates = [0, 1, 2, 3, 4, 6, 10, 20, 30, 60]
-    framerate = state["framerate"]
-    framerate += 1
-    if framerate == len(frameRates):
-        framerate = 0
-    button.setFront(framerate)
-    button.elementList[button.frontElement].render()
-    state["framerate"] = framerate
-    writeState()
+def setFramerate(button):
+    global framerate
+    if not recording:
+        framerateIndex = framerates.index(framerate)
+        framerateIndex += 1
+        if framerateIndex == len(framerates):
+            framerateIndex = 0
+        framerate = framerates[framerateIndex]
+        button.setFront(framerateIndex)
+        button.elementList[button.frontElement].render()
+        writeState()
+        debug("debugVideo", "framerate", framerate)
+
 
 # change the type of elevation that is displayed
 def toggleElevation(button):
-    if state["elevationMode"] == "gps":
+    global elevationMode
+    if elevationMode == "gps":
         with resourceLock:
             elevation.sensor = srtmAltitude
-        state["elevationMode"] = "srtm"
+        elevationMode = "srtm"
         button.setFront(1)
     else:
         with resourceLock:
             elevation.sensor = gpsAltitude
-        state["elevationMode"] = "gps"
+        elevationMode = "gps"
         button.setFront(0)
     button.elementList[button.frontElement].render()
     writeState()
@@ -135,7 +167,7 @@ def toggleElevation(button):
 def uploadData(button):
     button.setFront(1)
     button.render()
-    if state["wifiOn"]:
+    if wifiEnabled:
         try:
             cmd = "rsync -av "+dataDir+"* "+uploadServer+":"+uploadDir
             uplog = subprocess.check_output(cmd, shell=True)
@@ -145,13 +177,15 @@ def uploadData(button):
     button.render()
 
 def wifiOn():
+    global wifiEnabled
     os.system("ifconfig "+wlan+" up")
-    state["wifiOn"] = True
+    wifiEnabled = True
     writeState()
 
 def wifiOff():
+    global wifiEnabled
     os.system("ifconfig "+wlan+" down")
-    state["wifiOn"] = False
+    wifiEnabled = False
     writeState()
 
 # return the current wifi SSID
@@ -171,14 +205,14 @@ def getIPAddr():
 # return the up time
 def getUptime():
     try:
-        return " ".join(c for c in subprocess.check_output("uptime", shell=True).strip("\n").split(",")[0].split()[2:])
+        return "Uptime "+" ".join(c for c in subprocess.check_output("uptime", shell=True).strip("\n").split(",")[0].split()[2:])
     except:
         return ""
 
 def watchWifi(button):
     def checkWifi():
         while True:
-            if state["wifiOn"]:
+            if wifiEnabled:
                 ssid = getSSID()
                 if ssid == "off":
                     button.setFront(2)
@@ -193,7 +227,7 @@ def watchWifi(button):
 
 # turn wifi on and off
 def toggleWifi(button):
-    if state["wifiOn"]:
+    if wifiEnabled:
         wifiOff()
     else:
         wifiOn()
@@ -227,7 +261,7 @@ if __name__ == "__main__":
     readState()
 
     # turn off wifi if it should be off
-    if not state["wifiOn"]:
+    if not wifiEnabled:
         wifiOff()
 
     # interfaces
@@ -255,7 +289,7 @@ if __name__ == "__main__":
     gpsAltitude = Sensor("gpsAltitude", gpsInterface, "GPSAlt")
     srtmAltitude = Sensor("srtmAltitude", gpsInterface, "Alt")
     elevation = LinkSensor("elevation", None, None, None, label="Elevation", type="Ft")
-    if state["elevationMode"] == "gps":
+    if elevationMode == "gps":
         elevation.sensor = gpsAltitude
         elevationModeButtonFront = 0
     else:
@@ -282,8 +316,8 @@ if __name__ == "__main__":
         Sensor("battery", diagInterface, "Battery", label="Battery", type="V"),
         Sensor("intakeTemp", diagInterface, "IntakeTemp", label="Intake temp", type="tempC"),
         Sensor("coolantTemp", diagInterface, "WaterTemp", label="Water temp", type="tempC"),
-#        Sensor("airPressure", diagInterface, "Barometer", label="Barometer", type="barometer"),
-        Sensor("runTime", diagInterface, "RunTime", label="Run time", type="Secs"),
+        Sensor("airPressure", diagInterface, "Barometer", label="Barometer", type="barometer"),
+        # Sensor("runTime", diagInterface, "RunTime", label="Run time", type="Secs"),
         Sensor("diagCodes", diagInterface, "DiagCodes", label="Diag codes", type="diagCode"),
     ]
     outsideTemp = Sensor("outsideTemp", tempInterface, 0x4e, label="Outside temp", type="tempF")
@@ -363,32 +397,34 @@ if __name__ == "__main__":
                             Text("temp", tempStyle, resource=outsideTemp),
                             ]),
                     Span("body", containerStyle, [
-                        Div("sensors", containerStyle, [
-                            Span("velocity", containerStyle, [
-                                Div("velocitySensors", containerStyle, [
+                        Overlay("sensors", containerStyle, [
+                            Div("gpsSensors", containerStyle, [
+                                Span("velocity", containerStyle, [
+                                    Div("velocitySensors", containerStyle, [
+                                        Span(sensor.name, containerStyle, [
+                                            Text(sensor.name+"Label", labelStyle, sensor.label),
+                                            Text(sensor.name+"Value", velocityStyle, resource=sensor),
+                                            ],
+                                        )
+                                        for sensor in velocitySensors]),
+                                    CompassImage("compassImage", defaultStyle, headingSensor, compassImageDir, resource=headingSensor),
+                                    ]),
+                                Div("positionSensors", containerStyle, [
                                     Span(sensor.name, containerStyle, [
                                         Text(sensor.name+"Label", labelStyle, sensor.label),
-                                        Text(sensor.name+"Value", velocityStyle, resource=sensor),
+                                        Text(sensor.name+"Value", valueStyle, resource=sensor),
                                         ],
                                     )
-                                    for sensor in velocitySensors]),
-                                CompassImage("compassImage", defaultStyle, headingSensor, compassImageDir, resource=headingSensor),
+                                    for sensor in positionSensors]),
                                 ]),
-                            Div("positionSensors", containerStyle, [
-                                Span(sensor.name, containerStyle, [
-                                    Text(sensor.name+"Label", labelStyle, sensor.label),
-                                    Text(sensor.name+"Value", valueStyle, resource=sensor),
-                                    ],
-                                )
-                                for sensor in positionSensors]),
+                           # Div("engineSensors", containerStyle, [
+                           #     Span(sensor.name, containerStyle, [
+                           #         Text(sensor.name+"Label", labelStyle, sensor.label),
+                           #         Text(sensor.name+"Value", valueStyle, resource=sensor),
+                           #         ],
+                           #     )
+                           #     for sensor in engineSensors]),
                             ]),
-#                        Div("engineSensors", containerStyle, [
-#                            Span(sensor.name, containerStyle, [
-#                                Text(sensor.name+"Label", labelStyle, sensor.label),
-#                                Text(sensor.name+"Value", valueStyle, resource=sensor),
-#                                ],
-#                            )
-#                            for sensor in engineSensors]),
                         dashCamWindow,
                         ]),
                     Span("buttons", containerStyle, [
@@ -407,8 +443,8 @@ if __name__ == "__main__":
                              framerate1Icon, framerate2Icon, framerate3Icon,
                              framerate4Icon, framerate6Icon, framerate10Icon,
                              framerate20Icon, framerate30Icon, framerate60Icon,
-                             ],
-                            onPress=framerate,
+                             ], frontElement=framerates.index(framerate),
+                            onPress=setFramerate,
                             ),
                         # elevation source
                         Button("elevationModeButton", buttonStyle,
