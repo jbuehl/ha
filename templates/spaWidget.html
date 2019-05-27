@@ -4,7 +4,7 @@
 
 {% set resourceTemplate = templates.get_template("resource.html") %}
     <table border=0 width={{ widths[0] }} style='table-layout:fixed'>
-        <col width={{ (widths[1][0]/2)-2 }}><col width={{ widths[1][0]/2 }}>
+        <col width={{ (widths[1][0]*3/8)-2 }}><col width={{ widths[1][0]*5/8 }}>
         {% for w in widths[1][1:] %}
         <col width={{ w }}>
         {% endfor %}
@@ -32,4 +32,3 @@
             {{ resourceTemplate.render(resource=spaTempTarget, views=views, details=False) }}
         </tr>
     </table>
-
