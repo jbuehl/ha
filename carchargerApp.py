@@ -18,15 +18,15 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
 
     # Interfaces
-    i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
+    # i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
     ads1015Interface = ADS1015Interface("ads1015Interface", addr=adcAddr, gain=adcGain, sps=adcSps, ic=adcType)
-    
-    # Sensors
-    pilotVoltage = VoltageSensor("pilotVoltage", ads1015Interface, 0, group=["Car"], label="Pilot voltage", type="V")
-    chargingCurrent = CurrentSensor("chargingCurrent", ads1015Interface, 1, group=["Car", "Power", "Loads"], label="Charging current", type="KVA")
 
-    # Spa
-    charger = CarChargerControl("charger", None, pilotVoltage, chargingCurrent, event=stateChangeEvent, group="Car", label="Car charger", type="charger")
+    # Sensors
+    pilotVoltage = VoltageSensor("pilotVoltage", ads1015Interface, 0, group=["Car"], label="Pilot voltage", type="V", event=stateChangeEvent)
+    chargingPower = PowerSensor("loads.carcharger.power", ads1015Interface, 1, group=["Car", "Power", "Loads"], label="Charging power", type="KVA", event=stateChangeEvent)
+
+    # Charger control
+    charger = CarChargerControl("charger", None, pilotVoltage, chargingPower, event=stateChangeEvent, group="Car", label="Car charger", type="charger", event=stateChangeEvent)
 
     # Schedules
     carChargerEnabledTask = Task("carChargerEnabledTask", SchedTime(hour=[20], minute=[0]), charger, 1)
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     schedule = Schedule("schedule", [carChargerEnabledTask, carChargerDisabledTask])
 
     # Resources
-    resources = Collection("resources", [pilotVoltage, chargingCurrent, charger,
+    resources = Collection("resources", [pilotVoltage, chargingPower, charger,
                                          carChargerEnabledTask, carChargerDisabledTask,
                                         ])
     restServer = RestServer("carcharger", resources, event=stateChangeEvent, label="Car charger")
@@ -43,4 +43,3 @@ if __name__ == "__main__":
 #    carCharger.start()
     schedule.start()
     restServer.start()
-
