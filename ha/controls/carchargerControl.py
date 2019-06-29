@@ -32,9 +32,10 @@ chargingVolts = 4.5/3   # 1.5V
 
 # current sensor parameters
 currentFactor = 10  # = 50A / 5V
+powerThreshold = 10.0
 
 # general parameters
-chargingVoltage = 240         # volts
+chargingVoltage = 240       # volts
 maxCurrent = 30             # amps
 sampleInterval = 1          # seconds
 pilotFreq = 1000            # Hz
@@ -48,7 +49,7 @@ class VoltageSensor(Sensor):
     def getState(self):
         return self.interface.read(self.addr) / 1000
 
-class CurrentSensor(Sensor):
+class PowerSensor(Sensor):
     def __init__(self, name, interface, addr=None,
             group="", type="sensor", location=None, label="", interrupt=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
@@ -56,10 +57,10 @@ class CurrentSensor(Sensor):
 
     def getState(self):
         adcVolts = self.interface.read(self.addr)
-        current = chargingVoltage * currentFactor * adcVolts / 1000
+        power = chargingVoltage * currentFactor * adcVolts / 1000
 #        debug('debugCarcharger', self.name, "adcVolts", adcVolts, "current", current)
-        if current > 10.0:
-            return current
+        if power > powerThreshold:
+            return power
         else:
             return 0.0
 
