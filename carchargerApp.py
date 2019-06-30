@@ -26,7 +26,7 @@ if __name__ == "__main__":
     chargingPower = PowerSensor("loads.carcharger.power", ads1015Interface, 1, group=["Car", "Power", "Loads"], label="Charging power", type="KVA", event=stateChangeEvent)
 
     # Charger control
-    charger = CarChargerControl("charger", None, pilotVoltage, chargingPower, event=stateChangeEvent, group="Car", label="Car charger", type="charger", event=stateChangeEvent)
+    charger = CarChargerControl("charger", None, pilotVoltage, chargingPower, group="Car", label="Car charger", type="charger", event=stateChangeEvent)
 
     # Schedules
     carChargerEnabledTask = Task("carChargerEnabledTask", SchedTime(hour=[20], minute=[0]), charger, 1)
