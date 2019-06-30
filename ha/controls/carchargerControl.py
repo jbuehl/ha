@@ -42,8 +42,8 @@ pilotFreq = 1000            # Hz
 
 class VoltageSensor(Sensor):
     def __init__(self, name, interface, addr=None,
-            group="", type="sensor", location=None, label="", interrupt=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
+            group="", type="sensor", location=None, label="", interrupt=None, event=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
 
     def getState(self):
@@ -51,8 +51,8 @@ class VoltageSensor(Sensor):
 
 class PowerSensor(Sensor):
     def __init__(self, name, interface, addr=None,
-            group="", type="sensor", location=None, label="", interrupt=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
+            group="", type="sensor", location=None, label="", interrupt=None, event=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
 
     def getState(self):
