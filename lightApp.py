@@ -36,6 +36,7 @@ patterns = {"onPattern": [on],
             "cincodemayoPattern": 10*[green]+10*[white]+10*[red],
             "easterPattern": [yellow]+[blue]+[green]+[cyan]+[magenta],
             "swedenPattern": 5*[blue]+5*[yellow],
+            "canadaPattern": 5*[red]+5*[white],
             "fallPattern": 5*[red]+5*[orange]+5*[rust]+5*[orange],
             "pridePattern": [pink]+[red]+[orange]+[yellow]+[green]+[blue]+[purple],
             "holiPattern": [red]+[yellow]+[blue]+[green]+[orange]+[purple]+[pink]+[magenta],
@@ -100,6 +101,15 @@ if __name__ == "__main__":
                                         segments=[Segment("all",     0, stringLength,
                                                            pattern=patterns["swedenPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Sweden day")
+    canadaLights = HolidayLightControl("canadaLights", neopixelInterface,
+                                        segments=[Segment("all",     0, stringLength,
+                                                           pattern=patterns["canadaPattern"])],
+                                        type="light", group=["Lights", "Holiday"], label="Canada day")
+    prideLights = HolidayLightControl("prideLights", neopixelInterface,
+                                        segments=[Segment("all",     0, stringLength,
+                                                           pattern=patterns["pridePattern"],
+                                                           animation=SparkleAnimation(rate=3))],
+                                        type="light", group=["Lights", "Holiday"], label="Gay pride")
     flagLights = HolidayLightControl("flagLights", neopixelInterface,
                                         segments=[Segment("all",     0, stringLength,
                                                            pattern=patterns["presidentsPattern"])],
@@ -165,9 +175,12 @@ if __name__ == "__main__":
             Task("maydayTask",       SchedTime(year=2019, month=May, day=1,  hour=12, minute=0), holiday, "maydayLights"),
             Task("cincodemayoTask",  SchedTime(year=2019, month=May, day=5,  hour=12, minute=0), holiday, "cincodemayoLights"),
             Task("swedenTask",       SchedTime(year=2019, month=Jun, day=6,  hour=12, minute=0), holiday, "swedenLights"),
-            Task("flagTask",         SchedTime(year=2019, month=Jun, day=14,  hour=12, minute=0), holiday, "flagLights"),
-            Task("july4Task",        SchedTime(year=2019, month=Jul, day=[3,4],  hour=12, minute=0), holiday, "july4Lights"),
-            Task("bastilleTask",     SchedTime(year=2019, month=Jul, day=14,  hour=12, minute=0), holiday, "bastilleLights"),
+            Task("prideTask",        SchedTime(year=2019, month=Jun, day=9,  hour=12, minute=0), holiday, "prideLights"),
+            Task("flagTask",         SchedTime(year=2019, month=Jun, day=14, hour=12, minute=0), holiday, "flagLights"),
+            Task("canadaTask",       SchedTime(year=2019, month=Jul, day=1,  hour=12, minute=0), holiday, "canadaLights"),
+            Task("july3Task",        SchedTime(year=2019, month=Jul, day=3,  hour=12, minute=0), holiday, "presidentsLights"),
+            Task("july4Task",        SchedTime(year=2019, month=Jul, day=4,  hour=12, minute=0), holiday, "july4Lights"),
+            Task("bastilleTask",     SchedTime(year=2019, month=Jul, day=14, hour=12, minute=0), holiday, "bastilleLights"),
             Task("fallTask",         SchedTime(year=2019, month=Sep, day=21, hour=12, minute=0), holiday, "fallLights"),
             Task("halloweenTask",    SchedTime(year=2019, month=Oct, day=31, hour=12, minute=0), holiday, "halloweenLights"),
             Task("thanksgivingTask", SchedTime(year=2019, month=Nov, day=28, hour=12, minute=0), holiday, "fallLights"),
@@ -180,7 +193,7 @@ if __name__ == "__main__":
 
     # Resources
     resources = Collection("resources", resources=[valentinesLights, mardigrasLights, presidentsLights, stpatricksLights, maydayLights,
-                                                   easterLights, cincodemayoLights, swedenLights, july4Lights, bastilleLights,
+                                                   easterLights, cincodemayoLights, swedenLights, canadaLights, prideLights, flagLights, july4Lights, bastilleLights,
                                                    fallLights, halloweenLights, electionLights, christmasLights, hanukkahLights,
                                                    testLights, offLights, holiday
                                                    ])
