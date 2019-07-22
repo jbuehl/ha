@@ -13,10 +13,10 @@ import json
 from ha import *
 
 def startMetrics(resourceStates):
-    metricsThread = threading.Thread(target=sendMetrics, args=(resourceStates,))
+    metricsThread = threading.Thread(target=sendMetricsThread, args=(resourceStates,))
     metricsThread.start()
-    
-def sendMetrics(resourceStates):
+
+def sendMetricsThread(resourceStates):
     debug("debugMetrics", "sendMetrics", "metrics thread started")
     lastDay = ""
     while True:
@@ -43,7 +43,7 @@ def sendMetrics(resourceStates):
                 with open(logFileName, "a") as logFile:
                     logFile.write(json.dumps([time.time(), changedStates])+"\n")
 
-        # send states to the metrics server        
+        # send states to the metrics server
         if sendMetrics:
             debug("debugMetrics", "sendMetrics", "opening socket to", metricsHost, metricsPort)
             try:
@@ -52,13 +52,18 @@ def sendMetrics(resourceStates):
                 debug("debugMetrics", "sendMetrics", "sending", len(metrics), "metrics")
                 for metric in metrics.keys():
                     if metric != "states":
-                        msg = metricsPrefix+"."+metric.replace(" ", "_")+" "+str(metrics[metric])+" "+str(int(time.time()))
-                        debug("debugMetricsMsg", "sendMetrics", msg)
-                        metricsSocket.send(msg+"\n")
+                        if metric.split(".")[0] != "loads":
+                            metricsGroup = ".ha."
+                        # if metric.split(".")[0] == "loads":    # FIXME
+                        #     metricsGroup = "."
+                        # else:
+                        #     metricsGroup = ".ha."
+                            msg = metricsPrefix+metricsGroup+metric.replace(" ", "_")+" "+str(metrics[metric])+" "+str(int(time.time()))
+                            debug("debugMetricsMsg", "sendMetrics", msg)
+                            metricsSocket.send(msg+"\n")
             except socket.error as exception:
                 log("sendMetrics", "socket error", str(exception))
             if metricsSocket:
                 debug("debugMetrics", "sendMetrics", "closing socket to", metricsHost)
                 metricsSocket.close()
     debug("debugMetrics", "sendMetrics", "metrics thread terminated")
-

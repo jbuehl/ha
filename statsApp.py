@@ -1,0 +1,240 @@
+#!/usr/bin/python
+
+# Read a file that contains logging data from electrical power load current sensors and compute statistics
+
+# Usage: statsApp [-f] [-v] inFile
+# Arguments:
+#   inFile        log file or directory to read
+#                   If a file is specified, the program processes the data in that file and
+#                   terminates, unless the -f option is specified, in which case it waits for
+#                   further data to be written to the input file.
+#                   If a directory is specified, all files in the directory are processed.
+#                   If a directory is specified and the -f option is specified, only the file
+#                   in the directory with the newest modified date is processed and the program
+#                   waits for further data in that file.  If a new file is subsequently created in
+#                   the directory, the current file is closed and the new file is opened.
+# Options:
+#   -f              follow as the input file grows (as in tail -f)
+#   -v              verbose output
+
+# configuration
+inFileName = ""
+inputSeq = 0
+fileDate = ""
+follow = False
+sleepInterval = .1
+
+# file handles
+inFile = None
+
+# graphite
+graphiteSocket = None
+metricsPrefix = ""
+metricsHost = ""
+port = 2003
+
+import os
+import socket
+import struct
+import sys
+import time
+import getopt
+import syslog
+import datetime
+import json
+from ha import *
+
+lastTime = 0
+stateDict = {
+    "loads.ac.power": 0.0,
+    "loads.appliance1.power": 0.0,
+    "loads.appliance2.power": 0.0,
+    "loads.backhouse.power": 0.0,
+    "loads.carcharger.power": 0.0,
+    "loads.cooking.power": 0.0,
+    "loads.lights.power": 0.0,
+    "loads.plugs.power": 0.0,
+    "loads.pool.power": 0.0,
+    "loads.ac.power": 0.0,
+    "loads.appliance1.dailyEnergy": 0.0,
+    "loads.appliance2.dailyEnergy": 0.0,
+    "loads.backhouse.dailyEnergy": 0.0,
+    "loads.carcharger.dailyEnergy": 0.0,
+    "loads.cooking.dailyEnergy": 0.0,
+    "loads.lights.dailyEnergy": 0.0,
+    "loads.plugs.dailyEnergy": 0.0,
+    "loads.pool.dailyEnergy": 0.0,
+    "loads.stats.power": 0.0,
+    "loads.stats.dailyEnergy": 0.0,
+}
+
+# get command line options and arguments
+def getOpts():
+    global follow
+    global inDir, inFileName, inFiles
+    (opts, args) = getopt.getopt(sys.argv[1:], "f")
+    try:
+        inFileName = args[0]
+        if os.path.isdir(inFileName): # a directory was specified
+            inDir = inFileName.rstrip("/")+"/"
+            inFiles = os.listdir(inDir)
+        else:                           # a file was specified
+            inDir = ""
+            inFiles = [inFileName]
+    except:
+        terminate(1, "input file must be specified")
+    for opt in opts:
+        if opt[0] == "-f":
+            follow = True
+    if debugPower:
+        log("inFileName:", inFileName)
+        log("follow:", follow)
+
+# open the specified input file
+def openInFile(inFileName):
+    global inFile, inputSeq, fileDate
+    if inFileName == "stdin":
+        inFile = sys.stdin
+    else:
+        try:
+            debug("debugPower",  inFileName)
+            inFile = open(inFileName)
+            fileDate = inFileName.split(".")[0].split("-")[-1]
+            fileDate = fileDate[0:4]+"-"+fileDate[4:6]+"-"+fileDate[6:8]
+            inputSeq = 0
+        except:
+            terminate(1, "Unable to open "+inFileName)
+
+# close the currently open input file
+def closeInFile(inFile):
+    if inFile:
+        debug("debugPower", "closing", inFileName)
+        inFile.close()
+
+# open the last modified file in the in directory
+def openLastinFile():
+    global inFileName, inDir, inFile
+    if inDir != "":   # directory was specified
+        try:
+            inFiles = os.listdir(inDir)
+        except:
+            terminate(1, "Unable to access directory "+inDir)
+        latestModTime = 0
+        # find the name of the file with the largest modified time
+        for fileName in inFiles:
+            inModTime = os.path.getmtime(inDir+fileName)
+            if inModTime > latestModTime:
+               latestModTime = inModTime
+               latestFileName = inDir+fileName
+        if inFileName != latestFileName:  # is there a new file?
+            closeInFile(inFile)
+            inFileName = latestFileName
+            openInFile(inFileName)
+            zeroDaily()
+    else:   # just open the specified file the first time this is called
+        if not inFile:
+            openInFile(inFileName)
+
+# close all files
+def closeFiles():
+    if inFile: inFile.close()
+
+def terminate(code, msg=""):
+    log("terminating", msg)
+    sys.exit(code)
+
+# zero the daily totals
+def zeroDaily():
+    global stateDict
+    for item in stateDict.keys():
+        itemParts = item.split(".")
+        if itemParts[2] == "dailyEnergy":
+            stateDict[item] = 0.0
+
+# parse input power readings
+def parseInput(inRec):
+    global lastTime, stateDict
+    try:
+        [timeStamp, inDict] = json.loads(inRec)
+        timeStamp = int(timeStamp)
+        # if timeStamp < 1561332200: return
+        if lastTime == 0:
+            lastTime = timeStamp
+        timeDiff = timeStamp - lastTime
+        # print "time:  ", timeStamp, lastTime, timeDiff
+        # debug("debugPower", "input:", timeStamp, inDict)
+        # compute energy consumed since last measurement
+        stateDict["loads.stats.power"] = 0.0
+        for item in stateDict.keys():
+            itemParts = item.split(".")
+            if itemParts[0] == "loads":
+                if itemParts[1] != "stats":
+                    if itemParts[2] == "power":
+                        # add to the total power for this period
+                        stateDict["loads.stats.power"] += stateDict[item]
+                        # calculate energy consumed since last measurement for this sensor
+                        energy = stateDict[item] * timeDiff / 3600
+                        try:
+                            stateDict["loads."+itemParts[1]+".dailyEnergy"] += energy
+                            stateDict["loads.stats.dailyEnergy"] += energy
+                        except KeyError:
+                            stateDict["loads."+itemParts[1]+".dailyEnergy"] = 0.0
+                        # print "energy:", item, stateDict[item], energy, stateDict["loads."+itemParts[1]+".dailyEnergy"]
+        # update the measurements
+        for item in inDict.keys():
+            itemParts = item.split(".")
+            if itemParts[0] == "loads":
+                if itemParts[1] != "stats":
+                    if inDict[item] == None:
+                        inDict[item] = 0.0
+                    stateDict[item] = inDict[item]
+                # print "power: ", item, inDict[item]
+        debug("debugPower", "state:", stateDict)
+        lastTime = timeStamp
+    except Exception as ex:
+        log("exception", str(ex), inRec)
+
+def writeGraphite(timeStamp):
+    # if timeStamp < 1563658413: return
+    try:
+        metricsSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        metricsSocket.connect((metricsHost, port))
+        for item in stateDict.keys():
+            if True: # item.split(".")[1] == "stats":
+                metric = "%s.%s %s %d" % (metricsPrefix, item, str(stateDict[item]), timeStamp)
+                debug("debugPower", "metric:", metric)
+                metricsSocket.send(metric+"\n")
+    except socket.error as exception:
+        log("sendMetrics", "socket error", str(exception))
+    if metricsSocket:
+        metricsSocket.close()
+    return
+
+if __name__ == "__main__":
+    getOpts()
+    graphiteSocket = True # openGraphite(hostName, port)
+    # process the input file(s)
+    if follow:      # following - start
+        # open the latest input file in the in directory
+        openLastinFile()
+        while True: # read forever
+            inRec = inFile.readline()
+            if inRec:
+                parseInput(inRec)
+                writeGraphite(lastTime)
+                inRec = inFile.readline()
+            else:   # end of file - wait a bit and see if there is more data
+                # time.sleep(sleepInterval)
+                openLastinFile()
+    else:       # not following - process whatever files were specified and exit
+        for inFileName in inFiles:
+            debug("debugPower", "reading:", inDir+inFileName)
+            openInFile(inDir+inFileName)
+            inRec = inFile.readline()
+            while inRec:
+                parseInput(inRec)
+                writeGraphite(lastTime)
+                inRec = inFile.readline()
+            closeInFile(inFile)
+        closeFiles()
+        terminate(0, "Done")

@@ -74,7 +74,7 @@ class SolarSensor(Sensor):
 #        except:
 #            pass
 #        return attrs
-                    
+
 #class InverterStatSensor(SolarSensor):
 #    def __init__(self, name, interface, addr=None, group="", type="sensor", label="", location=None):
 #        attrs = {"Temp": 0.0, "Eday": 0.0, "Eac": 0.0, "Vac": 0.0, "Etot": 0.0, "Pac": 0.0}
@@ -88,7 +88,7 @@ class SolarSensor(Sensor):
 #            return float(deviceValues["stats"][addr])
 #        except:
 #            return 0.0
-#            
+#
 class InverterSensor(SolarSensor):
     def __init__(self, name, interface, addr=None, group="", type="sensor", label="", location=None):
         attrs = {"Uptime": 0, "Temp": 0.0, "Eday": 0.0, "Eac": 0.0, "Vac": 0.0, "Iac": 0.0, "Freq": 0.0, "Vdc": 0.0, "Etot": 0.0, "Pmax": 0.0, "Pac": 0.0}
@@ -169,20 +169,17 @@ if __name__ == "__main__":
 
     # Devices
     for inverter in inverters.keys():
-        resources.addRes(SolarSensor("inverters."+inverter+".Pac", fileInterface, "Pac", group=["Solar", "Inverters"], type="KW", label="Inverter "+inverter, location=inverters[inverter]))
+        resources.addRes(SolarSensor("inverters."+inverter+".Pac", fileInterface, "Pac", group=["Solar", "Inverters"], type="KW", label=inverter, location=inverters[inverter]))
         resources.addRes(SolarSensor("inverters."+inverter+".Eac", fileInterface, "Eac", group=["Solar", "Inverters"], type="KWh", label="Inverter "+inverter+" energy", location=inverters[inverter]))
-#    for optimizer in optimizers.keys():
-#        resources.addRes(SolarSensor("optimizers."+optimizer, fileInterface, group=["Optimizers"], type="W", label="Optimizer "+optimizer, location=optimizers[optimizer]))
-#        resources.addRes(SolarSensor("optimizers."+optimizer+"-E", fileInterface, group=["Optimizers"], type="KWh", label="Optimizer "+optimizer+" energy", location=optimizers[optimizer]))
-        
+    for optimizer in optimizers.keys():
+        resources.addRes(SolarSensor("optimizers."+optimizer, fileInterface, group=["Optimizers"], type="W", label=optimizer, location=optimizers[optimizer]))
+        resources.addRes(SolarSensor("optimizers."+optimizer+"-E", fileInterface, group=["Optimizers"], type="KWh", label="Optimizer "+optimizer+" energy", location=optimizers[optimizer]))
+
     # Temperature
     resources.addRes(SolarSensor("inverters.stats.Temp", fileInterface, "Temp", group=["Solar", "Temperature"], label="Inverter temp", type="tempC"))
     resources.addRes(SolarSensor("optimizers.stats.Temp", fileInterface, "Temp", group=["Solar", "Temperature"], label="Roof temp", type="tempC"))
 
     # Solar
-#    resources.addRes(Sensor("currentVoltage", solarInterface, ("inverters", "avg", "Vac"), group=["Solar", "Power"], label="Current voltage", type="V"))
-#    resources.addRes(Sensor("currentPower", solarInterface, ("inverters", "sum", "Pac"), group=["Solar", "Power"], label="Current power", type="KW"))
-#    resources.addRes(Sensor("todaysEnergy", solarInterface, ("inverters", "sum", "Eday"), group=["Solar", "Power"], label="Energy today", type="KWh"))
     resources.addRes(SolarSensor("inverters.stats.Vac", fileInterface, "Vac", group=["Solar", "Power"], label="Current voltage", type="V"))
     resources.addRes(SolarSensor("inverters.stats.Pac", fileInterface, "Pac", group=["Solar", "Power"], label="Current power", type="KW"))
     resources.addRes(SolarSensor("inverters.stats.Eday", fileInterface, "Eday", group=["Solar", "Power"], label="Energy today", type="KWh"))
@@ -195,4 +192,3 @@ if __name__ == "__main__":
     solarInterface.start()
     restServer = RestServer("solar", resources, event=stateChangeEvent, label="Solar")
     restServer.start()
-    
