@@ -192,7 +192,6 @@ def parseInput(inRec):
         log("exception", str(ex), inRec)
 
 def writeGraphite(timeStamp):
-    # if timeStamp < 1563658413: return
     try:
         metricsSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         metricsSocket.connect((metricsHost, port))
@@ -218,8 +217,7 @@ if __name__ == "__main__":
             if inRec:
                 parseInput(inRec)
                 writeGraphite(lastTime)
-                inRec = inFile.readline()
-            else:   # end of file - wait a bit and see if there is more data
+            else:   # end of file - see if a new file has been opened before trying again
                 openLastinFile()
     else:       # not following - process whatever files were specified and exit
         for inFileName in inFiles:
