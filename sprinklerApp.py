@@ -40,7 +40,7 @@ if __name__ == "__main__":
     frontBedSequence = Sequence("frontBedSequence", [Cycle(frontBeds, 3600)], group="Sprinklers", label="Front beds")
     backLawnSequence = Sequence("backLawnSequence", [Cycle(backLawn, 1200)], group="Sprinklers", label="Back lawn")
     backLawnHotSequence = DependentControl("backLawnHotSequence", None, backLawnSequence, [(maxTemp, ">", 95)])
-    gardenSequence = Sequence("gardenSequence", [Cycle(garden, 300)], group="Sprinklers", label="Garden")
+    gardenSequence = Sequence("gardenSequence", [Cycle(garden, 120)], group="Sprinklers", label="Garden")
     backBedSequence = Sequence("backBedSequence", [Cycle(backBeds, 600)], group="Sprinklers", label="Back beds")
     backBedHotSequence = DependentControl("backBedHotSequence", None, backBedSequence, [(tempSensor, ">", 90)])
     backBedHotterSequence = DependentControl("backBedHotterSequence", None, backBedSequence, [(maxTemp, ">", 100)])
@@ -63,7 +63,7 @@ if __name__ == "__main__":
                         backLawnSequence, 1, enabled=True)
     backLawnHotTask = Task("backLawnHotTask", SchedTime(hour=scheduleHour, minute=20, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep, Oct]),
                         backLawnHotSequence, 1, enabled=True)
-    gardenTask = Task("gardenTask", SchedTime(hour=scheduleHour, minute=40, month=[May, Jun, Jul, Aug, Sep]),
+    gardenTask = Task("gardenTask", SchedTime(hour=scheduleHour, minute=40, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep]),
                         gardenSequence, 1, enabled=True)
     backBedTask = Task("backBedTask", SchedTime(hour=scheduleHour, minute=50, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]),
                         backBedSequence, 1, enabled=True)
