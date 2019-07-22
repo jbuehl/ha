@@ -4,7 +4,6 @@ dataDir = rootDir+"data/"
 stateFileName = stateDir+"state.json"
 gpsFileName = dataDir+"gps.json"
 diagFileName = dataDir+"diags.json"
-imuFileName = dataDir+"9dof.json"
 
 displayDevice = "/dev/fb0"
 inputDevice = "/dev/input/event0"
@@ -34,7 +33,6 @@ from ha.interfaces.timeInterface import *
 from ha.interfaces.i2cInterface import *
 from ha.interfaces.tc74Interface import *
 from ha.interfaces.tempInterface import *
-from ha.interfaces.audioInterface import *
 
 # global variables
 resources = None
@@ -48,8 +46,10 @@ except:
 recording = False
 wifiEnabled = False
 elevationMode = "gps"
-framerates = [0, 1, 2, 3, 4, 6, 10, 20, 30, 60] # time lapse frames per minute
-framerate = 0
+framerates = [30, 10, 3, 1]
+framerate = framerates[0]
+bitrates = [12000000, 4000000, 1200000, 400000]
+bitrate = bitrates[0]
 gpsAltitude = None
 strmAltitude = None
 
@@ -61,6 +61,7 @@ def readState():
         wifiEnabled = state["wifiEnabled"]
         elevationMode = state["elevationMode"]
         framerate = state["framerate"]
+        bitrate = state["bitrate"]
     except:
         pass
     debug("debugCarState", "readState")
@@ -68,7 +69,7 @@ def readState():
 def writeState():
     debug("debugCarState", "writeState")
     with open(stateFileName, "w") as stateFile:
-        json.dump({"wifiEnabled": wifiEnabled, "elevationMode": elevationMode, "framerate": framerate}, stateFile)
+        json.dump({"wifiEnabled": wifiEnabled, "elevationMode": elevationMode, "framerate": framerate, "bitrate": bitrate}, stateFile)
 
 # dash cam preview
 def dashCamPreview(container):
@@ -76,7 +77,7 @@ def dashCamPreview(container):
         dashCam.resolution = dashCamStillResolution
         dashCam.start_preview(fullscreen=False, window = container.getSizePos())
 
-# toggle between gps and engine sensors
+# toggle between gps and diag sensors
 def toggleSensors(button):
     button.setFront(1-button.frontElement)
     button.render()
@@ -91,45 +92,41 @@ def dashCamCapture(button):
         button.render()
 
 def startVideo():
-    debug("debugVideo", "start video")
+    debug("debugVideo", "start video", "framerate:", framerate, "bitrate:", bitrate)
     dashCam.resolution = dashCamVideoResolution
-    dashCam.start_recording(dashCamVideoDir+time.strftime("%Y%m%d%H%M%S")+".h264")
+    dashCam.framerate = framerate
+    dashCam.start_recording(dashCamVideoDir+time.strftime("%Y%m%d%H%M%S")+".h264", bitrate=bitrate)
 
 def stopVideo():
     debug("debugVideo", "stop video")
     dashCam.stop_recording()
     dashCam.resolution = dashCamStillResolution
 
-def timelapse():
-    debug("debugVideo", "start timelapse")
-    timelapseDir = dashCamVideoDir+time.strftime("%Y%m%d%H%M%S")+"/"
-    os.system("mkdir "+timelapseDir)
-    debug("debugVideo", "created", timelapseDir)
-    while recording:
-        frame = timelapseDir+time.strftime("%Y%m%d%H%M%S")+".jpg"
-        debug("debugVideo", "frame", frame)
-        dashCam.capture(frame)
-        time.sleep(60/framerate)
-    debug("debugVideo", "stop timelapse")
-
+# def timelapse():
+#     debug("debugVideo", "start timelapse")
+#     timelapseDir = dashCamVideoDir+time.strftime("%Y%m%d%H%M%S")+"/"
+#     os.system("mkdir "+timelapseDir)
+#     debug("debugVideo", "created", timelapseDir)
+#     while recording:
+#         frame = timelapseDir+time.strftime("%Y%m%d%H%M%S")+".jpg"
+#         debug("debugVideo", "frame", frame)
+#         dashCam.capture(frame)
+#         time.sleep(60/framerate)
+#     debug("debugVideo", "stop timelapse")
+#
 # dash cam recording
 def dashCamRecord(button):
     global recording
     if dashCam:
         if recording:
-            if framerate == 0:
-                stopVideo()
+            stopVideo()
             recording = False
             button.setFront(0)
             button.render()
 #    dashCam.annotate_text = ""
         else:
             recording = True
-            if framerate == 0:
-                startVideo()
-            else:
-                timelapseThread = threading.Thread(target=timelapse)
-                timelapseThread.start()
+            startVideo()
             button.setFront(1)
             button.render()
 #    dashCam.annotate_size = 120
@@ -138,13 +135,14 @@ def dashCamRecord(button):
 
 # change the frame rate
 def setFramerate(button):
-    global framerate
+    global framerate, bitrate
     if not recording:
         framerateIndex = framerates.index(framerate)
         framerateIndex += 1
         if framerateIndex == len(framerates):
             framerateIndex = 0
         framerate = framerates[framerateIndex]
+        bitrate = bitrates[framerateIndex]
         button.setFront(framerateIndex)
         button.elementList[button.frontElement].render()
         writeState()
@@ -311,8 +309,8 @@ if __name__ == "__main__":
         OSSensor("IPAddr", None, "ipAddr"),
         OSSensor("uptime", None, "uptime"),
     ]
-    # engine sensors
-    engineSensors = [
+    # diag sensors
+    diagSensors = [
 #        Sensor("speed", diagInterface, "Speed", label="Speed", type="MPH"),
         Sensor("rpm", diagInterface, "Rpm", label="RPM", type="RPM"),
         Sensor("battery", diagInterface, "Battery", label="Battery", type="V"),
@@ -415,13 +413,13 @@ if __name__ == "__main__":
                                     )
                                     for sensor in positionSensors]),
                                 ]),
-                           Div("engineSensors", containerStyle, [
+                           Div("diagSensors", containerStyle, [
                                Span(sensor.name, containerStyle, [
                                    Text(sensor.name+"Label", labelStyle, sensor.label),
                                    Text(sensor.name+"Value", valueStyle, resource=sensor),
                                    ],
                                )
-                               for sensor in engineSensors]),
+                               for sensor in diagSensors]),
                             ], onPress=toggleSensors),
                         dashCamWindow,
                         ]),
