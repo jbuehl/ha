@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-# Read a file that contains logging data from electrical power load current sensors and compute statistics
+# Read a file that contains logging data from electrical power load current sensors.
+# Compute statistics and send to graphing server.
 
 # Usage: statsApp [-f] [-v] inFile
 # Arguments:
@@ -19,10 +20,8 @@
 
 # configuration
 inFileName = ""
-inputSeq = 0
 fileDate = ""
 follow = False
-sleepInterval = .1
 
 # file handles
 inFile = None
@@ -92,7 +91,7 @@ def getOpts():
 
 # open the specified input file
 def openInFile(inFileName):
-    global inFile, inputSeq, fileDate
+    global inFile, fileDate
     if inFileName == "stdin":
         inFile = sys.stdin
     else:
@@ -101,7 +100,6 @@ def openInFile(inFileName):
             inFile = open(inFileName)
             fileDate = inFileName.split(".")[0].split("-")[-1]
             fileDate = fileDate[0:4]+"-"+fileDate[4:6]+"-"+fileDate[6:8]
-            inputSeq = 0
         except:
             terminate(1, "Unable to open "+inFileName)
 
@@ -161,8 +159,7 @@ def parseInput(inRec):
         if lastTime == 0:
             lastTime = timeStamp
         timeDiff = timeStamp - lastTime
-        # print "time:  ", timeStamp, lastTime, timeDiff
-        # debug("debugPower", "input:", timeStamp, inDict)
+        debug("debugPower", "input:", timeStamp, inDict)
         # compute energy consumed since last measurement
         stateDict["loads.stats.power"] = 0.0
         for item in stateDict.keys():
@@ -179,7 +176,7 @@ def parseInput(inRec):
                             stateDict["loads.stats.dailyEnergy"] += energy
                         except KeyError:
                             stateDict["loads."+itemParts[1]+".dailyEnergy"] = 0.0
-                        # print "energy:", item, stateDict[item], energy, stateDict["loads."+itemParts[1]+".dailyEnergy"]
+                        debug("debugPower", "energy:", item, stateDict[item], energy, stateDict["loads."+itemParts[1]+".dailyEnergy"])
         # update the measurements
         for item in inDict.keys():
             itemParts = item.split(".")
@@ -188,7 +185,7 @@ def parseInput(inRec):
                     if inDict[item] == None:
                         inDict[item] = 0.0
                     stateDict[item] = inDict[item]
-                # print "power: ", item, inDict[item]
+                debug("debugPower", "power: ", item, inDict[item])
         debug("debugPower", "state:", stateDict)
         lastTime = timeStamp
     except Exception as ex:
@@ -200,10 +197,9 @@ def writeGraphite(timeStamp):
         metricsSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         metricsSocket.connect((metricsHost, port))
         for item in stateDict.keys():
-            if True: # item.split(".")[1] == "stats":
-                metric = "%s.%s %s %d" % (metricsPrefix, item, str(stateDict[item]), timeStamp)
-                debug("debugPower", "metric:", metric)
-                metricsSocket.send(metric+"\n")
+            metric = "%s.%s %s %d" % (metricsPrefix, item, str(stateDict[item]), timeStamp)
+            debug("debugPower", "metric:", metric)
+            metricsSocket.send(metric+"\n")
     except socket.error as exception:
         log("sendMetrics", "socket error", str(exception))
     if metricsSocket:
@@ -224,7 +220,6 @@ if __name__ == "__main__":
                 writeGraphite(lastTime)
                 inRec = inFile.readline()
             else:   # end of file - wait a bit and see if there is more data
-                # time.sleep(sleepInterval)
                 openLastinFile()
     else:       # not following - process whatever files were specified and exit
         for inFileName in inFiles:
