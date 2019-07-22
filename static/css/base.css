@@ -83,25 +83,25 @@ td {
     font-family: "Courier New", Courier, monospace;
     font-weight: normal;
     }
-    
+
 .sequence {
     font-family: "Courier New", Courier, monospace;
     font-weight: normal;
     }
-    
+
 .container {
 /*    background-color: Red;*/
     padding: 2 2 2 2;
     overflow: auto;
     width: 100%;
     }
-    
+
 .section {
 /*    background-color: Blue;*/
     padding: 2 2 2 2;
     overflow: auto;
     }
-    
+
 .name {
     text-align: left;
     }
@@ -391,23 +391,23 @@ td {
 .charger_Off {
     color: SlateGray;
     }
-    
+
 .charger_Ready {
     color: Lime;
     }
-    
+
 .charger_Connected {
     color: Yellow;
     }
-    
+
 .charger_Charging {
     color: Orange;
     }
-    
+
 .charger_Fault {
     color: OrangeRed;
     }
-    
+
 .V {
 	color: Yellow;
     }
@@ -431,4 +431,3 @@ td {
 .MWh {
 	color: OrangeRed;
     }
-
