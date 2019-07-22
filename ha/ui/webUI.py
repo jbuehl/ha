@@ -76,7 +76,7 @@ class WebRoot(object):
                 return reply
             else:
                 if state:
-                    views.setViewState(self.resources.getRes(resource), state)
+                    views.setViewState(self.resources.getRes(resource), state.strip().capitalize())
                     time.sleep(1)   # hack
                 return json.dumps({"state": views.getViewState(self.resources.getRes(resource))})
         except:
