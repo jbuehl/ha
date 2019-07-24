@@ -59,10 +59,10 @@ class RestInterface(Interface):
         while self.enabled:
             try:
                 # wait to receive a state change notification message
-                (data, addr) = self.socket.recvfrom(8192)
+                (data, addr) = self.socket.recvfrom(32768)
                 msg = json.loads(data)
                 if addr[0]+":"+str(msg["port"]) == self.serviceAddr:   # is this from the correct service
-                    debug('debugRestStates', self.name, "received state notification from", addr[0]+":"+str(msg["port"]), "matches serviceAddr", self.serviceAddr) 
+                    debug('debugRestStates', self.name, "received state notification from", addr[0]+":"+str(msg["port"]), "matches serviceAddr", self.serviceAddr)
                     # this one is for us
                     debug('debugRestStates', self.name, "readStateNotify", "addr:", addr[0], "data:", data)
                     states = msg["state"]
@@ -71,7 +71,7 @@ class RestInterface(Interface):
                     self.setStates(states)
                     self.notify()
                 else:
-                   debug('debugRestStates', self.name, "ignoring state notification from", addr[0]+":"+str(msg["port"])) 
+                   debug('debugRestStates', self.name, "ignoring state notification from", addr[0]+":"+str(msg["port"]))
             except Exception as exception:
                 # log and ignore exceptions
                 log(self.name, "state notification exception", str(exception))
@@ -88,7 +88,7 @@ class RestInterface(Interface):
                 self.states[state] = None
             debug('debugRest', self.name, "closing socket")
             self.socket.close()
-        
+
     # return the state value for the specified sensor address
     # addr is the REST path to the specified resource
     def read(self, addr):
@@ -123,7 +123,7 @@ class RestInterface(Interface):
         for sensor in states.keys():
             self.states["/resources/"+sensor+"/state"] = states[sensor]
 
-    # read the json data from the specified path and return a dictionary    
+    # read the json data from the specified path and return a dictionary
     def readRest(self, path):
         debug('debugRestStates', self.name, "readRest", path)
         addrPath = self.serviceAddr+urllib.quote(path)
@@ -132,7 +132,7 @@ class RestInterface(Interface):
                 url = "https://"+addrPath
                 debug('debugRestGet', self.name, "GET", url)
                 response = requests.get(url, timeout=restTimeout,
-                                 cert=(self.crtFile, self.keyFile), 
+                                 cert=(self.crtFile, self.keyFile),
                                  verify=False)
             else:
                 url = "http://"+addrPath
@@ -177,15 +177,15 @@ class RestInterface(Interface):
                 url = "https://"+addrPath
                 debug('debugRestPut', self.name, "PUT", url, "data:", data)
                 response = requests.put(url,
-                                 headers={"content-type":"application/json"}, 
+                                 headers={"content-type":"application/json"},
                                  data=data,
-                                 cert=(self.crtFile, self.keyFile), 
+                                 cert=(self.crtFile, self.keyFile),
                                  verify=False)
             else:
                 url = "http://"+addrPath
                 debug('debugRestPut', self.name, "PUT", url, "data:", data)
-                response = requests.put(url, 
-                                 headers={"content-type":"application/json"}, 
+                response = requests.put(url,
+                                 headers={"content-type":"application/json"},
                                  data=data)
             debug('debugRestPut', self.name, "status", response.status_code)
             if response.status_code == 200:
@@ -196,4 +196,3 @@ class RestInterface(Interface):
         except Exception as exception:
             log(self.name, "write state exception", str(exception))
             return False
-
