@@ -53,11 +53,10 @@ def sendMetricsThread(resourceStates):
                 for metric in metrics.keys():
                     if metric != "states":
                         if metric.split(".")[0] != "loads":
-                            metricsGroup = ".ha."
-                        # if metric.split(".")[0] == "loads":    # FIXME
-                        #     metricsGroup = "."
-                        # else:
-                        #     metricsGroup = ".ha."
+                            if metric.split(".")[0] in ["loads", "solar"]:
+                                metricsGroup = "."
+                            else:
+                                metricsGroup = ".ha."
                             msg = metricsPrefix+metricsGroup+metric.replace(" ", "_")+" "+str(metrics[metric])+" "+str(int(time.time()))
                             debug("debugMetricsMsg", "sendMetrics", msg)
                             metricsSocket.send(msg+"\n")
