@@ -87,12 +87,12 @@ if __name__ == "__main__":
             group=["Power", "Solar", "Optimizers"], type="KWh", label="Optimizer "+optimizer+" daily energy", location=optimizers[optimizer]))
 
     # Temperature
-    resources.addRes(SolarSensor("solar.inverters.stats.temp", fileInterface, "inverters.stats.Temp",
+    resources.addRes(SolarSensor("solar.inverters.stats.avgTemp", fileInterface, "inverters.stats.Temp",
         group=["Power", "Solar", "Temperature"], label="Inverter temp", type="tempC"))
-    resources.addRes(SolarSensor("solar.optimizers.stats.temp", fileInterface, "optimizers.stats.Temp",
+    resources.addRes(SolarSensor("solar.optimizers.stats.avgTemp", fileInterface, "optimizers.stats.Temp",
         group=["Power", "Solar", "Temperature"], label="Roof temp", type="tempC"))
 
-    # Solar
+    # Solar stats
     resources.addRes(SolarSensor("solar.inverters.stats.avgVoltage", fileInterface, "inverters.stats.Vac",
         group=["Power", "Solar"], label="Current voltage", type="V"))
     resources.addRes(SolarSensor("solar.inverters.stats.power", fileInterface, "inverters.stats.Pac",
