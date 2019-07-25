@@ -190,7 +190,7 @@ def solar():
                             inverterTemp=resources.getRes("solar.inverters.stats.avgTemp"),
                             roofTemp=resources.getRes("solar.optimizers.stats.avgTemp"),
                             currentVoltage=resources.getRes("solar.inverters.stats.power"),
-                            currentLoad=resources.getRes("currentLoad"),
+                            currentLoad=resources.getRes("loads.stats.power"),
                             currentPower=resources.getRes("solar.inverters.stats.power"),
                             todaysEnergy=resources.getRes("solar.inverters.stats.dailyEnergy"),
                             lifetimeEnergy=resources.getRes("solar.inverters.stats.lifetimeEnergy"),
