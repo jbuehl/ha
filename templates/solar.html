@@ -14,9 +14,9 @@
             <div class="stats" >
                 <div class="statsGroup">
                     <div>
-                        <span id="{{ date.name }}" class="date">{{ views.getViewState(date) }}</span>
-                        <span id="{{ time.name }}" class="time">{{ views.getViewState(time) }}</span>
-                        <span id="{{ ampm.name }}" class="ampm">{{ views.getViewState(ampm) }}</span>
+                        <span id="{{ date.name.replace(".", "_") }}" class="date">{{ views.getViewState(date) }}</span>
+                        <span id="{{ time.name.replace(".", "_") }}" class="time">{{ views.getViewState(time) }}</span>
+                        <span id="{{ ampm.name.replace(".", "_") }}" class="ampm">{{ views.getViewState(ampm) }}</span>
                     </div>
                     <div>
                         <span class="label">Sunrise</span>
@@ -40,37 +40,37 @@
                 <div class="statsGroup">
                     <div>
                         <span class="label">Air temperature</span>
-                        <span id="{{ airTemp.name }}" class="{{ airTemp.type }}">{{ views.getViewState(airTemp) }}</span>
+                        <span id="{{ airTemp.name.replace(".", "_") }}" class="{{ airTemp.type }}">{{ views.getViewState(airTemp) }}</span>
                     </div>
                     <div>
                         <span class="label">Inverter temperature</span>
-                        <span id="{{ inverterTemp.name }}" class="{{ inverterTemp.type }}">{{ views.getViewState(inverterTemp) }}</span>
+                        <span id="{{ inverterTemp.name.replace(".", "_") }}" class="{{ inverterTemp.type }}">{{ views.getViewState(inverterTemp) }}</span>
                     </div>
                     <div>
                         <span class="label">Roof temperature</span>
-                        <span id="{{ roofTemp.name }}" class="{{ roofTemp.type }}">{{ views.getViewState(roofTemp) }}</span>
+                        <span id="{{ roofTemp.name.replace(".", "_") }}" class="{{ roofTemp.type }}">{{ views.getViewState(roofTemp) }}</span>
                     </div>
                 </div>
                 <div class="statsGroup">
                     <div>
                         <span class="label">{{ currentVoltage.label }}</span>
-                        <span id="{{ currentVoltage.name }}" class="{{ currentVoltage.type }}">{{ views.getViewState(currentVoltage) }}</span>
+                        <span id="{{ currentVoltage.name.replace(".", "_") }}" class="{{ currentVoltage.type }}">{{ views.getViewState(currentVoltage) }}</span>
                     </div>
                     <div>
                         <span class="label">{{ currentLoad.label }}</span>
-                        <span id="{{ currentLoad.name }}" class="{{ currentLoad.type }}">{{ views.getViewState(currentLoad) }}</span>
+                        <span id="{{ currentLoad.name.replace(".", "_") }}" class="{{ currentLoad.type }}">{{ views.getViewState(currentLoad) }}</span>
                     </div>
                     <div>
                         <span class="label">{{ currentPower.label }}</span>
-                        <span id="{{ currentPower.name }}" class="{{ currentPower.type }}">{{ views.getViewState(currentPower) }}</span>
+                        <span id="{{ currentPower.name.replace(".", "_") }}" class="{{ currentPower.type }}">{{ views.getViewState(currentPower) }}</span>
                     </div>
                     <div>
                         <span class="label">{{ todaysEnergy.label }}</span>
-                        <span id="{{ todaysEnergy.name }}" class="{{ todaysEnergy.type }}">{{ views.getViewState(todaysEnergy) }}</span>
+                        <span id="{{ todaysEnergy.name.replace(".", "_") }}" class="{{ todaysEnergy.type }}">{{ views.getViewState(todaysEnergy) }}</span>
                     </div>
                     <div>
                         <span class="label">{{ lifetimeEnergy.label }}</span>
-                        <span id="{{ lifetimeEnergy.name }}" class="{{ lifetimeEnergy.type }}">{{ views.getViewState(lifetimeEnergy) }}</span>
+                        <span id="{{ lifetimeEnergy.name.replace(".", "_") }}" class="{{ lifetimeEnergy.type }}">{{ views.getViewState(lifetimeEnergy) }}</span>
                     </div>
                 </div>
             </div>
@@ -78,10 +78,10 @@
             {% if inv.name[-2:] != "-E" %}
             <div class="inverter" style="position:absolute; top:{{ inv.location[0] }}px; left:{{ inv.location[1] }}px" >
                 <div class="inverterName">{{ inv.label }}</div>
-                <div id="{{ inv.name }}" class="KW">{{ views.getViewState(inv) }}</div>
+                <div id="{{ inv.name.replace(".", "_") }}" class="KW">{{ views.getViewState(inv) }}</div>
             {% else %}
             <div class="inverter" style="position:absolute; top:{{ inv.location[0]+28 }}px; left:{{ inv.location[1] }}px" >
-                <div id="{{ inv.name }}" class="KWh">{{ views.getViewState(inv) }}</div>
+                <div id="{{ inv.name.replace(".", "_") }}" class="KWh">{{ views.getViewState(inv) }}</div>
             {% endif %}
             </div>
         {% endfor %}
@@ -89,10 +89,10 @@
             {% if opt.name[-2:] != "-E" %}
             <div class="optimizer" style="position:absolute; top:{{ opt.location[0] }}px; left:{{ opt.location[1] }}px" >
                 <div class="optimizerName">{{ opt.label }}</div>
-                <div id="{{ opt.name }}" class="W">{{ views.getViewState(opt) }}</div>
+                <div id="{{ opt.name.replace(".", "_") }}" class="W">{{ views.getViewState(opt) }}</div>
             {% else %}
             <div class="optimizer" style="position:absolute; top:{{ opt.location[0]+28 }}px; left:{{ opt.location[1] }}px" >
-                <div id="{{ opt.name }}" class="KWh">{{ views.getViewState(opt) }}</div>
+                <div id="{{ opt.name.replace(".", "_") }}" class="KWh">{{ views.getViewState(opt) }}</div>
             {% endif %}
             </div>
         {% endfor %}

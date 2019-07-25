@@ -33,8 +33,8 @@ $(document).ready(function() {
     var update = function(key, val) {
 //        $('#'+key).attr('value', val[1]);     // set the button value
         if (val[0] == 'temp') {                 // set the color of a temp item
-            $('.'+key).text(val[1]);            // set the value
-            $('.'+key).css('color', tempColor(val[1]));
+            $('#'+key).text(val[1]);            // set the value
+            $('#'+key).css('color', tempColor(val[1]));
             }
         else if (val[0] == 'sound') {           // play a sound if one is specified
             if (val[1] == 'On') {

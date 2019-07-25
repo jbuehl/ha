@@ -10,8 +10,8 @@
         {% endfor %}
         <tr>
         <td><div class=label>{{ spa.label }}</div></td>
-        <td><div id="{{ spa.name }}" class="{{ spa.type+'_'+views.getViewState(spa) }}">{{ views.getViewState(spa) }}</div></td>
-        <td><div id="{{ spaTemp.name }}" class="{{ spaTemp.name }}">{{ views.getViewState(spaTemp) }}</div></td>
+        <td><div id="{{ spa.name.replace(".", "_") }}" class="{{ spa.type+'_'+views.getViewState(spa) }}">{{ views.getViewState(spa) }}</div></td>
+        <td><div id="{{ spaTemp.name.replace(".", "_") }}" class="{{ spaTemp.name.replace(".", "_") }}">{{ views.getViewState(spaTemp) }}</div></td>
         <td>
             <div class=control>
             <form name='control' action='' method='get'>

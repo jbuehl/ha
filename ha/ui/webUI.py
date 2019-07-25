@@ -135,16 +135,17 @@ class WebRoot(object):
                 state = self.resources.getRes(resource).getState()
                 resState = views.getViewState(self.resources.getRes(resource))
                 resClass = self.resources.getRes(resource).type
+                jqueryName = resource.replace(".", "_") # jquery doesn't like periods in names
                 debug('debugWebUpdate', "/updateStates", resource, resClass, resState, state)
                 if resClass in tempTypes:
-                    updates[resource] = ("temp", resState)
+                    updates[jqueryName] = ("temp", resState)
                 else:
                     if resClass not in staticTypes:
                         resClass += "_"+resState
-                    updates[resource] = (resClass, resState)
+                    updates[jqueryName] = (resClass, resState)
                 if (resource in blinkers) and (state > 0):
                     debug('debugWebBlink', "/updateStates", resource, resClass, resState, state)
-                    blinkerList.append(resource)
+                    blinkerList.append(jqueryName)
             except:
                 pass
         debug('debugWebBlink', "/updateStates", blinkerList)

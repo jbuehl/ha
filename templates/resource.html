@@ -7,9 +7,9 @@
 
         <td>
         <!-- label-->
-        {% if label %} 
+        {% if label %}
             <div class=label style=text-indent:{{ indent }}px>{{ bullet }}{{ label }}</div>
-        {% else %} 
+        {% else %}
             <div class=label style=text-indent:{{ indent }}px>{{ bullet }}{{ resource.label }}</div>
         {% endif %}
         {% if not stack %}
@@ -17,8 +17,8 @@
         <!-- state-->
         <td>
         {% endif %}
-            <div id="{{ resource.name }}" 
-                 class="{{ resource.name }} 
+            <div id="{{ resource.name.replace(".", "_") }}"
+                 class="{{ resource.name.replace(".", "_") }} 
                         {{ resource.type+'_'+views.getViewState(resource) }}
                         {% if dimmed %} dimmed {% endif %}">{{ views.getViewState(resource) }}</div>
         </td>
@@ -33,10 +33,10 @@
                 {% endfor %}
             </form>
                 {% if resource.className == "Task" %}
-                    <div class=task>{{ resource.__str__().replace(",","<br>") }}</div>
+                    <div class=task>{{ resource.__str__().replace(",", "<br>") }}</div>
                 {% endif %}
                 {% if resource.className == "Sequence" %}
-                    <div class=sequence>{{ resource.__str__().replace(",","<br>") }}</div>
+                    <div class=sequence>{{ resource.__str__().replace(",", "<br>") }}</div>
                 {% endif %}
             </div>
             {% endif %}
@@ -49,4 +49,3 @@
         <td><div class=data>{{ resource.addr }}</div></td>
         <td><div class=data>{{ resource.location }}</div></td>
         {% endif %}
-

@@ -5,7 +5,7 @@
 <head>
     <title>{{ title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel='stylesheet' type='text/css' href='/css/ipad.css'> 
+    <link rel='stylesheet' type='text/css' href='/css/ipad.css'>
     <script src='/js/jquery.js'></script>
     <script src='/js/update.js'></script>
     {{ script }}
@@ -18,14 +18,14 @@
         <tr>
             <td><div class=location>{{ location }}</div>
                 <div>
-                <span id="{{ time.name }}" class="time">{{ views.getViewState(time) }}</span>
-                <span id="{{ ampm.name }}" class="ampm">{{ views.getViewState(ampm) }}</span>
-                <span id="{{ day.name }}" class="date">{{ views.getViewState(day) }}</span>
+                <span id="{{ time.name.replace(".", "_") }}" class="time">{{ views.getViewState(time) }}</span>
+                <span id="{{ ampm.name.replace(".", "_") }}" class="ampm">{{ views.getViewState(ampm) }}</span>
+                <span id="{{ day.name.replace(".", "_") }}" class="date">{{ views.getViewState(day) }}</span>
                 </div>
             </td>
-            <td>Pool<div id="{{ pooltemp.name }}" class="{{ pooltemp.name }}">{{ views.getViewState(pooltemp) }}</div></td>
-            <td>Outside<div id="{{ outtemp.name }}" class="{{ outtemp.name }}">{{ views.getViewState(outtemp) }}</div></td>
-            <td>Humidity<div id="{{ humidity.name }}" class="humidity">{{ views.getViewState(humidity) }}</div></td>
+            <td>Pool<div id="{{ pooltemp.name.replace(".", "_") }}" class="{{ pooltemp.name.replace(".", "_") }}">{{ views.getViewState(pooltemp) }}</div></td>
+            <td>Outside<div id="{{ outtemp.name.replace(".", "_") }}" class="{{ outtemp.name.replace(".", "_") }}">{{ views.getViewState(outtemp) }}</div></td>
+            <td>Humidity<div id="{{ humidity.name.replace(".", "_") }}" class="humidity">{{ views.getViewState(humidity) }}</div></td>
         </tr>
     </table>
     <table border=0 width={{ widths[1][0] }} style='table-layout:fixed'>
@@ -47,4 +47,3 @@
     </table>
 </body>
 </html>
-

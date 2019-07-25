@@ -4,7 +4,7 @@
 <head>
     <title>{{ title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel='stylesheet' type='text/css' href='/css/iphone3gs.css'> 
+    <link rel='stylesheet' type='text/css' href='/css/iphone3gs.css'>
     <script src='/js/jquery.js'></script>
     <script src='/js/update.js'></script>
     {{ script }}
@@ -14,15 +14,15 @@
         <table border=0 width={{ widths[0][0] }} style='table-layout:fixed'>
             {% for w in widths[0][1] %}<col width={{ w }}>{% endfor %}
             <tr>
-                <td><div id="{{ time.name }}" class="time">{{ views.getViewState(time) }}</div></td>
-                <td><div id="{{ ampm.name }}" class="ampm">{{ views.getViewState(ampm) }}</div></td>
+                <td><div id="{{ time.name.replace(".", "_") }}" class="time">{{ views.getViewState(time) }}</div></td>
+                <td><div id="{{ ampm.name.replace(".", "_") }}" class="ampm">{{ views.getViewState(ampm) }}</div></td>
             </tr>
         </table>
         <table border=0 width={{ widths[1][0] }} style='table-layout:fixed'>
             {% for w in widths[1][1] %}<col width={{ w }}>{% endfor %}
             <tr>
-                <td><div id="{{ day.name }}" class="date">{{ views.getViewState(day) }}</div></td>
-                <td><div id="{{ temp.name }}" class="{{ temp.name }} tempF">{{ views.getViewState(temp) }}</div></td>
+                <td><div id="{{ day.name.replace(".", "_") }}" class="date">{{ views.getViewState(day) }}</div></td>
+                <td><div id="{{ temp.name.replace(".", "_") }}" class="{{ temp.name.replace(".", "_") }} tempF">{{ views.getViewState(temp) }}</div></td>
             </tr>
         </table>
     </div>
@@ -35,10 +35,9 @@
             </tr>
             {% endfor %}
         </table>
-        
+
     <div class="dimmed">
         {{ hvac }}
     </div>
 </body>
 </html>
-

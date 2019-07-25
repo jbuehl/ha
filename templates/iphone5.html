@@ -6,7 +6,7 @@
 <head>
     <title>{{ title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel='stylesheet' type='text/css' href='/css/iphone5.css'> 
+    <link rel='stylesheet' type='text/css' href='/css/iphone5.css'>
     <script src='/js/jquery.js'></script>
     <script src='/js/update.js'></script>
     {{ script }}
@@ -17,9 +17,9 @@
         <col width={{ w }}>
         {% endfor %}
         <tr>
-            <td><div id="{{ time.name }}" class="time">{{ views.getViewState(time) }}</div></td>
-            <td><div id="{{ ampm.name }}" class="ampm">{{ views.getViewState(ampm) }}</div></td>
-            <td><div id="{{ temp.name }}" class="tempF {{ temp.name }}">{{ views.getViewState(temp) }}</div></td>
+            <td><div id="{{ time.name.replace(".", "_") }}" class="time">{{ views.getViewState(time) }}</div></td>
+            <td><div id="{{ ampm.name.replace(".", "_") }}" class="ampm">{{ views.getViewState(ampm) }}</div></td>
+            <td><div id="{{ temp.name.replace(".", "_") }}" class="tempF {{ temp.name.replace(".", "_") }}">{{ views.getViewState(temp) }}</div></td>
         </tr>
     </table>
     {{ spaTemplate.render(templates=templates, widths=widths[1], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=2, views=views) }}
@@ -36,4 +36,3 @@
     </table>
 </body>
 </html>
-

@@ -12,17 +12,16 @@
         {% endfor %}
         <tr>
         <td><div class=label>Power production</div></td>
-        <td><div id="{{ power.name }}" class=KW>{{ views.getViewState(power) }}</div></td>
+        <td><div id="{{ power.name.replace(".", "_") }}" class=KW>{{ views.getViewState(power) }}</div></td>
         <td><div class=rlabel>Load</div></td>
-        <td><div id="{{ load.name }}" class=KVA>{{ views.getViewState(load) }}</div></td>
+        <td><div id="{{ load.name.replace(".", "_") }}" class=KVA>{{ views.getViewState(load) }}</div></td>
         <td><div class=rlabel>Voltage</div></td>
-        <td><div id="{{ voltage.name }}" class=V>{{ views.getViewState(voltage) }}</div></td>
+        <td><div id="{{ voltage.name.replace(".", "_") }}" class=V>{{ views.getViewState(voltage) }}</div></td>
         </tr>
         <tr>
         <td><div class=label>Energy today</div></td>
-        <td><div id="{{ energy.name }}" class=KWh>{{ views.getViewState(energy) }}</div></td>
+        <td><div id="{{ energy.name.replace(".", "_") }}" class=KWh>{{ views.getViewState(energy) }}</div></td>
         <td><div class=rlabel>Lifetime</div></td>
-        <td><div id="{{ lifetime.name }}" class=MWh>{{ views.getViewState(lifetime) }}</div></td>
+        <td><div id="{{ lifetime.name.replace(".", "_") }}" class=MWh>{{ views.getViewState(lifetime) }}</div></td>
         </tr>
     </table>
-
