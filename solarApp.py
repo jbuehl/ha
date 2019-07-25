@@ -68,20 +68,6 @@ if __name__ == "__main__":
     fileInterface = FileInterface("File", fileName=solarFileName, readOnly=True, event=stateChangeEvent)
     solarInterface = SolarInterface("Solar", fileInterface)
 
-    # # Old devices
-    # for inverter in inverters.keys():
-    #     resources.addRes(SolarSensor("inverters."+inverter+".Pac", fileInterface, "inverters."+inverter+".Pac", group=["Solar", "Inverters"], type="KW", label=inverter, location=inverters[inverter]))
-    #     resources.addRes(SolarSensor("inverters."+inverter+".Eac", fileInterface, "inverters."+inverter+".Eac", group=["Solar", "Inverters"], type="KWh", label="Inverter "+inverter+" energy", location=inverters[inverter]))
-    # for optimizer in optimizers.keys():
-    #     resources.addRes(SolarSensor("optimizers."+optimizer, fileInterface, "optimizers."+optimizer+".Pac", group=["Optimizers"], type="W", label=optimizer, location=optimizers[optimizer]))
-    #     resources.addRes(SolarSensor("optimizers."+optimizer+"-E", fileInterface, "optimizers."+optimizer+".Eac", group=["Optimizers"], type="KWh", label="Optimizer "+optimizer+" energy", location=optimizers[optimizer]))
-    # resources.addRes(SolarSensor("inverters.stats.Temp", fileInterface, "inverters.stats.Temp", group=["Solar", "Temperature"], label="Inverter temp", type="tempC"))
-    # resources.addRes(SolarSensor("optimizers.stats.Temp", fileInterface, "optimizers.stats.Temp", group=["Solar", "Temperature"], label="Roof temp", type="tempC"))
-    # resources.addRes(SolarSensor("inverters.stats.Vac", fileInterface, "inverters.stats.Vac", group=["Solar", "Power"], label="Current voltage", type="V"))
-    # resources.addRes(SolarSensor("inverters.stats.Pac", fileInterface, "inverters.stats.Pac", group=["Solar", "Power"], label="Current power", type="KW"))
-    # resources.addRes(SolarSensor("inverters.stats.Eday", fileInterface, "inverters.stats.Eday", group=["Solar", "Power"], label="Energy today", type="KWh"))
-    # resources.addRes(SolarSensor("inverters.stats.Etot", fileInterface, "inverters.stats.Etot", group=["Solar", "Power"], label="Lifetime energy", type="MWh"))
-
     # Devices
     for inverter in inverters.keys():
         resources.addRes(SolarSensor("solar.inverters."+inverter+".power", fileInterface, "inverters."+inverter+"Pac",
