@@ -75,22 +75,22 @@
                 </div>
             </div>
         {% for inv in inverters %}
-            {% if inv.name[-2:] != "-E" %}
+            {% if inv.name[-5:] == "power" %}
             <div class="inverter" style="position:absolute; top:{{ inv.location[0] }}px; left:{{ inv.location[1] }}px" >
-                <div class="inverterName">{{ inv.label }}</div>
+                <div class="inverterName">{{ inv.label.split()[0] }}</div>
                 <div id="{{ inv.name.replace(".", "_") }}" class="KW">{{ views.getViewState(inv) }}</div>
-            {% else %}
+            {% elif inv.name[-11:] == "dailyEnergy" %}
             <div class="inverter" style="position:absolute; top:{{ inv.location[0]+28 }}px; left:{{ inv.location[1] }}px" >
                 <div id="{{ inv.name.replace(".", "_") }}" class="KWh">{{ views.getViewState(inv) }}</div>
             {% endif %}
             </div>
         {% endfor %}
         {% for opt in optimizers %}
-            {% if opt.name[-2:] != "-E" %}
+            {% if opt.name[-5:] == "power" %}
             <div class="optimizer" style="position:absolute; top:{{ opt.location[0] }}px; left:{{ opt.location[1] }}px" >
-                <div class="optimizerName">{{ opt.label }}</div>
+                <div class="optimizerName">{{ opt.label.split()[0] }}</div>
                 <div id="{{ opt.name.replace(".", "_") }}" class="W">{{ views.getViewState(opt) }}</div>
-            {% else %}
+            {% elif opt.name[-11:] == "dailyEnergy" %}
             <div class="optimizer" style="position:absolute; top:{{ opt.location[0]+28 }}px; left:{{ opt.location[1] }}px" >
                 <div id="{{ opt.name.replace(".", "_") }}" class="KWh">{{ views.getViewState(opt) }}</div>
             {% endif %}
