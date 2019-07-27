@@ -27,15 +27,15 @@ body {
     }
 
 .stats {
-    position: absolute; 
-    top: 700px; 
+    position: absolute;
+    top: 700px;
     left: 76px;
     }
-    
+
 .statsGroup {
     margin-bottom: 12px;
     }
-    
+
 .inverter {
     }
 
@@ -43,11 +43,25 @@ body {
 	color: Turquoise;
     }
 
+.lpanel {
+    width: 75px;
+    height: 40px;
+    }
+
+.ppanel {
+    width: 75px;
+    height: 40px;
+    transform: rotate(90deg);
+    }
+
 .optimizer {
-	margin: 2px;
+	margin: 4px;
     }
 
 .optimizerName {
-	color: LimeGreen;
+	color: White;
     }
 
+.W {
+	color: White;
+    }

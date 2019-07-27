@@ -36,6 +36,10 @@ $(document).ready(function() {
             $('#'+key).text(val[1]);            // set the value
             $('#'+key).css('color', tempColor(val[1]));
             }
+        else if (val[0] == 'panel') {           // set the color of a solar panel
+            $('#'+key).text(val[1]);            // set the value
+            $('#'+key+"_panel").css('background', tempColor(parseInt(val[1]) / 2));
+            }
         else if (val[0] == 'sound') {           // play a sound if one is specified
             if (val[1] == 'On') {
                 if (!soundPlaying) {            // only play the sound once when transitioning to On

@@ -139,6 +139,8 @@ class WebRoot(object):
                 debug('debugWebUpdate', "/updateStates", resource, resClass, resState, state)
                 if resClass in tempTypes:
                     updates[jqueryName] = ("temp", resState)
+                elif (resource[0:16] == "solar.optimizers") and (resource[-5:] == "power"):
+                    updates[jqueryName] = ("panel", resState)
                 else:
                     if resClass not in staticTypes:
                         resClass += "_"+resState

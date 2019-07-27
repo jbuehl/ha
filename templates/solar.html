@@ -79,22 +79,33 @@
             <div class="inverter" style="position:absolute; top:{{ inv.location[0] }}px; left:{{ inv.location[1] }}px" >
                 <div class="inverterName">{{ inv.label.split()[0] }}</div>
                 <div id="{{ inv.name.replace(".", "_") }}" class="KW">{{ views.getViewState(inv) }}</div>
+            </div>
             {% elif inv.name[-11:] == "dailyEnergy" %}
             <div class="inverter" style="position:absolute; top:{{ inv.location[0]+28 }}px; left:{{ inv.location[1] }}px" >
                 <div id="{{ inv.name.replace(".", "_") }}" class="KWh">{{ views.getViewState(inv) }}</div>
-            {% endif %}
             </div>
+            {% endif %}
         {% endfor %}
         {% for opt in optimizers %}
             {% if opt.name[-5:] == "power" %}
-            <div class="optimizer" style="position:absolute; top:{{ opt.location[0] }}px; left:{{ opt.location[1] }}px" >
-                <div class="optimizerName">{{ opt.label.split()[0] }}</div>
-                <div id="{{ opt.name.replace(".", "_") }}" class="W">{{ views.getViewState(opt) }}</div>
-            {% elif opt.name[-11:] == "dailyEnergy" %}
+            <div id="{{ opt.name.replace(".", "_")+"_panel" }}"
+                    {% if opt.name[-14:-6] in ["100F71E5", "100F7255"] %}
+                    class="ppanel"
+                    style="position:absolute; top:{{ opt.location[0]+18 }}px; left:{{ opt.location[1]-17 }}px" >
+                    {% else %}
+                    class="lpanel"
+                    style="position:absolute; top:{{ opt.location[0]+1 }}px; left:{{ opt.location[1]+1 }}px" >
+                    {% endif %}
+                <div class="optimizer">
+                    <div class="optimizerName">{{ opt.label.split()[0] }}</div>
+                    <div id="{{ opt.name.replace(".", "_") }}" class="W">{{ views.getViewState(opt) }}</div>
+                </div>
+            </div>
+            <!-- {% elif opt.name[-11:] == "dailyEnergy" %}
             <div class="optimizer" style="position:absolute; top:{{ opt.location[0]+28 }}px; left:{{ opt.location[1] }}px" >
                 <div id="{{ opt.name.replace(".", "_") }}" class="KWh">{{ views.getViewState(opt) }}</div>
+            </div> -->
             {% endif %}
-            </div>
         {% endfor %}
      </div>
 </body>
