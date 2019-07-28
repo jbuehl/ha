@@ -89,10 +89,10 @@ if __name__ == "__main__":
     for optimizer in optimizers.keys():
         resources.addRes(SolarSensor("solar.optimizers."+optimizer+".power", fileInterface, "optimizers."+optimizer+".Pdc",
             group=["Power", "Solar", "Optimizers"], type="W", label=optimizer+" power", location=optimizers[optimizer]))
-        resources.addRes(SolarSensor("solar.optimizers."+optimizer+".panelCurrent", fileInterface, "optimizers."+optimizer+".Imod",
-            group=["Power", "Solar", "Optimizers"], type="A", label=optimizer+" panel current", location=optimizers[optimizer]))
-        resources.addRes(SolarSensor("solar.optimizers."+optimizer+".panelVoltage", fileInterface, "optimizers."+optimizer+".Vmod",
-            group=["Power", "Solar", "Optimizers"], type="V", label=optimizer+" panel voltage", location=optimizers[optimizer]))
+        # resources.addRes(SolarSensor("solar.optimizers."+optimizer+".panelCurrent", fileInterface, "optimizers."+optimizer+".Imod",
+        #     group=["Power", "Solar", "Optimizers"], type="A", label=optimizer+" panel current", location=optimizers[optimizer]))
+        # resources.addRes(SolarSensor("solar.optimizers."+optimizer+".panelVoltage", fileInterface, "optimizers."+optimizer+".Vmod",
+        #     group=["Power", "Solar", "Optimizers"], type="V", label=optimizer+" panel voltage", location=optimizers[optimizer]))
         resources.addRes(SolarSensor("solar.optimizers."+optimizer+".temp", fileInterface, "optimizers."+optimizer+".Temp",
             group=["Power", "Solar", "Optimizers"], type="tempC", label=optimizer+" temp", location=optimizers[optimizer]))
         resources.addRes(SolarSensor("solar.optimizers."+optimizer+".dailyEnergy", fileInterface, "optimizers."+optimizer+".Eday",
