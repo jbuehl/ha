@@ -45,7 +45,7 @@ $(document).ready(function() {
             }
         else if (val[0] == 'panel') {           // set the color of a solar panel
             $('#'+key).text(val[1]);            // set the value
-            $('#'+key+"_panel").css('background', tempColor(parseInt(val[1]), 0, 240));
+            $('#'+key+"_panel").css('background', tempColor(parseInt(val[1]), 0, 260));
             }
         else if (val[0] == 'sound') {           // play a sound if one is specified
             if (val[1] == 'On') {
