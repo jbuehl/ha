@@ -176,6 +176,15 @@ def iphone3gs():
 def solar():
     debug('debugWeb', "/solar", cherrypy.request.method)
     with resources.lock:
+        optimizers = []
+        opts = resources.getGroup("Optimizers")
+        for opt in opts:
+            if opt.name[-5:] == "power":
+                if opt.name[-14:-6] in ["100F71E5", "100F7255"]:
+                    panel = ["ppanel", opt.location[0]+18, opt.location[1]-17]
+                else:
+                    panel = ["lpanel", opt.location[0]+1, opt.location[1]+1]
+                optimizers.append([opt, resources.getRes(opt.name[0:-5]+"temp"), panel])
         return templates.get_template("solar.html").render(script="",
                             dayOfWeek=resources.getRes("theDayOfWeek"),
                             date=resources.getRes("theDate"),
@@ -195,7 +204,7 @@ def solar():
                             todaysEnergy=resources.getRes("solar.inverters.stats.dailyEnergy"),
                             lifetimeEnergy=resources.getRes("solar.inverters.stats.lifetimeEnergy"),
                             inverters=resources.getGroup("Inverters"),
-                            optimizers=resources.getGroup("Optimizers"),
+                            optimizers=optimizers,
                             views=views)
 
 # Weather

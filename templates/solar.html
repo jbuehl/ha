@@ -87,25 +87,14 @@
             {% endif %}
         {% endfor %}
         {% for opt in optimizers %}
-            {% if opt.name[-5:] == "power" %}
-            <div id="{{ opt.name.replace(".", "_")+"_panel" }}"
-                    {% if opt.name[-14:-6] in ["100F71E5", "100F7255"] %}
-                    class="ppanel"
-                    style="position:absolute; top:{{ opt.location[0]+18 }}px; left:{{ opt.location[1]-17 }}px" >
-                    {% else %}
-                    class="lpanel"
-                    style="position:absolute; top:{{ opt.location[0]+1 }}px; left:{{ opt.location[1]+1 }}px" >
-                    {% endif %}
+            <div id="{{ opt[0].name.replace(".", "_")+"_panel" }}"
+                    class = "{{ opt[2][0] }}" style="position:absolute; top:{{ opt[2][1] }}px; left:{{ opt[2][2] }}px" >
                 <div class="optimizer">
-                    <div class="optimizerName">{{ opt.label.split()[0] }}</div>
-                    <div id="{{ opt.name.replace(".", "_") }}" class="W">{{ views.getViewState(opt) }}</div>
+                    <div class="optimizerName">{{ opt[0].label.split()[0] }}</div>
+                    <div id="{{ opt[0].name.replace(".", "_") }}" class="optimizerName">{{ views.getViewState(opt[0]) }}</div>
+                    <div id="{{ opt[1].name.replace(".", "_") }}" class="optimizerName">{{ views.getViewState(opt[1]) }}</div>
                 </div>
             </div>
-            <!-- {% elif opt.name[-11:] == "dailyEnergy" %}
-            <div class="optimizer" style="position:absolute; top:{{ opt.location[0]+28 }}px; left:{{ opt.location[1] }}px" >
-                <div id="{{ opt.name.replace(".", "_") }}" class="KWh">{{ views.getViewState(opt) }}</div>
-            </div> -->
-            {% endif %}
         {% endfor %}
      </div>
 </body>
