@@ -11,10 +11,10 @@
 <body>
     <div class="image">
        <img src="/images/solar.png" />
-            <div class="stats" >
+            <div class="stats" style="position:absolute; top:600px; left:76px">
                 <div class="statsGroup">
+                    <div id="{{ date.name.replace(".", "_") }}" class="date">{{ views.getViewState(date) }}</div>
                     <div>
-                        <span id="{{ date.name.replace(".", "_") }}" class="date">{{ views.getViewState(date) }}</span>
                         <span id="{{ time.name.replace(".", "_") }}" class="time">{{ views.getViewState(time) }}</span>
                         <span id="{{ ampm.name.replace(".", "_") }}" class="ampm">{{ views.getViewState(ampm) }}</span>
                     </div>
@@ -81,7 +81,7 @@
                 <div id="{{ inv.name.replace(".", "_") }}" class="KW">{{ views.getViewState(inv) }}</div>
             </div>
             {% elif inv.name[-11:] == "dailyEnergy" %}
-            <div class="inverter" style="position:absolute; top:{{ inv.location[0]+28 }}px; left:{{ inv.location[1] }}px" >
+            <div class="inverter" style="position:absolute; top:{{ inv.location[0]+26 }}px; left:{{ inv.location[1] }}px" >
                 <div id="{{ inv.name.replace(".", "_") }}" class="KWh">{{ views.getViewState(inv) }}</div>
             </div>
             {% endif %}

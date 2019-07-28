@@ -4,15 +4,22 @@ $(document).ready(function() {
     var soundPlaying = 0;
 
     // set color of temp elements based on temp value
-    var tempColor = function(tempString){
-        temp = parseInt(tempString);
-        if      (temp > 120) {red = 252; green = 0; blue = 252;}            // magenta
-        else if (temp > 102) {red = 252; green = 0; blue = (temp-102)*14;}  // red
-        else if (temp > 84)  {red = 252; green = (102-temp)*14; blue = 0;}  // yellow
-        else if (temp > 66)  {red = (temp-66)*14; green = 252; blue = 0;}   // green
-        else if (temp > 48)  {red = 0; green = 252; blue = (66-temp)*14;}   // cyan
-        else if (temp > 30)  {red = 0; green = (temp-30)*14; blue = 252;}   // blue
-        else if (temp > 0)   { red = 0; green = 0; blue = 252;}
+    var tempColor = function(temp, min, max){
+        maxcolor = 254;
+        span = max - min;
+        step = Math.floor(span / 5);
+        incr = Math.floor(maxcolor / step);
+        step1 = min + step;
+        step2 = step1 + step;
+        step3 = step2 + step;
+        step4 = step3 + step;
+        if      (temp > max) {red = maxcolor; green = 0; blue = maxcolor;}             // magenta
+        else if (temp > step4) {red = maxcolor; green = 0; blue = (temp-step4)*incr;}  // red
+        else if (temp > step3)  {red = maxcolor; green = (step4-temp)*incr; blue = 0;} // yellow
+        else if (temp > step2)  {red = (temp-step2)*incr; green = maxcolor; blue = 0;} // green
+        else if (temp > step1)  {red = 0; green = maxcolor; blue = (step2-temp)*incr;} // cyan
+        else if (temp > min)  {red = 0; green = (temp-min)*incr; blue = maxcolor;}     // blue
+        else if (temp > 0)   {red = 0; green = 0; blue = maxcolor;}
         else                 {red = 112; green = 128; blue = 144;}
         return "rgb("+red.toString()+","+green.toString()+","+blue.toString()+")";
         }
@@ -34,11 +41,11 @@ $(document).ready(function() {
 //        $('#'+key).attr('value', val[1]);     // set the button value
         if (val[0] == 'temp') {                 // set the color of a temp item
             $('#'+key).text(val[1]);            // set the value
-            $('#'+key).css('color', tempColor(val[1]));
+            $('#'+key).css('color', tempColor(parseInt(val[1]), 30, 120));
             }
         else if (val[0] == 'panel') {           // set the color of a solar panel
             $('#'+key).text(val[1]);            // set the value
-            $('#'+key+"_panel").css('background', tempColor(parseInt(val[1]) / 2));
+            $('#'+key+"_panel").css('background', tempColor(parseInt(val[1]), 0, 240));
             }
         else if (val[0] == 'sound') {           // play a sound if one is specified
             if (val[1] == 'On') {

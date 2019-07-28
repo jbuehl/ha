@@ -18,6 +18,16 @@ body {
     text-align: left;
     }
 
+.time {
+    font-size: 12px;
+    text-align: left;
+    }
+
+.ampm {
+    font-size: 12px;
+    text-align: left;
+    }
+
 .summary {
     text-align: right;
     }
@@ -27,9 +37,6 @@ body {
     }
 
 .stats {
-    position: absolute;
-    top: 700px;
-    left: 76px;
     }
 
 .statsGroup {
