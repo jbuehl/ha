@@ -162,6 +162,7 @@ views = ViewDict(  {"none": View(),
          "nSats": View({}, "%d", intFormat),
          "power": View({}, "%d W"),
          "KVA": View({}, "%7.3f KVA", kiloFormat),
+         "KVAh": View({}, "%7.3f KVAh", kiloFormat),
          "W": View({}, "%7.1f W"),
          "V": View({}, "%4.1f V"),
          "KW": View({}, "%7.3f KW", kiloFormat),
@@ -177,5 +178,5 @@ views = ViewDict(  {"none": View(),
 
 # by default the UI will create a css class based on the state value
 # these types are the exceptions
-staticTypes = ["time", "ampm", "date", "KVA", "W", "V", "KW", "MW", "KWh", "sound"]          # types whose class does not depend on their value
+staticTypes = ["time", "ampm", "date", "KVA", "W", "V", "KW", "MW", "KWh", "KVAh", "sound"]          # types whose class does not depend on their value
 tempTypes = ["tempF", "tempFControl", "tempC", "spaTemp"]       # temperatures
