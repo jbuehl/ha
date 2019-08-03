@@ -1,7 +1,11 @@
 webLogging = False
 webReload = False
+debugWebUpdateTime = False
+debugWebStateTime = False
+debugWebStateChangeTime = False
 blinkers = []
 imageBase = "/var/ftp/images/"
+
 import json
 import subprocess
 import cherrypy
@@ -37,9 +41,57 @@ def validatePassword(realm, username, password):
 class WebRoot(object):
     def __init__(self, resources, cache, stateChangeEvent, pathDict):
         self.resources = resources
+        self.resourceStateSensor = self.resources.getRes("states")
         self.cache = cache
-        self.stateChangeEvent = stateChangeEvent
+        self.resourceStateChangeEvent = stateChangeEvent
+        self.updateStateChangeEvent = threading.Event()
+        self.updateLock = threading.Lock()
+        self.stateJson = ""     # current state and type of all sensors in json format
+        updateStatesThread = threading.Thread(target=self.updateStates)
+        updateStatesThread.start()
         self.pathDict = pathDict
+
+    # thread to update the states of the sensors in the resource collection
+    def updateStates(self):
+        while True:
+            debug('debugWebState', "updateStates", "event clear")
+            self.updateStateChangeEvent.clear()
+            # wait for sensor states to change
+            resourceStateTypes = self.resourceStateSensor.getStateChangeTypes()
+            if self.cache:
+                cacheTime = self.cache.cacheTime
+            else:
+                cacheTime = 0
+            updates = {"cacheTime": cacheTime}
+            blinkerList = []
+            for resource in resourceStateTypes.keys():
+                try:
+                    state = resourceStateTypes[resource][0] # self.resources.getRes(resource).getState()
+                    resClass = resourceStateTypes[resource][1] # self.resources.getRes(resource).type
+                    resState = views.getViewState(None, resClass, state) # views.getViewState(self.resources.getRes(resource))
+                    jqueryName = resource.replace(".", "_") # jquery doesn't like periods in names
+                    debug('debugWebUpdate', "/updateStates", resource, resClass, resState, state)
+                    if resClass in tempTypes:
+                        updates[jqueryName] = ("temp", resState)
+                    elif (resource[0:16] == "solar.optimizers") and (resource[-5:] == "power"):
+                        updates[jqueryName] = ("panel", resState)
+                    else:
+                        if resClass not in staticTypes:
+                            resClass += "_"+resState
+                        updates[jqueryName] = (resClass, resState)
+                    if (resource in blinkers) and (state > 0):
+                        debug('debugWebBlink', "/updateStates", resource, resClass, resState, state)
+                        blinkerList.append(jqueryName)
+                except:
+                    raise
+            debug('debugWebBlink', "/updateStates", blinkerList)
+            updates["blinkers"] = blinkerList
+            debug('debugWebState', "updateStates", "lock")
+            with self.updateLock:
+                self.stateJson = json.dumps(updates)
+                debug('debugWebState', "updateStates", "unlock")
+            debug('debugWebState', "updateStates", "event set")
+            self.updateStateChangeEvent.set()
 
     # convert the path into a request parameter
     # this function gets called if cherrypy doesn't find a class method that matches the path
@@ -108,51 +160,28 @@ class WebRoot(object):
     @cherrypy.expose
     def state(self, _=None):
         debug('debugWebUpdate', "/state", cherrypy.request.method)
+        debug('debugWebState', "state", "lock")
+        with self.updateLock:
+            stateJson = self.stateJson
+            debug('debugWebState', "state", "unlock")
         cherrypy.response.headers['Content-Type'] = "application/json"
-        return self.updateStates(self.resources.getRes("states").getState())
+        return stateJson
 
-    # Update the states of resources that have changed
+    # Update the states of resources when there is a change
     @cherrypy.expose
     def stateChange(self, _=None):
         debug('debugWebUpdate', "/stateChange", cherrypy.request.method)
-        debug('debugInterrupt', "update", "event wait")
-        self.stateChangeEvent.wait()
-        debug('debugInterrupt', "update", "event clear")
-        self.stateChangeEvent.clear()
+        # wait for the states to update
+        debug('debugWebState', "stateChange", "event wait")
+        self.updateStateChangeEvent.wait()
+        debug('debugWebState', "stateChange", "event clear")
+        self.updateStateChangeEvent.clear()
+        debug('debugWebState', "stateChange", "lock")
+        with self.updateLock:
+            stateJson = self.stateJson
+            debug('debugWebState', "stateChange", "unlock")
         cherrypy.response.headers['Content-Type'] = "application/json"
-        return self.updateStates(self.resources.getRes("states").getStateChange())
-
-    # return the json to update the states of the specified collection of sensors
-    def updateStates(self, resourceStates):
-        if self.cache:
-            cacheTime = self.cache.cacheTime
-        else:
-            cacheTime = 0
-        updates = {"cacheTime": cacheTime}
-        blinkerList = []
-        for resource in resourceStates.keys():
-            try:
-                state = self.resources.getRes(resource).getState()
-                resState = views.getViewState(self.resources.getRes(resource))
-                resClass = self.resources.getRes(resource).type
-                jqueryName = resource.replace(".", "_") # jquery doesn't like periods in names
-                debug('debugWebUpdate', "/updateStates", resource, resClass, resState, state)
-                if resClass in tempTypes:
-                    updates[jqueryName] = ("temp", resState)
-                elif (resource[0:16] == "solar.optimizers") and (resource[-5:] == "power"):
-                    updates[jqueryName] = ("panel", resState)
-                else:
-                    if resClass not in staticTypes:
-                        resClass += "_"+resState
-                    updates[jqueryName] = (resClass, resState)
-                if (resource in blinkers) and (state > 0):
-                    debug('debugWebBlink', "/updateStates", resource, resClass, resState, state)
-                    blinkerList.append(jqueryName)
-            except:
-                pass
-        debug('debugWebBlink', "/updateStates", blinkerList)
-        updates["blinkers"] = blinkerList
-        return json.dumps(updates)
+        return stateJson
 
     # change the state of a control
     @cherrypy.expose
