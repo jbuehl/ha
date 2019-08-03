@@ -17,8 +17,9 @@ class View(object):
         self.toggle = toggle
 
     # Return the printable string value for the state of the sensor
-    def getViewState(self, sensor):
-        state = sensor.getState()
+    def getViewState(self, sensor, state=None):
+        if sensor != None:
+            state = sensor.getState()
         try:    # run it through the transformation function
             state = self.transform(state)
         except:
@@ -58,11 +59,17 @@ class ViewDict(dict):
         self.__setitem__("", View())    # default View
 
     # Return the printable string value for the state of the sensor
-    def getViewState(self, sensor):
+    def getViewState(self, sensor=None, type=None, state=None):
         try:
-            return self.__getitem__(sensor.type).getViewState(sensor)
+            if sensor:
+                return self.__getitem__(sensor.type).getViewState(sensor)
+            else:
+                return self.__getitem__(type).getViewState(None, state)
         except KeyError:
-            return self.__getitem__("").getViewState(sensor)
+            if sensor:
+                return self.__getitem__("").getViewState(sensor)
+            else:
+                return self.__getitem__("").getViewState(None, state)
 
     # Return the printable string values for the states that can be set on the control
     def getSetValues(self, control):
