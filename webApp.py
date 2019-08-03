@@ -311,7 +311,7 @@ if __name__ == "__main__":
     schedule.start()
 
     # start the task to transmit resource metrics
-    resourceStates = ResourceStateSensor("resourceStateSensor", None, resources=resources, event=stateChangeEvent)
+    resourceStates = ResourceStateSensor("states", None, resources=resources, event=stateChangeEvent)
     startMetrics(resourceStates)
 
     # start the cache to listen for services on other servers
