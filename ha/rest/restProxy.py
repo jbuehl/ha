@@ -17,7 +17,7 @@ def setServicePorts(serviceList):
             service = "services."+service
         newServiceList.append(service)
     return newServiceList
-    
+
 def parseServiceData(data, addr):
     serviceData = json.loads(data)
     (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceStateChange, serviceSeq) = ("", "", [], 0, "", False, 0)
@@ -55,7 +55,7 @@ def parseServiceData(data, addr):
         except KeyError:
             pass
     return (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceStateChange, serviceSeq)
-                        
+
 # Autodiscover services and resources
 # Detect changes in resource configuration on each service
 # Remove resources on services that don't respond
@@ -82,7 +82,7 @@ class RestProxy(threading.Thread):
         debug('debugThread', self.name, "started")
         while running:
             # wait for a beacon message from a service
-            (data, addr) = self.socket.recvfrom(8192)   # FIXME - need to handle arbitrarily large data
+            (data, addr) = self.socket.recvfrom(32768)   # FIXME - need to handle arbitrarily large data
             debug('debugRestBeacon', self.name, "beacon data", data)
             # parse the message
             (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceStateChange, serviceSeq) = parseServiceData(data, addr)
@@ -100,14 +100,14 @@ class RestProxy(threading.Thread):
                 if serviceName not in self.services.keys():
                     # create a new service proxy
                     debug('debugRestProxyAdd', self.name, "adding", serviceName, serviceAddr, serviceTimeStamp, serviceStateChange)
-                    self.services[serviceName] = RestServiceProxy(serviceName, 
-                                                                    RestInterface(serviceName+"Interface", 
-                                                                                    serviceAddr=serviceAddr, 
-                                                                                    event=self.event, 
-                                                                                    secure=False, stateChange=serviceStateChange), 
-                                                                    addr=0, 
-                                                                    timeStamp=serviceTimeStamp, 
-                                                                    label=serviceLabel, 
+                    self.services[serviceName] = RestServiceProxy(serviceName,
+                                                                    RestInterface(serviceName+"Interface",
+                                                                                    serviceAddr=serviceAddr,
+                                                                                    event=self.event,
+                                                                                    secure=False, stateChange=serviceStateChange),
+                                                                    addr=0,
+                                                                    timeStamp=serviceTimeStamp,
+                                                                    label=serviceLabel,
                                                                     group="Services")
                     service = self.services[serviceName]
                     service.enable()
@@ -143,7 +143,7 @@ class RestProxy(threading.Thread):
         loadResourcesThread = threading.Thread(target=service.loadResources, args=(self, serviceResources, serviceTimeStamp,))
         loadResourcesThread.start()
 
-    # add the resource of the service as well as 
+    # add the resource of the service as well as
     # all the resources from the specified service to the cache
     def addResources(self, service):
         debug('debugRestProxy', self.name, "adding resources for service", service.name)
@@ -172,5 +172,3 @@ class RestProxy(threading.Thread):
         debug('debugRestLock', service.name, "unlocking")
         self.event.set()
         debug('debugInterrupt', self.name, "event set")
-
-
