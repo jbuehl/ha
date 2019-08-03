@@ -189,7 +189,7 @@ def parseInput(inRec):
         debug("debugPower", "state:", stateDict)
         lastTime = timeStamp
     except Exception as ex:
-        log("exception", str(ex), inRec)
+        log("exception", str(ex), inRec[0:40])
 
 def writeGraphite(timeStamp):
     try:
