@@ -208,42 +208,63 @@ class CalcSensor(Sensor):
                 value /+ len(self.sensors)
         return value
 
-# Sensor that returns the states of all sensors in a list of resources
+# Sensor that contains the states of all sensors in a list of resources
 class ResourceStateSensor(Sensor):
     objectArgs = ["interface", "event", "resources"]
     def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None):
         Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.resources = resources
-        self.states = {}    # current sensor states
+        self.states = {}        # dictionary of current sensor states
+        self.stateTypes = {}    # dictionary of (state, type)
 
     # return the current state of all sensors in the collection
     def getState(self):
-        self.getStates(self.resources)
-        debug('debugStateChange', self.name, "getState", self.states)
+        self.getStates()
         return self.states
 
-    # return the current state of all sensors in the specified collection
-    def getStates(self, resources):
-        for sensor in resources.values():
+    # return the current state and type of all sensors in the collection
+    def getStateTypes(self):
+        self.getStates()
+        return self.stateTypes
+
+    # update the current state and type of all sensors in theresource collection
+    def getStates(self):
+        self.states = {}    # current sensor states
+        self.stateTypes = {}
+        for sensor in self.resources.values():
             if sensor != self:
-                if (sensor.type == "schedule") or (sensor.type == "collection"):   # recurse into schedules and collections
+                sensorName = sensor.name
+                sensorType = sensor.type
+                if sensorType in ["schedule", "collection"]:   # recurse into schedules and collections
                     self.getStates(sensor)
                 elif sensor.getStateType() != dict:     # sensor has a scalar state
-                    self.states[sensor.name] = sensor.getState()
+                    sensorState = sensor.getState()
                 else:                                   # sensor has a complex state
-                    self.states[sensor.name] = sensor.getState()["contentType"]
+                    sensorState = sensor.getState()["contentType"]
+            self.states[sensorName] = sensorState
+            self.stateTypes[sensorName] = (sensorState, sensorType)
 
-    # return the state of any sensors that have changed since the last getState() call
-    def getStateChange(self):
-        debug('debugInterrupt', self.name, "getStateChange")
-        if self.event:      # wait for state change event
+    # wait for a sensor state to change
+    def waitStateChange(self):
+        if self.event:
             debug('debugInterrupt', self.name, "wait", self.event)
             self.event.wait()
             debug('debugInterrupt', self.name, "clear", self.event)
             self.event.clear()
         else:               # no event specified, return periodically
             time.sleep(stateChangeInterval)
+
+    # return the current state of all sensors when at least one of them changes
+    def getStateChange(self):
+        debug('debugInterrupt', self.name, "getStateChange")
+        self.waitStateChange()
         return self.getState()
+
+    # return the current state and type of all sensors when at least one of them changes
+    def getStateChangeTypes(self):
+        debug('debugInterrupt', self.name, "getStateChange")
+        self.waitStateChange()
+        return self.getStateTypes()
 
 # Control that can only be turned on if all the specified resources are in the specified states
 class DependentControl(Control):
