@@ -91,8 +91,12 @@ class Sequence(Control):
                 return
         debug('debugThread', self.name, cycle.control.name, "started")
         cycle.control.setState(cycle.startState)
-        if cycle.duration > 0:
-            self.wait(cycle.duration)
+        if isinstance(cycle.duration, int):         # duration is specified directly
+            duration = cycle.duration
+        elif isinstance(cycle.duration, Sensor):    # duration is a sensor
+            duration = cycle.duration.getState()
+        if duration > 0:
+            self.wait(duration)
             cycle.control.setState(cycle.endState)
         debug('debugThread', self.name, cycle.control.name, "finished")
 
