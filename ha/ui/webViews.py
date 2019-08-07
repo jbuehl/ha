@@ -107,6 +107,9 @@ def tempFormat(value):
     else:
         return "%d F"%(int(value+.5))
 
+def timeFormat(value):
+    return "%d:%02d"%(int(value)/60, value%60)
+
 def secsFormat(value):
     (m, s) = divmod(value, 60)
     (h, m) = divmod(m, 60)
@@ -130,6 +133,7 @@ views = ViewDict(  {"none": View(),
          "tempC": View({}, "%d F", ctofFormat),
          "tempF": View({}, "%d F", tempFormat),
          "tempFControl": View({}, "%d F", tempFormat, OrderedDict([(-1,"v"), (+1,"^")])),
+         "timeControl": View({}, "%d:%d", timeFormat, OrderedDict([(-1,"v"), (+1,"^")])),
          "audioVolume": View({}, "%d%%", None, OrderedDict([(-5,"v"), (+5,"^")])),
          "audioMute": View({0:"X", 1:"*"}, "%s", None, {0:"*", 1:"X"}, True),
          "wifi": View({0:"Off", 1:"On"}, "%s", None, {0:"On", 1:"Off"}, True),
