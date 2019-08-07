@@ -41,7 +41,10 @@ class View(object):
             value = self.setValues.keys()[self.setValues.values().index(dispValue)]
             if dispValue in ["-", "v", "+", "^"]:   # increment or decrement current state by the value
                 debug("debugState", "View", "setViewState", "incrementing", control.name, str(value))
-                control.setState(control.getState() + value)
+                newState = control.getState() + value
+                if newState < 0:                    # don't allow negative states
+                    newState =  0
+                control.setState(newState)
             else:
                 debug("debugState", "View", "setViewState", "setting", control.name, str(value))                                   # set it to the value
                 control.setState(value)
