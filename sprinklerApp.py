@@ -1,5 +1,11 @@
 tempSensorServices = []
 tempSensorName = "outsideTemp"
+sideBedTimeDefault = 600
+frontLawnTimeDefault = 1200
+frontBedTimeDefault = 3600
+gardenTimeDefault = 120
+backLawnTimeDefault = 1200
+backBedTimeDefault = 600
 
 from ha import *
 from ha.interfaces.fileInterface import *
@@ -25,7 +31,27 @@ if __name__ == "__main__":
     minTemp = MinSensor("minTemp", stateInterface, tempSensor, group="Weather", type="tempF", label="Min temp")
     maxTemp = MaxSensor("maxTemp", stateInterface, tempSensor, group="Weather", type="tempF", label="Max temp")
 
-    # Sprinklers
+    # Sprinkler times
+    sideBedTime = Control("sideBedTime", stateInterface, "sideBedTime", group="Sprinklers", label="Side beds time", type="timeControl")
+    frontLawnTime = Control("frontLawnTime", stateInterface, "frontLawnTime", group="Sprinklers", label="Front lawn time", type="timeControl")
+    frontBedTime = Control("frontBedTime", stateInterface, "frontBedTime", group="Sprinklers", label="Front beds time", type="timeControl")
+    gardenTime = Control("gardenTime", stateInterface, "gardenTime", group="Sprinklers", label="Garden time", type="timeControl")
+    backLawnTime = Control("backLawnTime", stateInterface, "backLawnTime", group="Sprinklers", label="Back lawn time", type="timeControl")
+    backBedTime = Control("backBedTime", stateInterface, "backBedTime", group="Sprinklers", label="Back beds time", type="timeControl")
+    if not sideBedTime.getState():
+        sideBedTime.setState(sideBedTimeDefault)
+    if not frontLawnTime.getState():
+        frontLawnTime.setState(frontLawnTimeDefault)
+    if not frontBedTime.getState():
+        frontBedTime.setState(frontBedTimeDefault)
+    if not gardenTime.getState():
+        gardenTime.setState(gardenTimeDefault)
+    if not backLawnTime.getState():
+        backLawnTime.setState(backLawnTimeDefault)
+    if not backBedTime.getState():
+        backBedTime.setState(backBedTimeDefault)
+
+    # Sprinkler valves
     sideBeds = Control("sideBeds", gpioInterface, 1, group="Sprinklers", label="Side beds valve") # red
     frontLawn = Control("frontLawn", gpioInterface, 2, group="Sprinklers", label="Front lawn valve") # yellow
     frontBeds = Control("frontBeds", gpioInterface, 3, group="Sprinklers", label="Front beds valve") # green
@@ -34,14 +60,14 @@ if __name__ == "__main__":
     backBeds = Control("backBeds", gpioInterface, 7, group="Sprinklers", label="Back beds valve") # blue
 
     # Sequences
-    sideBedSequence = Sequence("sideBedSequence", [Cycle(sideBeds, 600)], group="Sprinklers", label="Side beds")
-    frontLawnSequence = Sequence("frontLawnSequence", [Cycle(frontLawn, 1200)], group="Sprinklers", label="Front lawn")
+    sideBedSequence = Sequence("sideBedSequence", [Cycle(sideBeds, sideBedTime)], group="Sprinklers", label="Side beds")
+    frontLawnSequence = Sequence("frontLawnSequence", [Cycle(frontLawn, frontLawnTime)], group="Sprinklers", label="Front lawn")
     frontLawnHotSequence = DependentControl("frontLawnHotSequence", None, frontLawnSequence, [(maxTemp, ">", 95)])
-    frontBedSequence = Sequence("frontBedSequence", [Cycle(frontBeds, 3600)], group="Sprinklers", label="Front beds")
-    backLawnSequence = Sequence("backLawnSequence", [Cycle(backLawn, 1200)], group="Sprinklers", label="Back lawn")
+    frontBedSequence = Sequence("frontBedSequence", [Cycle(frontBeds, frontBedTime)], group="Sprinklers", label="Front beds")
+    gardenSequence = Sequence("gardenSequence", [Cycle(garden, gardenTime)], group="Sprinklers", label="Garden")
+    backLawnSequence = Sequence("backLawnSequence", [Cycle(backLawn, backLawnTime)], group="Sprinklers", label="Back lawn")
     backLawnHotSequence = DependentControl("backLawnHotSequence", None, backLawnSequence, [(maxTemp, ">", 95)])
-    gardenSequence = Sequence("gardenSequence", [Cycle(garden, 120)], group="Sprinklers", label="Garden")
-    backBedSequence = Sequence("backBedSequence", [Cycle(backBeds, 600)], group="Sprinklers", label="Back beds")
+    backBedSequence = Sequence("backBedSequence", [Cycle(backBeds, backBedTime)], group="Sprinklers", label="Back beds")
     backBedHotSequence = DependentControl("backBedHotSequence", None, backBedSequence, [(tempSensor, ">", 90)])
     backBedHotterSequence = DependentControl("backBedHotterSequence", None, backBedSequence, [(maxTemp, ">", 100)])
 
@@ -78,6 +104,7 @@ if __name__ == "__main__":
     # Resources
     resources = Collection("resources", resources=[minTemp, maxTemp,
                                                    frontLawn, frontBeds, garden, backLawn, sideBeds, backBeds,
+                                                   frontLawnTime, frontBedTime, gardenTime, backLawnTime, sideBedTime, backBedTime,
                                                    frontLawnSequence, frontLawnHotSequence, frontBedSequence, gardenSequence,
                                                    backLawnSequence, backLawnHotSequence, sideBedSequence, backBedSequence,
                                                    backBedHotSequence, backBedHotterSequence,
