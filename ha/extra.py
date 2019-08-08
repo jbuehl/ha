@@ -39,7 +39,7 @@ class Sequence(Control):
             if isinstance(obj, Cycle):
                 cycleList.append(obj)
             elif isinstance(obj, Sequence):
-                cycleList.append(obj.getCycles())
+                cycleList += obj.getCycles()
         return cycleList
 
     def getState(self):
