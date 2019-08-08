@@ -28,12 +28,14 @@ class Sequence(Control):
     objectArgs = ["interface", "event", "cycleList"]
     def __init__(self, name, cycleList=[], addr=None, interface=None, event=None, group="", type="sequence", label="", location=None):
         Control.__init__(self, name, addr=addr, interface=interface, event=event, group=group, type=type, label=label, location=location)
-        self.cycleList = self.getCycles(cycleList)
+        self.cycleList = cycleList
+        self.cycleList = self.getCycles()   # convert possible Sequences to Cycles
         self.running = False
 
-    def getCycles(self, objList):
+    # if the list of Cycles contains Sequences, convert to Cycles
+    def getCycles(self):
         cycleList = []
-        for obj in objList:
+        for obj in self.cycleList:
             if isinstance(obj, Cycle):
                 cycleList.append(obj)
             elif isinstance(obj, Sequence):
