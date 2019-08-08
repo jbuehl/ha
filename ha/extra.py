@@ -289,6 +289,9 @@ class DependentControl(Control):
         self.control = control
         self.conditions = conditions
 
+    def getState(self):
+        return self.control.getState()
+
     def setState(self, state, wait=False):
         debug('debugState', self.name, "setState ", state)
         for (sensor, condition, value) in self.conditions:
