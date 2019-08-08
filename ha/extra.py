@@ -17,7 +17,7 @@ class Cycle(object):
     def __str__(self):
         return self.control.name+" "+self.duration.__str__()+" "+self.delay.__str__()+" "+self.startState.__str__()+" "+self.endState.__str__()
 
-# a Sequence is a Control that consists of a list of Cycles that are run in the specified order
+# a Sequence is a Control that consists of a list of Cycles or Sequences that are run in the specified order
 
 sequenceStop = 0
 sequenceStart = 1
@@ -28,8 +28,17 @@ class Sequence(Control):
     objectArgs = ["interface", "event", "cycleList"]
     def __init__(self, name, cycleList=[], addr=None, interface=None, event=None, group="", type="sequence", label="", location=None):
         Control.__init__(self, name, addr=addr, interface=interface, event=event, group=group, type=type, label=label, location=location)
-        self.cycleList = cycleList
+        self.cycleList = self.getCycles(cycleList)
         self.running = False
+
+    def getCycles(self, objList):
+        cycleList = []
+        for obj in objList:
+            if isInstance(obj, Cycle):
+                cycleList.append(obj)
+            elif isinstance(obj, Sequence):
+                cycleList.append(obj.getCycles())
+        return cycleList
 
     def getState(self):
         if self.interface.name == "None":
