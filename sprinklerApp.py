@@ -1,5 +1,10 @@
 tempSensorServices = []
 tempSensorName = "outsideTemp"
+initialMinTemp = 999
+initialMaxTemp = 0
+
+startTimeDefault = 18*60    # sprinkler start time in minutes past midnight
+hotTempDefault = 100        # temperature threshold to run extra
 sideBedTimeDefault = 600
 frontLawnTimeDefault = 1200
 frontBedTimeDefault = 3600
@@ -26,10 +31,11 @@ if __name__ == "__main__":
     stateInterface = FileInterface("stateInterface", fileName=stateDir+"sprinklers.state", event=stateChangeEvent)
 
     # Sensors
-    stateInterface.start()
     tempSensor = SensorGroup("tempSensor", [tempSensorName], resources=cacheResources)
     minTemp = MinSensor("minTemp", stateInterface, tempSensor, group="Weather", type="tempF", label="Min temp")
     maxTemp = MaxSensor("maxTemp", stateInterface, tempSensor, group="Weather", type="tempF", label="Max temp")
+    startTime = Control("startTime", stateInterface, "startTime", group="Sprinklers", type="timeControl", label="Sprinkler start time")
+    hotTemp = Control("hotTemp", stateInterface, "hotTemp", group="Sprinklers", type="tempFControl", label="Hot temp threshold")
 
     # Sprinkler times
     sideBedTime = Control("sideBedTime", stateInterface, "sideBedTime", group="Sprinklers", label="Side beds time", type="timeControl")
@@ -38,6 +44,17 @@ if __name__ == "__main__":
     gardenTime = Control("gardenTime", stateInterface, "gardenTime", group="Sprinklers", label="Garden time", type="timeControl")
     backLawnTime = Control("backLawnTime", stateInterface, "backLawnTime", group="Sprinklers", label="Back lawn time", type="timeControl")
     backBedTime = Control("backBedTime", stateInterface, "backBedTime", group="Sprinklers", label="Back beds time", type="timeControl")
+
+    # initialize states
+    stateInterface.start()
+    if not startTime.getState():
+        startTime.setState(startTimeDefault)
+    if not hotTemp.getState():
+        hotTemp.setState(hotTempDefault)
+    if not minTemp.getState():
+        minTemp.setState(initialMinTemp)
+    if not maxTemp.getState():
+        maxTemp.setState(initialMaxTemp)
     if not sideBedTime.getState():
         sideBedTime.setState(sideBedTimeDefault)
     if not frontLawnTime.getState():
@@ -62,57 +79,40 @@ if __name__ == "__main__":
     # Sequences
     sideBedSequence = Sequence("sideBedSequence", [Cycle(sideBeds, sideBedTime)], group="Sprinklers", label="Side beds")
     frontLawnSequence = Sequence("frontLawnSequence", [Cycle(frontLawn, frontLawnTime)], group="Sprinklers", label="Front lawn")
-    frontLawnHotSequence = DependentControl("frontLawnHotSequence", None, frontLawnSequence, [(maxTemp, ">", 95)])
     frontBedSequence = Sequence("frontBedSequence", [Cycle(frontBeds, frontBedTime)], group="Sprinklers", label="Front beds")
     gardenSequence = Sequence("gardenSequence", [Cycle(garden, gardenTime)], group="Sprinklers", label="Garden")
     backLawnSequence = Sequence("backLawnSequence", [Cycle(backLawn, backLawnTime)], group="Sprinklers", label="Back lawn")
-    backLawnHotSequence = DependentControl("backLawnHotSequence", None, backLawnSequence, [(maxTemp, ">", 95)])
     backBedSequence = Sequence("backBedSequence", [Cycle(backBeds, backBedTime)], group="Sprinklers", label="Back beds")
-    backBedHotSequence = DependentControl("backBedHotSequence", None, backBedSequence, [(tempSensor, ">", 90)])
-    backBedHotterSequence = DependentControl("backBedHotterSequence", None, backBedSequence, [(maxTemp, ">", 100)])
 
-    # Schedules
-    resetMinTempTask = Task("resetMinTempTask", SchedTime(hour=0, minute=0), minTemp, 999, enabled=True)
-    resetMaxTempTask = Task("resetMaxTempTask", SchedTime(hour=0, minute=0), maxTemp, 0, enabled=True)
+    dailySequence = Sequence("dailySequence", [frontLawnSequence, backLawnSequence, backBedSequence, sideBedSequence], group="Sprinklers", label="Daily sprinklers")
+    weeklySequence = Sequence("weeklySequence", [frontBedSequence, dailySequence], group="Sprinklers", label="Weekly sprinklers")
+    hotSequence = DependentControl("hotSequence", None, dailySequence, [(maxTemp, ">", hotTemp)], type="sequence", group="Sprinklers", label="Hot sprinklers")
 
-    backBedHotTask = Task("backBedHotTask", SchedTime(hour=14, minute=00, month=[Jun, Jul, Aug, Sep]), backBedHotSequence, 1, enabled=True)
-    backBedHotterTask = Task("backBedHotterTask", SchedTime(hour=16, minute=00, month=[Jun, Jul, Aug, Sep]), backBedHotterSequence, 1, enabled=True)
-
-    scheduleHour = 18
-    frontLawnTask = Task("frontLawnTask", SchedTime(hour=scheduleHour, minute=00, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]),
-                        frontLawnSequence, 1, enabled=True)
-    frontLawnHotTask = Task("frontLawnHotTask", SchedTime(hour=scheduleHour, minute=00, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep, Oct]),
-                        frontLawnHotSequence, 1, enabled=True)
-    frontBedTask = Task("frontBedTask", SchedTime(hour=scheduleHour-1, minute=00, weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]),
-                        frontBedSequence, 1, enabled=True)
-    backLawnTask = Task("backLawnTask", SchedTime(hour=scheduleHour, minute=20, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]),
-                        backLawnSequence, 1, enabled=True)
-    backLawnHotTask = Task("backLawnHotTask", SchedTime(hour=scheduleHour, minute=20, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep, Oct]),
-                        backLawnHotSequence, 1, enabled=True)
-    gardenTask = Task("gardenTask", SchedTime(hour=scheduleHour, minute=40, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep]),
-                        gardenSequence, 1, enabled=True)
-    backBedTask = Task("backBedTask", SchedTime(hour=scheduleHour, minute=50, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]),
-                        backBedSequence, 1, enabled=True)
-    sideBedTask = Task("sideBedTask", SchedTime(hour=scheduleHour+1, minute=00, weekday=[Mon, Wed, Fri], month=[May, Jun, Jul, Aug, Sep, Oct]),
-                        sideBedSequence, 1, enabled=True)
+    # Tasks
+    resetMinTempTask = Task("resetMinTempTask", SchedTime(hour=0, minute=0), minTemp, initialMinTemp, enabled=True)
+    resetMaxTempTask = Task("resetMaxTempTask", SchedTime(hour=0, minute=0), maxTemp, initialMaxTemp, enabled=True)
+    startHour = startTime.getState() / 60
+    dailyTask = Task("dailyTask", SchedTime(hour=startHour, minute=00, weekday=[Mon, Wed], month=[May, Jun, Jul, Aug, Sep, Oct]),
+                        dailySequence, 1, enabled=True, group="Sprinklers", label="Daily sprinkler task")
+    weeklyTask = Task("weeklyTask", SchedTime(hour=startHour-1, minute=00, weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]),
+                        weeklySequence, 1, enabled=True, group="Sprinklers", label="Weekly sprinkler task")
+    hotTask = Task("hotTask", SchedTime(hour=startHour, minute=00, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep]),
+                        hotSequence, 1, enabled=True, group="Sprinklers", label="Hot sprinkler task")
 
     schedule = Schedule("schedule", tasks=[resetMinTempTask, resetMaxTempTask,
-                                           frontLawnTask, frontLawnHotTask, frontBedTask, gardenTask,
-                                           backLawnTask, backLawnHotTask,
-                                           sideBedTask, backBedTask, backBedHotTask, backBedHotterTask])
+                                           dailyTask, weeklyTask, hotTask,
+                                           ])
 
     # Resources
-    resources = Collection("resources", resources=[minTemp, maxTemp,
+    resources = Collection("resources", resources=[startTime, hotTemp, minTemp, maxTemp,
                                                    frontLawn, frontBeds, garden, backLawn, sideBeds, backBeds,
                                                    frontLawnTime, frontBedTime, gardenTime, backLawnTime, sideBedTime, backBedTime,
-                                                   frontLawnSequence, frontLawnHotSequence, frontBedSequence, gardenSequence,
-                                                   backLawnSequence, backLawnHotSequence, sideBedSequence, backBedSequence,
-                                                   backBedHotSequence, backBedHotterSequence,
+                                                   frontLawnSequence, frontBedSequence, gardenSequence,
+                                                   backLawnSequence, backBedSequence, sideBedSequence,
+                                                   dailySequence, weeklySequence, hotSequence,
+                                                   dailyTask, weeklyTask, hotTask,
                                                    resetMinTempTask, resetMaxTempTask,
-                                                   backBedHotTask, backBedHotterTask,
-                                                   frontLawnTask, frontLawnHotTask, frontBedTask,
-                                                   backLawnTask, backLawnHotTask,
-                                                   gardenTask, backBedTask, sideBedTask])
+                                                   ])
     restServer = RestServer("sprinklers", resources, event=stateChangeEvent, label="Sprinklers")
 
     # Start interfaces
