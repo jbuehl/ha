@@ -34,7 +34,7 @@ class Sequence(Control):
     def getCycles(self, objList):
         cycleList = []
         for obj in objList:
-            if isInstance(obj, Cycle):
+            if isinstance(obj, Cycle):
                 cycleList.append(obj)
             elif isinstance(obj, Sequence):
                 cycleList.append(obj.getCycles())
