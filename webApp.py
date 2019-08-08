@@ -41,8 +41,8 @@ def details(group=None):
         details = False
     except:
         groups = [[group, resources.getGroup(group)] for group in ["Time", "Weather", "Temperature",
-                    "Hvac", "Pool", "Lights", "Shades", "Doors",
-                    "Sprinklers", "Water", "Power", "Solar", "Inverters", "Optimizers", "Cameras",
+                    "Hvac", "Pool", "Lights", "Shades", "Doors", "Car",
+                    "Sprinklers", "Water", "Loads", "Solar",
                     "Services", "Tasks"]]
         details = True
     with resources.lock:
