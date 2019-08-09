@@ -8,12 +8,13 @@ import time
 
 class FileInterface(Interface):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface=None, event=None, fileName="", readOnly=False, changeMonitor=True, defaultValue=None):
+    def __init__(self, name, interface=None, event=None, fileName="", readOnly=False, changeMonitor=True, defaultValue=None, initialState={}):
         Interface.__init__(self, name, interface=interface, event=event)
         self.fileName = fileName
         self.readOnly = readOnly
         self.changeMonitor = changeMonitor
         self.defaultValue = defaultValue
+        self.initialState = initialState
 
     def start(self):
         try:
@@ -24,7 +25,7 @@ class FileInterface(Interface):
         except:
             # create a new file
             debug('debugFile', self.name, "creating", self.fileName)
-            self.data = {}
+            self.data = self.initialState
             self.writeData()
         if self.changeMonitor:
             # thread to periodically check for file changes
