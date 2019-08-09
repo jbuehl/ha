@@ -15,6 +15,7 @@ class FileInterface(Interface):
         self.changeMonitor = changeMonitor
         self.defaultValue = defaultValue
         self.initialState = initialState
+        self.lock = threading.Lock()
 
     def start(self):
         try:
@@ -41,20 +42,25 @@ class FileInterface(Interface):
             readStatesThread.start()
 
     def read(self, addr):
-        try:
-            return self.data[addr]
-        except KeyError:
-            return self.defaultValue
+        with self.lock:
+            try:
+                value = self.data[addr]
+            except KeyError:
+                value = self.defaultValue
+        return value
 
     def write(self, addr, value):
         if not self.readOnly:
-            self.data[addr] = value
+            debug('debugFile', self.name, "write", "addr", addr, "value", value)
+            with self.lock:
+                self.data[addr] = value
             self.notify()
             self.writeData()
 
     def delete(self, addr):
         if not self.readOnly:
-            del(self.data[addr])
+            with self.lock:
+                del(self.data[addr])
             self.notify()
             self.writeData()
 
@@ -70,7 +76,8 @@ class FileInterface(Interface):
     def readData(self):
         try:
             with open(self.fileName) as dataFile:
-                self.data = json.load(dataFile)
+                with self.lock:
+                    self.data = json.load(dataFile)
         except:
             log(self.name, self.fileName, "readData file read error")
         debug('debugFile', self.name, "readData", self.data)
@@ -78,5 +85,6 @@ class FileInterface(Interface):
     def writeData(self):
         debug('debugFile', self.name, "writeData", self.data)
         with open(self.fileName, "w") as dataFile:
-            json.dump(self.data, dataFile)
+            with self.lock:
+                json.dump(self.data, dataFile)
         self.mtime = time.time()
