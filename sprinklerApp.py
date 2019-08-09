@@ -3,14 +3,26 @@ tempSensorName = "outsideTemp"
 initialMinTemp = 999
 initialMaxTemp = 0
 
-startTimeDefault = 18*60    # sprinkler start time in minutes past midnight
-hotTempDefault = 100        # temperature threshold to run extra
-sideBedTimeDefault = 600
-frontLawnTimeDefault = 1200
-frontBedTimeDefault = 3600
-gardenTimeDefault = 120
-backLawnTimeDefault = 1200
-backBedTimeDefault = 600
+# startTimeDefault = 18*60    # sprinkler start time in minutes past midnight
+# hotTempDefault = 100        # temperature threshold to run extra
+# sideBedTimeDefault = 600
+# frontLawnTimeDefault = 1200
+# frontBedTimeDefault = 3600
+# gardenTimeDefault = 120
+# backLawnTimeDefault = 1200
+# backBedTimeDefault = 600
+defaultConfig = {
+    "startTime": 18*60,    # sprinkler start time in minutes past midnight
+    "hotTemp": 100,        # temperature threshold to run extra
+    "minTemp": initialMinTemp,
+    "maxTemp": initialMaxTemp,
+    "sideBedTime": 600,
+    "frontLawnTime": 1200,
+    "frontBedTime": 3600,
+    "gardenTime": 120,
+    "backLawnTime": 1200,
+    "backBedTime": 600,
+}
 
 from ha import *
 from ha.interfaces.fileInterface import *
@@ -28,12 +40,12 @@ if __name__ == "__main__":
     # Interfaces
     i2c1 = I2CInterface("i2c1", bus=1, event=stateChangeEvent)
     gpioInterface = GPIOInterface("gpio", i2c1, addr=0x20, bank=1)
-    stateInterface = FileInterface("stateInterface", fileName=stateDir+"sprinklers.state", event=stateChangeEvent)
+    stateInterface = FileInterface("stateInterface", fileName=stateDir+"sprinklers.state", event=stateChangeEvent, initialState=defaultConfig)
 
     # Sensors
     tempSensor = SensorGroup("tempSensor", [tempSensorName], resources=cacheResources)
-    minTemp = MinSensor("minTemp", stateInterface, tempSensor, group="Weather", type="tempF", label="Min temp")
-    maxTemp = MaxSensor("maxTemp", stateInterface, tempSensor, group="Weather", type="tempF", label="Max temp")
+    minTemp = MinSensor("minTemp", stateInterface, "minTemp", tempSensor, group="Weather", type="tempF", label="Min temp")
+    maxTemp = MaxSensor("maxTemp", stateInterface, "maxTemp", tempSensor, group="Weather", type="tempF", label="Max temp")
     startTime = Control("startTime", stateInterface, "startTime", group="Sprinklers", type="timeControl", label="Sprinkler start time")
     hotTemp = Control("hotTemp", stateInterface, "hotTemp", group="Sprinklers", type="tempFControl", label="Hot temp threshold")
 
@@ -47,26 +59,26 @@ if __name__ == "__main__":
 
     # initialize states
     stateInterface.start()
-    if not startTime.getState():
-        startTime.setState(startTimeDefault)
-    if not hotTemp.getState():
-        hotTemp.setState(hotTempDefault)
-    if not minTemp.getState():
-        minTemp.setState(initialMinTemp)
-    if not maxTemp.getState():
-        maxTemp.setState(initialMaxTemp)
-    if not sideBedTime.getState():
-        sideBedTime.setState(sideBedTimeDefault)
-    if not frontLawnTime.getState():
-        frontLawnTime.setState(frontLawnTimeDefault)
-    if not frontBedTime.getState():
-        frontBedTime.setState(frontBedTimeDefault)
-    if not gardenTime.getState():
-        gardenTime.setState(gardenTimeDefault)
-    if not backLawnTime.getState():
-        backLawnTime.setState(backLawnTimeDefault)
-    if not backBedTime.getState():
-        backBedTime.setState(backBedTimeDefault)
+    # if not startTime.getState():
+    #     startTime.setState(startTimeDefault)
+    # if not hotTemp.getState():
+    #     hotTemp.setState(hotTempDefault)
+    # if not minTemp.getState():
+    #     minTemp.setState(initialMinTemp)
+    # if not maxTemp.getState():
+    #     maxTemp.setState(initialMaxTemp)
+    # if not sideBedTime.getState():
+    #     sideBedTime.setState(sideBedTimeDefault)
+    # if not frontLawnTime.getState():
+    #     frontLawnTime.setState(frontLawnTimeDefault)
+    # if not frontBedTime.getState():
+    #     frontBedTime.setState(frontBedTimeDefault)
+    # if not gardenTime.getState():
+    #     gardenTime.setState(gardenTimeDefault)
+    # if not backLawnTime.getState():
+    #     backLawnTime.setState(backLawnTimeDefault)
+    # if not backBedTime.getState():
+    #     backBedTime.setState(backBedTimeDefault)
 
     # Sprinkler valves
     sideBeds = Control("sideBeds", gpioInterface, 1, group="Sprinklers", label="Side beds valve") # red
@@ -89,8 +101,8 @@ if __name__ == "__main__":
     hotSequence = DependentControl("hotSequence", None, dailySequence, [(maxTemp, ">", hotTemp)], type="sequence", group="Sprinklers", label="Hot sprinklers")
 
     # Tasks
-    resetMinTempTask = Task("resetMinTempTask", SchedTime(hour=0, minute=0), minTemp, initialMinTemp, enabled=True)
-    resetMaxTempTask = Task("resetMaxTempTask", SchedTime(hour=0, minute=0), maxTemp, initialMaxTemp, enabled=True)
+    resetMinTempTask = Task("resetMinTempTask", SchedTime(hour=9, minute=0), minTemp, initialMinTemp, enabled=True)
+    resetMaxTempTask = Task("resetMaxTempTask", SchedTime(hour=9, minute=0), maxTemp, initialMaxTemp, enabled=True)
     startHour = startTime.getState() / 60
     dailyTask = Task("dailyTask", SchedTime(hour=startHour, minute=00, weekday=[Mon, Wed], month=[May, Jun, Jul, Aug, Sep, Oct]),
                         dailySequence, 1, enabled=True, group="Sprinklers", label="Daily sprinkler task")
