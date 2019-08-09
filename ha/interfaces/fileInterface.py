@@ -47,6 +47,7 @@ class FileInterface(Interface):
                 value = self.data[addr]
             except KeyError:
                 value = self.defaultValue
+        debug('debugFile', self.name, "read", "addr", addr, "value", value)
         return value
 
     def write(self, addr, value):
