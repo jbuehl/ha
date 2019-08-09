@@ -362,6 +362,8 @@ class MinSensor(Sensor):
             self.minState = 999
 
     def getState(self):
+        if self.interface:
+            self.minState = self.interface.read(self.addr)
         sensorState = self.sensor.getState()
         if sensorState < self.minState:
             if sensorState != 0:    # FIXME
@@ -388,6 +390,8 @@ class MaxSensor(Sensor):
             self.maxState = 0
 
     def getState(self):
+        if self.interface:
+            self.maxState = self.interface.read(self.addr)
         sensorState = self.sensor.getState()
         if sensorState > self.maxState:
             self.maxState = sensorState
