@@ -47,14 +47,14 @@ class Schedule(Collection):
 
     def getState(self):
         return 1
-        
+
     def addRes(self, resource):
         Collection.addRes(self, resource)
         if resource.schedTime.event != "":
             # if an event is specified, add a child task with a specific date and time
             self.addRes(resource.child())
             debug('debugEvent', self.name, "adding", resource.child().__str__())
-        
+
     # add a task to the scheduler list
     def addTask(self, theTask):
         self.addRes(theTask)
@@ -118,7 +118,7 @@ class Schedule(Collection):
 # a Task specifies a control to be set to a specified state at a specified time
 class Task(Control):
     objectArgs =["interface", "event", "schedTime", "control"]
-    def __init__(self, name, schedTime=None, control=None, controlState=0, resources=None, parent=None, enabled=True, interface=None, addr=None, 
+    def __init__(self, name, schedTime=None, control=None, controlState=0, resources=None, parent=None, enabled=True, interface=None, addr=None,
                  type="task", group="Tasks", label=""):
         Control.__init__(self, name, interface, addr, group=group, type=type, label=label)
         self.schedTime = schedTime
@@ -148,7 +148,7 @@ class Task(Control):
         schedTime.event = ""
         schedTime.lastTime()
         return Task(self.name+"Event", schedTime, self.control, self.controlState, resources=self.resources, parent=self)
-        
+
     # dictionary of pertinent attributes
     def dict(self):
         if self.resources:      # control is resource name - FIXME - test list element type
@@ -161,14 +161,16 @@ class Task(Control):
         try:
             controlName = control.name
         except AttributeError:
-            controlName = control    
-        return {"class":self.__class__.__name__, 
-                "name":self.name, 
-                "type": self.type, 
-                "control":controlName, 
-                "controlState":self.controlState, 
+            controlName = control
+        return {"class":self.__class__.__name__,
+                "name":self.name,
+                "type": self.type,
+                "group": self.group,
+                "label": self.label,
+                "control": controlName,
+                "controlState": self.controlState,
                 "schedTime": self.schedTime.dict()}
-                    
+
     def __str__(self, views=None):
         try:
             if self.resources:      # control is resource name - FIXME - test list element type
@@ -235,7 +237,7 @@ class SchedTime(object):
         if self.minute != []:
             deltaMinutes += self.minute[0]
         return eventTime + datetime.timedelta(minutes=deltaMinutes)
-    
+
     # determine the specific time of the next occurrence of an event
     def eventTime(self, latLong):
         eventTbl = {"sunrise": sunrise,
@@ -257,12 +259,12 @@ class SchedTime(object):
 
     # dictionary of pertinent attributes
     def dict(self):
-        return {"year":self.year, 
-                "month":self.month, 
-                "day":self.day, 
-                "hour":self.hour, 
-                "minute":self.minute, 
-                "weekday":self.weekday, 
+        return {"year":self.year,
+                "month":self.month,
+                "day":self.day,
+                "hour":self.hour,
+                "minute":self.minute,
+                "weekday":self.weekday,
                 "event":self.event}
 
     # return string version of weekdays
@@ -271,14 +273,14 @@ class SchedTime(object):
         for wd in self.weekday:
             wds += [weekdayTbl[wd]]
         return wds
-    
+
     # return string version of months
     def months(self):
         ms = []
         for m in self.month:
             ms += [monthTbl[m-1]]
         return ms
-    
+
     # return the expanded list of all occurrences of the schedTime
     def enumTimes(self):
         events = [""]
@@ -304,11 +306,10 @@ class SchedTime(object):
                 for event in events:
                     newEvents += [event+delim+format%elem]
         return newEvents
-                    
+
     def __str__(self):
         events = self.enumTimes()
         msg = ""
         for event in events:
             msg += event+","
         return msg.rstrip(",")
-  
