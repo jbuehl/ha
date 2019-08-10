@@ -1,6 +1,6 @@
 defaultConfig = {
-    "backHeatTempTarget":" 65,
-    "backCoolTempTarget":" 75,
+    "backHeatTempTarget": 65,
+    "backCoolTempTarget": 75,
 }
 
 import threading
