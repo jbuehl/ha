@@ -1,5 +1,7 @@
-backHeatTempTargetDefault = 65
-backCoolTempTargetDefault = 75
+defaultConfig = {
+    "backHeatTempTarget":" 65,
+    "backCoolTempTarget":" 75,
+}
 
 import threading
 from ha import *
@@ -18,33 +20,33 @@ if __name__ == "__main__":
     # Interfaces
     nullInterface = Interface("nullInterface", event=stateChangeEvent)
     owfs = OWFSInterface("owfs", event=stateChangeEvent)
-    fileInterface = FileInterface("fileInterface", fileName=stateDir+"backhouse.state", event=stateChangeEvent)
+    fileInterface = FileInterface("fileInterface", fileName=stateDir+"backhouse.state", event=stateChangeEvent, initialState=defaultConfig)
     i2c1 = I2CInterface("i2c1", bus=1, event=stateChangeEvent)
     gpio0 = GPIOInterface("gpio0", i2c1, addr=0x20, bank=0, inOut=0xff, config=[(GPIOInterface.IPOL, 0x00)])
     gpio1 = GPIOInterface("gpio1", i2c1, addr=0x20, bank=1, inOut=0x00)
 
     # Doors
     backHouseDoor = Sensor("backHouseDoor", gpio0, 0, type="door", group=["Doors", "Hvac"], label="Back house")
-    
+
     # persistent config data
     backHeatTempTarget = Control("backHeatTempTarget", fileInterface, "backHeatTempTarget", group="Hvac", label="Back heat set", type="tempFControl")
     backCoolTempTarget = Control("backCoolTempTarget", fileInterface, "backCoolTempTarget", group="Hvac", label="Back cool set", type="tempFControl")
     backThermostatMode = Control("backThermostatMode", fileInterface, "backThermostatMode")
-   
+
     # Temperature sensors
     backHouseTemp = Sensor("backHouseTemp", owfs, "28.746BDB060000", group=["Hvac", "Temperature"], label="Back house temp", type="tempF")
-    
+
     # HVAC equipment controls
     backHeat = Control("backHeat", gpio1, 0, group="Hvac", label="Back heat")
     backCool = Control("backCool", gpio1, 1, group="Hvac", label="Back cool")
     backFan  = Control("backFan",  gpio1, 3, group="Hvac", label="Back fan")
 
     # Temp controls
-    backHeatControl = TempControl("backHeatControl", nullInterface, 
-                                    backHeat, backHouseTemp, backHeatTempTarget, unitType=unitTypeHeater, 
+    backHeatControl = TempControl("backHeatControl", nullInterface,
+                                    backHeat, backHouseTemp, backHeatTempTarget, unitType=unitTypeHeater,
                                     group="Hvac", label="Back heat control", type="tempControl")
-    backCoolControl = TempControl("backCoolControl", nullInterface, 
-                                    backCool, backHouseTemp, backCoolTempTarget, unitType=unitTypeAc, 
+    backCoolControl = TempControl("backCoolControl", nullInterface,
+                                    backCool, backHouseTemp, backCoolTempTarget, unitType=unitTypeAc,
                                     group="Hvac", label="Back cool control", type="tempControl")
 
     # Thermostats
@@ -57,28 +59,23 @@ if __name__ == "__main__":
     backHeatTempUpMorning = Task("backHeatTempUpMorning", SchedTime(hour=[6], minute=[0]), backHeatTempTarget, 69, enabled=False)
     backHeatTempDownMorning = Task("backHeatTempDownMorning", SchedTime(hour=[8], minute=[0]), backHeatTempTarget, 66, enabled=False)
     backHeatTempDownEvening = Task("backHeatTempDownEvening", SchedTime(hour=[21], minute=[0]), backHeatTempTarget, 66, enabled=False)
-    
+
     # Schedule
     schedule = Schedule("schedule", tasks=[backHeatTempUpMorning, backHeatTempDownMorning, backHeatTempDownEvening])
 
     # Resources
-    resources = Collection("resources", resources=[backHouseTemp, 
-                                                   backHeat, backCool, backFan, backHeatTempTarget, backCoolTempTarget, 
+    resources = Collection("resources", resources=[backHouseTemp,
+                                                   backHeat, backCool, backFan, backHeatTempTarget, backCoolTempTarget,
                                                    backHeatControl, backCoolControl, backThermostat, backThermostatUnitSensor,
-                                                   backHouseDoor, 
+                                                   backHouseDoor,
                                                    backHeatTempUpMorning, backHeatTempDownMorning, backHeatTempDownEvening,
                                                    ])
     restServer = RestServer("backhouse", resources, event=stateChangeEvent, label="Back house")
 
     # Start interfaces
     fileInterface.start()
-    if not backHeatTempTarget.getState():
-        backHeatTempTarget.setState(backHeatTempTargetDefault)
-    if not backCoolTempTarget.getState():
-        backCoolTempTarget.setState(backCoolTempTargetDefault)
     gpio0.start()
     gpio1.start()
     backThermostat.start()
     schedule.start()
     restServer.start()
-

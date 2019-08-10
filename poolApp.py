@@ -1,6 +1,9 @@
-spaTempTargetDefault = 100
+defaultConfig = {
+    "spaTempTarget": 100,
+}
 spaTempTargetMin = 75
 spaTempTargetMax = 102
+
 
 import threading
 import time
@@ -21,9 +24,9 @@ from ha.controls.tempControl import *
 from ha.controls.poolControls import *
 from ha.rest.restServer import *
 
-serialConfig = {"baudrate": 9600, 
-                 "bytesize": serial.EIGHTBITS, 
-                 "parity": serial.PARITY_NONE, 
+serialConfig = {"baudrate": 9600,
+                 "bytesize": serial.EIGHTBITS,
+                 "parity": serial.PARITY_NONE,
                  "stopbits": serial.STOPBITS_ONE}
 
 if __name__ == "__main__":
@@ -42,12 +45,12 @@ if __name__ == "__main__":
     analogTempInterface = AnalogTempInterface("analogTempInterface", ads1015Interface)
     valveInterface = ValveInterface("valveInterface", gpioInterface1)
     timeInterface = TimeInterface("timeInterface", None, latLong=latLong)
-    configInterface = FileInterface("configInterface", fileName=stateDir+"pool.state", event=stateChangeEvent)
-    
+    configInterface = FileInterface("configInterface", fileName=stateDir+"pool.state", event=stateChangeEvent, initialState=defaultConfig)
+
     # persistent config data
-    spaTempTarget = MinMaxControl("spaTempTarget", configInterface, "spaTempTarget", spaTempTargetMin, spaTempTargetMax, 
+    spaTempTarget = MinMaxControl("spaTempTarget", configInterface, "spaTempTarget", spaTempTargetMin, spaTempTargetMax,
                                 group="Pool", label="Spa temp set", type="tempFControl")
-    
+
     # Lights
     poolLight = Control("poolLight", gpioInterface0, 2, type="light", group=["Pool", "Lights"], label="Pool light")
     spaLight = Control("spaLight", gpioInterface0, 3, type="light", group=["Pool", "Lights"], label="Spa light")
@@ -72,7 +75,7 @@ if __name__ == "__main__":
     # Valves
     intakeValve = Control("intakeValve", valveInterface, 0, group="Pool", label="Intake valve", type="poolValve")
     returnValve = Control("returnValve", valveInterface, 1, group="Pool", label="Return valve", type="poolValve")
-    valveMode = ControlGroup("valveMode", [intakeValve, returnValve], stateList=[[0, 1, 1, 0], [0, 1, 0, 1]], stateMode=True, 
+    valveMode = ControlGroup("valveMode", [intakeValve, returnValve], stateList=[[0, 1, 1, 0], [0, 1, 0, 1]], stateMode=True,
                              type="valveMode", group="Pool", label="Valve mode")
 
     # Heater
@@ -84,7 +87,7 @@ if __name__ == "__main__":
     spaFlush = ControlGroup("spaFlush", [valveMode, poolPump], stateList=[[0, 3], [0, 3]], stateMode=True, group="Pool", label="Spa flush")
     spaDrain = ControlGroup("spaDrain", [valveMode, poolPump], stateList=[[0, 2], [0, 4]], stateMode=True, group="Pool", label="Spa drain")
     poolClean = ControlGroup("poolClean", [poolCleaner, poolPump], stateList=[[0, 1], [0, 3]], stateMode=True, group="Pool", label="Pool clean")
-    
+
     # Spa
     sunUp = Sensor("sunUp", timeInterface, "daylight")
     # spa light control that will only turn on if the sun is down
@@ -92,12 +95,12 @@ if __name__ == "__main__":
     spa = SpaControl("spa", nullInterface, valveMode, poolPump, heaterControl, spaLightNight, spaTemp, spaTempTarget, group="Pool", label="Spa", type="spa")
     # spa light control that will only turn on if the sun is down and the spa is on
     spaLightNightSpa = DependentControl("spaLightNightSpa", nullInterface, spaLightNight, [(spa, "==", 1)])
-    
+
     filterSequence = Sequence("filterSequence", [Cycle(poolPump, duration=39600, startState=1),  # filter 11 hr
                                               ], group="Pool", label="Filter daily")
-    cleanSequence = Sequence("cleanSequence", [Cycle(poolClean, duration=3600, startState=1), 
+    cleanSequence = Sequence("cleanSequence", [Cycle(poolClean, duration=3600, startState=1),
                                               ], group="Pool", label="Clean 1 hr")
-    flushSequence = Sequence("flushSequence", [Cycle(spaFlush, duration=900, startState=1), 
+    flushSequence = Sequence("flushSequence", [Cycle(spaFlush, duration=900, startState=1),
                                               ], group="Pool", label="Flush spa 15 min")
 
     # Power
@@ -118,9 +121,9 @@ if __name__ == "__main__":
 
     # Resources
     resources = Collection("resources", [poolLight, spaLight, poolLights,
-                                        waterTemp, poolTemp, spaTemp, poolEquipTemp, 
-                                        poolPump, poolCleaner, poolClean, intakeValve, returnValve, 
-                                        valveMode, spaFill, spaFlush, spaDrain, poolHeater, spaBlower, 
+                                        waterTemp, poolTemp, spaTemp, poolEquipTemp,
+                                        poolPump, poolCleaner, poolClean, intakeValve, returnValve,
+                                        valveMode, spaFill, spaFlush, spaDrain, poolHeater, spaBlower,
                                         poolPumpSpeed, poolPumpFlow,
                                         spa, spaTempTarget, heaterControl,
                                         filterSequence, cleanSequence, flushSequence,
@@ -130,11 +133,8 @@ if __name__ == "__main__":
 
     # Start interfaces
     configInterface.start()
-    if not spaTempTarget.getState():
-        spaTempTarget.setState(spaTempTargetDefault)
     gpioInterface0.start()
     gpioInterface1.start()
     pentairInterface.start()
     schedule.start()
     restServer.start()
-

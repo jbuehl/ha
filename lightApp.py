@@ -1,6 +1,8 @@
 
 stringLength = 343
-holidayLightDefault = "offLights"
+defaultConfig = {
+    "holiday": "offLights",
+}
 
 from ha import *
 from ha.interfaces.neopixelInterface import *
@@ -53,7 +55,7 @@ if __name__ == "__main__":
 
     # Interfaces
     neopixelInterface = NeopixelInterface("neopixelInterface", None, length=stringLength, event=stateChangeEvent)
-    configData = FileInterface("configData", fileName=stateDir+"lights.conf", event=stateChangeEvent)
+    configData = FileInterface("configData", fileName=stateDir+"lights.conf", event=stateChangeEvent, initialState=defaultConfig)
 
     # Persistent config data
     holiday = Control("holiday", configData, "holiday", group=["Lights", "Holiday"], label="Holiday")
@@ -203,8 +205,6 @@ if __name__ == "__main__":
 
     # Start interfaces
     configData.start()
-    if not holiday.getState():
-        holiday.setState(holidayLightDefault)
     neopixelInterface.start()
     schedule.start()
     restServer.start()
