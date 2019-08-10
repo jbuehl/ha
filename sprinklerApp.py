@@ -66,7 +66,7 @@ if __name__ == "__main__":
     backLawnSequence = Sequence("backLawnSequence", [Cycle(backLawn, backLawnTime)], group="Sprinklers", label="Back lawn")
     backBedSequence = Sequence("backBedSequence", [Cycle(backBeds, backBedTime)], group="Sprinklers", label="Back beds")
 
-    dailySequence = Sequence("dailySequence", [frontLawnSequence, backLawnSequence, backBedSequence, sideBedSequence], group="Sprinklers", label="Daily sprinklers")
+    dailySequence = Sequence("dailySequence", [frontLawnSequence, backLawnSequence, backBedSequence, gardenSequence, sideBedSequence], group="Sprinklers", label="Daily sprinklers")
     weeklySequence = Sequence("weeklySequence", [frontBedSequence, dailySequence], group="Sprinklers", label="Weekly sprinklers")
     hotSequence = DependentControl("hotSequence", None, dailySequence, [(maxTemp, ">", hotTemp)], type="sequence", group="Sprinklers", label="Hot sprinklers")
 
