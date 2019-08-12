@@ -3,7 +3,7 @@
 # Read a file that contains logging data from electrical power load current sensors.
 # Compute statistics and send to graphing server.
 
-# Usage: statsApp [-f] [-v] inFile
+# Usage: statsApp [-f] inFile
 # Arguments:
 #   inFile        log file or directory to read
 #                   If a file is specified, the program processes the data in that file and
@@ -16,12 +16,12 @@
 #                   the directory, the current file is closed and the new file is opened.
 # Options:
 #   -f              follow as the input file grows (as in tail -f)
-#   -v              verbose output
 
 # configuration
 inFileName = ""
 fileDate = ""
 follow = False
+readInterval = .1
 
 # file handles
 inFile = None
@@ -44,6 +44,7 @@ import json
 from ha import *
 
 lastTime = 0
+lastTimeLog = 0
 stateDict = {
     "loads.ac.power": 0.0,
     "loads.appliance1.power": 0.0,
@@ -151,11 +152,15 @@ def zeroDaily():
 
 # parse input power readings
 def parseInput(inRec):
-    global lastTime, stateDict
+    global lastTime, lastTimeLog, stateDict
     try:
         [timeStamp, inDict] = json.loads(inRec)
         timeStamp = int(timeStamp)
         # if timeStamp < 1561332200: return
+        # periodically log the time that is being processed
+        if timeStamp > lastTimeLog+3600:
+            log("processing", time.asctime(time.localtime(timeStamp)))
+            lastTimeLog = timeStamp
         if lastTime == 0:
             lastTime = timeStamp
         timeDiff = timeStamp - lastTime
@@ -215,10 +220,17 @@ if __name__ == "__main__":
         while True: # read forever
             inRec = inFile.readline()
             if inRec:
+                # sometimes readline doesn't get everything
+                # if the read didn't get the whole line, read more
+                while inRec[-1] != "\n":
+                    time.sleep(readInterval)
+                    log("read again")
+                    inRec += inFile.readline()
                 parseInput(inRec)
                 writeGraphite(lastTime)
             else:   # end of file - see if a new file has been opened before trying again
                 openLastinFile()
+            time.sleep(readInterval)
     else:       # not following - process whatever files were specified and exit
         for inFileName in inFiles:
             debug("debugPower", "reading:", inDir+inFileName)
