@@ -9,7 +9,7 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
     gpioInterface = GPIOInterface("gpioInterface", event=stateChangeEvent)
     shadeInterface = ShadeInterface("shadeInterface", gpioInterface)
-    
+
     # Controls
     shade1 = Control("shade1", shadeInterface, 0, type="shade", group="Shades", label="Shade 1")
     shade2 = Control("shade2", shadeInterface, 1, type="shade", group="Shades", label="Shade 2")
@@ -18,14 +18,14 @@ if __name__ == "__main__":
     allShades = ControlGroup("allShades", [shade1, shade2, shade3, shade4], type="shade", group="Shades", label="All shades")
 
     # Schedules
-    shadesDown = Task("shadesDown", SchedTime(hour=[13], minute=[00], month=[Apr, May, Jun, Jul, Aug, Sep]), allShades, 1, enabled=True)
-    shadesUpAprSep = Task("shadesUpAprSep", SchedTime(minute=-20, event="sunset", month=[Apr, Sep]), allShades, 0, enabled=True)
-    shadesUpMayAug = Task("shadesUpMayAug", SchedTime(minute=-25, event="sunset", month=[May, Aug]), allShades, 0, enabled=True)
-    shadesUpJunJul = Task("shadesUpJunJul", SchedTime(minute=-30, event="sunset", month=[Jun, Jul]), allShades, 0, enabled=True)
+    shadesDown = Task("shadesDown", SchedTime(hour=[13], minute=[00], month=[Apr, May, Jun, Jul, Aug, Sep]), allShades, 1, group="Shades", enabled=True)
+    shadesUpAprSep = Task("shadesUpAprSep", SchedTime(minute=-20, event="sunset", month=[Apr, Sep]), allShades, 0, group="Shades", enabled=True)
+    shadesUpMayAug = Task("shadesUpMayAug", SchedTime(minute=-25, event="sunset", month=[May, Aug]), allShades, 0, group="Shades", enabled=True)
+    shadesUpJunJul = Task("shadesUpJunJul", SchedTime(minute=-30, event="sunset", month=[Jun, Jul]), allShades, 0, group="Shades", enabled=True)
     schedule = Schedule("schedule", tasks=[shadesDown, shadesUpAprSep, shadesUpMayAug, shadesUpJunJul])
 
     # Resources
-    resources = Collection("resources", resources=[shade1, shade2, shade3, shade4, allShades, 
+    resources = Collection("resources", resources=[shade1, shade2, shade3, shade4, allShades,
                                                    shadesDown, shadesUpAprSep, shadesUpMayAug, shadesUpJunJul])
     restServer = RestServer("deck", resources, event=stateChangeEvent, label="Shades")
 
@@ -34,4 +34,3 @@ if __name__ == "__main__":
     shadeInterface.start()
     schedule.start()
     restServer.start()
-
