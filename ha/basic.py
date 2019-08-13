@@ -55,8 +55,8 @@ class Resource(object):
             except:
                 pass
 
-    def __str__(self, level=0):
-        return self.name+" "+self.__class__.__name__
+    def __str__(self):
+        return self.name
 
 # Base class for Interfaces
 class Interface(Resource):
@@ -170,12 +170,6 @@ class Collection(Resource, OrderedDict):
                 "name":self.name,
                 "type": self.type,
                 "resources":self.keys()}
-
-    def __str__(self, level=0):
-        msg = self.name+" "+self.__class__.__name__
-#        for resource in self.values():
-#            msg += "\n"+"    "*(level+1)+resource.__str__(level+1)
-        return msg
 
 # A Sensor represents a device that has a state that is represented by a scalar value.
 # The state is associated with a unique address on an interface.

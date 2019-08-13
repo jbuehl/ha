@@ -23,7 +23,7 @@ class Cycle(object):
                 "endState": self.endState}
 
     def __str__(self):
-        return self.control.name if isinstance(self.control, Sensor) else self.control+","+self.duration.__str__()+","+self.delay.__str__()+","+self.startState.__str__()+","+self.endState.__str__()
+        return self.control.__str__()+","+self.duration.__str__()+","+self.delay.__str__()+","+self.startState.__str__()+","+self.endState.__str__()
 
 # a Sequence is a Control that consists of a list of Cycles or Sequences that are run in the specified order
 
