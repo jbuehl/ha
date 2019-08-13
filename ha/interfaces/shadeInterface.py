@@ -14,10 +14,13 @@ class ShadeInterface(Interface):
     objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None):
         Interface.__init__(self, name, interface=interface, event=event)
-        self.states = {0:0, 1:0, 2:0, 3:0}
         self.travelTime = [15, 15, 12, 12]
         self.timers = [None, None, None, None]
         self.lock = threading.Lock()
+
+    def addSensor(self, sensor):
+        Interface.addSensor(self, sensor)
+        self.states[sensor.addr] = 0    # initialize state to 0
 
     def read(self, addr):
         try:
@@ -55,4 +58,3 @@ class ShadeInterface(Interface):
                 debug('debugShades', self.name, "state", addr, self.states[addr])
         self.timers[addr] = threading.Timer(self.travelTime[addr], doneMoving)
         self.timers[addr].start()
-
