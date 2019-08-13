@@ -86,9 +86,8 @@ def getOpts():
     for opt in opts:
         if opt[0] == "-f":
             follow = True
-    if debugStats:
-        log("inFileName:", inFileName)
-        log("follow:", follow)
+    debug("debugStats", "inFileName:", inFileName)
+    debug("debugStats", "follow:", follow)
 
 # open the specified input file
 def openInFile(inFileName):
