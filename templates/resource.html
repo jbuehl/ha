@@ -24,7 +24,7 @@
         </td>
         <!-- controls-->
         <td>
-            {% if resource.className != "Sensor" %}
+            {% if resource.className in ["Control", "ControlGroup", "Task", "Sequence"] %}
             <div class="control {% if dimmed %} dimmed {% endif %}" >
                 <form name='control' action='' method='get'>
                     <input type='hidden' name='resource' value='{{ resource.name }}' />
@@ -32,15 +32,15 @@
                     <input type='submit' class='button' name='action' value='{{ value }}' />
                     {% endfor %}
                 </form>
-                {% if details %}
-                {% if resource.className == "Task" %}
-                    <div class=task>{{ resource.__str__().replace(",", "<br>") }}</div>
-                {% endif %}
-                {% if resource.className == "Sequence" %}
-                    <div class=sequence>{{ resource.__str__().replace("\n", "<br>") }}</div>
-                {% endif %}
-                {% endif %}
             </div>
+            {% endif %}
+            {% if details %}
+            {% if resource.className == "Task" %}
+                <div class=task>{{ resource.__str__().replace(",", "<br>") }}</div>
+            {% endif %}
+            {% if resource.className in ["Sequence", "SensorGroup", "ControlGroup"] %}
+                <div class=sequence>{{ resource.__str__().replace("\n", "<br>") }}</div>
+            {% endif %}
             {% endif %}
         </td>
         <!-- details-->

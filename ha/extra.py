@@ -142,11 +142,11 @@ class Sequence(Control):
 # A collection of sensors whose state is on if any one of them is on
 class SensorGroup(Sensor):
     objectArgs = ["interface", "event", "sensorList", "resources"]
-    def __init__(self, name, sensorList, resources=None, interface=None, addr=None, group="", type="sensor", label=""):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, label=label)
+    def __init__(self, name, sensorList, resources=None, interface=None, addr=None, group="", type="sensor", label="", location=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, label=label, location=location)
         self.sensorList = sensorList
         self.resources = resources  # if specified, sensorList contains resource names, otherwise references
-        self.className = "Sensor"
+        # self.className = "Sensor"
 
     def getState(self):
         groupState = 0
@@ -169,12 +169,24 @@ class SensorGroup(Sensor):
                 groupState = groupState or sensorState    # group is on if any one sensor is on
         return groupState
 
+    # dictionary of pertinent attributes
+    def dict(self):
+        attrs = Sensor.dict(self)
+        attrs.update({"sensorList": [sensor.__str__() for sensor in self.sensorList]})
+        return attrs
+
+    def __str__(self):
+        msg = ""
+        for sensor in self.sensorList:
+            msg += sensor.__str__()+"\n"
+        return msg.rstrip("\n")
+
 # A set of Controls whose state can be changed together
 class ControlGroup(SensorGroup, Control):
     objectArgs = ["interface", "event", "controlList", "resources"]
     def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False, interface=None, addr=None,
-                 group="", type="controlGroup", label=""):
-        SensorGroup.__init__(self, name, controlList, resources, interface, addr, group=group, type=type, label=label)
+                 group="", type="controlGroup", label="", location=None):
+        SensorGroup.__init__(self, name, controlList, resources, interface, addr, group=group, type=type, label=label, location=location)
         Control.__init__(self, name, interface, addr, group=group, type=type, label=label)
         self.stateMode = stateMode  # which state to return: False = SensorGroup, True = groupState
         self.groupState = 0
@@ -182,7 +194,7 @@ class ControlGroup(SensorGroup, Control):
             self.stateList = [[0,1]]*(len(self.sensorList))
         else:
             self.stateList = stateList
-        self.className = "Control"
+        # self.className = "Control"
 
     def setState(self, state, wait=False):
         if self.interface.name == "None":
@@ -218,6 +230,18 @@ class ControlGroup(SensorGroup, Control):
             return self.groupState
         else:
             return SensorGroup.getState(self)
+
+    # dictionary of pertinent attributes
+    def dict(self):
+        attrs = Control.dict(self)
+        attrs.update({"controlList": [sensor.__str__() for sensor in self.sensorList]})
+        return attrs
+
+    def __str__(self):
+        msg = ""
+        for sensor in self.sensorList:
+            msg += sensor.__str__()+"\n"
+        return msg.rstrip("\n")
 
 # Calculate a function of a list of sensor states
 class CalcSensor(Sensor):
