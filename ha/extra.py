@@ -187,7 +187,7 @@ class ControlGroup(SensorGroup, Control):
     def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False, interface=None, addr=None,
                  group="", type="controlGroup", label="", location=None):
         SensorGroup.__init__(self, name, controlList, resources, interface, addr, group=group, type=type, label=label, location=location)
-        Control.__init__(self, name, interface, addr, group=group, type=type, label=label)
+        Control.__init__(self, name, interface, addr, group=group, type=type, label=label, location=location)
         self.stateMode = stateMode  # which state to return: False = SensorGroup, True = groupState
         self.groupState = 0
         if stateList == []:
