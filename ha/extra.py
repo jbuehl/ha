@@ -17,13 +17,13 @@ class Cycle(object):
     # dictionary of pertinent attributes
     def dict(self):
         return {"control": self.control.name,
-                "duration": self.duration if isinstance(self.duration, int) else self.duration.getState(),
+                "duration": self.duration.getState() if isinstance(self.duration, Sensor) else self.duration,
                 "delay": self.delay,
                 "startState": self.startState,
                 "endState": self.endState}
 
     def __str__(self):
-        return self.control.name+","+self.duration.__str__()+","+self.delay.__str__()+","+self.startState.__str__()+","+self.endState.__str__()
+        return self.control.name if isinstance(self.control, Sensor) else self.control+","+self.duration.__str__()+","+self.delay.__str__()+","+self.startState.__str__()+","+self.endState.__str__()
 
 # a Sequence is a Control that consists of a list of Cycles or Sequences that are run in the specified order
 
@@ -136,8 +136,8 @@ class Sequence(Control):
     def __str__(self):
         msg = ""
         for cycle in self.cycleList:
-            msg += cycle.__str__()+","
-        return msg.rstrip(",")
+            msg += cycle.__str__()+"\n"
+        return msg.rstrip("\n")
 
 # A collection of sensors whose state is on if any one of them is on
 class SensorGroup(Sensor):

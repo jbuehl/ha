@@ -18,7 +18,7 @@
         <td>
         {% endif %}
             <div id="{{ resource.name.replace(".", "_") }}"
-                 class="{{ resource.name.replace(".", "_") }} 
+                 class="{{ resource.name.replace(".", "_") }}
                         {{ resource.type+'_'+views.getViewState(resource) }}
                         {% if dimmed %} dimmed {% endif %}">{{ views.getViewState(resource) }}</div>
         </td>
@@ -26,17 +26,19 @@
         <td>
             {% if resource.className != "Sensor" %}
             <div class="control {% if dimmed %} dimmed {% endif %}" >
-            <form name='control' action='' method='get'>
-                <input type='hidden' name='resource' value='{{ resource.name }}' />
-                {% for value in views.getSetValues(resource).values() %}
-                <input type='submit' class='button' name='action' value='{{ value }}' />
-                {% endfor %}
-            </form>
+                <form name='control' action='' method='get'>
+                    <input type='hidden' name='resource' value='{{ resource.name }}' />
+                    {% for value in views.getSetValues(resource).values() %}
+                    <input type='submit' class='button' name='action' value='{{ value }}' />
+                    {% endfor %}
+                </form>
+                {% if details %}
                 {% if resource.className == "Task" %}
                     <div class=task>{{ resource.__str__().replace(",", "<br>") }}</div>
                 {% endif %}
                 {% if resource.className == "Sequence" %}
-                    <div class=sequence>{{ resource.__str__().replace(",", "<br>") }}</div>
+                    <div class=sequence>{{ resource.__str__().replace("\n", "<br>") }}</div>
+                {% endif %}
                 {% endif %}
             </div>
             {% endif %}

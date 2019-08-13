@@ -15,7 +15,7 @@ class RestServiceProxy(Sensor):
         self.beaconTimer = None
         self.lastSeq = 0                # the last beacon message sequence number received
         self.missedSeq = 0              # count of how many missed beacon messages for this service
-        self.missedSeqPct = 0.0         # percentage of missed messages 
+        self.missedSeqPct = 0.0         # percentage of missed messages
         try:
             serviceName = name.split(".")[1]
         except IndexError:
@@ -32,7 +32,7 @@ class RestServiceProxy(Sensor):
         else:
             self.disable()
         return True
-        
+
     def enable(self):
         debug('debugRestServiceProxy', "RestServiceProxy", self.name, "enabled")
         self.interface.start()
@@ -47,7 +47,7 @@ class RestServiceProxy(Sensor):
 
     def addResources(self):
         self.resources = Collection(self.name+"/Resources")
-               
+
     def delResources(self):
         if self.resources:
             del(self.resources)
@@ -84,7 +84,7 @@ class RestServiceProxy(Sensor):
             self.beaconTimer.cancel()
             debug('debugBeaconTimer', self.name, "timer cancelled", reason)
 
-    # load resources from the specified REST paths and add to the resources of the specified restProxy               
+    # load resources from the specified REST paths and add to the resources of the specified restProxy
     def loadResources(self, restProxy, serviceResources, serviceTimeStamp):
         self.delResources()
         self.addResources()
@@ -109,7 +109,7 @@ class RestServiceProxy(Sensor):
             for resource in node["resources"]:
                 self.loadPath(resources, interface, path+"/"+resource)
 
-    # instantiate the resource from the specified node            
+    # instantiate the resource from the specified node
     def loadResource(self, resources, interface, node, path):
         debug('debugLoadResources', self.name, "loadResource", "node:", node)
         try:
@@ -136,6 +136,11 @@ class RestServiceProxy(Sensor):
                         argStr += "addr=path+'/state', "
                     elif arg == "schedTime":                # FIXME - need to generalize this for any class
                         argStr += "schedTime=SchedTime(**"+str(node["schedTime"])+"), "
+                    elif arg == "cycleList":                # FIXME - need to generalize this for any class
+                        argStr += "cycleList=["
+                        for cycle in node["cycleList"]:
+                            argStr += "Cycle(**"+str(cycle)+"), "
+                        argStr += "], "
                     elif isinstance(node[arg], str) or isinstance(node[arg], unicode):  # arg is a string
                         argStr += arg+"='"+node[arg]+"', "
                     else:                                   # arg is numeric or other
@@ -150,5 +155,3 @@ class RestServiceProxy(Sensor):
                     raise
             except NameError:
                 pass
-            
-
