@@ -1,7 +1,6 @@
 # Extra class definitions derived from basic classes
 
 from basic import *
-from ha.interfaces.restInterface import *
 
 # A Cycle describes the process of setting a Control to a specified state, waiting a specified length of time,
 # and setting the Control to another state.  This may be preceded by an optional delay.
@@ -150,7 +149,7 @@ class SensorGroup(Sensor):
         # self.className = "Sensor"
 
     def getState(self):
-        if isinstance(self.interface, RestInterface):
+        if self.interface.name != "None":
             # This is a cached resource
             return Sensor.getState(self)
         else:
@@ -202,10 +201,10 @@ class ControlGroup(SensorGroup, Control):
         # self.className = "Control"
 
     def setState(self, state, wait=False):
-        if isinstance(self.interface, RestInterface):
+        if self.interface.name != "None":
             # This is a cached resource
             return Control.setState(self, state)
-        else: # if self.interface.name == "None":
+        else:
             debug('debugState', self.name, "setState ", state)
             self.groupState = state  # use Cycle - FIXME
             # Run it asynchronously in a separate thread.
@@ -230,11 +229,9 @@ class ControlGroup(SensorGroup, Control):
             self.sceneThread = threading.Thread(target=setGroup)
             self.sceneThread.start()
             return True
-        # else:
-        #     return Control.setState(self, state)
 
     def getState(self):
-        if isinstance(self.interface, RestInterface):
+        if self.interface.name != "None":
             # This is a cached resource
             return Sensor.getState(self)
         else:
