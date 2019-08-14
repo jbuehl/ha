@@ -119,8 +119,8 @@ class Schedule(Collection):
 class Task(Control):
     objectArgs =["interface", "event", "schedTime", "control"]
     def __init__(self, name, schedTime=None, control=None, controlState=0, resources=None, parent=None, enabled=True, interface=None, addr=None,
-                 type="task", group="Tasks", label=""):
-        Control.__init__(self, name, interface, addr, group=group, type=type, label=label)
+                 type="task", group="Tasks", label="", location=None):
+        Control.__init__(self, name, interface, addr, group=group, type=type, label=label, location=location)
         self.schedTime = schedTime
         self.control = control
         self.controlState = controlState
@@ -162,14 +162,11 @@ class Task(Control):
             controlName = control.name
         except AttributeError:
             controlName = control
-        return {"class":self.__class__.__name__,
-                "name":self.name,
-                "type": self.type,
-                "group": self.group,
-                "label": self.label,
-                "control": controlName,
-                "controlState": self.controlState,
-                "schedTime": self.schedTime.dict()}
+        attrs = Control.dict(self)
+        attrs.update({"control": controlName,
+                      "controlState": self.controlState,
+                      "schedTime": self.schedTime.dict()})
+        return attrs
 
     def __str__(self, views=None):
         try:

@@ -1,6 +1,7 @@
 # Extra class definitions derived from basic classes
 
 from basic import *
+from ha.interfaces.restInterface import *
 
 # A Cycle describes the process of setting a Control to a specified state, waiting a specified length of time,
 # and setting the Control to another state.  This may be preceded by an optional delay.
@@ -149,25 +150,29 @@ class SensorGroup(Sensor):
         # self.className = "Sensor"
 
     def getState(self):
-        groupState = 0
-        for sensorIdx in range(len(self.sensorList)):
-            if self.resources:      # sensors are resource names - FIXME - test list element type
-                sensorName = self.sensorList[sensorIdx]
-                try:
-                    sensorState = self.resources.getRes(self.sensorList[sensorIdx]).getState()
-                except KeyError:    # can't resolve so ignore it
-                    sensorState = 0
-            else:                   # sensors are resource references
-                try:
-                    sensorName = self.sensorList[sensorIdx].name
-                    sensorState = self.sensorList[sensorIdx].getState()
-                except AttributeError:
-                    sensorName = ""
-                    sensorState = 0
-            debug("debugSensorGroup", self.name, "sensor:", sensorName, "state:", sensorState)
-            if sensorState:
-                groupState = groupState or sensorState    # group is on if any one sensor is on
-        return groupState
+        if isinstance(self.interface, RestInterface):
+            # This is a cached resource
+            return Sensor.getState(self)
+        else:
+            groupState = 0
+            for sensorIdx in range(len(self.sensorList)):
+                if self.resources:      # sensors are resource names - FIXME - test list element type
+                    sensorName = self.sensorList[sensorIdx]
+                    try:
+                        sensorState = self.resources.getRes(self.sensorList[sensorIdx]).getState()
+                    except KeyError:    # can't resolve so ignore it
+                        sensorState = 0
+                else:                   # sensors are resource references
+                    try:
+                        sensorName = self.sensorList[sensorIdx].name
+                        sensorState = self.sensorList[sensorIdx].getState()
+                    except AttributeError:
+                        sensorName = ""
+                        sensorState = 0
+                debug("debugSensorGroup", self.name, "sensor:", sensorName, "state:", sensorState)
+                if sensorState:
+                    groupState = groupState or sensorState    # group is on if any one sensor is on
+            return groupState
 
     # dictionary of pertinent attributes
     def dict(self):
@@ -197,7 +202,10 @@ class ControlGroup(SensorGroup, Control):
         # self.className = "Control"
 
     def setState(self, state, wait=False):
-        if self.interface.name == "None":
+        if isinstance(self.interface, RestInterface):
+            # This is a cached resource
+            return Control.setState(self, state)
+        else: # if self.interface.name == "None":
             debug('debugState', self.name, "setState ", state)
             self.groupState = state  # use Cycle - FIXME
             # Run it asynchronously in a separate thread.
@@ -222,14 +230,18 @@ class ControlGroup(SensorGroup, Control):
             self.sceneThread = threading.Thread(target=setGroup)
             self.sceneThread.start()
             return True
-        else:
-            return Control.setState(self, state)
+        # else:
+        #     return Control.setState(self, state)
 
     def getState(self):
-        if self.stateMode:
-            return self.groupState
+        if isinstance(self.interface, RestInterface):
+            # This is a cached resource
+            return Sensor.getState(self)
         else:
-            return SensorGroup.getState(self)
+            if self.stateMode:
+                return self.groupState
+            else:
+                return SensorGroup.getState(self)
 
     # dictionary of pertinent attributes
     def dict(self):
