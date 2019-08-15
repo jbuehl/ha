@@ -16,6 +16,10 @@ class ValveInterface(Interface):
         self.timers = {}
         self.lock = threading.Lock()
 
+    def addSensor(self, sensor):
+        Interface.addSensor(self, sensor)
+        self.states[sensor.addr] = 0    # initialize state to 0
+
     def read(self, addr):
         try:
             return self.states[addr]
