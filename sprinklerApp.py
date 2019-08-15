@@ -68,7 +68,8 @@ if __name__ == "__main__":
 
     dailySequence = Sequence("dailySequence", [frontLawnSequence, backLawnSequence, backBedSequence, gardenSequence, sideBedSequence], group="Sprinklers", label="Daily sprinklers")
     weeklySequence = Sequence("weeklySequence", [frontBedSequence, dailySequence], group="Sprinklers", label="Weekly sprinklers")
-    hotSequence = DependentControl("hotSequence", None, dailySequence, [(maxTemp, ">", hotTemp)], type="sequence", group="Sprinklers", label="Hot sprinklers")
+    # run sprinklers if the day's max temp exceeds a threshold
+    hotControl = DependentControl("hotControl", None, dailySequence, [(maxTemp, ">", hotTemp)], type="sequence", group="Sprinklers", label="Hot sprinklers")
 
     # Tasks
     resetMinTempTask = Task("resetMinTempTask", SchedTime(hour=0, minute=0), minTemp, initialMinTemp, enabled=True)
@@ -79,7 +80,7 @@ if __name__ == "__main__":
     weeklyTask = Task("weeklyTask", SchedTime(hour=startHour-1, minute=00, weekday=[Fri], month=[May, Jun, Jul, Aug, Sep, Oct]),
                         weeklySequence, 1, enabled=True, group="Sprinklers", label="Weekly sprinkler task")
     hotTask = Task("hotTask", SchedTime(hour=startHour, minute=00, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep]),
-                        hotSequence, 1, enabled=True, group="Sprinklers", label="Hot sprinkler task")
+                        hotControl, 1, enabled=True, group="Sprinklers", label="Hot sprinkler task")
 
     schedule = Schedule("schedule", tasks=[resetMinTempTask, resetMaxTempTask,
                                            dailyTask, weeklyTask, hotTask,
@@ -91,7 +92,7 @@ if __name__ == "__main__":
                                                    frontLawnTime, frontBedTime, gardenTime, backLawnTime, sideBedTime, backBedTime,
                                                    frontLawnSequence, frontBedSequence, gardenSequence,
                                                    backLawnSequence, backBedSequence, sideBedSequence,
-                                                   dailySequence, weeklySequence, hotSequence,
+                                                   dailySequence, weeklySequence,
                                                    dailyTask, weeklyTask, hotTask,
                                                    resetMinTempTask, resetMaxTempTask,
                                                    ])
