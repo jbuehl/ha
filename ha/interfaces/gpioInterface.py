@@ -1,15 +1,21 @@
 from ha import *
-import RPIO as gpio
+# import whichever gpio library is installed
+try:
+    import RPi.GPIO as gpio
+    gpioLibrary = "RPi"
+except ImportError:
+    import RPIO as gpio
+    gpioLibrary = "RPIO"
 
 gpioInterfaces = {}
 
-def interruptCallback(pin, value):
+def interruptCallback(pin, value=0):
     debug('debugGPIO', "interruptCallback", "pin:", pin, "value:", value)
     try:
         gpioInterfaces[pin].interrupt()
     except KeyError:
         log("interruptCallback", "unknown interrupt", "pin:", pin, "value:", value, "gpioInterfaces:", gpioInterfaces)
-    
+
 
 # Interface to GPIO either directly or via MCP23017 I2C I/O expander
 class GPIOInterface(Interface):
@@ -30,7 +36,7 @@ class GPIOInterface(Interface):
     # direct GPIO
     gpioPins = [12, 16, 18, 22, 15, 13, 11, 7]   # A/B
 #            32, 36, 38, 40, 37, 35, 33, 31]     # B+
-    
+
     def __init__(self, name, interface=None, event=None,
                                              addr=0x20,         # I2C address of MCP23017
                                              bank=0,            # bank within MCP23017 A=0, B=1
@@ -51,7 +57,7 @@ class GPIOInterface(Interface):
         else:
             self.interface = None
             self.bank = 0
-    
+
     def start(self):
         gpio.setwarnings(False)
         if self.interface:
@@ -68,8 +74,12 @@ class GPIOInterface(Interface):
             # get the current state
             self.readState()
             # set up the interrupt handling
-            gpio.add_interrupt_callback(self.interruptPin, interruptCallback, edge="falling", pull_up_down=gpio.PUD_UP)
-            gpio.wait_for_interrupts(threaded=True)
+            if gpioLibrary == "RPIO":
+                gpio.add_interrupt_callback(self.interruptPin, interruptCallback, edge="falling", pull_up_down=gpio.PUD_UP)
+                gpio.wait_for_interrupts(threaded=True)
+            elif gpioLibrary == "RPi":
+                gpio.setup(self.interruptPin, gpio.IN, pull_up_down=gpio.PUD_UP)
+                gpio.add_event_detect(self.interruptPin, GPIO.FALLING, callback=interruptCallback, bouncetime=300)
         else:   # direct only supports output - FIXME
             gpio.setmode(gpio.BOARD)
             for pin in GPIOInterface.gpioPins:
@@ -107,7 +117,7 @@ class GPIOInterface(Interface):
         byte = self.interface.read((self.addr, GPIOInterface.GPIO+self.bank))
         debug('debugGPIO', self.name, "read", "addr: 0x%02x"%self.addr, "reg: 0x%02x"%(GPIOInterface.GPIO+self.bank), "value: 0x%02x"%byte)
         self.state = byte
-    
+
     def write(self, addr, value):
         if self.interface:
             byte = self.state
@@ -119,4 +129,3 @@ class GPIOInterface(Interface):
         else:
             debug('debugGPIO', self.name, "write", "addr: 0x%02x"%addr, "value: 0x%02x"%value)
             gpio.output(GPIOInterface.gpioPins[addr], value)
-            
