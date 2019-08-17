@@ -113,9 +113,9 @@ if __name__ == "__main__":
     # Schedules
     sundaySpaOnTask = Task("sundaySpaOnTask", SchedTime(year=[2016], month=[8], day=[14], hour=[16], minute=[30]), spa, 1)
     sundaySpaOffTask = Task("sundaySpaOffTask", SchedTime(year=[2016], month=[8], day=[14], hour=[18], minute=[30]), spa, 0)
-    poolFilterTask = Task("poolFilterTask", SchedTime(hour=[21], minute=[0]), filterSequence, 1)
-    poolCleanerTask = Task("poolCleanerTask", SchedTime(hour=[8], minute=[1]), cleanSequence, 1)
-    flushSpaTask = Task("flushSpaTask", SchedTime(hour=[9], minute=[2]), flushSequence, 1)
+    poolFilterTask = Task("poolFilterTask", SchedTime(hour=[21], minute=[0]), filterSequence, 1, group="Pool")
+    poolCleanerTask = Task("poolCleanerTask", SchedTime(hour=[8], minute=[1]), cleanSequence, 1, group="Pool")
+    flushSpaTask = Task("flushSpaTask", SchedTime(hour=[9], minute=[2]), flushSequence, 1, group="Pool")
     spaLightOnSunsetTask = Task("spaLightOnSunsetTask", SchedTime(event="sunset"), spaLightNightSpa, 1)
     schedule = Schedule("schedule", [sundaySpaOnTask, sundaySpaOffTask, poolFilterTask, poolCleanerTask, flushSpaTask, spaLightOnSunsetTask])
 
