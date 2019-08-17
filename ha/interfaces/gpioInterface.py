@@ -61,6 +61,7 @@ class GPIOInterface(Interface):
     def start(self):
         gpio.setwarnings(False)
         if self.interface:
+            gpio.setmode(gpio.BCM)
             # configure the MCP23017
             self.interface.write((self.addr, GPIOInterface.IODIR+self.bank), self.inOut)    # I/O direction
             self.interface.write((self.addr, GPIOInterface.GPINTEN+self.bank), self.inOut)  # enable interrupts for inputs
@@ -79,7 +80,7 @@ class GPIOInterface(Interface):
                 gpio.wait_for_interrupts(threaded=True)
             elif gpioLibrary == "RPi":
                 gpio.setup(self.interruptPin, gpio.IN, pull_up_down=gpio.PUD_UP)
-                gpio.add_event_detect(self.interruptPin, GPIO.FALLING, callback=interruptCallback, bouncetime=300)
+                gpio.add_event_detect(self.interruptPin, gpio.FALLING, callback=interruptCallback, bouncetime=300)
         else:   # direct only supports output - FIXME
             gpio.setmode(gpio.BOARD)
             for pin in GPIOInterface.gpioPins:
