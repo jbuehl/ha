@@ -44,7 +44,7 @@ class Resource(object):
                 return
         except AttributeError:
             self.name = name
-            debug('debugObject', self.name, "created")
+            debug('debugObject', self.__class__.__name__, self.name, "created")
             self.className = self.__class__.__name__    # hack for web templates - FIXME
         # optional state persistence interface
         if persistence:
@@ -90,7 +90,7 @@ class Interface(Resource):
         return True
 
     def addSensor(self, sensor):
-        debug('debugObject', self.name, "sensor", sensor.name)
+        debug('debugObject', self.__class__.__name__, self.name, "addSensor", sensor.name)
         self.sensors[sensor.name] = sensor
         self.sensorAddrs[sensor.addr] = sensor
         self.states[sensor.addr] = None
