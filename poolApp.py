@@ -126,8 +126,9 @@ if __name__ == "__main__":
                                         valveMode, spaFill, spaFlush, spaDrain, poolHeater, spaBlower,
                                         poolPumpSpeed, poolPumpFlow,
                                         spa, spaTempTarget, heaterControl,
-                                        filterSequence, cleanSequence, flushSequence,
                                         poolPumpPower, poolCleanerPower, spaBlowerPower, poolLightPower, spaLightPower,
+                                        filterSequence, cleanSequence, flushSequence,
+                                        poolFilterTask, poolCleanerTask, flushSpaTask,
                                         ])
     restServer = RestServer("pool", resources, event=stateChangeEvent, label="Pool")
 
