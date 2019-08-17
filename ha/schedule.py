@@ -77,12 +77,12 @@ class Schedule(Collection):
 #            if not running:
 #                break
             (now, tomorrow) = todaysDate()
-            debug('debugSched', self.name, "waking up", now)
+            debug('debugSched', self.name, "waking up", now.year, now.month, now.day, now.hour, now.minute, now.weekday())
             # run through the schedule and check if any tasks should be run
             # need to handle cases where the schedule could be modified while this is running - FIXME
             for taskName in self.keys():
-                debug('debugSched', self.name, "checking ", taskName)
                 task = self[taskName] #self.schedule[taskName]
+                debug('debugSched', self.name, "checking ", taskName, task.schedTime.year, task.schedTime.month, task.schedTime.day, task.schedTime.hour, task.schedTime.minute, task.schedTime.weekday)
                 # the task should be run if the current date/time matches all specified fields in the SchedTime
                 if (task.schedTime.event == ""): # don't run tasks that specify an event
                     if (task.schedTime.year == []) or (now.year in task.schedTime.year):
@@ -113,7 +113,6 @@ class Schedule(Collection):
                         if task.parent:
                             self.addTask(task.parent.child())
                         del(task)
-            debug('debugSched', self.name, self.__str__())
 
 # a Task specifies a control to be set to a specified state at a specified time
 class Task(Control):
