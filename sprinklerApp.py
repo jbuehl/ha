@@ -72,8 +72,8 @@ if __name__ == "__main__":
     hotControl = DependentControl("hotControl", None, dailySequence, [(maxTemp, ">", hotTemp)], type="sequence", group="Sprinklers", label="Hot sprinklers")
 
     # Tasks
-    resetMinTempTask = Task("resetMinTempTask", SchedTime(hour=0, minute=0), minTemp, initialMinTemp, enabled=True)
-    resetMaxTempTask = Task("resetMaxTempTask", SchedTime(hour=0, minute=0), maxTemp, initialMaxTemp, enabled=True)
+    resetMinTempTask = Task("resetMinTempTask", SchedTime(hour=0, minute=0), minTemp, initialMinTemp, enabled=True, group="Sprinklers")
+    resetMaxTempTask = Task("resetMaxTempTask", SchedTime(hour=0, minute=0), maxTemp, initialMaxTemp, enabled=True, group="Sprinklers")
     startHour = startTime.getState() / 60
     dailyTask = Task("dailyTask", SchedTime(hour=startHour, minute=00, weekday=[Mon, Wed], month=[May, Jun, Jul, Aug, Sep, Oct]),
                         dailySequence, 1, enabled=True, group="Sprinklers", label="Daily sprinkler task")
