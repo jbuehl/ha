@@ -104,7 +104,10 @@ class Schedule(Collection):
                                                     control = task.control
                                                 if control:
                                                     debug('debugEvent', self.name, "setting", control.name, "state", task.controlState)
-                                                    control.setState(task.controlState)
+                                                    try:
+                                                        control.setState(task.controlState)
+                                                    except Exception as ex:
+                                                        log(self.name, "exception running task", task.name, str(ex))
                 if task.schedTime.last:
                     if task.schedTime.last <= now:
                         # delete the task from the schedule if it will never run again
