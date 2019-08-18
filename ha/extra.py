@@ -343,10 +343,14 @@ class DependentControl(Control):
         debug('debugState', self.name, "setState ", state)
         for (sensor, condition, value) in self.conditions:
             sensorState = sensor.getState()
+            if isinstance(value, Sensor):
+                value = value.getState()
             debug('debugDependentControl', self.name, sensor.name, sensorState, condition, value)
-            if not eval(str(sensorState)+condition+str(value)):
-                return
-        self.control.setState(state)
+            try:
+                if eval(str(sensorState)+condition+str(value)):
+                    self.control.setState(state)
+            except Exception as ex:
+                log(self.name, "exception eveluating condition", str(ex))
 
 # Control that can be set on but reverts to off after a specified time
 class OneShotControl(Control):
