@@ -42,6 +42,7 @@ class Schedule(Collection):
         self.schedThread = threading.Thread(target=self.doSchedule)
 
     def start(self):
+        self.initControls()
         self.schedThread.start()
 
     def getState(self):
@@ -64,6 +65,28 @@ class Schedule(Collection):
         self.delRes(taskName)
         debug('debugEvent', self.name, "deleting", taskName)
 
+    # initialize control states in certain cases
+    def initControls(self):
+        (now, tomorrow) = todaysDate()
+        for taskName in self.keys():
+            task = self[taskName]
+            # task must have end time
+            if task.endTime:
+                # task must recur daily
+                if (task.schedTime.year == []) and \
+                   (task.schedTime.month == []) and \
+                   (task.schedTime.day == []) and \
+                   (task.schedTime.weekday == []) and \
+                   (task.schedTime.event == ""):
+                   # task must start and end within the same day
+                   if task.schedTime.hour < task.endTime.hour:
+                       # set the expected state of the control at the present time
+                       # assume it runs once a day, ignore minutes
+                       if (now.hour >= task.schedTime.hour[0]) and (now.hour < task.endTime.hour[0]):
+                           self.setControlState(task, task.controlState)
+                       else:
+                           self.setControlState(task, task.endState)
+
     # Scheduler thread
     def doSchedule(self):
         debug('debugThread', self.name, "started")
@@ -76,12 +99,15 @@ class Schedule(Collection):
 #            if not running:
 #                break
             (now, tomorrow) = todaysDate()
-            debug('debugSched', self.name, "waking up", now.year, now.month, now.day, now.hour, now.minute, now.weekday())
+            debug('debugSched', self.name, "waking up",
+                    now.year, now.month, now.day, now.hour, now.minute, now.weekday())
             # run through the schedule and check if any tasks should be run
             # need to handle cases where the schedule could be modified while this is running - FIXME
             for taskName in self.keys():
-                task = self[taskName] #self.schedule[taskName]
-                debug('debugSched', self.name, "checking ", taskName, task.schedTime.year, task.schedTime.month, task.schedTime.day, task.schedTime.hour, task.schedTime.minute, task.schedTime.weekday)
+                task = self[taskName]
+                debug('debugSched', self.name, "checking ", taskName,
+                        task.schedTime.year, task.schedTime.month, task.schedTime.day,
+                        task.schedTime.hour, task.schedTime.minute, task.schedTime.weekday)
                 if task.enabled:
                     if self.shouldRun(task.schedTime, now):
                         self.setControlState(task, task.controlState)
@@ -112,7 +138,7 @@ class Schedule(Collection):
 
     def setControlState(self, task, state):
         # run the task
-        debug('debugEvent', self.name, "running", taskName)
+        debug('debugEvent', self.name, "task", task.name)
         if task.resources:      # control is resource name
             try:
                 debug('debugEvent', self.name, "resolving", task.control)
@@ -130,7 +156,8 @@ class Schedule(Collection):
 
 # a Task specifies a control to be set to a specified state at a specified time
 class Task(Control):
-    def __init__(self, name, schedTime=None, control=None, controlState=1, endTime=None, endState=0, resources=None, parent=None, enabled=True, interface=None, addr=None,
+    def __init__(self, name, schedTime=None, control=None, controlState=1, endTime=None, endState=0,
+                 resources=None, parent=None, enabled=True, interface=None, addr=None,
                  type="task", group="Tasks", label="", location=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, label=label, location=location)
         self.schedTime = schedTime          # when to run the task
@@ -200,7 +227,7 @@ class Task(Control):
         if self.endTime:
             msg += ","+controlName+": "+str(self.endState)+","+self.endTime.__str__()
         return msg
-        
+
     def __del__(self):
         del(self.schedTime)
 
