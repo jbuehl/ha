@@ -70,9 +70,9 @@ class Schedule(Collection):
         (now, tomorrow) = todaysDate()
         for taskName in self.keys():
             task = self[taskName]
-            # task must have end time
+            # task must have an end time
             if task.endTime:
-                # task must recur daily
+                # task must recur daily at a specific time
                 if (task.schedTime.year == []) and \
                    (task.schedTime.month == []) and \
                    (task.schedTime.day == []) and \
