@@ -91,19 +91,20 @@ if __name__ == "__main__":
     rainReset = Control("rainReset ", rainInterface, "reset")
 
     # Tasks
-    hotWaterRecircOn = Task("hotWaterRecircOn", SchedTime(hour=[05], minute=[0]), recircPump, 1)
-    hotWaterRecircOff = Task("hotWaterRecircOff", SchedTime(hour=[23], minute=[0]), recircPump, 0)
+    hotWaterRecirc = Task("hotWaterRecirc", SchedTime(hour=[05], minute=[0]), recircPump, 1, endTime=SchedTime(hour=[23], minute=[0]), group="Water")
+    # hotWaterRecircOn = Task("hotWaterRecircOn", SchedTime(hour=[05], minute=[0]), recircPump, 1)
+    # hotWaterRecircOff = Task("hotWaterRecircOff", SchedTime(hour=[23], minute=[0]), recircPump, 0)
     rainResetTask = Task("rainResetTask", SchedTime(hour=0, minute=0), rainReset, 0, enabled=True)
 
     # Schedule
-    schedule = Schedule("schedule", tasks=[hotWaterRecircOn, hotWaterRecircOff, rainResetTask])
+    schedule = Schedule("schedule", tasks=[hotWaterRecirc, rainResetTask])
 
     # Resources
     resources = Collection("resources", resources=[recircPump, sculptureLights, doorbell,
                                                    garageDoor, garageBackDoor, garageHouseDoor, garageDoors,
                                                    doorbellButton, garageTemp,
                                                    windSpeed, windDir, rainMinute, rainHour, rainDay,
-                                                   hotWaterRecircOn, hotWaterRecircOff,
+                                                   hotWaterRecirc,
                                                    ])
     restServer = RestServer("garage", resources, event=stateChangeEvent, label="Garage")
 

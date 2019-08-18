@@ -36,7 +36,6 @@ def todaysDate():
 
 # the Scheduler manages a list of Tasks and runs them at the times specified
 class Schedule(Collection):
-    objectArgs = ["tasks"]
     def __init__(self, name, tasks=[]):
         Collection.__init__(self, name, resources=tasks)
         self.type = "schedule"
@@ -56,9 +55,9 @@ class Schedule(Collection):
             debug('debugEvent', self.name, "adding", resource.child().__str__())
 
     # add a task to the scheduler list
-    def addTask(self, theTask):
-        self.addRes(theTask)
-        debug('debugEvent', self.name, "adding", theTask.__str__())
+    def addTask(self, task):
+        self.addRes(task)
+        debug('debugEvent', self.name, "adding", task.__str__())
 
     # delete a task from the scheduler list
     def delTask(self, taskName):
@@ -83,31 +82,13 @@ class Schedule(Collection):
             for taskName in self.keys():
                 task = self[taskName] #self.schedule[taskName]
                 debug('debugSched', self.name, "checking ", taskName, task.schedTime.year, task.schedTime.month, task.schedTime.day, task.schedTime.hour, task.schedTime.minute, task.schedTime.weekday)
-                # the task should be run if the current date/time matches all specified fields in the SchedTime
-                if (task.schedTime.event == ""): # don't run tasks that specify an event
-                    if (task.schedTime.year == []) or (now.year in task.schedTime.year):
-                        if (task.schedTime.month == []) or (now.month in task.schedTime.month):
-                            if (task.schedTime.day == []) or (now.day in task.schedTime.day):
-                                if (task.schedTime.hour == []) or (now.hour in task.schedTime.hour):
-                                    if (task.schedTime.minute == []) or (now.minute in task.schedTime.minute):
-                                        if (task.schedTime.weekday == []) or (now.weekday() in task.schedTime.weekday):
-                                            if task.enabled:
-                                                # run the task
-                                                debug('debugEvent', self.name, "running", taskName)
-                                                if task.resources:      # control is resource name
-                                                    try:
-                                                        debug('debugEvent', self.name, "resolving", task.control)
-                                                        control = task.resources[task.control]
-                                                    except KeyError:    # can't resolve so ignore it
-                                                        control = None
-                                                else:                   # control is resource reference
-                                                    control = task.control
-                                                if control:
-                                                    debug('debugEvent', self.name, "setting", control.name, "state", task.controlState)
-                                                    try:
-                                                        control.setState(task.controlState)
-                                                    except Exception as ex:
-                                                        log(self.name, "exception running task", task.name, str(ex))
+                if task.enabled:
+                    if self.shouldRun(task.schedTime, now):
+                        self.setControlState(task, task.controlState)
+                    if task.endTime:
+                        if self.shouldRun(task.endTime, now):
+                            self.setControlState(task, task.endState)
+                # determine if this was the last time the task would run
                 if task.schedTime.last:
                     if task.schedTime.last <= now:
                         # delete the task from the schedule if it will never run again
@@ -117,16 +98,47 @@ class Schedule(Collection):
                             self.addTask(task.parent.child())
                         del(task)
 
+    def shouldRun(self, schedTime, now):
+        # the task should be run if the current date/time matches all specified fields in the SchedTime
+        if (schedTime.event == ""): # don't run tasks that specify an event
+            if (schedTime.year == []) or (now.year in schedTime.year):
+                if (schedTime.month == []) or (now.month in schedTime.month):
+                    if (schedTime.day == []) or (now.day in schedTime.day):
+                        if (schedTime.hour == []) or (now.hour in schedTime.hour):
+                            if (schedTime.minute == []) or (now.minute in schedTime.minute):
+                                if (schedTime.weekday == []) or (now.weekday() in schedTime.weekday):
+                                    return True
+        return False
+
+    def setControlState(self, task, state):
+        # run the task
+        debug('debugEvent', self.name, "running", taskName)
+        if task.resources:      # control is resource name
+            try:
+                debug('debugEvent', self.name, "resolving", task.control)
+                control = task.resources[task.control]
+            except KeyError:    # can't resolve so ignore it
+                control = None
+        else:                   # control is resource reference
+            control = task.control
+        if control:
+            debug('debugEvent', self.name, "setting", control.name, "state", state)
+            try:
+                control.setState(state)
+            except Exception as ex:
+                log(self.name, "exception running task", task.name, str(ex))
+
 # a Task specifies a control to be set to a specified state at a specified time
 class Task(Control):
-    objectArgs =["interface", "event", "schedTime", "control"]
-    def __init__(self, name, schedTime=None, control=None, controlState=0, resources=None, parent=None, enabled=True, interface=None, addr=None,
+    def __init__(self, name, schedTime=None, control=None, controlState=1, endTime=None, endState=0, resources=None, parent=None, enabled=True, interface=None, addr=None,
                  type="task", group="Tasks", label="", location=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, label=label, location=location)
-        self.schedTime = schedTime
-        self.control = control
-        self.controlState = controlState
-        self.resources = resources
+        self.schedTime = schedTime          # when to run the task
+        self.control = control              # which control to set, can be a name
+        self.controlState = controlState    # the state to set the control to
+        self.endTime = endTime              # optional end time
+        self.endState = endState            # optional state to set the control to at the end time
+        self.resources = resources          # optional list of resources to look up control name in
         self.parent = parent
         self.enabled = normalState(enabled)
 
@@ -168,6 +180,9 @@ class Task(Control):
         attrs.update({"control": controlName,
                       "controlState": self.controlState,
                       "schedTime": self.schedTime.dict()})
+        if self.endTime:
+            attrs.update({"endState": self.endState,
+                          "endTime": self.endTime.dict()})
         return attrs
 
     def __str__(self, views=None):
@@ -181,9 +196,11 @@ class Task(Control):
         except (AttributeError, KeyError):    # can't resolve so use the name
             control = None
             controlName = self.control
-        value = str(self.controlState)
-        return controlName+": "+value+","+self.schedTime.__str__()
-
+        msg = controlName+": "+str(self.controlState)+","+self.schedTime.__str__()
+        if self.endTime:
+            msg += ","+controlName+": "+str(self.endState)+","+self.endTime.__str__()
+        return msg
+        
     def __del__(self):
         del(self.schedTime)
 

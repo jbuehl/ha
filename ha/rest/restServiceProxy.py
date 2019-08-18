@@ -134,8 +134,8 @@ class RestServiceProxy(Sensor):
                         argStr += "interface=interface, "
                     elif arg == "addr":                     # addr is REST path
                         argStr += "addr=path+'/state', "
-                    elif arg == "schedTime":                # FIXME - need to generalize this for any class
-                        argStr += "schedTime=SchedTime(**"+str(node["schedTime"])+"), "
+                    elif arg in ["schedTime", "endTime"]:                # FIXME - need to generalize this for any class
+                        argStr += arg+"=SchedTime(**"+str(node[arg])+"), "
                     elif arg == "cycleList":                # FIXME - need to generalize this for any class
                         argStr += "cycleList=["
                         for cycle in node["cycleList"]:
