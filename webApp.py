@@ -47,10 +47,10 @@ def details(group=None):
         groups = [[group.capitalize(), resources.getGroup(group)]]
         details = True
     except:
-        groups = [[group, resources.getGroup(group)] for group in ["Time", "Weather", "Temperature",
+        groups = [[group, resources.getGroup(group)] for group in ["Alerts", "Services", "Time", "Weather", "Temperature",
                     "Hvac", "Pool", "Lights", "Shades", "Doors", "Car",
                     "Sprinklers", "Water", "Loads", "Solar",
-                    "Services", "Tasks"]]
+                    "Tasks"]]
         details = True
     with resources.lock:
         screenWidth = 1280
