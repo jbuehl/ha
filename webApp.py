@@ -11,6 +11,12 @@ outsideTemp = "edisonTemp"
 poolTemp = "poolTemp"
 serviceMonitorNotifyNumbers = []
 
+defaultConfig = {
+    "alertServices": True,
+    "alertDoorbell": True,
+    "alertDoors": False,
+}
+
 import time
 from jinja2 import Environment, FileSystemLoader
 from ha import *
@@ -18,6 +24,7 @@ from ha.metrics import *
 from ha.serviceMonitor import *
 from ha.interfaces.restInterface import *
 from ha.interfaces.timeInterface import *
+from ha.interfaces.fileInterface import *
 from ha.rest.restServer import *
 from ha.rest.restProxy import *
 from ha.ui.webUI import *
@@ -246,6 +253,16 @@ if __name__ == "__main__":
     resources.addRes(Sensor("theDay", timeInterface, "%a %b %-d %Y", type="date", label="Day"))
     resources.addRes(Sensor("theTime", timeInterface, "%I:%M", type="time", label="Time"))
     resources.addRes(Sensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
+
+    stateInterface = FileInterface("stateInterface", fileName=stateDir+"ha.state", event=stateChangeEvent, initialState=defaultConfig)
+    stateInterface.start()
+    alertServices = Control("alertServices", stateInterface, "alertServices", group="Alerts", label="Alert services")
+    alertDoorbell = Control("alertDoorbell", stateInterface, "alertDoorbell", group="Alerts", label="Alert doorbell")
+    alertDoors = Control("alertDoors", stateInterface, "alertDoors", group="Alerts", label="Alert doors")
+    resources.addRes(alertServices)
+    resources.addRes(alertDoorbell)
+    resources.addRes(alertDoors)
+
 
     # light groups
     porchLights = ControlGroup("porchLights", ["frontLights",
