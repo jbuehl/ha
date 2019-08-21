@@ -1,4 +1,4 @@
-serviceMonitorInterval = 2
+serviceMonitorInterval = 1
 
 import threading
 import time
@@ -41,10 +41,11 @@ def watchServices(resources, notifyNumbers, timeout=60):
                                 serviceUpTimes[resource] = time.time()
                             else:
                                 try:        # send notification if door was previously closed
-                                    if time.time() - serviceUpTimes[resource] > 2:
+                                    if time.time() - serviceUpTimes[resource] > 1:
                                         msg = resources[resource].label+" door is open"
                                         debug("debugServiceMonitor", "serviceMonitor", msg)
                                         smsNotify(notifyNumbers, msg)
+                                        iftttNotify("doorOpen", resources[resource].label)
                                         serviceUpTimes[resource] = float("inf")
                                 except KeyError:    # service is down at the start
                                     serviceUpTimes[resource] = float("inf")
