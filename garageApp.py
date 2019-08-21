@@ -66,7 +66,7 @@ if __name__ == "__main__":
     sculptureLights = Control("sculptureLights", led, 7, type="led", group="Lights", label="Sculpture")
 
     # Doors
-    garageDoor = Sensor("garageDoor", gpio1, 0, type="door", group="Doors", label="Garage Door", event=stateChangeEvent)
+    garageDoor = Sensor("garageDoor", gpio1, 0, type="door", group="Doors", label="Garage", event=stateChangeEvent)
     garageBackDoor = Sensor("garageBackDoor", gpio1, 1, type="door", group="Doors", label="Garage Back", event=stateChangeEvent)
     garageHouseDoor = Sensor("garageHouseDoor", gpio1, 2, type="door", group="Doors", label="Garage House", event=stateChangeEvent)
     garageDoors = SensorGroup("garageDoors", [garageDoor, garageBackDoor, garageHouseDoor], type="door", group="Doors", label="Garage doors")
