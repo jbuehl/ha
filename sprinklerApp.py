@@ -37,8 +37,8 @@ if __name__ == "__main__":
 
     # Sensors
     tempSensor = SensorGroup("tempSensor", [tempSensorName], resources=cacheResources)
-    minTemp = MinSensor("minTemp", stateInterface, "minTemp", tempSensor, group="Weather", type="tempF", label="Min temp")
-    maxTemp = MaxSensor("maxTemp", stateInterface, "maxTemp", tempSensor, group="Weather", type="tempF", label="Max temp")
+    minTemp = MinSensor("minTemp", stateInterface, "minTemp", tempSensor, group=["Weather", "Sprinklers"], type="tempF", label="Min temp")
+    maxTemp = MaxSensor("maxTemp", stateInterface, "maxTemp", tempSensor, group=["Weather", "Sprinklers"], type="tempF", label="Max temp")
     startTime = Control("startTime", stateInterface, "startTime", group="Sprinklers", type="timeControl", label="Sprinkler start time")
     hotTemp = Control("hotTemp", stateInterface, "hotTemp", group="Sprinklers", type="tempFControl", label="Hot temp threshold")
 
