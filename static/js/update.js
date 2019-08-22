@@ -78,24 +78,36 @@ $(document).ready(function() {
             };
         }
 
-    var pending = false;    // true while an stateChange request is pending
-    var count = 0;
+    var pending = false;    // true while a stateChange request is pending
+    var count = 0;          // loop counter
     var blinkToggle = false;
     var blinkOpacity = 1.0;
-    // main loop
+    // main loop once per second
     var refreshId = setInterval(function() {
-        if (count == 60) {     // update everything every minute
-            $.getJSON('/state', {}, function(data) {    // get state values
+        if (count >= 60) {     // update everything every minute
+            count = 0;
+            if (getStateChange) {
+                getStateChange.abort(); // abort the pending getStateChange
+                };
+            pending = false;
+            var getState = $.getJSON('/state', {}, function(data) {    // get state values
                 updateAll(data);
-                count = 0;
-                });
+                })
+                .fail(function() {
+                    count = 0;
+                    pending = false;
+                    });
             };
         if (!pending) {     // don't allow multiple pending stateChange requests
             pending = true;
-            $.getJSON('/stateChange', {}, function(data) {    // get changed state values
+            var getStateChange = $.getJSON('/stateChange', {}, function(data) {    // get changed state values
                 updateAll(data);
                 pending = false;
-                });
+                })
+                .fail(function() {
+                    count = 0;
+                    pending = false;
+                    });
             };
         if (blinkToggle) {      // blink bright
             blinkOpacity = 1.0;
