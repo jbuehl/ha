@@ -1,6 +1,6 @@
     <!-- name - display the group name -->
     <!-- link - make the group name be a link -->
-{% set resourceTemplate = templates.get_template("resource.html") %}
+{% set resourceListTemplate = templates.get_template("resourceList.html") %}
 
     {% if name %}
     {% if link %}
@@ -13,10 +13,5 @@
         {% for w in widths[1] %}
         <col width={{ w }}>
         {% endfor %}
-        {% for resource in group[1] %}
-        <tr>
-            {{ resourceTemplate.render(resource=resource, views=views, details=details, label=label) }}
-        </tr>
-        {% endfor %}
+            {{ resourceListTemplate.render(templates=templates, resources=group[1], views=views, details=details, label=label) }}
     </table>
-

@@ -1,0 +1,9 @@
+    <!-- name - display the group name -->
+    <!-- link - make the group name be a link -->
+{% set resourceTemplate = templates.get_template("resource.html") %}
+
+        {% for resource in resources %}
+        <tr>
+            {{ resourceTemplate.render(resource=resource, views=views, details=details, label=label) }}
+        </tr>
+        {% endfor %}
