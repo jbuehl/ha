@@ -1,6 +1,4 @@
 {% set resourceTemplate = templates.get_template("resource.html") %}
-{% set spaTemplate = templates.get_template("spaWidget.html") %}
-{% set poolPumpTemplate = templates.get_template("poolPumpWidget.html") %}
 {% set groupTemplate = templates.get_template("group.html") %}
 <!DOCTYPE html>
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
@@ -34,7 +32,7 @@
     </div>
 
     <div id="dashPage">
-        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", dashResources], details=False, name=False, link=False, views=views) }}
+        {{ groupTemplate.render(templates=templates, widths=[320, [160, 120, 40]], group=["", dashResources], details=False, name=False, link=False, views=views) }}
         <div class="link"><button onclick="return show('shadesPage','dashPage');">Shades</button></div>
         <div class="link"><button onclick="return show('lightsPage','dashPage');">Lights</button></div>
         <div class="link"><button onclick="return show('poolPage','dashPage');">Pool</button></div>
@@ -53,8 +51,8 @@
     </div>
 
     <div id="poolPage" style="display:none">
-        {{ spaTemplate.render(templates=templates, widths=widths[1], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=2, views=views) }}
-        {{ poolPumpTemplate.render(templates=templates, widths=widths[1], poolPumpControl=poolPumpControl, poolPumpFlowSensor=poolPumpFlowSensor, nSetValues=5, views=views) }}
+        {{ spaControls }}
+        {{ poolControls }}
         {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", poolResources], details=False, name=False, link=False, views=views) }}
         <div class="link"><button onclick="return show('dashPage','poolPage');">Back</button></div>
     </div>
