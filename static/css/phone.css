@@ -1,0 +1,82 @@
+@import "/css/base.css";
+
+body {
+    background-color: Black;
+    }
+
+* {
+    font-size: 16px;
+    }
+
+table {
+    font-size: inherit;
+    }
+
+tbody {
+    font-size: inherit;
+    }
+
+tr {
+    font-size: inherit;
+    }
+
+td {
+    font-size: inherit;
+    }
+
+.heading {
+    font-size: 28px;
+    }
+
+.time {
+	color: LightYellow;
+	font-size: inherit;
+	text-align: right;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    }
+
+.ampm {
+	color: LightYellow;
+	font-size: 28px;
+	text-align: left;
+    }
+
+.date {
+	color: LightGray;
+	font-size: 16px;
+	text-align: left;
+	margin-left: 12px;
+    }
+
+.tempF {
+	color: LightYellow;
+	font-size: 28px;
+	text-align: left;
+    }
+
+.label {
+    font-size: 18px;
+    }
+
+.link {
+    height: 32px;
+    width: 100px;
+	font-size: 18px;
+    text-align: center;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    }
+
+button {
+    font-size: 28px;
+    color: Black;
+    }
+
+input {
+    height: 32px;
+    width: 60px;
+	font-size: 18px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    }

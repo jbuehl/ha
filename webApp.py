@@ -88,7 +88,19 @@ def ipad(location=""):
                     thermostatUnitSensor=resources.getRes("backThermostatUnitSensor"),
                     views=views)
             shadesGroup = []
-        else:
+        elif location == "bedroom":
+            location = "Bedroom"
+            lightsGroup=["Lights", resources.getResList(["porchLights", "bedroomLights", "recircPump", "garageDoors", "houseDoors", "backHouseDoor"])]
+            hvac = templates.get_template("hvacWidget.html").render(label="Inside temp",
+                    widths=columnWidths,
+                    templates=templates,
+                    tempSensor=resources.getRes("masterBedroomTemp"),
+                    heatTargetControl=resources.getRes("northHeatTempTarget"),
+                    coolTargetControl=resources.getRes("northCoolTempTarget"),
+                    thermostatUnitSensor=resources.getRes("northThermostatUnitSensor"),
+                    views=views)
+            shadesGroup=["Shades", resources.getResList(["shade1", "shade2", "shade3", "shade4"])]
+        else:   # default is kitchen
             location = "Kitchen"
             lightsGroup=["Lights", resources.getResList(["porchLights", "poolLight", "spaLight"])]
             hvac = templates.get_template("hvacWidget.html").render(label="Inside temp",
@@ -123,6 +135,55 @@ def ipad(location=""):
                             hvac=hvac,
                             sprinklersGroup=["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "backBedSequence",
                                                                                  "sideBedSequence", "frontLawnSequence", "frontBedSequence"])],
+                            views=views)
+    return reply
+
+# generic phone
+def phone():
+    debug('debugWeb', "/phone", cherrypy.request.method)
+    with resources.lock:
+        widths = [[320, [60, 100, 60]], [320, [120, 72, 128]]]
+        reply = templates.get_template("phone.html").render(script="",
+                            templates=templates,
+                            widths=widths,
+                            time=resources.getRes("theTime"),
+                            ampm=resources.getRes("theAmPm"),
+                            temp=resources.getRes(outsideTemp),
+                            spa=resources.getRes("spa"),
+                            spaTemp=resources.getRes("spaTemp"),
+                            spaTempTarget=resources.getRes("spaTempTarget"),
+                            poolPumpControl=resources.getRes("poolPump"),
+                            poolPumpFlowSensor=resources.getRes("poolPumpFlow"),
+                            dashResources=resources.getResList(["humidity", "sunrise", "sunset", "garageDoors", "houseDoors", "backHouseDoor"]),
+                            poolResources=resources.getResList(["spaBlower", "spaFill", "spaFlush", "spaDrain", "cleanSequence"]),
+                            lightResources=resources.getResList(["frontLights", "backLights", "deckLights", "trashLights", "poolLight", "spaLight"]),
+                            shadeResources=resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"]),
+                            sprinklerResources=resources.getResList(["backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence", "frontBedSequence"]),
+                            hvacLiving = templates.get_template("hvacWidget.html").render(label="Living area",
+                                    widths=widths[1],
+                                    templates=templates,
+                                    tempSensor=resources.getRes("diningRoomTemp"),
+                                    heatTargetControl=resources.getRes("southHeatTempTarget"),
+                                    coolTargetControl=resources.getRes("southCoolTempTarget"),
+                                    thermostatUnitSensor=resources.getRes("southThermostatUnitSensor"),
+                                    views=views),
+                            hvacBedrooms = templates.get_template("hvacWidget.html").render(label="Bedrooms",
+                                    widths=widths[1],
+                                    templates=templates,
+                                    tempSensor=resources.getRes("masterBedroomTemp"),
+                                    heatTargetControl=resources.getRes("northHeatTempTarget"),
+                                    coolTargetControl=resources.getRes("northCoolTempTarget"),
+                                    thermostatUnitSensor=resources.getRes("northThermostatUnitSensor"),
+                                    views=views),
+                            hvacBackHouse = templates.get_template("hvacWidget.html").render(label="Back house",
+                                    widths=widths[1],
+                                    templates=templates,
+                                    tempSensor=resources.getRes("backHouseTemp"),
+                                    heatTargetControl=resources.getRes("backHeatTempTarget"),
+                                    coolTargetControl=resources.getRes("backCoolTempTarget"),
+                                    fanControl=resources.getRes("backFan"),
+                                    thermostatUnitSensor=resources.getRes("backThermostatUnitSensor"),
+                                    views=views),
                             views=views)
     return reply
 
@@ -227,6 +288,7 @@ pathDict = {"": index,
             "solar": solar,
             "weather": weather,
             "ipad": ipad,
+            "phone": phone,
             "iphone5": iphone5,
             "iphone3gs": iphone3gs,
             }

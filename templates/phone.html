@@ -1,0 +1,75 @@
+{% set resourceTemplate = templates.get_template("resource.html") %}
+{% set spaTemplate = templates.get_template("spaWidget.html") %}
+{% set poolPumpTemplate = templates.get_template("poolPumpWidget.html") %}
+{% set groupTemplate = templates.get_template("group.html") %}
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+<head>
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' type='text/css' href='/css/phone.css'>
+    <script src='/js/jquery.js'></script>
+    <script src='/js/update.js'></script>
+    <script>
+        function show(shown, hidden) {
+          document.getElementById(shown).style.display='';
+          document.getElementById(hidden).style.display='none';
+          return false;
+        }
+    </script>
+    {{ script }}
+</head>
+<body>
+    <div class="heading">
+        <table border=0 width={{ widths[0][0] }} style='table-layout:fixed'>
+            {% for w in widths[0][1] %}
+            <col width={{ w }}>
+            {% endfor %}
+            <tr>
+                <td><div id="{{ time.name.replace(".", "_") }}" class="time">{{ views.getViewState(time) }}</div></td>
+                <td><div id="{{ ampm.name.replace(".", "_") }}" class="ampm">{{ views.getViewState(ampm) }}</div></td>
+                <td><div id="{{ temp.name.replace(".", "_") }}" class="tempF {{ temp.name.replace(".", "_") }}">{{ views.getViewState(temp) }}</div></td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="dashPage">
+        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", dashResources], details=False, name=False, link=False, views=views) }}
+        <div class="link"><button onclick="return show('shadesPage','dashPage');">Shades</button></div>
+        <div class="link"><button onclick="return show('lightsPage','dashPage');">Lights</button></div>
+        <div class="link"><button onclick="return show('poolPage','dashPage');">Pool</button></div>
+        <div class="link"><button onclick="return show('sprinklersPage','dashPage');">Sprinklers</button></div>
+        <div class="link"><button onclick="return show('hvacPage','dashPage');">HVAC</button></div>
+    </div>
+
+    <div id="shadesPage" style="display:none">
+        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", shadeResources], details=False, name=False, link=False, views=views) }}
+        <div class="link"><button onclick="return show('dashPage','shadesPage');">Back</button></div>
+    </div>
+
+    <div id="lightsPage" style="display:none">
+        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", lightResources], details=False, name=False, link=False, views=views) }}
+        <div class="link"><button onclick="return show('dashPage','lightsPage');">Back</button></div>
+    </div>
+
+    <div id="poolPage" style="display:none">
+        {{ spaTemplate.render(templates=templates, widths=widths[1], spa=spa, spaTemp=spaTemp, spaTempTarget=spaTempTarget, nSetValues=2, views=views) }}
+        {{ poolPumpTemplate.render(templates=templates, widths=widths[1], poolPumpControl=poolPumpControl, poolPumpFlowSensor=poolPumpFlowSensor, nSetValues=5, views=views) }}
+        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", poolResources], details=False, name=False, link=False, views=views) }}
+        <div class="link"><button onclick="return show('dashPage','poolPage');">Back</button></div>
+    </div>
+
+    <div id="sprinklersPage" style="display:none">
+        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", sprinklerResources], details=False, name=False, link=False, views=views) }}
+        <div class="link"><button onclick="return show('dashPage','sprinklersPage');">Back</button></div>
+    </div>
+
+    <div id="hvacPage" style="display:none">
+        {{ hvacLiving }}
+        {{ hvacBedrooms }}
+        {{ hvacBackHouse }}
+        <div class="link"><button onclick="return show('dashPage','hvacPage');">Back</button></div>
+    </div>
+
+</body>
+</html>
