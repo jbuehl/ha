@@ -138,12 +138,12 @@ def ipad(location=""):
                             views=views)
     return reply
 
-# generic phone
-def phone():
-    debug('debugWeb', "/phone", cherrypy.request.method)
+# generic iPhone
+def iphone():
+    debug('debugWeb', "/iphone", cherrypy.request.method)
     with resources.lock:
         widths = [[320, [60, 100, 60]], [320, [120, 72, 128]]]
-        reply = templates.get_template("phone.html").render(script="",
+        reply = templates.get_template("iphone.html").render(script="",
                             templates=templates,
                             widths=widths,
                             time=resources.getRes("theTime"),
@@ -288,7 +288,7 @@ pathDict = {"": index,
             "solar": solar,
             "weather": weather,
             "ipad": ipad,
-            "phone": phone,
+            "iphone": iphone,
             "iphone5": iphone5,
             "iphone3gs": iphone3gs,
             }
