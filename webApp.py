@@ -6,9 +6,6 @@ webPageTitle = "Home Automation"
 runRestServer = True
 restWatch = []
 restIgnore = []
-insideTemp = "diningRoomTemp"
-outsideTemp = "edisonTemp"
-poolTemp = "poolTemp"
 serviceMonitorNotifyNumbers = []
 
 defaultConfig = {
