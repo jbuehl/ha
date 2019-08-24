@@ -39,6 +39,7 @@
         <div class="link"><button onclick="return show('poolPage','dashPage');">Pool</button></div>
         <div class="link"><button onclick="return show('sprinklersPage','dashPage');">Sprinklers</button></div>
         <div class="link"><button onclick="return show('hvacPage','dashPage');">HVAC</button></div>
+        <div class="link"><button onclick="return show('garagePage','dashPage');">Garage</button></div>
         <div class="link"><button onclick="return show('alertPage','dashPage');">Alerts</button></div>
         <div class="link"><button onclick="return show('doorPage','dashPage');">Doors</button></div>
         <div class="link"><button onclick="return show('powerPage','dashPage');">Power</button></div>
@@ -77,6 +78,11 @@
     <div id="alertPage" style="display:none">
         {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", alertResources], details=False, name=False, link=False, views=views) }}
         <div class="link"><button onclick="return show('dashPage','alertPage');">Back</button></div>
+    </div>
+
+    <div id="garagePage" style="display:none">
+        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", garageResources], details=False, name=False, link=False, views=views) }}
+        <div class="link"><button onclick="return show('dashPage','garagePage');">Back</button></div>
     </div>
 
     <div id="powerPage" style="display:none">
