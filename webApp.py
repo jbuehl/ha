@@ -149,9 +149,9 @@ def iphone():
                             time=resources.getRes("theTime"),
                             ampm=resources.getRes("theAmPm"),
                             temp=resources.getRes(outsideTemp),
-                            dashResources=resources.getResList(["humidity", "sunrise", "sunset",
-                                                                "solar.inverters.stats.power", "loads.stats.power", "solar.inverters.stats.dailyEnergy", "loads.stats.dailyEnergy",
-                                                                "garageDoors", "houseDoors", "backHouseDoor"]),
+                            dayOfWeek=resources.getRes("theDayOfWeek"),
+                            date=resources.getRes("theDate"),
+                            dashResources=resources.getResList(["sunrise", "sunset"]),
                             spaControls = templates.get_template("spaWidget.html").render(templates=templates, widths=widths[1],
                                     spa=resources.getRes("spa"), spaTemp=resources.getRes("spaTemp"), spaTempTarget=resources.getRes("spaTempTarget"), nSetValues=3, views=views),
                             poolControls = templates.get_template("poolPumpWidget.html").render(templates=templates, widths=widths[1],
@@ -185,6 +185,20 @@ def iphone():
                                     fanControl=resources.getRes("backFan"),
                                     thermostatUnitSensor=resources.getRes("backThermostatUnitSensor"),
                                     views=views),
+                            alertResources=resources.getResList(["alertServices", "alertDoorbell", "alertDoors"]),
+                            powerResources=resources.getResList(["solar.inverters.stats.power", "loads.stats.power", "solar.inverters.stats.avgVoltage",
+                                                                 "solar.inverters.stats.dailyEnergy", "loads.stats.dailyEnergy", "solar.inverters.stats.lifetimeEnergy",
+                                                                 "loads.lights.power", "loads.plugs.power", "loads.appliance1.power", "loads.appliance2.power",
+                                                                 "loads.ac.power",
+                                                                 "loads.cooking.power", "loads.pool.power", "loads.backhouse.power", "loads.carcharger.power",
+                                                                 ]),
+                            weatherResources=resources.getResList(["deckTemp", "deckTemp2", "poolEquipTemp", "maxTemp", "minTemp",
+                                                                 "dewpoint", "humidity", "barometer",
+                                                                 "windSpeed", "windDir", "rainDay", "rainHour", "rainMinute",
+                                                                 ]),
+                            doorResources=resources.getResList(["frontDoor", "familyRoomDoor", "masterBedroomDoor",
+                                                                 "garageDoor", "garageBackDoor", "garageHouseDoor", "backHouseDoor",
+                                                                 ]),
                             views=views)
     return reply
 
@@ -319,9 +333,9 @@ if __name__ == "__main__":
 
     stateInterface = FileInterface("stateInterface", fileName=stateDir+"ha.state", event=stateChangeEvent, initialState=defaultConfig)
     stateInterface.start()
-    alertServices = Control("alertServices", stateInterface, "alertServices", group="Alerts", label="Alert services")
-    alertDoorbell = Control("alertDoorbell", stateInterface, "alertDoorbell", group="Alerts", label="Alert doorbell")
-    alertDoors = Control("alertDoors", stateInterface, "alertDoors", group="Alerts", label="Alert doors")
+    alertServices = Control("alertServices", stateInterface, "alertServices", group="Alerts", label="Service down")
+    alertDoorbell = Control("alertDoorbell", stateInterface, "alertDoorbell", group="Alerts", label="Doorbell")
+    alertDoors = Control("alertDoors", stateInterface, "alertDoors", group="Alerts", label="Door opened")
     resources.addRes(alertServices)
     resources.addRes(alertDoorbell)
     resources.addRes(alertDoors)

@@ -32,12 +32,17 @@
     </div>
 
     <div id="dashPage">
+        <div class="date">{{ views.getViewState(dayOfWeek) }} {{ views.getViewState(date) }}</div>
         {{ groupTemplate.render(templates=templates, widths=[320, [160, 120, 40]], group=["", dashResources], details=False, name=False, link=False, views=views) }}
         <div class="link"><button onclick="return show('shadesPage','dashPage');">Shades</button></div>
         <div class="link"><button onclick="return show('lightsPage','dashPage');">Lights</button></div>
         <div class="link"><button onclick="return show('poolPage','dashPage');">Pool</button></div>
         <div class="link"><button onclick="return show('sprinklersPage','dashPage');">Sprinklers</button></div>
         <div class="link"><button onclick="return show('hvacPage','dashPage');">HVAC</button></div>
+        <div class="link"><button onclick="return show('alertPage','dashPage');">Alerts</button></div>
+        <div class="link"><button onclick="return show('doorPage','dashPage');">Doors</button></div>
+        <div class="link"><button onclick="return show('powerPage','dashPage');">Power</button></div>
+        <div class="link"><button onclick="return show('weatherPage','dashPage');">Weather</button></div>
     </div>
 
     <div id="shadesPage" style="display:none">
@@ -63,10 +68,30 @@
     </div>
 
     <div id="hvacPage" style="display:none">
-        {{ hvacLiving }}
-        {{ hvacBedrooms }}
-        {{ hvacBackHouse }}
+        <div class="group">{{ hvacLiving }}</div>
+        <div class="group">{{ hvacBedrooms }}</div>
+        <div class="group">{{ hvacBackHouse }}</div>
         <div class="link"><button onclick="return show('dashPage','hvacPage');">Back</button></div>
+    </div>
+
+    <div id="alertPage" style="display:none">
+        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", alertResources], details=False, name=False, link=False, views=views) }}
+        <div class="link"><button onclick="return show('dashPage','alertPage');">Back</button></div>
+    </div>
+
+    <div id="powerPage" style="display:none">
+        {{ groupTemplate.render(templates=templates, widths=[320, [160, 120, 40]], group=["", powerResources], details=False, name=False, link=False, views=views) }}
+        <div class="link"><button onclick="return show('dashPage','powerPage');">Back</button></div>
+    </div>
+
+    <div id="weatherPage" style="display:none">
+        {{ groupTemplate.render(templates=templates, widths=[320, [160, 120, 40]], group=["", weatherResources], details=False, name=False, link=False, views=views) }}
+        <div class="link"><button onclick="return show('dashPage','weatherPage');">Back</button></div>
+    </div>
+
+    <div id="doorPage" style="display:none">
+        {{ groupTemplate.render(templates=templates, widths=[320, [160, 120, 40]], group=["", doorResources], details=False, name=False, link=False, views=views) }}
+        <div class="link"><button onclick="return show('dashPage','doorPage');">Back</button></div>
     </div>
 
 </body>
