@@ -88,18 +88,10 @@ def solar():
     debug('debugWeb', "/solar", cherrypy.request.method)
     return solarUI(resources, templates, views)
 
-# Weather
-def weather():
-    debug('debugWeb', "/weather", cherrypy.request.method)
-    with resources.lock:
-        return templates.get_template("weather.html").render(script="",
-                            )
-
 # dispatch table
 pathDict = {"": index,
             "details": details,
             "solar": solar,
-            "weather": weather,
             "ipad": ipad,
             "iphone": iphone,
             "iphone5": iphone5,
