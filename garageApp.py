@@ -74,7 +74,7 @@ if __name__ == "__main__":
     doorbell = OneShotControl("doorbell", None, duration=10, type="sound", group="Doors", label="Doorbell", event=stateChangeEvent)
 
     # Temperature
-    garageTemp = Sensor("garageTemp", temp, 0x4d, group="Temperature", label="Garage temp", type="tempF", event=stateChangeEvent)
+    garageTemp = Sensor("garageTemp", temp, 0x4b, group="Temperature", label="Garage temp", type="tempF", event=stateChangeEvent)
 
     # Weather
     anemometer = Sensor("anemometer", gpio1, addr=windSpeedAddr)
