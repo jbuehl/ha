@@ -2,10 +2,10 @@
 Description=One Wire file system
 After=syslog.target
 [Service]
-Type = forking                                                                                                           
-User = root                                                                                             
-Working Directory = /root                                                                             
-ExecStart=/opt/owfs/bin/owfs --i2c=ALL:ALL --allow_other -F -m /mnt/1wire/
+Type = forking
+User = root
+Working Directory = /root
+ExecStart=/usr/bin/owfs --i2c=ALL:ALL --allow_other -F -m /mnt/1wire/
 Restart=on-abort
 [Install]
 WantedBy=multi-user.target
