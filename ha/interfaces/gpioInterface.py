@@ -2,14 +2,14 @@ from ha import *
 # import whichever gpio library is installed
 try:
     import RPi.GPIO as gpio
-    gpioLibrary = "RPi"
+    gpioLibrary = "RPi.GPIO"
 except ImportError:
     import RPIO as gpio
     gpioLibrary = "RPIO"
 
 gpioInterfaces = {}
 
-def interruptCallback(pin, value=0):
+def interruptCallback(pin, value=1):
     debug('debugGPIO', "interruptCallback", "pin:", pin, "value:", value)
     try:
         gpioInterfaces[pin].interrupt()
@@ -59,6 +59,7 @@ class GPIOInterface(Interface):
             self.bank = 0
 
     def start(self):
+        debug('debugGPIO', self.name, "using GPIO library", gpioLibrary)
         gpio.setwarnings(False)
         if self.interface:
             gpio.setmode(gpio.BCM)
@@ -78,9 +79,9 @@ class GPIOInterface(Interface):
             if gpioLibrary == "RPIO":
                 gpio.add_interrupt_callback(self.interruptPin, interruptCallback, edge="falling", pull_up_down=gpio.PUD_UP)
                 gpio.wait_for_interrupts(threaded=True)
-            elif gpioLibrary == "RPi":
+            elif gpioLibrary == "RPi.GPIO":
                 gpio.setup(self.interruptPin, gpio.IN, pull_up_down=gpio.PUD_UP)
-                gpio.add_event_detect(self.interruptPin, gpio.FALLING, callback=interruptCallback, bouncetime=300)
+                gpio.add_event_detect(self.interruptPin, gpio.FALLING, callback=interruptCallback)
         else:   # direct only supports output - FIXME
             gpio.setmode(gpio.BOARD)
             for pin in GPIOInterface.gpioPins:
