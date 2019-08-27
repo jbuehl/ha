@@ -47,11 +47,12 @@ class RainInterface(Interface):
                 sampleEvent.wait()
                 with sampleLock:
                     samples = rainSamples
+                debug("debugRain", self.name, "samples", str(samples))
                 self.interface.write("rainSamples", samples)
                 sampleEvent.clear()
         saveSamplesThread = threading.Thread(target=saveSamples)
         saveSamplesThread.start()
-    
+
     def read(self, addr):
         global rainSamples, sampleLock, sampleEvent
         # determine how many samples to count
@@ -65,7 +66,7 @@ class RainInterface(Interface):
             cutoff = time.mktime((today.tm_year,today.tm_mon,today.tm_mday,0,0,0,0,0,0))
         else:
             cutoff = time.time()
-        debug("debugRain", self.name, "read", "addr:", addr, "now:", now, "cutoff:", cutoff)
+        # debug("debugRain", self.name, "read", "addr:", addr, "now:", now, "cutoff:", cutoff)
         # copy the sample list
         with sampleLock:
             samples = rainSamples
@@ -75,9 +76,9 @@ class RainInterface(Interface):
                 rainTotal += rainIncr
             else:               # return the total
                 break
-        debug("debugRain", self.name, "read", "rainTotal:", rainTotal)
+        # debug("debugRain", self.name, "read", "rainTotal:", rainTotal)
         return rainTotal
-    
+
     def write(self, addr, value):
         global rainSamples, sampleLock, sampleEvent
         debug("debugRain", self.name, "write", "addr:", addr, "value:", value)
@@ -86,4 +87,3 @@ class RainInterface(Interface):
             with sampleLock:
                 rainSamples = []
             sampleEvent.set()
-
