@@ -27,7 +27,7 @@ if __name__ == "__main__":
     # Resources
     resources = Collection("resources", resources=[shade1, shade2, shade3, shade4, allShades,
                                                    shadesDown, shadesUpAprSep, shadesUpMayAug, shadesUpJunJul])
-    restServer = RestServer("deck", resources, event=stateChangeEvent, label="Shades")
+    restServer = RestServer("deck", resources, event=stateChangeEvent, label="Deck")
 
     # Start interfaces
     gpioInterface.start()
