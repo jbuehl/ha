@@ -52,7 +52,7 @@ def iphoneUI(resources, templates, views):
                                     fanControl=resources.getRes("backFan"),
                                     thermostatUnitSensor=resources.getRes("backThermostatUnitSensor"),
                                     views=views),
-                            alertResources=resources.getResList(["alertServices", "alertDoorbell", "alertDoors"]),
+                            alertResources=resources.getResList(["smsAlerts", "appAlerts", "iftttAlerts", "alertServices", "alertDoorbell", "alertSpa", "alertDoors"]),
                             powerResources=resources.getResList(["solar.inverters.stats.power", "loads.stats.power", "solar.inverters.stats.avgVoltage",
                                                                  "solar.inverters.stats.dailyEnergy", "loads.stats.dailyEnergy", "solar.inverters.stats.lifetimeEnergy",
                                                                  "loads.lights.power", "loads.plugs.power", "loads.appliance1.power", "loads.appliance2.power",

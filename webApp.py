@@ -9,7 +9,11 @@ restIgnore = []
 serviceMonitorNotifyNumbers = []
 
 defaultConfig = {
+    "smsAlerts": True,
+    "appAlerts": False,
+    "iftttAlerts": True,
     "alertServices": True,
+    "alertSpa": True,
     "alertDoorbell": True,
     "alertDoors": False,
 }
@@ -120,10 +124,18 @@ if __name__ == "__main__":
 
     stateInterface = FileInterface("stateInterface", fileName=stateDir+"ha.state", event=stateChangeEvent, initialState=defaultConfig)
     stateInterface.start()
+    smsAlerts = Control("smsAlerts", stateInterface, "smsAlerts", group="Alerts", label="Send SMS alerts")
+    appAlerts = Control("appAlerts", stateInterface, "appAlerts", group="Alerts", label="Send app alerts")
+    appAlerts = Control("iftttAlerts", stateInterface, "iftttAlerts", group="Alerts", label="Send IFTTT alerts")
     alertServices = Control("alertServices", stateInterface, "alertServices", group="Alerts", label="Service down")
+    alertSpa = Control("alertSpa", stateInterface, "alertSpa", group="Alerts", label="Spa is ready")
     alertDoorbell = Control("alertDoorbell", stateInterface, "alertDoorbell", group="Alerts", label="Doorbell")
     alertDoors = Control("alertDoors", stateInterface, "alertDoors", group="Alerts", label="Door opened")
+    resources.addRes(smsAlerts)
+    resources.addRes(appAlerts)
+    resources.addRes(iftttAlerts)
     resources.addRes(alertServices)
+    resources.addRes(alertSpa)
     resources.addRes(alertDoorbell)
     resources.addRes(alertDoors)
 
