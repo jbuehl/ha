@@ -7,13 +7,17 @@ except ImportError:
     import RPIO as gpio
     gpioLibrary = "RPIO"
 
+# dictionary of GPIOInterfaces indexed by their interrupt pins
 gpioInterfaces = {}
 
+# initial interrupt callback routine that is called when an interrupt pin goes low
 def interruptCallback(pin, value=1):
     debug('debugGPIO', "interruptCallback", "pin:", pin, "value:", value)
     try:
+        # call the interrupt routine for the GPIOInterface associated with the pin
         gpioInterfaces[pin].interrupt()
     except KeyError:
+        # the interrupt occurred on a pin not associated with a GPIOInterface
         log("interruptCallback", "unknown interrupt", "pin:", pin, "value:", value, "gpioInterfaces:", gpioInterfaces)
 
 
@@ -90,7 +94,7 @@ class GPIOInterface(Interface):
                 debug('debugGPIO', self.name, "write", pin, 0)
                 gpio.output(pin, 0)
 
-    # interrupt handler
+    # interrupt handler for this interface
     def interrupt(self):
         intFlags = self.interface.read((self.addr, GPIOInterface.INTF+self.bank))
         debug('debugGPIO', self.name, "interrupt", "addr: 0x%02x"%self.addr, "bank:", self.bank, "intFlags: 0x%02x"%intFlags)
