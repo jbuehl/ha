@@ -6,11 +6,7 @@ doorbellState = 0
 doorbellSound = "doorbell.wav"
 doorbellNotifyMsg = "Doorbell https://shadyglade.thebuehls.com/image?camera=%s"
 doorbellCamera = "frontdoor"
-notificationServer = ""
 
-import subprocess
-import urllib
-import requests
 from ha import *
 from ha.interfaces.gpioInterface import *
 from ha.interfaces.i2cInterface import *
@@ -21,6 +17,7 @@ from ha.interfaces.fileInterface import *
 from ha.interfaces.windInterface import *
 from ha.interfaces.rainInterface import *
 from ha.rest.restServer import *
+from ha.notification.notificationClient import *
 
 doorbellEvent = threading.Event()
 def doorbellHandler(doorbellControl):
@@ -30,9 +27,7 @@ def doorbellHandler(doorbellControl):
         doorbellEvent.clear()
         doorbellControl.setState(1)
         debug('debugDoorbell', "notifying", notificationServer)
-        requests.get("http://"+notificationServer+"/notify"+ \
-                    "?type=alertDoorbell"+ \
-                    "&message="+urllib.quote(doorbellNotifyMsg%(doorbellCamera)))
+        notify("alertDoorbell", doorbellNotifyMsg%(doorbellCamera))
         # debug('debugDoorbell', "playing", soundDir+doorbellSound)
         # os.system("aplay "+soundDir+doorbellSound)
 

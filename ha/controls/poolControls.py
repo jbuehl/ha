@@ -1,10 +1,7 @@
 spaNotifyMsg = "Spa is ready"
-notifyFromNumber = ""
-spaReadyNotifyNumbers = []
-spaReadyNotifyApp = ""
 
 from ha import *
-from ha.notification import *
+from ha.notification.notificationClient import *
 
 # pump speed
 pumpLo = 1
@@ -26,7 +23,7 @@ valveSpa = 1
 valveMoving = 4
 
 class SpaControl(Control):
-    def __init__(self, name, interface, valveControl, pumpControl, heaterControl, lightApp, tempSensor, tempTargetControl, addr=None, 
+    def __init__(self, name, interface, valveControl, pumpControl, heaterControl, lightApp, tempSensor, tempTargetControl, addr=None,
             group="", type="control", location=None, label="", interrupt=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.className = "Control"
@@ -38,22 +35,22 @@ class SpaControl(Control):
         self.tempSensor = tempSensor
         self.tempTargetControl = tempTargetControl
         self.eventThread = None
-        
+
         # state transition sequences
-        self.startupSequence = Sequence("spaStartup", 
+        self.startupSequence = Sequence("spaStartup",
                              [Cycle(self.valveControl, duration=0, startState=valveSpa),
                               Cycle(self.pumpControl, duration=0, startState=pumpMed, delay=30),
                               Cycle(self.heaterControl, duration=0, startState=on, delay=10)
                               ])
-        self.onSequence = Sequence("spaOn", 
+        self.onSequence = Sequence("spaOn",
                              [Cycle(self.pumpControl, duration=0, startState=pumpMax),
                               Cycle(self.lightApp, duration=0, startState=on),
                               ])
-        self.standbySequence = Sequence("spaStandby", 
+        self.standbySequence = Sequence("spaStandby",
                              [Cycle(self.pumpControl, duration=0, startState=pumpMed),
                               Cycle(self.lightApp, duration=0, startState=off),
                               ])
-        self.shutdownSequence = Sequence("spaShutdown", 
+        self.shutdownSequence = Sequence("spaShutdown",
                              [Cycle(self.pumpControl, duration=0, startState=pumpMed),
                               Cycle(self.heaterControl, duration=0, startState=off),
                               Cycle(self.pumpControl, duration=0, startState=off, delay=60),
@@ -117,15 +114,11 @@ class SpaControl(Control):
         self.stateTransition(spaWarming)
         self.startEventThread("spaWarming", self.heaterControl.unitControl.getState, Off, self.spaReady, endState, self.heaterControl.unitControl.getState, On)
 
-    # called when target temperature is reached        
+    # called when target temperature is reached
     def spaReady(self, state):
         debug('debugState', self.name, "spaReady ", state)
         self.stateTransition(state)
-        notifyMsg = spaNotifyMsg+" "+str(int(self.tempSensor.getState()+.5))+" F"
-        if spaReadyNotifyNumbers != []:
-            smsNotify(spaReadyNotifyNumbers, notifyMsg)
-        if spaReadyNotifyApp != "":
-            iosNotify(spaReadyNotifyApp, notifyMsg)
+        notify("alertSpa", spaNotifyMsg+" "+str(int(self.tempSensor.getState()+.5))+" F")
 
     # start an event thread
     def startEventThread(self, name, checkFunction, checkValue, actionFunction, actionValue, waitFunction=None, waitValue=0):
@@ -134,7 +127,7 @@ class SpaControl(Control):
             self.eventThread = None
         self.eventThread = SpaEventThread(name, checkFunction, checkValue, actionFunction, actionValue, waitFunction, waitValue)
         self.eventThread.start()
-            
+
 # A thread to wait for the state of the specified sensor to reach the specified value
 # then call the specified action function with the specified action value.
 # Optionally, first wait for the state of a third function to reach a specified value.
@@ -152,7 +145,7 @@ class SpaEventThread(threading.Thread):
 
     def cancel(self):
         self.cancelled = True
-        
+
     def asyncEvent(self):
         if self.waitFunction:
             debug('debugThread', self.name, "waiting")
@@ -169,4 +162,3 @@ class SpaEventThread(threading.Thread):
                 return
         self.actionFunction(self.actionValue)
         debug('debugThread', self.name, "finished")
-        

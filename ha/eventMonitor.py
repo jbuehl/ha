@@ -3,7 +3,7 @@ serviceMonitorInterval = 1
 import threading
 import time
 from ha import *
-from ha.notification import *
+from ha.notification.notificationServer import *
 
 def watchEvents(resources, notifyNumbers, timeout=60):
     serviceUpTimes = {}

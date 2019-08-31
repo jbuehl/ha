@@ -15,7 +15,7 @@ import requests
 from twilio.rest import Client
 from ha import *
 from ha.ui.webViews import *
-from ha.notification import *
+from ha.notification.notificationServer import *
 
 twilioKey = keyDir+"twilio.key"
 
@@ -256,10 +256,6 @@ class WebRoot(object):
     @cherrypy.expose
     def notify(self, type, message):
         notify(self.resources, type, message)
-        # smsClient = Client(getValue(twilioKey, "sid"), getValue(twilioKey, "token"))
-        # if sender == "":
-        #     sender = notifyFromNumber
-        # smsClient.messages.create(to=number, from_=sender, body=message)
 
 def webInit(resources, restCache, stateChangeEvent, httpPort=80, ssl=False, httpsPort=443, domain="", pathDict=None, baseDir="/", block=False):
     # set up the web server
