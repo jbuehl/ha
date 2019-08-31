@@ -4,8 +4,6 @@ rainGaugeAddr = 6
 
 doorbellState = 0
 doorbellSound = "doorbell.wav"
-doorbellNotifyNumbers = []
-doorbellNotifyFrom = ""
 doorbellNotifyMsg = "Doorbell https://shadyglade.thebuehls.com/image?camera=%s"
 doorbellCamera = "frontdoor"
 notificationServer = ""
@@ -26,17 +24,15 @@ from ha.rest.restServer import *
 
 doorbellEvent = threading.Event()
 def doorbellHandler(doorbellControl):
-    debug('debugDoorbell', "starting doorbell using control", doorbellControl.name)
+    debug('debugDoorbell', "starting doorbellHandler using control", doorbellControl.name)
     while True:
         doorbellEvent.wait()
         doorbellEvent.clear()
-        for doorbellNotifyNumber in doorbellNotifyNumbers:
-            doorbellControl.setState(1)
-            debug('debugDoorbell', "notifying", doorbellNotifyNumber)
-            requests.get("http://"+notificationServer+"/notify"+ \
-                        "?number="+urllib.quote(doorbellNotifyNumber)+ \
-                        "&message="+urllib.quote(doorbellNotifyMsg%(doorbellCamera))+ \
-                        "&sender="+urllib.quote(doorbellNotifyFrom))
+        doorbellControl.setState(1)
+        debug('debugDoorbell', "notifying", notificationServer)
+        requests.get("http://"+notificationServer+"/notify"+ \
+                    "?type=alertDoorbell"+ \
+                    "&message="+urllib.quote(doorbellNotifyMsg%(doorbellCamera)))
         # debug('debugDoorbell', "playing", soundDir+doorbellSound)
         # os.system("aplay "+soundDir+doorbellSound)
 

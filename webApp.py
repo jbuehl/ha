@@ -22,7 +22,7 @@ import time
 from jinja2 import Environment, FileSystemLoader
 from ha import *
 from ha.metrics import *
-from ha.serviceMonitor import *
+from ha.eventMonitor import *
 from ha.interfaces.restInterface import *
 from ha.interfaces.timeInterface import *
 from ha.interfaces.fileInterface import *
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     stateInterface.start()
     smsAlerts = Control("smsAlerts", stateInterface, "smsAlerts", group="Alerts", label="Send SMS alerts")
     appAlerts = Control("appAlerts", stateInterface, "appAlerts", group="Alerts", label="Send app alerts")
-    appAlerts = Control("iftttAlerts", stateInterface, "iftttAlerts", group="Alerts", label="Send IFTTT alerts")
+    iftttAlerts = Control("iftttAlerts", stateInterface, "iftttAlerts", group="Alerts", label="Send IFTTT alerts")
     alertServices = Control("alertServices", stateInterface, "alertServices", group="Alerts", label="Service down")
     alertSpa = Control("alertSpa", stateInterface, "alertSpa", group="Alerts", label="Spa is ready")
     alertDoorbell = Control("alertDoorbell", stateInterface, "alertDoorbell", group="Alerts", label="Doorbell")
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     restCache.start()
 
     # monitor service states
-    watchServices(resources, serviceMonitorNotifyNumbers)
+    watchEvents(resources, serviceMonitorNotifyNumbers)
 
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))

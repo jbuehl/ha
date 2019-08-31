@@ -5,10 +5,10 @@ import time
 from ha import *
 from ha.notification import *
 
-def watchServices(resources, notifyNumbers, timeout=60):
+def watchEvents(resources, notifyNumbers, timeout=60):
     serviceUpTimes = {}
     def serviceWatch():
-        debug("debugServiceMonitor", "serviceMonitor", "starting")
+        debug("debugEventMonitor", "eventMonitor", "starting")
         while True:
             with resources.lock:
                 monitoredGroups = []
@@ -16,14 +16,14 @@ def watchServices(resources, notifyNumbers, timeout=60):
                     monitoredGroups.append("Services")
                 if resources["alertDoors"].getState():
                     monitoredGroups.append("Doors")
-                debug("debugServiceMonitor", "serviceMonitor", str(monitoredGroups))
+                debug("debugEventMonitor", "eventMonitor", str(monitoredGroups))
                 for resource in resources:
                     if isinstance(resources[resource].group, list):
                         group = resources[resource].group[0]
                     else:
                         group = resources[resource].group
                     if group in monitoredGroups:
-                        debug("debugServiceMonitor", "serviceMonitor", resource, group, resources[resource].state)
+                        debug("debugEventMonitor", "eventMonitor", resource, group, resources[resource].state)
                         if group == "Services":
                             if resources[resource].state == 1:  # service is up
                                 serviceUpTimes[resource] = time.time()
@@ -31,21 +31,20 @@ def watchServices(resources, notifyNumbers, timeout=60):
                                 try:        # send notification if service was previously up
                                     if time.time() - serviceUpTimes[resource] > timeout:
                                         msg = "service "+resources[resource].label+" is down"
-                                        debug("debugServiceMonitor", "serviceMonitor", msg)
-                                        smsNotify(notifyNumbers, msg)
+                                        debug("debugEventMonitor", "eventMonitor", msg)
+                                        notify(resources, "alertServices", msg)
                                         serviceUpTimes[resource] = float("inf")
                                 except KeyError:    # service is down at the start
                                     serviceUpTimes[resource] = float("inf")
-                        elif (group == "Doors") and (resource[-5:] != "Doors"):
+                        elif (group == "Doors") and (resource[-5:] != "Doors") and (resource != "doorbell"):
                             if resources[resource].state == 0:  # door is closed
                                 serviceUpTimes[resource] = time.time()
                             else:
                                 try:        # send notification if door was previously closed
                                     if time.time() - serviceUpTimes[resource] > 1:
                                         msg = resources[resource].label+" door is open"
-                                        debug("debugServiceMonitor", "serviceMonitor", msg)
-                                        smsNotify(notifyNumbers, msg)
-                                        iftttNotify("doorOpen", resources[resource].label)
+                                        debug("debugEventMonitor", "eventMonitor", msg)
+                                        notify(resources, "alertDoors", msg)
                                         serviceUpTimes[resource] = float("inf")
                                 except KeyError:    # service is down at the start
                                     serviceUpTimes[resource] = float("inf")

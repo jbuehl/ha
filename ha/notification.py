@@ -1,4 +1,12 @@
 # Notification
+serviceNotifyNumbers = []
+serviceNotifyFrom = ""
+spaNotifyNumbers = []
+spaNotifyFrom = ""
+doorbellNotifyNumbers = []
+doorbellNotifyFrom = ""
+doorNotifyNumbers = []
+doorNotifyFrom = ""
 
 import requests
 import urllib
@@ -9,22 +17,49 @@ from ha import *
 twilioKey = keyDir+"twilio.key"
 iftttKey = keyDir+"ifttt.key"
 
-# send an sms notification
-def smsNotify(numbers, message):
-    smsClient = Client(getValue(twilioKey, "sid"), getValue(twilioKey, "token"))
-    smsFrom = notifyFromNumber
-    for smsTo in numbers:
-        smsClient.messages.create(to=smsTo, from_=smsFrom, body=message)
+# send notifications
+def notify(resources, notificationType, message):
+    if resources.getRes(notificationType).getState():
+        debug("debugNotification", "notification", notificationType, message)
+        if resources.getRes("smsAlerts").getState():
+            if notificationType == "alertServices":
+                fromNumber = serviceNotifyFrom
+                toNumbers = serviceNotifyNumbers
+            elif notificationType == "alertSpa":
+                fromNumber = spaNotifyFrom
+                toNumbers = spaNotifyNumbers
+            elif notificationType == "alertDoorbell":
+                fromNumber = doorbellNotifyFrom
+                toNumbers = doorbellNotifyNumbers
+            elif notificationType == "alertDoors":
+                fromNumber = doorNotifyFrom
+                toNumbers = doorNotifyNumbers
+            smsNotify(fromNumber, toNumbers, message)
+        if resources.getRes("appAlerts").getState():
+            appNotify("", message)
+        if resources.getRes("iftttAlerts").getState():
+            iftttNotify(message)
 
-# send an iOS app notification
-def iosNotify(app, message):
+# send an sms notification
+def smsNotify(fromNumber, toNumbers, message):
+    smsClient = Client(getValue(twilioKey, "sid"), getValue(twilioKey, "token"))
+    for toNumber in toNumbers:
+        debug("debugNotification", "SMS notify from", fromNumber, "to", toNumber)
+        smsClient.messages.create(to=toNumber, from_=fromNumber, body=message)
+
+# send an app notification
+def appNotify(app, message):
     if app != "":
+        debug("debugNotification", "app notify to", app)
         requests.get("http://"+app+".appspot.com/notify?message="+urllib.quote(message))
 
 # send an IFTTT notification
-def iftttNotify(event, value1="", value2="", value3=""):
+def iftttNotify(message):
     key = getValue(iftttKey, "key")
-    url = "https://maker.ifttt.com/trigger/"+event+"/with/key/"+key
+    debug("debugNotification", "IFTTT notify")
+    url = "https://maker.ifttt.com/trigger/haEvent/with/key/"+key
     headers = {"Content-Type": "application/json"}
-    data = json.dumps({"value1": value1, "value2": value2, "value3": value3})
+    value2 = ""
+    value3 = ""
+    data = json.dumps({"value1": message, "value2": value2, "value3": value3})
     req = requests.post(url, data=data, headers=headers)
