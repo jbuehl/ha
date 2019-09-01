@@ -79,9 +79,9 @@ def iphone():
     debug('debugWeb', "/iphone", cherrypy.request.method)
     return iphoneUI(resources, templates, views)
 
-# iPhone 3GS - 320x480
-def iphone3gs():
-    debug('debugWeb', "/iphone3gs", cherrypy.request.method)
+# iPhone 3 - 320x480
+def bedroom():
+    debug('debugWeb', "/bedroom", cherrypy.request.method)
     return bedroomUI(resources, templates, views)
 
 # Solar
@@ -96,7 +96,7 @@ pathDict = {"": index,
             "ipad": ipad,
             "iphone": iphone,
             "iphone5": iphone5,
-            "iphone3gs": iphone3gs,
+            "bedroom": bedroom,
             }
 
 if __name__ == "__main__":

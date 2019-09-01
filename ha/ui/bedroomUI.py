@@ -15,7 +15,7 @@ def bedroomUI(resources, templates, views):
                             coolTargetControl=resources.getRes("northCoolTempTarget"),
                             thermostatUnitSensor=resources.getRes("northThermostatUnitSensor"),
                             views=views)
-        reply = templates.get_template("iphone3gs.html").render(script="",
+        reply = templates.get_template("bedroom.html").render(script="",
                             templates=templates,
                             widths=widths,
                             time=resources.getRes("theTime"),
