@@ -327,7 +327,7 @@ def webInit(resources, restCache, stateChangeEvent, httpPort=80, ssl=False, http
         for handler in tuple(access_log.handlers):
             access_log.removeHandler(handler)
     if not webReload:
-        cherrypy.engine.timeout_monitor.unsubscribe()
+        # cherrypy.engine.timeout_monitor.unsubscribe()
         cherrypy.engine.autoreload.unsubscribe()
     cherrypy.engine.start()
     if block:
