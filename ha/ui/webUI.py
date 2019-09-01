@@ -24,10 +24,14 @@ twilioKey = keyDir+"twilio.key"
 
 # user authentication
 userFileName = keyDir+"users.json"
-users = json.load(open(userFileName))
+users = []
 lanAddr = "192.168.1"
 def validatePassword(realm, username, password):
+    global users
     debug('debugWebAuth', "validatePassword", "ip:", cherrypy.request.remote.ip, "username:", username, "password:", password)
+    if users == []:
+        debug('debugWebAuth', "validatePassword", "reading user file", userFileName)
+        users = json.load(open(userFileName))
     # accept anything connecting from the LAN
     if ".".join(cherrypy.request.remote.ip.split(".")[0:3]) == lanAddr:
         debug('debugWebAuth', "validatePassword", "accepted")
