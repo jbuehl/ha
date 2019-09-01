@@ -26,7 +26,7 @@ def doorbellHandler(doorbellControl):
         doorbellEvent.wait()
         doorbellEvent.clear()
         doorbellControl.setState(1)
-        debug('debugDoorbell', "notifying", notificationServer)
+        debug('debugDoorbell', "sending notification")
         notify("alertDoorbell", doorbellNotifyMsg%(doorbellCamera))
         # debug('debugDoorbell', "playing", soundDir+doorbellSound)
         # os.system("aplay "+soundDir+doorbellSound)
