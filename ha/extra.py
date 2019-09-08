@@ -95,11 +95,12 @@ class Sequence(Control):
         self.notify()
         debug('debugThread', self.name, "stopped")
 
-    # state change notification to all control events since the sequence doean't have an event
+    # state change notification to all control events since the sequence doesn't have an event
     def notify(self):
         time.sleep(2)   # short delay to ensure the state change event for the sequence isn't missed
         for cycle in self.cycleList:
-            cycle.control.notify()
+            if isinstance(cycle.control, Sensor):
+                cycle.control.notify()
 
     # Run the specified Cycle
     def runCycle(self, cycle):
