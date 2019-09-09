@@ -115,6 +115,7 @@ class GPIOInterface(Interface):
 
     def read(self, addr):
         if self.interface:
+            self.readState()
             return (self.state >> addr) & 0x01
         else:
             return 0
