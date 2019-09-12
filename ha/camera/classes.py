@@ -51,12 +51,11 @@ def getCameras():
             time.sleep(1)
     cameras = {}
     for camera in cameraList:
-        if camera != "storage.json":
-            cameras[camera] = Camera(camera)
-            try:
-                cameras[camera].load(cameraDir+camera+"/conf.json")
-                debug("debugCamera", "camera:", str(camera))
-            except:
-                raise
+        cameras[camera] = Camera(camera)
+        try:
+            cameras[camera].load(cameraDir+camera+"/conf.json")
+            debug("debugCamera", "camera:", str(camera))
+        except:
+            raise
     debug("debugCamera", "cameras:", str(cameras))
     return cameras
