@@ -1,5 +1,4 @@
 # camera storage management
-storageDevice = "/mnt/disk1"
 storageUpdateInterval = 60
 purgeStorageInterval = 60*60*24 # daily
 videoRetention = 10
@@ -11,6 +10,13 @@ import subprocess
 import json
 from ha import *
 from ha.camera.classes import *
+
+# find the mount point of a directory
+def mountPoint(path):
+    path = os.path.realpath(path)
+    while not os.path.ismount(path):
+        path = os.path.dirname(path)
+    return path
 
 # get the number of events and storage used
 def getStorageStats(cameraDir, cameras, repeat):
@@ -59,7 +65,8 @@ def getSize(path):
         return "0"
 
 # get the capacity, used, and free space on the specified device
-def getStorage(device):
+def getStorage():
+    device = mountPoint(cameraBase)
     storage = subprocess.check_output("df -h "+device, shell=True).split("\n")[1].split()
     return storage[1:5]
 

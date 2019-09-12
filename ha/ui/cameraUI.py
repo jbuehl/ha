@@ -146,7 +146,7 @@ def dates(camera, cameras, templates):
     for d in range(7 - weekday - 1):
         cameraDays[-1][2][-1][2].append(["", "", "", ""])
     # get storage device statistics
-    [capacity, used, avail, percent] = getStorage(storageDevice)
+    [capacity, used, avail, percent] = getStorage()
     debug('debugIndex', "cameraDays", cameraDays)
     return templates.get_template("dates.html").render(title=webPageTitle+" cameras", script="",
                         capacity=capacity, used=used, avail=avail, percent=percent,
