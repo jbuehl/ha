@@ -224,7 +224,7 @@ class WebRoot(object):
         year = date[0:4]
         month = date[4:6]
         day = date[6:8]
-        imageDir = cameraBase+camera+"/"+imageType+"/"+year+"/"+month+"/"+day+"/"
+        imageDir = cameraDir+camera+"/"+imageType+"/"+year+"/"+month+"/"+day+"/"
         if not image:
             image = subprocess.check_output("ls -1 "+imageDir+"*.jpg | tail -n1", shell=True).split("/")[-1].strip("\n")
         debug('debugImage', "camera = ", camera)
@@ -264,7 +264,7 @@ class WebRoot(object):
         year = date[0:4]
         month = date[4:6]
         day = date[6:8]
-        videoDir = cameraBase+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+        videoDir = cameraDir+camera+"/videos/"+year+"/"+month+"/"+day+"/"
         if resource:
             (resourceName, resourceType) = resource.split(".")
         else:
@@ -314,14 +314,14 @@ class WebRoot(object):
         year = date[0:4]
         month = date[4:6]
         day = date[6:8]
-        videoDir = cameraBase+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+        videoDir = cameraDir+camera+"/videos/"+year+"/"+month+"/"+day+"/"
         duration = (int(endhour) * 3600 + int(endminute) * 60) - (int(starthour) * 3600 + int(startminute) * 60)
         clipFileName = makeClip(videoDir, date+starthour+startminute, duration, "mp4")
         videoClip = open(videoDir+clipFileName).read()
         # archive the clip or delete it
         if archive == "true":
             debug('debugClip', "archiving", clipFileName)
-            archiveDir = cameraBase+"archive/"+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+            archiveDir = cameraDir+"archive/"+camera+"/videos/"+year+"/"+month+"/"+day+"/"
             os.popen("mkdir -p "+archiveDir)
             os.popen("mv "+videoDir+clipFileName+" "+archiveDir)
         else:

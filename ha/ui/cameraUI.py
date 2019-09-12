@@ -32,7 +32,7 @@ def wall(cameras, templates):
     debug('debugWall', "date = ", date)
     playlistList = []
     for camera in cameras:
-        videoDir = cameraBase+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+        videoDir = cameraDir+camera+"/videos/"+year+"/"+month+"/"+day+"/"
         # return newest playlist that isn't an event
         playlists = os.listdir(videoDir)
         for playlist in sorted(playlists, reverse=True):
@@ -61,7 +61,7 @@ def snaps(camera, date, resource, cameras, templates):
     day = date[6:8]
     debug('debugSnaps', "camera = ", camera)
     debug('debugSnaps', "date = ", date)
-    snapDir = cameraBase+camera+"/snaps/"+year+"/"+month+"/"+day+"/"
+    snapDir = cameraDir+camera+"/snaps/"+year+"/"+month+"/"+day+"/"
     snapshots = os.listdir(snapDir)
     debug('debugSnaps', "snapshots = ", len(snapshots))
     # build a matrix of snapshots for the day at 5 minute intervals
@@ -90,11 +90,11 @@ def dates(camera, cameras, templates):
         cameraList = [camera]
     else:
         cameraList = cameras.keys()
-    eventStorage = json.load(open(cameraBase+"storage.json"))
+    eventStorage = json.load(open(cameraDir+"storage.json"))
 
     # update today's stats
     for camera in cameraList:
-        updateStorageStats(camera, time.strftime("%Y%m%d"), cameraBase, eventStorage)
+        updateStorageStats(camera, time.strftime("%Y%m%d"), cameraDir, eventStorage)
 
     # create a multidimensional array containing the data for display
     #    cameraDays = ["displayCamera1", camera1, ["displayYearMonth1", yearMonth1, [[displayDay1, day1, nEvents, size],
@@ -158,7 +158,7 @@ def events(camera, date, cameras, templates):
     year = date[0:4]
     month = date[4:6]
     day = date[6:8]
-    imageDir = cameraBase+camera+"/images/"+year+"/"+month+"/"+day+"/"
+    imageDir = cameraDir+camera+"/images/"+year+"/"+month+"/"+day+"/"
     try:
         imageFiles = os.listdir(imageDir)
         imageFiles.sort(reverse=True)
@@ -192,7 +192,7 @@ def stream(camera, date, playlist, cameras, templates):
     year = date[0:4]
     month = date[4:6]
     day = date[6:8]
-    videoDir = cameraBase+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+    videoDir = cameraDir+camera+"/videos/"+year+"/"+month+"/"+day+"/"
     if playlist:
         playlist += ".m3u8"
     else:
@@ -220,7 +220,7 @@ def download(camera, date, playlist, cameras, templates):
     year = date[0:4]
     month = date[4:6]
     day = date[6:8]
-    videoDir = cameraBase+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+    videoDir = cameraDir+camera+"/videos/"+year+"/"+month+"/"+day+"/"
     startHour = playlist[0:2]
     startMinute = playlist[2:4]
     endHour = startHour

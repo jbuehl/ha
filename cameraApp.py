@@ -47,23 +47,23 @@ if __name__ == "__main__":
     if video:
         videoThreads = []
         for camera in cameras:
-            videoThreads.append(threading.Thread(target=recordVideo, args=(cameraBase, cameras[camera], today,)))
+            videoThreads.append(threading.Thread(target=recordVideo, args=(cameraDir, cameras[camera], today,)))
             videoThreads[-1].start()
 
     # start the thumbnail threads
     thumbThreads = []
     for camera in cameras:
-        thumbThreads.append(threading.Thread(target=thumbNails, args=(cameraBase, cameras[camera], today, font, force, repeat,)))
+        thumbThreads.append(threading.Thread(target=thumbNails, args=(cameraDir, cameras[camera], today, font, force, repeat,)))
         thumbThreads[-1].start()
 
     # start the event playlist threads
     eventThreads = []
     for camera in cameras:
-        eventThreads.append(threading.Thread(target=makeEventPlaylists, args=(cameraBase, cameras[camera], today, force, repeat,)))
+        eventThreads.append(threading.Thread(target=makeEventPlaylists, args=(cameraDir, cameras[camera], today, force, repeat,)))
         eventThreads[-1].start()
 
     # start the event storage thread
-    storageThread = threading.Thread(target=getStorageStats, args=(cameraBase, cameras, repeat,))
+    storageThread = threading.Thread(target=getStorageStats, args=(cameraDir, cameras, repeat,))
     storageThread.start()
 
     # block

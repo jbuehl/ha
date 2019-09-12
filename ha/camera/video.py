@@ -71,14 +71,14 @@ def getEventTimes(eventTime, before, after):
     return (start, end)
 
 # make video playlists for events
-def makeEventPlaylists(cameraBase, camera, date, force=False, repeat=0):
+def makeEventPlaylists(cameraDir, camera, date, force=False, repeat=0):
     debug('debugEnable', "starting event thread for camera", camera.name)
 #    debug("debugEvent", "camera:", camera.name, "date:", date)
-    imageDir = cameraBase+camera.name+"/images/"+date[0:4]+"/"+date[4:6]+"/"+date[6:8]+"/"
+    imageDir = cameraDir+camera.name+"/images/"+date[0:4]+"/"+date[4:6]+"/"+date[6:8]+"/"
 #    debug("debugEvent", "imageDir:", imageDir)
     os.popen("mkdir -p "+imageDir)
-    os.popen("chown -R "+ftpUsername+"."+ftpUsername+" "+cameraBase+camera.name+"/images/")
-    videoDir = cameraBase+camera.name+"/videos/"+date[0:4]+"/"+date[4:6]+"/"+date[6:8]+"/"
+    os.popen("chown -R "+ftpUsername+"."+ftpUsername+" "+cameraDir+camera.name+"/images/")
+    videoDir = cameraDir+camera.name+"/videos/"+date[0:4]+"/"+date[4:6]+"/"+date[6:8]+"/"
 #    debug("debugEvent", "videoDir:", videoDir)
     repeating = 1
     while repeating:
@@ -97,12 +97,12 @@ def makeEventPlaylists(cameraBase, camera, date, force=False, repeat=0):
     debug("debugEvent", "exiting playlist thread for camera", camera.name)
 
 # record video for a camera
-def recordVideo(cameraBase, camera, date):
+def recordVideo(cameraDir, camera, date):
     debug('debugEnable', "starting video thread for camera", camera.name)
     debug("debugVideo", "camera:", camera, "date:", date)
-    videoDir = cameraBase+camera.name+"/videos/"+date[0:4]+"/"+date[4:6]+"/"+date[6:8]+"/"
+    videoDir = cameraDir+camera.name+"/videos/"+date[0:4]+"/"+date[4:6]+"/"+date[6:8]+"/"
     cameraUsername = getValue(cameraKey, "cameraUsername")
-    cameraPassword = getValue(cameraKey, "cameraPassword"
+    cameraPassword = getValue(cameraKey, "cameraPassword")
     debug("debugVideo", "videoDir:", videoDir)
     os.popen("mkdir -p "+videoDir)
     while True:

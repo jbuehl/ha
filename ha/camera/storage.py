@@ -13,7 +13,7 @@ from ha import *
 from ha.camera.classes import *
 
 # get the number of events and storage used
-def getStorageStats(cameraBase, cameras, repeat):
+def getStorageStats(cameraDir, cameras, repeat):
     debug('debugEnable', "starting storage stats thread")
     repeating = True
     while repeating:
@@ -24,18 +24,18 @@ def getStorageStats(cameraBase, cameras, repeat):
             debug('debugStorage', "getting eventStorage for camera", camera)
             dayDatetime = startTimeDatetime
             for day in range(videoRetention):
-                updateStorageStats(camera, time.strftime("%Y%m%d", dayDatetime.timetuple()), cameraBase, eventStorage)
+                updateStorageStats(camera, time.strftime("%Y%m%d", dayDatetime.timetuple()), cameraDir, eventStorage)
                 dayDatetime += datetime.timedelta(days=1)
         debug('debugStorage', "eventStorage", eventStorage)
-        json.dump(eventStorage, open(cameraBase+"storage.json", "w"))
+        json.dump(eventStorage, open(cameraDir+"storage.json", "w"))
         debug('debugEnable', "saved storage stats")
         repeating = repeat
         time.sleep(storageUpdateInterval)
 
 # return the number of events and video storage for the specified camera and day
-def updateStorageStats(camera, day, cameraBase, eventStorage):
-    videoBase = cameraBase+camera+"/videos/"
-    imageBase = cameraBase+camera+"/images/"
+def updateStorageStats(camera, day, cameraDir, eventStorage):
+    videoBase = cameraDir+camera+"/videos/"
+    imageBase = cameraDir+camera+"/images/"
     dayDir = day[0:4]+"/"+day[4:6]+"/"+day[6:8]
     nEvents = getEvents(imageBase+dayDir+"/")
     size = getSize(videoBase+dayDir+"/")
@@ -68,6 +68,6 @@ def purgeStorage(camera, repeat):
     while repeating:
         debug('debugEnable', "deleting video older than", videoRetention, "days for camera", camera)
         if videoRetention > 0:
-            os.popen("/usr/bin/find "+cameraBase+camera+"/videos"+" -mtime +"+str(videoRetention)+" -type f -delete")
+            os.popen("/usr/bin/find "+cameraDir+camera+"/videos"+" -mtime +"+str(videoRetention)+" -type f -delete")
         repeating = repeat
         time.sleep(purgeStorageInterval)

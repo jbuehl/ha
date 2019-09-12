@@ -1,5 +1,6 @@
 # basic camera functions
 cameraBase = "/cameras/"
+cameraDir = cameraBase+"cameras/"
 
 import json
 from ha import *
@@ -44,16 +45,16 @@ def getCameras():
     cameraList = None
     while not cameraList:
         try:
-            cameraList = os.listdir(cameraBase)
+            cameraList = os.listdir(cameraDir)
         except OSError:
-            log("camera storage", cameraBase, "not available")
+            log("camera storage", cameraDir, "not available")
             time.sleep(1)
     cameras = {}
     for camera in cameraList:
         if camera != "storage.json":
             cameras[camera] = Camera(camera)
             try:
-                cameras[camera].load(cameraBase+camera+"/conf.json")
+                cameras[camera].load(cameraDir+camera+"/conf.json")
                 debug("debugCamera", "camera:", str(camera))
             except:
                 raise
