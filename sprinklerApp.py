@@ -69,7 +69,7 @@ if __name__ == "__main__":
     dailySequence = Sequence("dailySequence", [frontLawnSequence, backLawnSequence, backBedSequence, gardenSequence, sideBedSequence], group="Sprinklers", label="Daily sprinklers")
     weeklySequence = Sequence("weeklySequence", [frontBedSequence, dailySequence], group="Sprinklers", label="Weekly sprinklers")
     # run sprinklers if the day's max temp exceeds a threshold
-    hotControl = DependentControl("hotControl", None, dailySequence, [(maxTemp, ">", hotTemp)], type="sequence", group="Sprinklers", label="Hot sprinklers")
+    hotControl = DependentControl("hotControl", None, dailySequence, [(maxTemp, ">=", hotTemp)], type="sequence", group="Sprinklers", label="Hot sprinklers")
 
     # Tasks
     resetMinTempTask = Task("resetMinTempTask", SchedTime(hour=0, minute=0), minTemp, initialMinTemp, enabled=True, group="Sprinklers")
