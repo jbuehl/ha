@@ -23,9 +23,50 @@ convertCmd = """/usr/bin/convert %s -resize %dx%d \
 %s
 """
 
+def createEvent(eventType, camera, date, hour, minute, second="00"):
+    year = date[0:4]
+    month = date[4:6]
+    day = date[6:8]
+    videoDir = cameraDir+camera.name+"/videos/"+year+"/"+month+"/"+day+"/"
+    thumbDir = cameraDir+camera.name+"/thumbs/"+year+"/"+month+"/"+day+"/"
+    os.popen("mkdir -p "+thumbDir)
+    try:
+        videoFiles = os.listdir(videoDir)
+        videoFiles.sort()
+        # find the latest video fragment
+        for videoFile in reversed(videoFiles):
+            [videoName, ext] = videoFile.split(".")
+            if ext == "ts":
+                # wait for the fragment to finish recording
+                time.sleep(10)
+                debug("debugThumb", "creating", eventType, "event for camera", camera.name, "time", hour+":"+minute+":"+second)
+                cmd = "ffmpeg -i "+videoDir+videoFile+" -vframes 1 -s 320x180 -nostats -loglevel error -y "+ \
+                      thumbDir+videoName[0:8]+hour+minute+second+"_"+eventType.jpg"
+                os.popen(cmd)
+                break
+    except OSError: # directory doesn't exist yet
+        pass
+
+# create thumbnail images for periodic snapshots
+def snapshots(imageBase, camera, today, font, force=False, repeat=0):
+    debug('debugEnable', "starting snapshot thread for camera", camera)
+    lastMinute = "--"
+    repeating = 1
+    while repeating:
+        # make a snapshot of the current video every 5 minutes
+        hour = time.strftime("%H")
+        minute = time.strftime("%M")
+        if (minute[1] == "0") or (minute[1] == "5"):
+            if minute != lastMinute:
+                lastMinute = minute
+                createEvent("snap", camera, today, hour, minute)
+        repeating = repeat
+        time.sleep(repeat)
+    debug("debugThumb", "exiting snapshot thread for camera", camera.name)
+
 # create thumbnail images for uploaded event images
-def thumbNails(imageBase, camera, today, font, force=False, repeat=0):
-    debug('debugEnable', "starting thumbnail thread for camera", camera)
+def motionEvents(imageBase, camera, today, font, force=False, repeat=0):
+    debug('debugEnable', "starting motion event thread for camera", camera)
     year = today[0:4]
     month = today[4:6]
     day = today[6:8]
@@ -41,27 +82,6 @@ def thumbNails(imageBase, camera, today, font, force=False, repeat=0):
     lastMinute = "--"
     repeating = 1
     while repeating:
-        # make a snapshot of the current video every 5 minutes
-        hour = time.strftime("%H")
-        minute = time.strftime("%M")
-        if (minute[1] == "0") or (minute[1] == "5"):
-            if minute != lastMinute:
-                lastMinute = minute
-                try:
-                    videoFiles = os.listdir(videoDir)
-                    videoFiles.sort()
-                    # find the latest video fragment
-                    for videoFile in reversed(videoFiles):
-                        [videoName, ext] = videoFile.split(".")
-                        if ext == "ts":
-                            # wait for the fragment to finish recording
-                            time.sleep(10)
-                            debug("debugThumb", "creating snapshot for camera", camera.name, "time", hour+":"+minute)
-                            cmd = "ffmpeg -i "+videoDir+videoFile+" -vframes 1 -s 320x180 -nostats -loglevel error -y "+snapDir+videoName[0:8]+hour+minute+"00_snap.jpg"
-                            os.popen(cmd)
-                            break
-                except OSError: # directory doesn't exist yet
-                    pass
         # make thumbnails for images
         if eventClipCount == eventClipInterval:
             eventClipCount = 0
@@ -91,4 +111,4 @@ def thumbNails(imageBase, camera, today, font, force=False, repeat=0):
             eventClipCount += 1
         repeating = repeat
         time.sleep(repeat)
-    debug("debugThumb", "exiting thumbnail thread for camera", camera.name)
+    debug("debugThumb", "exiting motion event thread for camera", camera.name)

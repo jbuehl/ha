@@ -42,7 +42,7 @@ def wall(cameras, templates):
                     debug('debugWall', "camera = ", camera)
                     debug('debugWall', "playlist = ", playlist)
                     break
-    [capacity, used, avail, percent] = getStorage(storageDevice)
+    [capacity, used, avail, percent] = getStorage()
     return templates.get_template("wall.html").render(title=webPageTitle+" cameras", script="",
                         dateDisp=time.strftime("%a %B %-d %Y %-H:%M"),
                         capacity=capacity, used=used, avail=avail, percent=percent,

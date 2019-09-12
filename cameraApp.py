@@ -50,11 +50,17 @@ if __name__ == "__main__":
             videoThreads.append(threading.Thread(target=recordVideo, args=(cameraDir, cameras[camera], today,)))
             videoThreads[-1].start()
 
-    # start the thumbnail threads
-    thumbThreads = []
+    # start the snapshot threads
+    snapThreads = []
     for camera in cameras:
-        thumbThreads.append(threading.Thread(target=thumbNails, args=(cameraDir, cameras[camera], today, font, force, repeat,)))
-        thumbThreads[-1].start()
+        snapThreads.append(threading.Thread(target=snapshots, args=(cameraDir, cameras[camera], today, font, force, repeat,)))
+        snapThreads[-1].start()
+
+    # start the motion event threads
+    motionEventThreads = []
+    for camera in cameras:
+        motionEventThreads.append(threading.Thread(target=motionEvents, args=(cameraDir, cameras[camera], today, font, force, repeat,)))
+        motionEventThreads[-1].start()
 
     # start the event playlist threads
     eventThreads = []
