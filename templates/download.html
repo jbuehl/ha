@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+<head>
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' type='text/css' href='/css/camera.css'>
+    <script src='/js/jquery.min.js'></script>
+    {{ script }}
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <div class="heading">
+        <div class="date">{{ dateDisp }}</div>
+    </div>
+    <div class="download">
+        <form action="/clip" method="get">
+            <input type="hidden" name="camera" value="{{ camera }}">
+            <input type="hidden" name="date" value="{{ date }}">
+            <div class="input">
+                Start <input type="number" name="starthour" value="{{ starthour }}" min="0" max="23" step="1">
+                : <input type="number" name="startminute" value="{{ startminute }}" min="0" max="59" step="1">
+            </div>
+            <div class="input">
+                End <input type="number" name="endhour" value="{{ endhour }}" min="0" max="23" step="1">
+                : <input type="number" name="endminute" value="{{ endminute }}" min="0" max="59" step="1">
+            </div>
+            <div class="input">
+                Archive <input type="checkbox" name="archive" value="true">
+            </div>
+            <div class="input">
+                <input type="submit" value="Download">
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+<head>
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' type='text/css' href='/css/camera.css'>
+    <script src='/js/jquery.min.js'></script>
+    <script src='/js/jquery.unveil.js'></script>
+    <script>
+    $(document).ready(function() {
+      $("img").unveil();
+    });
+    </script>
+    {{ script }}
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <div class="heading">
+        <div class="date">{{ dateDisp }}</div>
+    </div>
+    <div class="thumbnails">
+    {% for image in images %}
+        <div class="thumbnail">
+            {% if image[0] != "" %}
+            <img class="thumbimage" src="../images/gray.jpg" data-src="/thumb?camera={{ camera }}&date={{ date }}&thumb={{ image[0] }}">
+            <div class="controls">
+                <span class="control">
+                </span>
+                <span class="control">
+                </span>
+                <span class="control">
+                    <a class="control" title="Expand image" href="/image/{{ camera }}/{{ date }}/{{ image[1] }}">
+                        <img class="controlimage" src="../images/expand-border.png">
+                    </a>
+                </span>
+                <span class="control">
+                    <span class="control">
+                        <a class="control" title="Download clip" href="/cameras?function=download&camera={{ camera }}&date={{ date }}">
+                            <img class="controlimage" src="../images/download-border.png">
+                        </a>
+                    </span>
+                </span>
+                <span class="control">
+                    <a class="control" title="Stream" href="/cameras?function=stream&camera={{ camera }}&date={{ date }}&resource={{ image[2] }}">
+                        <img class="controlimage" src="../images/play-border.png">
+                    </a>
+                </span>
+            </div>
+            {% else %}
+            <img class="thumbimage" src="images/gray.jpg">
+            {% endif %}
+        </div>
+    {% endfor %}
+    </div>
+</body>
+</html>

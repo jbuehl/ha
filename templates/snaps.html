@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+<head>
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' type='text/css' href='/css/camera.css'>
+    <script src='/js/jquery.min.js'></script>
+    <script src='/js/jquery.unveil.js'></script>
+    <script>
+    $(document).ready(function() {
+      $("img").unveil();
+    });
+    </script>
+    <script type="text/JavaScript">
+        function TimedRefresh( t ) {
+            setTimeout("location.reload(true);", t);
+        }
+    </script>
+    {{ script }}
+</head>
+<body onload="JavaScript:TimedRefresh(300000);">
+    <h1>{{ title }}</h1>
+    <div class="heading">
+        <div class="date">{{ dateDisp }}</div>
+    </div>
+    <div class="snaps">
+    {% for snap in snaps %}
+        <div class="snap">
+            {% if snap[0] != "" %}
+            <div class="snapimage">
+                <a class="snaplink" title="Expand image" href="/snap/{{ camera }}/{{ date }}/{{ snap[0] }}">
+                    <img class="thumbimage" src="../images/gray.jpg" data-src="/snap/{{ camera }}/{{ date }}/{{ snap[0] }}">
+                </a>
+            </div>
+            <div class="snaptimes">
+                {% for snaptime in snap[2] %}
+                <span class="snaplink">
+                    <a class="snaptime" title="Play video starting at {{ snap[1] }}:{{ snaptime }}"
+                       href="/cameras?function=stream&camera={{ camera }}&date={{ date }}&resource={{ snap[1] }}{{ snaptime }}%3A">
+                       :{{ snaptime }}
+                    </a>
+                </span>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div>
+                <img class="thumbimage" src="../images/gray.jpg">
+            </div>
+            <div class="snaphour">{{ snap[1] }}</div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    </div>
+</body>
+</html>

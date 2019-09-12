@@ -1,31 +1,71 @@
-import socket
+# Camera management
+
+import sys
+import time
+import threading
 from ha import *
-from ha.interfaces.cameraInterface import *
-from ha.rest.restServer import *
+from ha.camera.classes import *
+from ha.camera.images import *
+from ha.camera.video import *
+from ha.camera.storage import *
 
 if __name__ == "__main__":
-    # Environment
-    cameraName = socket.gethostname()
-    cameraDisplay = cameraName[:-1].capitalize()+" "+cameraName[-1]
+    try:
+        # running from command line
+        today = sys.argv[1]
+        force = True
+        repeat = 0
+        purge = False
+        video = False
+        storage = False
+    except:
+        # running as service
+        today = time.strftime("%Y%m%d")
+        force = False
+        repeat = True
+        purge = True
+        video = True
+        storage = True
+    debug('debugEnable', "date:", today)
+    debug('debugEnable', "force:", force)
+    debug('debugEnable', "repeat:", repeat)
+    debug('debugEnable', "purge:", purge)
+    debug('debugEnable', "video:", video)
+    debug('debugEnable', "storage:", storage)
 
-    # Interfaces
-    stateChangeEvent = threading.Event()
-    camera = CameraInterface(cameraName, imageDir=imageDir, rotation=cameraRotation, event=stateChangeEvent)
-    
-    # Cameras
-    cameraImage = Sensor(cameraName+"image", camera, "image", group="Cameras", label=cameraDisplay, type="image")
-    cameraThumb = Sensor(cameraName+"thumb", camera, "thumb", group="Cameras", label=cameraDisplay+" thumbnail", type="image")
-    cameraMode = Control(cameraName+"mode", camera, "mode", group="Cameras", label=cameraDisplay+" mode", type="cameraMode")
-    cameraEnable = Control(cameraName+"enable", camera, "enable", group="Cameras", label=cameraDisplay+" enable", type="cameraEnable")
-    cameraRecord = Control(cameraName+"record", camera, "record", group="Cameras", label=cameraDisplay+" record", type="cameraRecord")
-    
-    # Schedules
+    # get the camera attributes
+    cameras = getCameras()
 
-    # Resources
-    resources = Collection("resources", [cameraImage, cameraThumb, cameraMode, cameraEnable, cameraRecord])
-    restServer = RestServer("camera", resources, event=stateChangeEvent, label=cameraDisplay)
+    # purge old video
+    if purge:
+        purgeThreads = []
+        for camera in cameras.keys():
+            purgeThreads.append(threading.Thread(target=purgeStorage, args=(camera, repeat,)))
+            purgeThreads[-1].start()
 
-    # Start interfaces
-    camera.start()
-    restServer.start()
+    # start the video threads
+    if video:
+        videoThreads = []
+        for camera in cameras:
+            videoThreads.append(threading.Thread(target=recordVideo, args=(cameraBase, cameras[camera], today,)))
+            videoThreads[-1].start()
 
+    # start the thumbnail threads
+    thumbThreads = []
+    for camera in cameras:
+        thumbThreads.append(threading.Thread(target=thumbNails, args=(cameraBase, cameras[camera], today, font, force, repeat,)))
+        thumbThreads[-1].start()
+
+    # start the event playlist threads
+    eventThreads = []
+    for camera in cameras:
+        eventThreads.append(threading.Thread(target=makeEventPlaylists, args=(cameraBase, cameras[camera], today, force, repeat,)))
+        eventThreads[-1].start()
+
+    # start the event storage thread
+    storageThread = threading.Thread(target=getStorageStats, args=(cameraBase, cameras, repeat,))
+    storageThread.start()
+
+    # block
+    while True:
+        time.sleep(1)

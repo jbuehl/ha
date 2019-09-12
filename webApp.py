@@ -34,10 +34,13 @@ from ha.ui.ipadUI import *
 from ha.ui.iphoneUI import *
 from ha.ui.bedroomUI import *
 from ha.ui.solarUI import *
+from ha.ui.cameraUI import *
+from ha.camera.classes import *
 
 # global variables
 templates = None
 resources = None
+cameras = None
 stateChangeEvent = threading.Event()
 
 # default - dashboard
@@ -89,13 +92,18 @@ def solar():
     debug('debugWeb', "/solar", cherrypy.request.method)
     return solarUI(resources, templates, views)
 
+# Cameras
+def cameras(function=None, camera=None, date=None, resource=None):
+    debug('debugWeb', "/cameras", cherrypy.request.method)
+    return cameraUI(function, camera, date, resource, cameras, resources, templates, views)
+
 # dispatch table
 pathDict = {"": index,
             "details": details,
             "solar": solar,
+            "cameras": cameras,
             "ipad": ipad,
             "iphone": iphone,
-            "iphone5": iphone5,
             "bedroom": bedroom,
             }
 
@@ -149,6 +157,9 @@ if __name__ == "__main__":
 
     # monitor service states
     watchEvents(resources, serviceMonitorNotifyNumbers)
+
+    # get the camera attributes
+    cameras = getCameras()
 
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))

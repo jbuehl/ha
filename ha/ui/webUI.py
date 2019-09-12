@@ -4,7 +4,6 @@ debugWebUpdateTime = False
 debugWebStateTime = False
 debugWebStateChangeTime = False
 blinkers = []
-imageBase = "/var/ftp/images/"
 
 import json
 import subprocess
@@ -12,10 +11,12 @@ import cherrypy
 import time
 from cherrypy.lib import auth_basic
 import requests
+import urllib
 from twilio.rest import Client
 from ha import *
 from ha.ui.webViews import *
 from ha.notification.notificationServer import *
+from ha.camera.video import *
 
 twilioKey = keyDir+"twilio.key"
 
@@ -196,54 +197,6 @@ class WebRoot(object):
         reply = ""
         return reply
 
-    # return a camera image
-    @cherrypy.expose
-    def image(self, camera=None, date=None, image=None):
-        debug('debugWeb', "/image", cherrypy.request.method, camera)
-        if not camera:
-            camera = "frontdoor"
-        if not image:
-            image = subprocess.check_output("ls -1 /var/ftp/images/"+camera+"/*.jpg | tail -n1", shell=True).split("/")[-1].strip("\n")
-        if not date:
-            date = time.strftime("%Y%m%d")
-        year = date[0:4]
-        month = date[4:6]
-        day = date[6:8]
-        debug('debugImage', "camera = ", camera)
-        debug('debugImage', "date = ", date)
-        debug('debugImage', "image = ", image)
-        imageDir = imageBase+camera+"/"+year+"/"+month+"/"+day+"/"
-        with open(imageDir+image) as imageFile:
-            imageContent = imageFile.read()
-        debug('debugImage', "length = ", len(imageContent))
-        cherrypy.response.headers['Content-Type'] = "image/jpeg"
-        cherrypy.response.headers['Content-Length'] = len(imageContent)
-        return imageContent
-
-    # return a camera video
-    @cherrypy.expose
-    def video(self, camera=None, date=None, video=None):
-        debug('debugWeb', "/video", cherrypy.request.method, camera)
-        if not camera:
-            camera = "frontdoor"
-        if not video:
-            video = subprocess.check_output("ls -1 /var/ftp/images/"+camera+"/*.mp4 | tail -n1", shell=True).split("/")[-1].strip("\n")
-        if not date:
-            date = time.strftime("%Y%m%d")
-        year = date[0:4]
-        month = date[4:6]
-        day = date[6:8]
-        debug('debugImage', "camera = ", camera)
-        debug('debugImage', "date = ", date)
-        debug('debugImage', "video = ", video)
-        imageDir = imageBase+camera+"/"+year+"/"+month+"/"+day+"/"
-        with open(imageDir+video) as videoFile:
-            videoContent = videoFile.read()
-        debug('debugImage', "length = ", len(video))
-        cherrypy.response.headers['Content-Type'] = "video/mp4"
-        cherrypy.response.headers['Content-Length'] = len(videoContent)
-        return videoContent
-
     # return a sound
     @cherrypy.expose
     def sound(self, sound=None):
@@ -260,6 +213,124 @@ class WebRoot(object):
     @cherrypy.expose
     def notify(self, type, message):
         notify(self.resources, type, message)
+
+    # return a camera image
+    def getImage(self, camera, date, image, imageType):
+        if not camera:
+            cherrypy.response.status = 400
+            return "camera is required"
+        if not date:
+            date = time.strftime("%Y%m%d")
+        year = date[0:4]
+        month = date[4:6]
+        day = date[6:8]
+        imageDir = cameraBase+camera+"/"+imageType+"/"+year+"/"+month+"/"+day+"/"
+        if not image:
+            image = subprocess.check_output("ls -1 "+imageDir+"*.jpg | tail -n1", shell=True).split("/")[-1].strip("\n")
+        debug('debugImage', "camera = ", camera)
+        debug('debugImage', "date = ", date)
+        debug('debugImage', "imageType = ", imageType)
+        debug('debugImage', "image = ", image)
+        with open(imageDir+image) as imageFile:
+            imageContent = imageFile.read()
+        debug('debugImage', "length = ", len(imageContent))
+        cherrypy.response.headers['Content-Type'] = "image/jpeg"
+        cherrypy.response.headers['Content-Length'] = len(imageContent)
+        return imageContent
+
+    # return a camera image
+    @cherrypy.expose
+    def image(self, camera=None, date=None, image=None):
+        return self.getImage(camera, date, image, "images")
+
+    # return a camera thumbnail
+    @cherrypy.expose
+    def thumb(self, camera=None, date=None, thumb=None):
+        return self.getImage(camera, date, thumb, "thumbs")
+
+    # return a camera snapshot
+    @cherrypy.expose
+    def snap(self, camera=None, date=None, snap=None):
+        return self.getImage(camera, date, snap, "snaps")
+
+    # return a video resource for a camera
+    @cherrypy.expose
+    def video(self, camera=None, date=None, resource=None):
+        if not camera:
+            cherrypy.response.status = 400
+            return "camera is required"
+        if not date:
+            date = time.strftime("%Y%m%d")
+        year = date[0:4]
+        month = date[4:6]
+        day = date[6:8]
+        videoDir = cameraBase+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+        if resource:
+            (resourceName, resourceType) = resource.split(".")
+        else:
+            # return newest playlist
+            videos = os.listdir(videoDir)
+            for video in sorted(videos, reverse=True):
+                if video.split(".")[-1] == "m3u8":
+                    resource = video
+                    resourceType = "m3u8"
+                    break
+        debug('debugResource', "camera = ", camera)
+        debug('debugResource', "date = ", date)
+        debug('debugResource', "resource = ", resource)
+        try:
+            (start, end) = urllib.unquote(resourceName).split(":")
+            # create a playlist on the fly
+            start = "%04d"%int(start)
+            if end == "":
+                # default is 1 minute
+                end = "%04d"%(int(start)+59)
+            debug('debugResource', "playlist = ", start, end)
+            (chunkList, eventList) = getPlaylists(videoDir)
+            resourceContent = makePlaylist(date+start, date+end, chunkList)
+        except ValueError:
+            with open(videoDir+resource) as resourceFile:
+                resourceContent = resourceFile.read()
+        debug('debugResource', "length = ", len(resourceContent))
+        cherrypy.response.headers['Content-Length'] = len(resourceContent)
+        if resourceType == "m3u8":
+            cherrypy.response.headers['Content-Type'] = "application/x-mpegURL"
+        elif resourceType == "ts":
+            cherrypy.response.headers['Content-Type'] = "video/mp2t"
+        elif resourceType == "mp4":
+            cherrypy.response.headers['Content-Type'] = "video/mp4"
+        else:
+            cherrypy.response.headers['Content-Type'] = "application/octet-stream"
+        return resourceContent
+
+    # return a video clip for a camera
+    @cherrypy.expose
+    def clip(self, camera=None, date=None, starthour=None, startminute=None, endhour=None, endminute=None, archive=None):
+        if not camera:
+            cherrypy.response.status = 400
+            return "camera is required"
+        if not date:
+            date = time.strftime("%Y%m%d")
+        year = date[0:4]
+        month = date[4:6]
+        day = date[6:8]
+        videoDir = cameraBase+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+        duration = (int(endhour) * 3600 + int(endminute) * 60) - (int(starthour) * 3600 + int(startminute) * 60)
+        clipFileName = makeClip(videoDir, date+starthour+startminute, duration, "mp4")
+        videoClip = open(videoDir+clipFileName).read()
+        # archive the clip or delete it
+        if archive == "true":
+            debug('debugClip', "archiving", clipFileName)
+            archiveDir = cameraBase+"archive/"+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+            os.popen("mkdir -p "+archiveDir)
+            os.popen("mv "+videoDir+clipFileName+" "+archiveDir)
+        else:
+            debug('debugClip', "deleting", clipFileName)
+            os.popen("rm "+videoDir+clipFileName)
+        cherrypy.response.headers['Content-Length'] = len(videoClip)
+        cherrypy.response.headers['Content-Type'] = "application/octet-stream"
+        cherrypy.response.headers['Content-Disposition'] = 'attachment; filename="'+camera+'-'+clipFileName+'"'
+        return videoClip
 
 def webInit(resources, restCache, stateChangeEvent, httpPort=80, ssl=False, httpsPort=443, domain="", pathDict=None, baseDir="/", block=False):
     # set up the web server

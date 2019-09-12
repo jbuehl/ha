@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+<head>
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' type='text/css' href='/css/camera.css'>
+    <script src='/js/jquery.min.js'></script>
+    <script type="text/JavaScript">
+        function TimedRefresh( t ) {
+            setTimeout("location.reload(true);", t);
+        }
+    </script>
+    {{ script }}
+</head>
+<body onload="JavaScript:TimedRefresh(300000);">
+    <h1>{{ title }}</h1>
+    <div class="heading">
+        <div class="date">{{ dateDisp }}</div>
+    </div>
+    <div class="wall">
+        {% for camera in cameras %}
+        <div>
+            <div class="camera">{{ camera[1] }}</div>
+            <div class="snap">
+                <a class="snaplink" title="Live stream" href="/cameras?function=stream&camera={{ camera[0] }}&date={{ date }}">
+                    <img class="thumbimage" src="/snap/{{ camera[0] }}/{{ date }} }}">
+                </a>
+                <div class="controls">
+                    <span class="control">
+                        <a class="control" title="Events" href="/cameras?function=events&camera={{ camera[0] }}">
+                            <img class="controlimage" src="../images/event-border.png">
+                        </a>
+                    </span>
+                    <span class="control">
+                        <a class="control" title="Snapshots" href="/cameras?function=snaps&camera={{ camera[0] }}">
+                            <img class="controlimage" src="../images/grid-border.png">
+                        </a>
+                    </span>
+                    <span class="control">
+                        <a class="control" title="Expand image" href="/image/{{ camera[0] }}/{{ date }}">
+                            <img class="controlimage" src="../images/expand-border.png">
+                        </a>
+                    </span>
+                    <span class="control">
+                        <a class="control" title="Download clip" href="/cameras?function=download&camera={{ camera[0] }}&date={{ date }}&resource={{ time }}">
+                            <img class="controlimage" src="../images/download-border.png">
+                        </a>
+                    </span>
+                    <span class="control">
+                        <a class="control" title="Live stream" href="/cameras?function=stream&camera={{ camera[0] }}&date={{ date }}">
+                            <img class="controlimage" src="../images/play-border.png">
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="storage">
+    Video storage capacity: {{ capacity }} Used: {{ used }} {{ percent }} Available: {{ avail }}
+    </div>
+</body>
+</html>
