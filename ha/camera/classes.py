@@ -1,31 +1,48 @@
 # basic camera functions
 cameraBase = "/cameras/"
-cameraDir = cameraBase+"cameras/"
-stateDir = cameraBase+"state/"
-archiveDir = cameraBase+"archive/"
 
 import json
 from ha import *
 
+cameraDir = cameraBase+"cameras/"
+stateDir = cameraBase+"state/"
+archiveDir = cameraBase+"archive/"
+
 # directory structure:
-#    base
-#        camera
-#            videos
-#                year
-#                    month
-#                        day
-#            images
-#                year
-#                    month
-#                        day
-#            thumbs
-#                year
-#                    month
-#                        day
-#            snaps
-#                year
-#                    month
-#                        day
+    # <cameraBase>/
+    #     state/
+    #         storage.json                                        # storage stats
+    #     cameras/
+    #         <camera>/
+    #            conf.json                                        # camera config
+    #            videos/
+    #                <YYYY>/
+    #                    <MM>/
+    #                        <DD>/
+    #                             <YYYYMMDDHHMMSS>.ts             # video fragment
+    #                             <YYYYMMDDHHMMSS>_record.m3u8    # recording playlist
+    #                             <YYYYMMDDHHMMSS_event.m3u8      # event playlist
+    #                             <YYYYMMDDHHMMSS_clip.m3u8       # clip playlist
+    #            images/
+    #                <YYYY>/
+    #                    <MM>/
+    #                        <DD>/
+    #                             <YYYYMMDDHHMMSS>.jpg            # full res image
+    #            events/
+    #                <YYYY>/
+    #                    <MM>/
+    #                        <DD>/
+    #                             <YYYYMMDDHHMMSS>_snap.jpg       # periodic snapshot thumbnail
+    #                             <YYYYMMDDHHMMSS>_motion.jpg     # motion event thumbnail
+    #                             <YYYYMMDDHHMMSS>_door.jpg       # door event thumbnail
+    #                             <YYYYMMDDHHMMSS>_doorbell.jpg   # doorbell event thumbnail
+    #     archive/
+    #         <camera>/
+    #            videos/
+    #                <YYYY>/
+    #                    <MM>/
+    #                        <DD>/
+    #                             <YYYYMMDDHHMMSS>.mp4            # video clip
 
 class Camera(object):
     def __init__(self, name, label=None, ipAddr=""):
