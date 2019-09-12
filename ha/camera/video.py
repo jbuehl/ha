@@ -1,7 +1,5 @@
 # camera video functions
 ftpUsername = "pi"
-cameraUsername = "admin"
-cameraPassword = ""
 chunkDuration = 10
 eventDuration = 30
 
@@ -12,6 +10,8 @@ import math
 import datetime
 from ha import *
 from ha.camera.classes import *
+
+cameraKey = keyDir+"camera.key"
 
 # read a m38u playlist file
 # add the timestamp and duration of each chunk to a list
@@ -101,6 +101,8 @@ def recordVideo(cameraBase, camera, date):
     debug('debugEnable', "starting video thread for camera", camera.name)
     debug("debugVideo", "camera:", camera, "date:", date)
     videoDir = cameraBase+camera.name+"/videos/"+date[0:4]+"/"+date[4:6]+"/"+date[6:8]+"/"
+    cameraUsername = getValue(cameraKey, "cameraUsername")
+    cameraPassword = getValue(cameraKey, "cameraPassword"
     debug("debugVideo", "videoDir:", videoDir)
     os.popen("mkdir -p "+videoDir)
     while True:
