@@ -1,6 +1,8 @@
 # basic camera functions
 cameraBase = "/cameras/"
 cameraDir = cameraBase+"cameras/"
+stateDir = cameraBase+"state/"
+archiveDir = cameraBase+"archive/"
 
 import json
 from ha import *

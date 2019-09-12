@@ -90,7 +90,10 @@ def dates(camera, cameras, templates):
         cameraList = [camera]
     else:
         cameraList = cameras.keys()
-    eventStorage = json.load(open(cameraDir+"storage.json"))
+    try:
+        eventStorage = json.load(open(stateDir+"storage.json"))
+    except IOError:
+        eventStorage = {}
 
     # update today's stats
     for camera in cameraList:
