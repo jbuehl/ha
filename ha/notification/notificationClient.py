@@ -14,7 +14,7 @@ def notify(notificationType, message):
             if len(serverData) > 6:
                 host = serverData[6]
                 port = serverData[8]
-                url = "http://"+host+":"+port+"/notify?type="+notificationType+"&message="+urllib.quote(message)
+                url = "http://"+host+":"+port+"/notify?eventType="+notificationType+"&message="+urllib.quote(message)
                 request = requests.get(url)
                 if request.status_code != 200:
                     log("notificationClient", "error", url, request.status_code)

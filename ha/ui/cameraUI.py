@@ -26,13 +26,10 @@ def cameraUI(function, camera, date, resource, cameras, resources, templates, vi
 # display a wall of all cameras
 def wall(cameras, templates):
     date = time.strftime("%Y%m%d")
-    year = date[0:4]
-    month = date[4:6]
-    day = date[6:8]
     debug('debugWall', "date = ", date)
     playlistList = []
     for camera in cameras:
-        videoDir = cameraDir+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+        videoDir = cameraDir+camera+"/videos/"+dateDir(date)
         # return newest playlist that isn't an event
         playlists = os.listdir(videoDir)
         for playlist in sorted(playlists, reverse=True):
@@ -56,12 +53,9 @@ def snaps(camera, date, resource, cameras, templates):
         camera = cameras[0]
     if not date:
         date = time.strftime("%Y%m%d")
-    year = date[0:4]
-    month = date[4:6]
-    day = date[6:8]
     debug('debugSnaps', "camera = ", camera)
     debug('debugSnaps', "date = ", date)
-    snapDir = cameraDir+camera+"/snaps/"+year+"/"+month+"/"+day+"/"
+    snapDir = cameraDir+camera+"/thumbs/"+dateDir(date)
     snapshots = os.listdir(snapDir)
     debug('debugSnaps', "snapshots = ", len(snapshots))
     # build a matrix of snapshots for the day at 5 minute intervals
@@ -158,29 +152,18 @@ def events(camera, date, cameras, templates):
         date = time.strftime("%Y%m%d")
     debug('debugImage', "camera = ", camera)
     debug('debugImage', "date = ", date)
-    year = date[0:4]
-    month = date[4:6]
-    day = date[6:8]
-    imageDir = cameraDir+camera+"/images/"+year+"/"+month+"/"+day+"/"
-    try:
-        imageFiles = os.listdir(imageDir)
-        imageFiles.sort(reverse=True)
-    except OSError:
-        imageFiles = []
-    debug('debugImage', "imageFiles = ", imageFiles)
+    thumbDir = cameraDir+camera+"/thumbs/"+dateDir(date)
+    thumbFiles = os.listdir(thumbDir)
     images = []
-    for imageFile in imageFiles:
-        try:
-            [imageName, ext] = imageFile.split(".")
-            if ext == "jpg":
-                images.append([imageName.replace(" ", "%20")+"_thumb.jpg", imageName.replace(" ", "%20")+".jpg", imageName.split("_")[-1]+"-event"])
-        except ValueError:
-            pass
+    for thumbFile in sorted(thumbFiles, reverse=True):
+        [thumbName, ext] = thumbFile.split(".")
+        [eventName, eventType] = thumbName.split("_")
+        if eventType != "snap":
+            images.append([thumbName, eventName, eventName[8:12]+"%3A", eventName[8:10]+":"+eventName[10:12]+":"+eventName[12:14], eventType])
     # fill out the remainder of the row if there are < 4 images
     if len(images) < 4:
-        for d in range((int(len(images)/4)+1)*4-len(images)):
-            images.append(["", ""])
-    return templates.get_template("events.html").render(title=webPageTitle+" "+cameras[camera].label+" camera events", script="",
+        images += [["", "", "", "", ""] for i in range((int(len(images)/4)+1)*4-len(images))]
+    return templates.get_template("events.html").render(title=webPageTitle+" "+cameras[camera].label+" events", script="",
                         date=date,
                         dateDisp=time.strftime("%a %B %-d %Y", time.strptime(date, "%Y%m%d")),
                         camera=camera,
@@ -192,10 +175,7 @@ def stream(camera, date, playlist, cameras, templates):
         camera = cameras[0]
     if not date:
         date = time.strftime("%Y%m%d")
-    year = date[0:4]
-    month = date[4:6]
-    day = date[6:8]
-    videoDir = cameraDir+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+    videoDir = cameraDir+camera+"/videos/"+dateDir(date)
     if playlist:
         playlist += ".m3u8"
     else:
@@ -220,10 +200,7 @@ def download(camera, date, playlist, cameras, templates):
         camera = cameras[0]
     if not date:
         date = time.strftime("%Y%m%d")
-    year = date[0:4]
-    month = date[4:6]
-    day = date[6:8]
-    videoDir = cameraDir+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+    videoDir = cameraDir+camera+"/videos/"+dateDir(date)
     startHour = playlist[0:2]
     startMinute = playlist[2:4]
     endHour = startHour

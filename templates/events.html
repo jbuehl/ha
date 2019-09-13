@@ -22,7 +22,7 @@
     {% for image in images %}
         <div class="thumbnail">
             {% if image[0] != "" %}
-            <img class="thumbimage" src="../images/gray.jpg" data-src="/thumb?camera={{ camera }}&date={{ date }}&thumb={{ image[0] }}">
+            <img class="thumbimage" src="../images/gray.jpg" data-src="/thumb/{{ camera }}/{{ date }}/{{ image[0] }}">
             <div class="controls">
                 <span class="control">
                 </span>
@@ -46,8 +46,10 @@
                     </a>
                 </span>
             </div>
+            <div class="timestamp">{{ image[3] }}</div>
+            <div class="eventtype">{{ image[4] }}</div>
             {% else %}
-            <img class="thumbimage" src="images/gray.jpg">
+            <img class="thumbimage" src="../images/gray.jpg">
             {% endif %}
         </div>
     {% endfor %}

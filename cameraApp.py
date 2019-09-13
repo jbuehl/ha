@@ -53,20 +53,20 @@ if __name__ == "__main__":
     # start the snapshot threads
     snapThreads = []
     for camera in cameras:
-        snapThreads.append(threading.Thread(target=snapshots, args=(cameraDir, cameras[camera], today, font, force, repeat,)))
+        snapThreads.append(threading.Thread(target=snapshots, args=(cameraDir, cameras[camera], today, force, repeat,)))
         snapThreads[-1].start()
 
     # start the motion event threads
     motionEventThreads = []
     for camera in cameras:
-        motionEventThreads.append(threading.Thread(target=motionEvents, args=(cameraDir, cameras[camera], today, font, force, repeat,)))
+        motionEventThreads.append(threading.Thread(target=motionEvents, args=(cameraDir, cameras[camera], today, force, repeat,)))
         motionEventThreads[-1].start()
 
-    # start the event playlist threads
-    eventThreads = []
-    for camera in cameras:
-        eventThreads.append(threading.Thread(target=makeEventPlaylists, args=(cameraDir, cameras[camera], today, force, repeat,)))
-        eventThreads[-1].start()
+    # # start the event playlist threads
+    # eventThreads = []
+    # for camera in cameras:
+    #     eventThreads.append(threading.Thread(target=makeEventPlaylists, args=(cameraDir, cameras[camera], today, force, repeat,)))
+    #     eventThreads[-1].start()
 
     # start the event storage thread
     storageThread = threading.Thread(target=getStorageStats, args=(cameraDir, cameras, repeat,))

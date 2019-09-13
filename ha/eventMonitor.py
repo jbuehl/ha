@@ -4,6 +4,7 @@ import threading
 import time
 from ha import *
 from ha.notification.notificationServer import *
+from ha.camera.events import *
 
 def watchEvents(resources, notifyNumbers, timeout=60):
     serviceUpTimes = {}
@@ -44,7 +45,21 @@ def watchEvents(resources, notifyNumbers, timeout=60):
                                     if time.time() - serviceUpTimes[resource] > 1:
                                         msg = resources[resource].label+" door is open"
                                         debug("debugEventMonitor", "eventMonitor", msg)
-                                        notify(resources, "alertDoors", msg)
+                                        if resource == "frontDoor":
+                                            camera = "frontdoor"
+                                        elif resource == "garageDoor":
+                                            camera = "driveway"
+                                        elif resource == "garageBackDoor":
+                                            camera = "southside"
+                                        elif resource in ["familyRoomDoor", "masterBedroomDoor"]:
+                                            camera = "deck"
+                                        elif resource == "backHouseDoor":
+                                            camera = "backhouse"
+                                        url = "https://shadyglade.thebuehls.com/"
+                                        path = "thumb/"+camera+"/"+time.strftime("%Y%m%d")+"/"
+                                        file = time.strftime("%Y%m%d%H%M%S")+"_door"
+                                        createEvent("door", camera, time.strftime("%Y%m%d"), time.strftime("%H"), time.strftime("%M"), time.strftime("%S"))
+                                        notify(resources, "alertDoors", msg+" "+url+path+file)
                                         serviceUpTimes[resource] = float("inf")
                                 except KeyError:    # service is down at the start
                                     serviceUpTimes[resource] = float("inf")

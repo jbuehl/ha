@@ -78,7 +78,7 @@ def makeEventPlaylists(cameraDir, camera, date, force=False, repeat=0):
 #    debug("debugEvent", "imageDir:", imageDir)
     os.popen("mkdir -p "+imageDir)
     os.popen("chown -R "+ftpUsername+"."+ftpUsername+" "+cameraDir+camera.name+"/images/")
-    videoDir = cameraDir+camera.name+"/videos/"+date[0:4]+"/"+date[4:6]+"/"+date[6:8]+"/"
+    videoDir = cameraDir+camera.name+"/videos/"+dateDir(date)
 #    debug("debugEvent", "videoDir:", videoDir)
     repeating = 1
     while repeating:
@@ -100,7 +100,7 @@ def makeEventPlaylists(cameraDir, camera, date, force=False, repeat=0):
 def recordVideo(cameraDir, camera, date):
     debug('debugEnable', "starting video thread for camera", camera.name)
     debug("debugVideo", "camera:", camera, "date:", date)
-    videoDir = cameraDir+camera.name+"/videos/"+date[0:4]+"/"+date[4:6]+"/"+date[6:8]+"/"
+    videoDir = cameraDir+camera.name+"/videos/"+dateDir(date)
     cameraUsername = getValue(cameraKey, "cameraUsername")
     cameraPassword = getValue(cameraKey, "cameraPassword")
     debug("debugVideo", "videoDir:", videoDir)
@@ -120,12 +120,11 @@ def recordVideo(cameraDir, camera, date):
             log("recording failed for camera", camera.name, "exit code:", exception.returncode, exception.output)
         time.sleep(60)
 
-# make a video clip from a series of ts chunks
-def makeClip(videoDir, startTime, duration, fileType):
-    chunks = int(duration / chunkDuration)
-    debug("debugClip", "creating clip", "videoDir:", videoDir, "startTime:", startTime, "duration:", duration, "chunks:", chunks)
+# find a video fragment that contains the specified time
+def findChunk(videoDir, startTime):
     videoFiles = os.listdir(videoDir)
     tsFiles = []
+    # filter out files that are not .ts
     for videoFile in videoFiles:
        if videoFile.split(".")[1] == "ts":
            tsFiles.append(videoFile)
@@ -134,8 +133,14 @@ def makeClip(videoDir, startTime, duration, fileType):
     for tsFile in tsFiles:
          if int(tsFile[-9:-3]) < int(startTime[-6:]): # hhmmss
             firstFile = tsFiles.index(tsFile)
-            debug("debugClip", "firstFile:", firstFile)
             break
+    return (tsFiles, firstFile)
+
+# make a video clip from a series of ts chunks
+def makeClip(videoDir, startTime, duration, fileType):
+    chunks = int(duration / chunkDuration)
+    debug("debugClip", "creating clip", "videoDir:", videoDir, "startTime:", startTime, "duration:", duration, "chunks:", chunks)
+    (tsFiles, firstFile) = findChunk(startTime)
     chunks = min(chunks, firstFile+1)
     clipFileName = startTime+"."+fileType
     # concatenate the chunks into a clip

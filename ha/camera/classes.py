@@ -78,3 +78,7 @@ def getCameras():
             raise
     debug("debugCamera", "cameras:", str(cameras))
     return cameras
+
+# create the camera directory path for a specific date
+def dateDir(date):
+    return date[0:4]+"/"+date[4:6]+"/"+date[6:8]+"/"

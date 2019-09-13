@@ -16,6 +16,7 @@ from twilio.rest import Client
 from ha import *
 from ha.ui.webViews import *
 from ha.notification.notificationServer import *
+from ha.camera.events import *
 from ha.camera.video import *
 
 twilioKey = keyDir+"twilio.key"
@@ -211,8 +212,14 @@ class WebRoot(object):
 
     # send a notification
     @cherrypy.expose
-    def notify(self, type, message):
-        notify(self.resources, type, message)
+    def notify(self, eventType, message):
+        if eventType == "alertDoorbell":
+            camera = "frontdoor"
+            url = "https://shadyglade.thebuehls.com/"
+            path = "thumb/"+camera+"/"+time.strftime("%Y%m%d")+"/"
+            file = time.strftime("%Y%m%d%H%M%S")+"_doorbell"
+            createEvent("doorbell", camera, time.strftime("%Y%m%d"), time.strftime("%H"), time.strftime("%M"), time.strftime("%S"))
+        notify(self.resources, eventType, message+" "+url+path+file)
 
     # return a camera image
     def getImage(self, camera, date, image, imageType):
@@ -221,11 +228,10 @@ class WebRoot(object):
             return "camera is required"
         if not date:
             date = time.strftime("%Y%m%d")
-        year = date[0:4]
-        month = date[4:6]
-        day = date[6:8]
-        imageDir = cameraDir+camera+"/"+imageType+"/"+year+"/"+month+"/"+day+"/"
-        if not image:
+        imageDir = cameraDir+camera+"/"+imageType+"/"+dateDir(date)
+        if image:
+            image = image.split(".")[0]+".jpg"
+        else:
             image = subprocess.check_output("ls -1 "+imageDir+"*.jpg | tail -n1", shell=True).split("/")[-1].strip("\n")
         debug('debugImage', "camera = ", camera)
         debug('debugImage', "date = ", date)
@@ -261,10 +267,7 @@ class WebRoot(object):
             return "camera is required"
         if not date:
             date = time.strftime("%Y%m%d")
-        year = date[0:4]
-        month = date[4:6]
-        day = date[6:8]
-        videoDir = cameraDir+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+        videoDir = cameraDir+camera+"/videos/"+dateDir(date)
         if resource:
             (resourceName, resourceType) = resource.split(".")
         else:
@@ -311,10 +314,7 @@ class WebRoot(object):
             return "camera is required"
         if not date:
             date = time.strftime("%Y%m%d")
-        year = date[0:4]
-        month = date[4:6]
-        day = date[6:8]
-        videoDir = cameraDir+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+        videoDir = cameraDir+camera+"/videos/"+dateDir(date)
         duration = (int(endhour) * 3600 + int(endminute) * 60) - (int(starthour) * 3600 + int(startminute) * 60)
         clipFileName = makeClip(videoDir, date+starthour+startminute, duration, "mp4")
         videoClip = open(videoDir+clipFileName).read()

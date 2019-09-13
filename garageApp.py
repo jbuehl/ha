@@ -4,8 +4,7 @@ rainGaugeAddr = 6
 
 doorbellState = 0
 doorbellSound = "doorbell.wav"
-doorbellNotifyMsg = "Doorbell https://shadyglade.thebuehls.com/image?camera=%s"
-doorbellCamera = "frontdoor"
+doorbellNotifyMsg = "Doorbell "
 
 from ha import *
 from ha.interfaces.gpioInterface import *
@@ -27,7 +26,7 @@ def doorbellHandler(doorbellControl):
         doorbellEvent.clear()
         doorbellControl.setState(1)
         debug('debugDoorbell', "sending notification")
-        notify("alertDoorbell", doorbellNotifyMsg%(doorbellCamera))
+        notify("alertDoorbell", doorbellNotifyMsg)
         # debug('debugDoorbell', "playing", soundDir+doorbellSound)
         # os.system("aplay "+soundDir+doorbellSound)
 
