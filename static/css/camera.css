@@ -148,6 +148,7 @@ h1 {
     }
 
 .timestamp {
+    -webkit-text-stroke: 1px black;
     position: absolute;
     margin-top: auto;
     bottom: 0;
@@ -158,6 +159,7 @@ h1 {
 }
 
 .eventtype {
+    -webkit-text-stroke: 1px black;
     position: absolute;
     margin-top: auto;
     top: 0;
