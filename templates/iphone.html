@@ -34,16 +34,18 @@
     <div id="dashPage">
         <div class="date">{{ views.getViewState(dayOfWeek) }} {{ views.getViewState(date) }}</div>
         {{ groupTemplate.render(templates=templates, widths=[320, [160, 120, 40]], group=["", dashResources], details=False, name=False, link=False, views=views) }}
-        <div class="link"><button onclick="return show('shadesPage','dashPage');">Shades</button></div>
-        <div class="link"><button onclick="return show('lightsPage','dashPage');">Lights</button></div>
-        <div class="link"><button onclick="return show('poolPage','dashPage');">Pool</button></div>
-        <div class="link"><button onclick="return show('sprinklersPage','dashPage');">Sprinklers</button></div>
-        <div class="link"><button onclick="return show('hvacPage','dashPage');">HVAC</button></div>
-        <div class="link"><button onclick="return show('garagePage','dashPage');">Garage</button></div>
-        <div class="link"><button onclick="return show('alertPage','dashPage');">Alerts</button></div>
-        <div class="link"><button onclick="return show('doorPage','dashPage');">Doors</button></div>
-        <div class="link"><button onclick="return show('powerPage','dashPage');">Power</button></div>
-        <div class="link"><button onclick="return show('weatherPage','dashPage');">Weather</button></div>
+        <div class="dashlinks">
+            <div class="link"><button onclick="return show('shadesPage','dashPage');">Shades</button></div>
+            <div class="link"><button onclick="return show('lightsPage','dashPage');">Lights</button></div>
+            <div class="link"><button onclick="return show('poolPage','dashPage');">Pool</button></div>
+            <div class="link"><button onclick="return show('sprinklersPage','dashPage');">Sprinklers</button></div>
+            <div class="link"><button onclick="return show('hvacPage','dashPage');">HVAC</button></div>
+            <div class="link"><button onclick="return show('garagePage','dashPage');">Garage</button></div>
+            <div class="link"><button onclick="return show('alertPage','dashPage');">Alerts</button></div>
+            <div class="link"><button onclick="return show('doorPage','dashPage');">Doors</button></div>
+            <div class="link"><button onclick="return show('powerPage','dashPage');">Power</button></div>
+            <div class="link"><button onclick="return show('weatherPage','dashPage');">Weather</button></div>
+        </div>
     </div>
 
     <div id="shadesPage" style="display:none">

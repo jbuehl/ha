@@ -72,6 +72,12 @@ td {
     margin-bottom: 4px;
     }
 
+.dashlinks {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    }
+
 button {
     height: 40px;
     width: 160px;
