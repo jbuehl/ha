@@ -214,12 +214,13 @@ class WebRoot(object):
     @cherrypy.expose
     def notify(self, eventType, message):
         if eventType == "alertDoorbell":
+            eventTime = time.strftime("%Y%m%d%H%M%S")
             camera = "frontdoor"
-            url = "https://shadyglade.thebuehls.com/"
-            path = "image/"+camera+"/"+time.strftime("%Y%m%d")+"/"
-            file = time.strftime("%Y%m%d%H%M%S")+"_doorbell"
-            createEvent("doorbell", camera, time.strftime("%Y%m%d"), time.strftime("%H"), time.strftime("%M"), time.strftime("%S"))
-        notify(self.resources, eventType, message+" "+url+path+file)
+            message += " https://shadyglade.thebuehls.com/"
+            message += "image/"+camera+"/"+eventTime[0:8]+"/"
+            message += eventTime+"_doorbell"
+            createEvent("doorbell", camera, eventTime)
+        notify(self.resources, eventType, message)
 
     # return a camera image
     def getImage(self, camera, date, image, imageType):
