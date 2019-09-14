@@ -44,6 +44,7 @@ def watchEvents(resources, notifyNumbers, timeout=60):
                                 try:        # send notification if door was previously closed
                                     if time.time() - serviceUpTimes[resource] > 1:
                                         msg = resources[resource].label+" door is open"
+                                        eventTime = time.strftime("%Y%m%d%H%M%S")
                                         debug("debugEventMonitor", "eventMonitor", msg)
                                         if resource == "frontDoor":
                                             camera = "frontdoor"
@@ -59,10 +60,10 @@ def watchEvents(resources, notifyNumbers, timeout=60):
                                             camera = ""
                                         if camera != "":
                                             msg += " https://shadyglade.thebuehls.com/"
-                                            msg += "image/"+camera+"/"+time.strftime("%Y%m%d")+"/"
-                                            msg += time.strftime("%Y%m%d%H%M%S")+"_door"
+                                            msg += "image/"+camera+"/"+eventTime[0:8]+"/"
+                                            msg += eventTime+"_door"
                                         notify(resources, "alertDoors", msg)
-                                        createEvent("door", camera, time.strftime("%Y%m%d"), time.strftime("%H"), time.strftime("%M"), time.strftime("%S"))
+                                        createEvent("door", camera, eventTime)
                                         serviceUpTimes[resource] = float("inf")
                                 except KeyError:    # service is down at the start
                                     serviceUpTimes[resource] = float("inf")

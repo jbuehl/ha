@@ -1,8 +1,8 @@
 # camera image functions
+
 eventClipInterval = 30
-thumbWidth = 320
-thumbHeight = 180
-# font = "Nimbus-Sans-L-Bold" # convert -list font
+snapWidth = 320
+snapHeight = 180
 
 import subprocess
 import os
@@ -12,21 +12,19 @@ from ha import *
 from ha.camera.classes import *
 from ha.camera.video import *
 
-# convertCmd = """/usr/bin/convert %s -resize %dx%d \
-# -font %s -pointsize 18 \
-# -gravity southwest \
-#     -stroke '#000C' -strokewidth 4 -annotate 0 %s \
-#     -stroke  none   -fill white    -annotate 0 %s \
-# -gravity northwest \
-#     -stroke '#000C' -strokewidth 4 -annotate 0 %s \
-#     -stroke  none   -fill white    -annotate 0 %s \
-# %s
-# """
-# convertCmd = """/usr/bin/convert %s -resize %dx%d \
-# %s
-# """
+# split a timestamp YYYYMMDDHHMMSS into YYYYMMDD, HH, MM, SS
+def splitTime(timeStamp):
+    return [timeStamp[0:8], timeStamp[8:10], timeStamp[10:12], timeStamp[12:14]]
 
-def createEvent(eventType, cameraName, date, hour, minute, second="00"):
+# find the offset into a video fragment for the specified time
+def findOffset(tsFile, minute, second):
+    tsTime = tsFile.split(".")[0]
+    offset = int(minute)*60 + int(second) - (int(tsTime[10:12])*60 + int(tsTime[12:14]))
+    debug("debugThumb", "tsTime", tsTime, minute+":"+second, str(offset))
+    return offset
+
+def createEvent(eventType, cameraName, eventTime):
+    [date, hour, minute, second] = splitTime(eventTime)
     videoDir = cameraDir+cameraName+"/videos/"+dateDir(date)
     imageDir = cameraDir+cameraName+"/images/"+dateDir(date)
     os.popen("mkdir -p "+imageDir)
@@ -35,8 +33,9 @@ def createEvent(eventType, cameraName, date, hour, minute, second="00"):
         (tsFiles, firstFile) = findChunk(videoDir, hour+minute+second)
         # wait for the fragment to finish recording
         time.sleep(10)
+        offset = findOffset(tsFiles[firstFile], minute, second)
         debug("debugThumb", "creating", eventType, "event for camera", cameraName, "at", hour+":"+minute+":"+second)
-        cmd = "ffmpeg -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -nostats -loglevel error -y "+ \
+        cmd = "ffmpeg -ss 0:"+str(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -nostats -loglevel error -y "+ \
               imageDir+date+hour+minute+second+"_"+eventType+".jpg"
         os.popen(cmd)
     except OSError: # directory doesn't exist yet
@@ -50,8 +49,9 @@ def createSnap(cameraName, date, hour, minute, second="00"):
         (tsFiles, firstFile) = findChunk(videoDir, hour+minute+second)
         # wait for the fragment to finish recording
         time.sleep(10)
+        offset = findOffset(tsFiles[firstFile], minute, second)
         debug("debugThumb", "creating snapshot for camera", cameraName, "at", hour+":"+minute+":"+second)
-        cmd = "ffmpeg -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -s "+str(thumbWidth)+"x"+str(thumbHeight)+" -nostats -loglevel error -y "+ \
+        cmd = "ffmpeg -ss 0:"+str(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -s "+str(snapWidth)+"x"+str(snapHeight)+" -nostats -loglevel error -y "+ \
               thumbDir+date+hour+minute+second+"_snap.jpg"
         os.popen(cmd)
     except OSError: # directory doesn't exist yet
@@ -100,21 +100,6 @@ def motionEvents(imageBase, camera, date, force=False, repeat=0):
                         newImageFile = imageNameParts[-1]+"_motion.jpg"
                         debug("debugThumb", "renaming ", imageDir+imageFile, "to", imageDir+newImageFile)
                         os.popen("mv "+imageDir+imageFile.replace(" ", "\ ")+" "+imageDir+newImageFile)
-                        # imageFile = newImageFile
-                    # [imageName, ext] = imageFile.split(".")
-                    # # if the image file is not empty
-                    # if os.path.getsize(imageDir+imageFile) > 0:
-                    #     # don't convert the image again unless the force flag is set
-                    #     if force or (not os.path.exists(thumbDir+imageName+"_motion.jpg")):
-                    #         # time of event
-                    #         event = imageName[-14:]
-                    #         debug("debugThumb", "creating thumbnail for camera", camera.name, "event", event)
-                    #         timeStamp = event[8:10]+":"+event[10:12]+":"+event[12:14]
-                    #         # create the thumbnail image with timestamp text overlay
-                    #         cmd = convertCmd % (imageDir+imageFile, thumbWidth, thumbHeight,
-                    #                             # font, timeStamp, timeStamp, "motion", "motion",
-                    #                             thumbDir+imageName+"_motion.jpg")
-                    #         os.popen(cmd)
             except OSError: # directory doesn't exist yet
                 pass
         else:
