@@ -22,11 +22,27 @@ from ha.camera.video import *
 #     -stroke  none   -fill white    -annotate 0 %s \
 # %s
 # """
-convertCmd = """/usr/bin/convert %s -resize %dx%d \
-%s
-"""
+# convertCmd = """/usr/bin/convert %s -resize %dx%d \
+# %s
+# """
 
 def createEvent(eventType, cameraName, date, hour, minute, second="00"):
+    videoDir = cameraDir+cameraName+"/videos/"+dateDir(date)
+    imageDir = cameraDir+cameraName+"/images/"+dateDir(date)
+    os.popen("mkdir -p "+imageDir)
+    os.popen("chown -R "+ftpUsername+"."+ftpUsername+" "+cameraDir+cameraName+"/images/")
+    try:
+        (tsFiles, firstFile) = findChunk(videoDir, hour+minute+second)
+        # wait for the fragment to finish recording
+        time.sleep(10)
+        debug("debugThumb", "creating", eventType, "event for camera", cameraName, "at", hour+":"+minute+":"+second)
+        cmd = "ffmpeg -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -nostats -loglevel error -y "+ \
+              imageDir+date+hour+minute+second+"_"+eventType+".jpg"
+        os.popen(cmd)
+    except OSError: # directory doesn't exist yet
+        pass
+
+def createSnap(cameraName, date, hour, minute, second="00"):
     videoDir = cameraDir+cameraName+"/videos/"+dateDir(date)
     thumbDir = cameraDir+cameraName+"/thumbs/"+dateDir(date)
     os.popen("mkdir -p "+thumbDir)
@@ -34,9 +50,9 @@ def createEvent(eventType, cameraName, date, hour, minute, second="00"):
         (tsFiles, firstFile) = findChunk(videoDir, hour+minute+second)
         # wait for the fragment to finish recording
         time.sleep(10)
-        debug("debugThumb", "creating", eventType, "event for camera", cameraName, "at", hour+":"+minute+":"+second)
+        debug("debugThumb", "creating snapshot for camera", cameraName, "at", hour+":"+minute+":"+second)
         cmd = "ffmpeg -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -s "+str(thumbWidth)+"x"+str(thumbHeight)+" -nostats -loglevel error -y "+ \
-              thumbDir+date+hour+minute+second+"_"+eventType+".jpg"
+              thumbDir+date+hour+minute+second+"_snap.jpg"
         os.popen(cmd)
     except OSError: # directory doesn't exist yet
         pass
@@ -53,7 +69,7 @@ def snapshots(imageBase, camera, date, force=False, repeat=0):
         if (minute[1] == "0") or (minute[1] == "5"):
             if minute != lastMinute:
                 lastMinute = minute
-                createEvent("snap", camera.name, date, hour, minute)
+                createSnap(camera.name, date, hour, minute)
         repeating = repeat
         time.sleep(repeat)
     debug("debugThumb", "exiting snapshot thread for camera", camera.name)
@@ -65,6 +81,7 @@ def motionEvents(imageBase, camera, date, force=False, repeat=0):
     imageDir = imageBase+camera.name+"/images/"+dateDir(date)
     thumbDir = imageBase+camera.name+"/thumbs/"+dateDir(date)
     os.popen("mkdir -p "+imageDir)
+    os.popen("chown -R "+ftpUsername+"."+ftpUsername+" "+cameraDir+camera.name+"/images/")
     os.popen("mkdir -p "+thumbDir)
     eventClipCount = eventClipInterval
     repeating = 1
@@ -76,26 +93,28 @@ def motionEvents(imageBase, camera, date, force=False, repeat=0):
                 imageFiles = os.listdir(imageDir)
                 imageFiles.sort()
                 for imageFile in imageFiles:
-                    # rename to get rid of the stuff prefixing the timestamp
-                    newImageFile = imageFile.split("_")[-1]
-                    if newImageFile != imageFile:
+                    # rename to get rid of the stuff prefixing the timestamp that the camera creates
+                    [imageName, ext] = imageFile.split(".")
+                    imageNameParts = imageName.split("_")
+                    if imageNameParts[-1].isdigit():
+                        newImageFile = imageNameParts[-1]+"_motion.jpg"
                         debug("debugThumb", "renaming ", imageDir+imageFile, "to", imageDir+newImageFile)
                         os.popen("mv "+imageDir+imageFile.replace(" ", "\ ")+" "+imageDir+newImageFile)
-                        imageFile = newImageFile
-                    [imageName, ext] = imageFile.split(".")
-                    # if the image file is not empty
-                    if os.path.getsize(imageDir+imageFile) > 0:
-                        # don't convert the image again unless the force flag is set
-                        if force or (not os.path.exists(thumbDir+imageName+"_motion.jpg")):
-                            # time of event
-                            event = imageName[-14:]
-                            debug("debugThumb", "creating thumbnail for camera", camera.name, "event", event)
-                            timeStamp = event[8:10]+":"+event[10:12]+":"+event[12:14]
-                            # create the thumbnail image with timestamp text overlay
-                            cmd = convertCmd % (imageDir+imageFile, thumbWidth, thumbHeight,
-                                                # font, timeStamp, timeStamp, "motion", "motion",
-                                                thumbDir+imageName+"_motion.jpg")
-                            os.popen(cmd)
+                        # imageFile = newImageFile
+                    # [imageName, ext] = imageFile.split(".")
+                    # # if the image file is not empty
+                    # if os.path.getsize(imageDir+imageFile) > 0:
+                    #     # don't convert the image again unless the force flag is set
+                    #     if force or (not os.path.exists(thumbDir+imageName+"_motion.jpg")):
+                    #         # time of event
+                    #         event = imageName[-14:]
+                    #         debug("debugThumb", "creating thumbnail for camera", camera.name, "event", event)
+                    #         timeStamp = event[8:10]+":"+event[10:12]+":"+event[12:14]
+                    #         # create the thumbnail image with timestamp text overlay
+                    #         cmd = convertCmd % (imageDir+imageFile, thumbWidth, thumbHeight,
+                    #                             # font, timeStamp, timeStamp, "motion", "motion",
+                    #                             thumbDir+imageName+"_motion.jpg")
+                    #         os.popen(cmd)
             except OSError: # directory doesn't exist yet
                 pass
         else:

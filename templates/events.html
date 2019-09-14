@@ -22,14 +22,14 @@
     {% for image in images %}
         <div class="thumbnail">
             {% if image[0] != "" %}
-            <img class="thumbimage" src="../images/gray.jpg" data-src="/thumb/{{ camera }}/{{ date }}/{{ image[0] }}">
+            <img class="thumbimage" src="../images/gray.jpg" data-src="/image/{{ camera }}/{{ date }}/{{ image[0] }}">
             <div class="controls">
                 <span class="control">
                 </span>
                 <span class="control">
                 </span>
                 <span class="control">
-                    <a class="control" title="Expand image" href="/image/{{ camera }}/{{ date }}/{{ image[1] }}">
+                    <a class="control" title="Expand image" href="/image/{{ camera }}/{{ date }}/{{ image[0] }}">
                         <img class="controlimage" src="../images/expand-border.png">
                     </a>
                 </span>
@@ -41,13 +41,13 @@
                     </span>
                 </span>
                 <span class="control">
-                    <a class="control" title="Stream" href="/cameras?function=stream&camera={{ camera }}&date={{ date }}&resource={{ image[2] }}">
+                    <a class="control" title="Stream" href="/cameras?function=stream&camera={{ camera }}&date={{ date }}&resource={{ image[1] }}">
                         <img class="controlimage" src="../images/play-border.png">
                     </a>
                 </span>
             </div>
-            <div class="timestamp">{{ image[3] }}</div>
-            <div class="eventtype">{{ image[4] }}</div>
+            <div class="timestamp">{{ image[2] }}</div>
+            <div class="eventtype">{{ image[3] }}</div>
             {% else %}
             <img class="thumbimage" src="../images/gray.jpg">
             {% endif %}

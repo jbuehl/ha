@@ -152,17 +152,16 @@ def events(camera, date, cameras, templates):
         date = time.strftime("%Y%m%d")
     debug('debugImage', "camera = ", camera)
     debug('debugImage', "date = ", date)
-    thumbDir = cameraDir+camera+"/thumbs/"+dateDir(date)
-    thumbFiles = os.listdir(thumbDir)
+    imageDir = cameraDir+camera+"/images/"+dateDir(date)
+    imageFiles = os.listdir(imageDir)
     images = []
-    for thumbFile in sorted(thumbFiles, reverse=True):
-        [thumbName, ext] = thumbFile.split(".")
-        [eventName, eventType] = thumbName.split("_")
-        if eventType != "snap":
-            images.append([thumbName, eventName, eventName[8:12]+"%3A", eventName[8:10]+":"+eventName[10:12]+":"+eventName[12:14], eventType])
+    for imageFile in sorted(imageFiles, reverse=True):
+        [imageName, ext] = imageFile.split(".")
+        [eventName, eventType] = imageName.split("_")
+        images.append([imageName, eventName[8:12]+"%3A", eventName[8:10]+":"+eventName[10:12]+":"+eventName[12:14], eventType])
     # fill out the remainder of the row if there are < 4 images
     if len(images) < 4:
-        images += [["", "", "", "", ""] for i in range((int(len(images)/4)+1)*4-len(images))]
+        images += [["", "", "", ""] for i in range((int(len(images)/4)+1)*4-len(images))]
     return templates.get_template("events.html").render(title=webPageTitle+" "+cameras[camera].label+" events", script="",
                         date=date,
                         dateDisp=time.strftime("%a %B %-d %Y", time.strptime(date, "%Y%m%d")),
