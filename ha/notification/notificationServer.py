@@ -19,8 +19,8 @@ iftttKey = keyDir+"ifttt.key"
 
 # send notifications
 def notify(resources, notificationType, message):
+    debug("debugNotification", "notification", notificationType, message)
     if resources.getRes(notificationType).getState():
-        debug("debugNotification", "notification", notificationType, message)
         if resources.getRes("smsAlerts").getState():
             if notificationType == "alertServices":
                 fromNumber = serviceNotifyFrom
@@ -39,6 +39,8 @@ def notify(resources, notificationType, message):
             appNotify("", message)
         if resources.getRes("iftttAlerts").getState():
             iftttNotify(message)
+    else:
+        debug("debugNotification", "notification", notificationType, "not enabled")
 
 # send an sms notification
 def smsNotify(fromNumber, toNumbers, message):
