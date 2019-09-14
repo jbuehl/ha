@@ -76,6 +76,7 @@ def getCameras():
             debug("debugCamera", "camera:", str(camera))
         except IOError:
             log("error reading", cameraDir+camera+"/conf.json")
+            del(cameras[camera])
     debug("debugCamera", "cameras:", str(cameras))
     return cameras
 
