@@ -59,10 +59,10 @@ def watchEvents(resources, notifyNumbers, timeout=60):
                                             camera = ""
                                         if camera != "":
                                             msg += " https://shadyglade.thebuehls.com/"
-                                            msg += "thumb/"+camera+"/"+time.strftime("%Y%m%d")+"/"
+                                            msg += "image/"+camera+"/"+time.strftime("%Y%m%d")+"/"
                                             msg += time.strftime("%Y%m%d%H%M%S")+"_door"
-                                        createEvent("door", camera, time.strftime("%Y%m%d"), time.strftime("%H"), time.strftime("%M"), time.strftime("%S"))
                                         notify(resources, "alertDoors", msg)
+                                        createEvent("door", camera, time.strftime("%Y%m%d"), time.strftime("%H"), time.strftime("%M"), time.strftime("%S"))
                                         serviceUpTimes[resource] = float("inf")
                                 except KeyError:    # service is down at the start
                                     serviceUpTimes[resource] = float("inf")

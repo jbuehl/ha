@@ -216,7 +216,7 @@ class WebRoot(object):
         if eventType == "alertDoorbell":
             camera = "frontdoor"
             url = "https://shadyglade.thebuehls.com/"
-            path = "thumb/"+camera+"/"+time.strftime("%Y%m%d")+"/"
+            path = "image/"+camera+"/"+time.strftime("%Y%m%d")+"/"
             file = time.strftime("%Y%m%d%H%M%S")+"_doorbell"
             createEvent("doorbell", camera, time.strftime("%Y%m%d"), time.strftime("%H"), time.strftime("%M"), time.strftime("%S"))
         notify(self.resources, eventType, message+" "+url+path+file)
