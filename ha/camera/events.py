@@ -17,10 +17,10 @@ def splitTime(timeStamp):
     return [timeStamp[0:8], timeStamp[8:10], timeStamp[10:12], timeStamp[12:14]]
 
 # find the offset into a video fragment for the specified time
-def findOffset(tsFile, minute, second):
+def findOffset(tsFile, hour, minute, second):
     tsTime = tsFile.split(".")[0]
-    offset = int(minute)*60 + int(second) - (int(tsTime[10:12])*60 + int(tsTime[12:14]))
-    debug("debugThumb", "tsTime", tsTime, minute+":"+second, str(offset))
+    offset = (int(hour)*3600 + int(minute)*60 + int(second)) - (int(tsTime[8:10])*3600 + nt(tsTime[10:12])*60 + int(tsTime[12:14]))
+    debug("debugThumb", "tsTime", tsTime, hour+":"+minute+":"+second, "offset", str(offset))
     return offset
 
 def createEvent(eventType, cameraName, eventTime):
@@ -33,7 +33,7 @@ def createEvent(eventType, cameraName, eventTime):
         (tsFiles, firstFile) = findChunk(videoDir, hour+minute+second)
         # wait for the fragment to finish recording
         time.sleep(10)
-        offset = findOffset(tsFiles[firstFile], minute, second)
+        offset = findOffset(tsFiles[firstFile], hour, minute, second)
         debug("debugThumb", "creating", eventType, "event for camera", cameraName, "at", hour+":"+minute+":"+second)
         cmd = "ffmpeg -ss 0:"+str(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -nostats -loglevel error -y "+ \
               imageDir+date+hour+minute+second+"_"+eventType+".jpg"
@@ -49,7 +49,7 @@ def createSnap(cameraName, date, hour, minute, second="00"):
         (tsFiles, firstFile) = findChunk(videoDir, hour+minute+second)
         # wait for the fragment to finish recording
         time.sleep(10)
-        offset = findOffset(tsFiles[firstFile], minute, second)
+        offset = findOffset(tsFiles[firstFile], hour, minute, second)
         debug("debugThumb", "creating snapshot for camera", cameraName, "at", hour+":"+minute+":"+second)
         cmd = "ffmpeg -ss 0:"+str(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -s "+str(snapWidth)+"x"+str(snapHeight)+" -nostats -loglevel error -y "+ \
               thumbDir+date+hour+minute+second+"_snap.jpg"
