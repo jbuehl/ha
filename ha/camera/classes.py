@@ -27,22 +27,21 @@ archiveDir = cameraBase+"archive/"
     #                <YYYY>/
     #                    <MM>/
     #                        <DD>/
-    #                             <YYYYMMDDHHMMSS>.jpg            # full res image
-    #            events/
+    #                             <YYYYMMDDHHMMSS>_motion.jpg     # motion event image
+    #                             <YYYYMMDDHHMMSS>_door.jpg       # door event image
+    #                             <YYYYMMDDHHMMSS>_doorbell.jpg   # doorbell event image
+    #            snaps/
     #                <YYYY>/
     #                    <MM>/
     #                        <DD>/
     #                             <YYYYMMDDHHMMSS>_snap.jpg       # periodic snapshot thumbnail
-    #                             <YYYYMMDDHHMMSS>_motion.jpg     # motion event thumbnail
-    #                             <YYYYMMDDHHMMSS>_door.jpg       # door event thumbnail
-    #                             <YYYYMMDDHHMMSS>_doorbell.jpg   # doorbell event thumbnail
     #     archive/
     #         <camera>/
     #            videos/
     #                <YYYY>/
     #                    <MM>/
     #                        <DD>/
-    #                             <YYYYMMDDHHMMSS>.mp4            # video clip
+    #                             <YYYYMMDDHHMMSS>.mp4            # archived video clip
 
 class Camera(object):
     def __init__(self, name, label=None, ipAddr=""):
