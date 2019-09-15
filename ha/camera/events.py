@@ -38,7 +38,7 @@ def createEvent(eventType, cameraName, eventTime):
         cmd = "ffmpeg -ss 0:"+offset+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -nostats -loglevel error -y "+ \
               imageDir+date+hour+minute+second+"_"+eventType+".jpg"
         os.popen(cmd)
-    except OSError: # directory doesn't exist yet
+    except (OSError, IndexError): # directory doesn't exist yet
         pass
 
 def createSnap(cameraName, date, hour, minute, second="00"):
@@ -54,7 +54,7 @@ def createSnap(cameraName, date, hour, minute, second="00"):
         cmd = "ffmpeg -ss 0:"+offset+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -s "+str(snapWidth)+"x"+str(snapHeight)+" -nostats -loglevel error -y "+ \
               thumbDir+date+hour+minute+second+"_snap.jpg"
         os.popen(cmd)
-    except OSError: # directory doesn't exist yet
+    except (OSError, IndexError): # directory doesn't exist yet
         pass
 
 # create thumbnail images for periodic snapshots
