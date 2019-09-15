@@ -19,7 +19,7 @@ def splitTime(timeStamp):
 # find the offset into a video fragment for the specified time
 def findOffset(tsFile, hour, minute, second):
     tsTime = tsFile.split(".")[0]
-    offset = "%02d"%(int(hour)*3600 + int(minute)*60 + int(second)) - (int(tsTime[8:10])*3600 + int(tsTime[10:12])*60 + int(tsTime[12:14]))
+    offset = "%02d"%((int(hour)*3600 + int(minute)*60 + int(second)) - (int(tsTime[8:10])*3600 + int(tsTime[10:12])*60 + int(tsTime[12:14])))
     debug("debugThumb", "tsTime", tsTime, hour+":"+minute+":"+second, "offset", "0:"+offset)
     return offset
 
