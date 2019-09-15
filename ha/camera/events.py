@@ -19,8 +19,8 @@ def splitTime(timeStamp):
 # find the offset into a video fragment for the specified time
 def findOffset(tsFile, hour, minute, second):
     tsTime = tsFile.split(".")[0]
-    offset = (int(hour)*3600 + int(minute)*60 + int(second)) - (int(tsTime[8:10])*3600 + int(tsTime[10:12])*60 + int(tsTime[12:14]))
-    debug("debugThumb", "tsTime", tsTime, hour+":"+minute+":"+second, "offset", str(offset))
+    offset = "%02d"%(int(hour)*3600 + int(minute)*60 + int(second)) - (int(tsTime[8:10])*3600 + int(tsTime[10:12])*60 + int(tsTime[12:14]))
+    debug("debugThumb", "tsTime", tsTime, hour+":"+minute+":"+second, "offset", "0:"+offset)
     return offset
 
 def createEvent(eventType, cameraName, eventTime):
@@ -35,7 +35,7 @@ def createEvent(eventType, cameraName, eventTime):
         time.sleep(10)
         offset = findOffset(tsFiles[firstFile], hour, minute, second)
         debug("debugThumb", "creating", eventType, "event for camera", cameraName, "at", hour+":"+minute+":"+second)
-        cmd = "ffmpeg -ss 0:"+str(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -nostats -loglevel error -y "+ \
+        cmd = "ffmpeg -ss 0:"+offset+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -nostats -loglevel error -y "+ \
               imageDir+date+hour+minute+second+"_"+eventType+".jpg"
         os.popen(cmd)
     except OSError: # directory doesn't exist yet
@@ -51,7 +51,7 @@ def createSnap(cameraName, date, hour, minute, second="00"):
         time.sleep(10)
         offset = findOffset(tsFiles[firstFile], hour, minute, second)
         debug("debugThumb", "creating snapshot for camera", cameraName, "at", hour+":"+minute+":"+second)
-        cmd = "ffmpeg -ss 0:"+str(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -s "+str(snapWidth)+"x"+str(snapHeight)+" -nostats -loglevel error -y "+ \
+        cmd = "ffmpeg -ss 0:"+offset+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -s "+str(snapWidth)+"x"+str(snapHeight)+" -nostats -loglevel error -y "+ \
               thumbDir+date+hour+minute+second+"_snap.jpg"
         os.popen(cmd)
     except OSError: # directory doesn't exist yet
