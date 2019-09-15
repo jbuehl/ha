@@ -15,7 +15,10 @@
 <body onload="JavaScript:TimedRefresh(300000);">
     <h1>{{ title }}</h1>
     <div class="heading">
-        <div class="date">{{ dateDisp }}</div>
+        <span class="date">{{ dateDisp }}</span>
+        <span class="statsbutton">
+            <a class="statslink" href="/cameras?function=stats" type="button">Statistics</a>
+        </span>
     </div>
     <div class="wall">
         {% for camera in cameras %}
@@ -23,7 +26,7 @@
             <div class="camera">{{ camera[1] }}</div>
             <div class="snap">
                 <a class="snaplink" title="Live stream" href="/cameras?function=stream&camera={{ camera[0] }}&date={{ date }}">
-                    <img class="thumbimage" src="/thumb/{{ camera[0] }}/{{ date }} }}">
+                    <img class="thumbimage" src="/thumb/{{ camera[0] }}/{{ date }}">
                 </a>
                 <div class="controls">
                     <span class="control">
@@ -55,9 +58,6 @@
             </div>
         </div>
         {% endfor %}
-    </div>
-    <div class="storage">
-    Video storage capacity: {{ capacity }} Used: {{ used }} {{ percent }} Available: {{ avail }}
     </div>
 </body>
 </html>

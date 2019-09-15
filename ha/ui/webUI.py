@@ -233,7 +233,15 @@ class WebRoot(object):
         if image:
             image = image.split(".")[0]+".jpg"
         else:
-            image = subprocess.check_output("ls -1 "+imageDir+"*.jpg | tail -n1", shell=True).split("/")[-1].strip("\n")
+            # use the latest image in the directory
+            imageFiles = os.listdir(imageDir)
+            for imageFile in sorted(imageFiles, reverse=True):
+                if imageFile.split(".")[-1] == "jpg":
+                    image = imageFile
+                    break
+            if not image:
+                cherrypy.response.status = 404
+                return "no images available"
         debug('debugImage', "camera = ", camera)
         debug('debugImage', "date = ", date)
         debug('debugImage', "imageType = ", imageType)

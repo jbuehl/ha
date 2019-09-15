@@ -9,6 +9,9 @@
 </head>
 <body>
     <h1>{{ title }}</h1>
+    <div class="storage">
+    Video storage capacity: {{ capacity }} Used: {{ used }} {{ percent }} Available: {{ avail }}
+    </div>
     {% for camera in cameraDays %}
     <div class="camera">
         {{ camera[0] }}
@@ -36,8 +39,5 @@
         {% endfor %}
     </div>
     {% endfor %}
-    <div class="storage">
-    Video storage capacity: {{ capacity }} Used: {{ used }} {{ percent }} Available: {{ avail }}
-    </div>
 </body>
 </html>

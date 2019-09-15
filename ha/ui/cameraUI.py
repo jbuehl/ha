@@ -14,8 +14,8 @@ def cameraUI(function, camera, date, resource, cameras, resources, templates, vi
         return snaps(camera, date, resource, cameras, templates)
     elif function == "events":
         return events(camera, date, cameras, templates)
-    elif function == "dates":
-        return dates(camera, cameras, templates)
+    elif function == "stats":
+        return stats(camera, cameras, templates)
     elif function == "stream":
         return stream(camera, date, resource, cameras, templates)
     elif function == "download":
@@ -42,7 +42,6 @@ def wall(cameras, templates):
     [capacity, used, avail, percent] = getStorage()
     return templates.get_template("wall.html").render(title=webPageTitle+" cameras", script="",
                         dateDisp=time.strftime("%a %B %-d %Y %-H:%M"),
-                        capacity=capacity, used=used, avail=avail, percent=percent,
                         cameras=([camera, cameras[camera].label] for camera in sorted(cameras)),
                         date=date, time=time.strftime("%H%M"),
                         playlists=playlistList)
@@ -79,7 +78,7 @@ def snaps(camera, date, resource, cameras, templates):
                         snaps=snapListDisp)
 
 # display the dates for which there are camera events and videos
-def dates(camera, cameras, templates):
+def stats(camera, cameras, templates):
     if camera:
         cameraList = [camera]
     else:
@@ -142,7 +141,7 @@ def dates(camera, cameras, templates):
     # get storage device statistics
     [capacity, used, avail, percent] = getStorage()
     debug('debugIndex', "cameraDays", cameraDays)
-    return templates.get_template("dates.html").render(title=webPageTitle+" cameras", script="",
+    return templates.get_template("stats.html").render(title=webPageTitle+" camera statistics", script="",
                         capacity=capacity, used=used, avail=avail, percent=percent,
                         cameraDays=cameraDays)
 
