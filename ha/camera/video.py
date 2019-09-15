@@ -141,7 +141,7 @@ def findChunk(videoDir, startTime):
 def makeClip(videoDir, startTime, duration, fileType):
     chunks = int(duration / chunkDuration)
     debug("debugClip", "creating clip", "videoDir:", videoDir, "startTime:", startTime, "duration:", duration, "chunks:", chunks)
-    (tsFiles, firstFile) = findChunk(startTime)
+    (tsFiles, firstFile) = findChunk(videoDir, startTime)
     chunks = min(chunks, firstFile+1)
     clipFileName = startTime+"."+fileType
     # concatenate the chunks into a clip

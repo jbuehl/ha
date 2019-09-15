@@ -322,7 +322,7 @@ class WebRoot(object):
         # archive the clip or delete it
         if archive == "true":
             debug('debugClip', "archiving", clipFileName)
-            archiveDir = cameraDir+"archive/"+camera+"/videos/"+year+"/"+month+"/"+day+"/"
+            archiveDir = cameraBase+"archive/"+camera+"/videos/"+dateDir(date)
             os.popen("mkdir -p "+archiveDir)
             os.popen("mv "+videoDir+clipFileName+" "+archiveDir)
         else:

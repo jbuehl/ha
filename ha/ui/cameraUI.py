@@ -199,6 +199,8 @@ def download(camera, date, playlist, cameras, templates):
         camera = cameras[0]
     if not date:
         date = time.strftime("%Y%m%d")
+    if not playlist:
+        playlist = time.strftime("%H%M")
     videoDir = cameraDir+camera+"/videos/"+dateDir(date)
     startHour = playlist[0:2]
     startMinute = playlist[2:4]
