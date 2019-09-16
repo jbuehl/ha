@@ -1,6 +1,6 @@
 [Unit]
 Description=Home Automation Cameras
-After=syslog.target
+After=syslog.target mnt-disk1.mount
 [Service]
 ExecStart=/usr/bin/python /root/ha/cameraApp.py
 Restart=on-abort

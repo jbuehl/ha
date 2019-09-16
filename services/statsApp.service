@@ -1,6 +1,6 @@
 [Unit]
 Description=Home Automation Power Statistics
-After=syslog.target
+After=syslog.target mnt-disk2.mount network-online.target
 [Service]
 ExecStart=/usr/bin/python /root/ha/statsApp.py -f /backups/ha/
 Restart=on-abort
