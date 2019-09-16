@@ -128,7 +128,7 @@ def stats(camera, cameras, templates):
                 # fill out the remainder of the week for the previous camera/year/month
                 for d in range(7 - weekday):
                     cameraDays[-1][2][-1][2].append(["", "", "", ""])
-            cameraDays[-1][2].append([time.strftime("%Y %B", time.strptime(year+month, "%Y%m")), year+month, []])
+            cameraDays[-1][2].append([time.strftime("%B %Y", time.strptime(year+month, "%Y%m")), year+month, []])
             lastYearMonth = year+month
             # fill in the days in the week prior to the calendar day of week
             for d in range(weekday):

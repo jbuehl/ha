@@ -51,12 +51,7 @@ h1 {
     }
 
 .yearmonth {
-    color: Yellow;
     font-size: 20px;
-    }
-
-.day {
-    margin-left: 40px;
     }
 
 .thumbnails {
@@ -86,7 +81,7 @@ h1 {
 
 .day {
     color: LightYellow;
-	font-size: 20px;
+	font-size: 36px;
 	text-align: right;
     margin-left: 10px;
     margin-right: 10px;
