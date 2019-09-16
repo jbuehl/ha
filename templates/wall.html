@@ -23,7 +23,7 @@
     <div class="wall">
         {% for camera in cameras %}
         <div>
-            <div class="camera">{{ camera[1] }}</div>
+            <div class="cameraname">{{ camera[1] }}</div>
             <div class="snap">
                 <a class="snaplink" title="Live stream" href="/cameras?function=stream&camera={{ camera[0] }}&date={{ date }}">
                     <img class="thumbimage" src="/thumb/{{ camera[0] }}/{{ date }}">

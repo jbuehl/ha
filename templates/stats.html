@@ -14,7 +14,7 @@
     </div>
     {% for camera in cameraDays %}
     <div class="camera">
-        {{ camera[0] }}
+        <div class="cameraname">{{ camera[0] }}</div>
         {% for yearmonth in camera[2] %}
             <div class="yearmonth">
             {{ yearmonth[0] }}
