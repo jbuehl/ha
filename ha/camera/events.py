@@ -46,19 +46,19 @@ def createEvent(eventType, cameraName, eventTime):
 
 def createSnap(cameraName, eventTime, wait=True):
     [date, hour, minute, second] = splitTime(eventTime)
-    log("createSnap", cameraName, date, hour, minute, second, wait)
+    debug("debugSnaps", "createSnap", cameraName, date, hour, minute, second, wait)
     videoDir = cameraDir+cameraName+"/videos/"+dateDir(date)
     thumbDir = cameraDir+cameraName+"/thumbs/"+dateDir(date)
     os.popen("mkdir -p "+thumbDir)
     try:
         (tsFiles, firstFile) = findChunk(videoDir, hour+minute+second)
-        log("createSnap", cameraName, firstFile, tsFiles[firstFile])
+        debug("debugSnaps", "createSnap", cameraName, firstFile, tsFiles[firstFile])
         if wait:
             # wait for the fragment to finish recording
             time.sleep(10)
         offset = findOffset(tsFiles[firstFile], hour, minute, second)
         if offset >= 0:
-            debug("debugThumb", "creating snapshot for camera", cameraName, "at", hour+minute+second, "from", tsFiles[firstFile], "offset", offset)
+            debug("debugSnaps", "creating snapshot for camera", cameraName, "at", hour+minute+second, "from", tsFiles[firstFile], "offset", offset)
             cmd = "ffmpeg -ss 0:%02d"%(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -s "+str(snapWidth)+"x"+str(snapHeight)+ \
                   " -nostats -loglevel error -y "+ \
                   thumbDir+date+hour+minute+second+"_snap.jpg"
@@ -74,7 +74,7 @@ def snapshots(imageBase, camera, date, force=False, repeat=0):
         endTime = int(time.strftime("%H"))*60 + int(time.strftime("%M"))
         hour = 0
         minute = 5
-        log("snapshots", hour, minute, endTime)
+        debug("debugSnaps", "snapshots", hour, minute, endTime)
         while (hour*60 + minute) <= endTime:
             createSnap(camera.name, date+"%02d"%(hour)+"%02d"%(minute), wait=False)
             minute += 5
@@ -95,7 +95,7 @@ def snapshots(imageBase, camera, date, force=False, repeat=0):
                     createSnap(camera.name, date+hour+minute)
             repeating = repeat
             time.sleep(repeat)
-    debug("debugThumb", "ending snapshot thread for camera", camera.name)
+    debug("debugEnable", "ending snapshot thread for camera", camera.name)
 
 # create thumbnail images for event images uploaded from cameras
 def motionEvents(imageBase, camera, date, force=False, repeat=0):
@@ -129,4 +129,4 @@ def motionEvents(imageBase, camera, date, force=False, repeat=0):
             eventClipCount += 1
         repeating = repeat
         time.sleep(repeat)
-    debug("debugThumb", "ending motion event thread for camera", camera.name)
+    debug("debugEnable", "ending motion event thread for camera", camera.name)

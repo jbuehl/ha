@@ -70,36 +70,9 @@ def getEventTimes(eventTime, before, after):
     end = time.strftime(timeFmt, endTimeDatetime.timetuple())
     return (start, end)
 
-# make video playlists for events
-def makeEventPlaylists(cameraDir, camera, date, force=False, repeat=0):
-    debug('debugEnable', "starting event thread for camera", camera.name)
-#    debug("debugEvent", "camera:", camera.name, "date:", date)
-    imageDir = cameraDir+camera.name+"/images/"+date[0:4]+"/"+date[4:6]+"/"+date[6:8]+"/"
-#    debug("debugEvent", "imageDir:", imageDir)
-    os.popen("mkdir -p "+imageDir)
-    os.popen("chown -R "+ftpUsername+"."+ftpUsername+" "+cameraDir+camera.name+"/images/")
-    videoDir = cameraDir+camera.name+"/videos/"+dateDir(date)
-#    debug("debugEvent", "videoDir:", videoDir)
-    repeating = 1
-    while repeating:
-        events = os.listdir(imageDir)
-        events.sort()
-        (chunkList, eventList) = getPlaylists(videoDir)
-        for event in events:
-            eventTime = event.split(".")[0].split("_")[-1]
-            if force or (eventTime not in eventList):
-                debug("debugEvent", "creating playlist for camera", camera.name, "event", eventTime)
-                (start, end) = getEventTimes(eventTime, 20, 40)
-                with open(videoDir+eventTime+"-event.m3u8", "w") as eventPlaylist:
-                    eventPlaylist.write(makePlaylist(start, end, chunkList))
-        repeating = repeat
-        time.sleep(repeat)
-    debug("debugEvent", "exiting playlist thread for camera", camera.name)
-
 # record video for a camera
 def recordVideo(cameraDir, camera, date):
     debug('debugEnable', "starting video thread for camera", camera.name)
-    debug("debugVideo", "camera:", camera, "date:", date)
     videoDir = cameraDir+camera.name+"/videos/"+dateDir(date)
     cameraUsername = getValue(cameraKey, "cameraUsername")
     cameraPassword = getValue(cameraKey, "cameraPassword")
@@ -112,13 +85,13 @@ def recordVideo(cameraDir, camera, date):
             cmd += " -an -vcodec copy -use_localtime 1 -hls_list_size 0 -hls_time "+str(chunkDuration)
             cmd += " -hls_segment_filename "+videoDir+"%Y%m%d%H%M%S.ts "
             cmd += videoDir+time.strftime("%Y%m%d%H%M%S")+".m3u8"
-            debug("debugVideo", "cmd:", cmd)
-            log("recording started for camera", camera.name)
+            debug("debugVideo", "recording started for camera", camera.name)
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-            log("recording finished for camera", camera.name, output)
+            debug("debugVideo", "recording finished for camera", camera.name, output)
         except subprocess.CalledProcessError as exception:
             log("recording failed for camera", camera.name, "exit code:", exception.returncode, exception.output)
         time.sleep(60)
+    debug('debugEnable', "ending video thread for camera", camera.name)
 
 # find a video fragment that contains the specified time
 def findChunk(videoDir, startTime):
