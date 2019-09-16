@@ -19,8 +19,8 @@ def splitTime(timeStamp):
 # find the offset into a video fragment for the specified time
 def findOffset(tsFile, hour, minute, second):
     tsTime = tsFile.split(".")[0]
-    offset = "%02d"%((int(hour)*3600 + int(minute)*60 + int(second)) - (int(tsTime[8:10])*3600 + int(tsTime[10:12])*60 + int(tsTime[12:14])))
-    debug("debugThumb", "tsTime", tsTime, hour+":"+minute+":"+second, "offset", "0:"+offset)
+    offset = (int(hour)*3600 + int(minute)*60 + int(second)) - (int(tsTime[8:10])*3600 + int(tsTime[10:12])*60 + int(tsTime[12:14]))
+    debug("debugThumb", "tsTime", tsTime, hour+minute+second, "offset", offset)
     return offset
 
 def createEvent(eventType, cameraName, eventTime):
@@ -34,45 +34,65 @@ def createEvent(eventType, cameraName, eventTime):
         # wait for the fragment to finish recording
         time.sleep(10)
         offset = findOffset(tsFiles[firstFile], hour, minute, second)
-        debug("debugThumb", "creating", eventType, "event for camera", cameraName, "at", hour+":"+minute+":"+second)
-        cmd = "ffmpeg -ss 0:"+offset+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -nostats -loglevel error -y "+ \
-              imageDir+date+hour+minute+second+"_"+eventType+".jpg"
-        os.popen(cmd)
-    except (OSError, IndexError): # directory doesn't exist yet
-        pass
+        if offset >= 0:
+            debug("debugThumb", "creating", eventType, "event for camera", cameraName, "at", hour+minute+second, "from", tsFiles[firstFile], "offset", offset)
+            cmd = "ffmpeg -ss 0:%02d"%(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -nostats -loglevel error -y "+ \
+                  imageDir+date+hour+minute+second+"_"+eventType+".jpg"
+            os.popen(cmd)
+    except (OSError, IndexError) as ex: # directory doesn't exist yet
+        log("createEvent", "exception", str(ex))
 
-def createSnap(cameraName, date, hour, minute, second="00"):
+def createSnap(cameraName, date, hour, minute, second="00", wait=True):
+    log("createSnap", cameraName, date, hour, minute, second, wait)
     videoDir = cameraDir+cameraName+"/videos/"+dateDir(date)
     thumbDir = cameraDir+cameraName+"/thumbs/"+dateDir(date)
     os.popen("mkdir -p "+thumbDir)
     try:
         (tsFiles, firstFile) = findChunk(videoDir, hour+minute+second)
-        # wait for the fragment to finish recording
-        time.sleep(10)
+        log("createSnap", cameraName, firstFile, tsFiles[firstFile])
+        if wait:
+            # wait for the fragment to finish recording
+            time.sleep(10)
         offset = findOffset(tsFiles[firstFile], hour, minute, second)
-        debug("debugThumb", "creating snapshot for camera", cameraName, "at", hour+":"+minute+":"+second)
-        cmd = "ffmpeg -ss 0:"+offset+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -s "+str(snapWidth)+"x"+str(snapHeight)+" -nostats -loglevel error -y "+ \
-              thumbDir+date+hour+minute+second+"_snap.jpg"
-        os.popen(cmd)
-    except (OSError, IndexError): # directory doesn't exist yet
-        pass
+        if offset >= 0:
+            debug("debugThumb", "creating snapshot for camera", cameraName, "at", hour+minute+second, "from", tsFiles[firstFile], "offset", offset)
+            cmd = "ffmpeg -ss 0:%02d"%(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -s "+str(snapWidth)+"x"+str(snapHeight)+ \
+                  " -nostats -loglevel error -y "+ \
+                  thumbDir+date+hour+minute+second+"_snap.jpg"
+            os.popen(cmd)
+    except (OSError, IndexError) as ex: # directory or video file doesn't exist yet
+        log("createSnap", "exception", str(ex))
 
 # create thumbnail images for periodic snapshots
 def snapshots(imageBase, camera, date, force=False, repeat=0):
     debug('debugEnable', "starting snapshot thread for camera", camera.name)
-    lastMinute = "--"
-    repeating = 1
-    while repeating:
-        # make a snapshot of the current video every 5 minutes
-        hour = time.strftime("%H")
-        minute = time.strftime("%M")
-        if (minute[1] == "0") or (minute[1] == "5"):
-            if minute != lastMinute:
-                lastMinute = minute
-                createSnap(camera.name, date, hour, minute)
-        repeating = repeat
-        time.sleep(repeat)
-    debug("debugThumb", "exiting snapshot thread for camera", camera.name)
+    if force:
+        # create snapshots for the day up to the current time
+        endTime = int(time.strftime("%H"))*60 + int(time.strftime("%M"))
+        hour = 0
+        minute = 5
+        log("snapshots", hour, minute, endTime)
+        while (hour*60 + minute) <= endTime:
+            createSnap(camera.name, date, "%02d"%(hour), "%02d"%(minute), wait=False)
+            minute += 5
+            if minute == 60:
+                hour += 1
+                minute = 0
+    else:
+        # create snapshots starting at the current time
+        lastMinute = "--"
+        repeating = 1
+        while repeating:
+            # make a snapshot of the current video every 5 minutes
+            hour = time.strftime("%H")
+            minute = time.strftime("%M")
+            if (minute[1] == "0") or (minute[1] == "5"):
+                if minute != lastMinute:
+                    lastMinute = minute
+                    createSnap(camera.name, date, hour, minute)
+            repeating = repeat
+            time.sleep(repeat)
+    debug("debugThumb", "ending snapshot thread for camera", camera.name)
 
 # create thumbnail images for event images uploaded from cameras
 def motionEvents(imageBase, camera, date, force=False, repeat=0):
@@ -106,4 +126,4 @@ def motionEvents(imageBase, camera, date, force=False, repeat=0):
             eventClipCount += 1
         repeating = repeat
         time.sleep(repeat)
-    debug("debugThumb", "exiting motion event thread for camera", camera.name)
+    debug("debugThumb", "ending motion event thread for camera", camera.name)
