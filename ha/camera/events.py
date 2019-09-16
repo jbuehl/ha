@@ -14,7 +14,9 @@ from ha.camera.video import *
 
 # split a timestamp YYYYMMDDHHMMSS into YYYYMMDD, HH, MM, SS
 def splitTime(timeStamp):
-    return [timeStamp[0:8], timeStamp[8:10], timeStamp[10:12], timeStamp[12:14]]
+    # truncate or extend with 0 if short
+    ts = timeStamp[0:14]+"0"*(14-len(timeStamp))
+    return [ts[0:8], ts[8:10], ts[10:12], ts[12:14]]
 
 # find the offset into a video fragment for the specified time
 def findOffset(tsFile, hour, minute, second):
@@ -42,7 +44,8 @@ def createEvent(eventType, cameraName, eventTime):
     except (OSError, IndexError) as ex: # directory doesn't exist yet
         log("createEvent", "exception", str(ex))
 
-def createSnap(cameraName, date, hour, minute, second="00", wait=True):
+def createSnap(cameraName, eventTime, wait=True):
+    [date, hour, minute, second] = splitTime(eventTime)
     log("createSnap", cameraName, date, hour, minute, second, wait)
     videoDir = cameraDir+cameraName+"/videos/"+dateDir(date)
     thumbDir = cameraDir+cameraName+"/thumbs/"+dateDir(date)
@@ -73,7 +76,7 @@ def snapshots(imageBase, camera, date, force=False, repeat=0):
         minute = 5
         log("snapshots", hour, minute, endTime)
         while (hour*60 + minute) <= endTime:
-            createSnap(camera.name, date, "%02d"%(hour), "%02d"%(minute), wait=False)
+            createSnap(camera.name, date+"%02d"%(hour)+"%02d"%(minute), wait=False)
             minute += 5
             if minute == 60:
                 hour += 1
@@ -89,7 +92,7 @@ def snapshots(imageBase, camera, date, force=False, repeat=0):
             if (minute[1] == "0") or (minute[1] == "5"):
                 if minute != lastMinute:
                     lastMinute = minute
-                    createSnap(camera.name, date, hour, minute)
+                    createSnap(camera.name, date+hour+minute)
             repeating = repeat
             time.sleep(repeat)
     debug("debugThumb", "ending snapshot thread for camera", camera.name)
