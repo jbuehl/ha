@@ -35,7 +35,7 @@ def createEvent(eventType, cameraName, eventTime):
         (tsFiles, firstFile) = findChunk(videoDir, hour+minute+second)
         # wait for the fragment to finish recording
         time.sleep(10)
-        offset = findOffset(tsFiles[firstFile], hour, minute, second)
+        offset = 0 # findOffset(tsFiles[firstFile], hour, minute, second)
         if offset >= 0:
             debug("debugThumb", "creating", eventType, "event for camera", cameraName, "at", hour+minute+second, "from", tsFiles[firstFile], "offset", offset)
             cmd = "ffmpeg -ss 0:%02d"%(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -nostats -loglevel error -y "+ \
@@ -56,7 +56,7 @@ def createSnap(cameraName, eventTime, wait=True):
         if wait:
             # wait for the fragment to finish recording
             time.sleep(10)
-        offset = findOffset(tsFiles[firstFile], hour, minute, second)
+        offset = 0 # findOffset(tsFiles[firstFile], hour, minute, second)
         if offset >= 0:
             debug("debugSnaps", "creating snapshot for camera", cameraName, "at", hour+minute+second, "from", tsFiles[firstFile], "offset", offset)
             cmd = "ffmpeg -ss 0:%02d"%(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -s "+str(snapWidth)+"x"+str(snapHeight)+ \
