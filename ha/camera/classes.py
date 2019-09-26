@@ -82,3 +82,29 @@ def getCameras():
 # create the camera directory path for a specific date
 def dateDir(date):
     return date[0:4]+"/"+date[4:6]+"/"+date[6:8]+"/"
+
+# split a timestamp YYYYMMDDHHMMSS into YYYYMMDD, HH, MM, SS
+def splitTime(timeStamp):
+    # truncate or extend with 0 if short
+    ts = timeStamp[0:14]+"0"*(14-len(timeStamp))
+    return [ts[0:8], ts[8:10], ts[10:12], ts[12:14]]
+
+# add two times represented by a string of the form HHMMSS
+# assume result is in the same day
+def addTimes(time1, time2):
+    [hh1, mm1, ss1] = [int(time1[0:2]), int(time1[2:4]), int(time1[4:6])]
+    [hh2, mm2, ss2] = [int(time2[0:2]), int(time2[2:4]), int(time2[4:6])]
+    ss = (ss1 + ss2)%60
+    mm = (mm1 + mm2 + (ss1 + ss2)/60)%60
+    hh = (hh1 + hh2 + (mm1 + mm2)/60)
+    return "%02d%02d%02d"%(hh, mm, ss)
+
+# subtract two times represented by a string of the form HHMMSS
+# assume result is in the same day
+def subTimes(time1, time2):
+    [hh1, mm1, ss1] = [int(time1[0:2]), int(time1[2:4]), int(time1[4:6])]
+    [hh2, mm2, ss2] = [int(time2[0:2]), int(time2[2:4]), int(time2[4:6])]
+    ss = (ss1 - ss2)%60
+    mm = (mm1 - mm2 + (ss1 - ss2)/60)%60
+    hh = (hh1 - hh2 + (mm1 - mm2)/60)
+    return "%02d%02d%02d"%(hh, mm, ss)

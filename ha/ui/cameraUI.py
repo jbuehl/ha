@@ -7,6 +7,7 @@ from jinja2 import FileSystemLoader
 from ha import *
 from ha.camera.classes import *
 from ha.camera.storage import *
+from ha.camera.events import *
 
 # camera user interface
 def cameraUI(function, camera, date, resource, cameras, resources, templates, views):
@@ -47,30 +48,69 @@ def wall(cameras, templates):
                         playlists=playlistList)
 
 # display the snapshots for a camera on the specified day
+# resource:
+#     <startTime>.<nSnaps>.<increment>
+#     HHMMSS.NNN.HHMMSS
+#     default: 000000.288.0005
+
 def snaps(camera, date, resource, cameras, templates):
     if not camera:
         camera = cameras[0]
     if not date:
         date = time.strftime("%Y%m%d")
+    if not resource:
+        resource = "000000.288.000500"
+        daily = True
+    else:
+        daily = False
+    (startTime, nSnaps, incr) = (resource.split(".")+["0","0"])[0:3]
     debug('debugSnaps', "camera = ", camera)
     debug('debugSnaps', "date = ", date)
+    debug('debugSnaps', "startTime = ", startTime)
+    debug('debugSnaps', "nSnaps = ", nSnaps)
+    debug('debugSnaps', "incr = ", incr)
     snapDir = cameraDir+camera+"/thumbs/"+dateDir(date)
     snapshots = os.listdir(snapDir)
     debug('debugSnaps', "snapshots = ", len(snapshots))
-    # build a matrix of snapshots for the day at 5 minute intervals
-    snapList = [("", "")]*288
-    for snap in snapshots:
-        snapHour = int(snap[8:10])
-        snapMinute = int(snap[10:12])
-        snapIndex = snapHour * 12 + snapMinute/5
-        snapTimes = ["%02d"%(minute) for minute in range(snapMinute, snapMinute+5)]
-        snapList[snapHour * 12 + snapMinute/5] = (snap, snapHour, snapTimes)
-    # reverse the order and trim future hours
-    snapListDisp = []
-    for hour in range(23, -1, -1):
-        if snapList[hour*12:hour*12+12] != [("", "")]*12:
-            snapListDisp += [("", "%2d"%hour)]
-            snapListDisp += snapList[hour*12:hour*12+12]
+    # build a matrix of snapshots
+    # snapList = [("", "")]*int(nSnaps)
+    snapList = []
+    snapIncr = int(incr[0:2])*3600+int(incr[2:4])*60+int(incr[4:6])
+    snapThreads = []
+    [date, hour, minute, second] = splitTime(date+startTime)
+    snapTime = startTime
+    now = time.strftime("%H%M%S")
+    for i in range(int(nSnaps)):
+        if int(snapTime) > int(now):
+            break
+        # snapHour = int(snap[8:10])
+        # snapMinute = int(snap[10:12])
+        # snapIndex = snapHour * 12 + snapMinute/5
+        # snapTimes = ["%02d"%(minute) for minute in range(snapMinute, snapMinute+5)]
+        # snapList[snapHour * 12 + snapMinute/5] = (snap, snapHour, snapTimes)
+        snapshot = date+snapTime+"_snap.jpg"
+        if snapshot not in snapshots:
+            # snapThreads.append(threading.Thread(target=createSnap, args=(camera, snapshot, False,)))
+            # snapThreads[-1].daemon = True
+            # snapThreads[-1].start()
+            createSnap(camera, snapshot, False)
+        snapHour = int(snapTime[0:2])
+        snapMinute = int(snapTime[2:4])
+        # snapTimes = ["%02d"%(minute) for minute in range(snapMinute, snapMinute+5)]
+        snapTimes = [snapTime[2:4], "", "", "", ""]
+        snapList.append((snapshot, snapHour, snapTimes))
+        snapTime = addTimes(snapTime, incr)
+
+    if daily:
+        # reverse the order and trim future hours
+        snapListDisp = []
+        snapList += [("", "")]*((60-snapMinute)/5)
+        for hour in range(snapHour, -1, -1):
+            if snapList[hour*12:hour*12+12] != [("", "")]*12:
+                snapListDisp += [("", "%2d"%hour)]
+                snapListDisp += snapList[hour*12:hour*12+12]
+    else:
+        snapListDisp = [("", "%2d"%snapHour)] + snapList
     return templates.get_template("snaps.html").render(title=webPageTitle+" "+cameras[camera].label+" camera", script="",
                         dateDisp=time.strftime("%a %B %-d %Y", time.strptime(date, "%Y%m%d")),
                         camera=camera,
