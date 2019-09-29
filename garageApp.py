@@ -53,7 +53,7 @@ if __name__ == "__main__":
     recircPump = Control("recircPump", gpio0, 0, type="hotwater", group="Water", label="Hot water")
 
     # Lights
-    sculptureLights = Control("sculptureLights", led, 7, type="led", group="Lights", label="Sculpture")
+    sculptureLights = Control("sculptureLights", led, 1, type="led", group="Lights", label="Sculpture")
 
     # Doors
     garageDoor = Sensor("garageDoor", gpio1, 0, type="door", group="Doors", label="Garage", event=stateChangeEvent)
