@@ -9,8 +9,6 @@ doorbellNotifyMsg = "Doorbell "
 from ha import *
 from ha.interfaces.gpioInterface import *
 from ha.interfaces.i2cInterface import *
-from ha.interfaces.tc74Interface import *
-from ha.interfaces.tempInterface import *
 from ha.interfaces.ledInterface import *
 from ha.interfaces.fileInterface import *
 from ha.interfaces.windInterface import *
@@ -45,8 +43,6 @@ if __name__ == "__main__":
     gpio0 = GPIOInterface("gpio0", i2c1, addr=0x20, bank=0, inOut=0x00)
     gpio1 = GPIOInterface("gpio1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(GPIOInterface.IPOL, 0x08)])
     led = LedInterface("led", gpio0)
-    tc74 = TC74Interface("tc74", i2c1)
-    temp = TempInterface("temp", tc74, sample=10)
     fileInterface = FileInterface("fileInterface", fileName=stateDir+"garage.state", event=stateChangeEvent)
 
     # Water
@@ -62,9 +58,6 @@ if __name__ == "__main__":
     garageDoors = SensorGroup("garageDoors", [garageDoor, garageBackDoor, garageHouseDoor], type="door", group="Doors", label="Garage doors")
     doorbellButton = Sensor("doorbellButton", gpio1, 3, interrupt=doorbellInterrupt)
     doorbell = OneShotControl("doorbell", None, duration=10, type="sound", group="Doors", label="Doorbell", event=stateChangeEvent)
-
-    # Temperature
-    garageTemp = Sensor("garageTemp", temp, 0x4b, group="Temperature", label="Garage temp", type="tempF", event=stateChangeEvent)
 
     # Weather
     anemometer = Sensor("anemometer", gpio1, addr=windSpeedAddr)
@@ -92,7 +85,7 @@ if __name__ == "__main__":
     # Resources
     resources = Collection("resources", resources=[recircPump, sculptureLights, doorbell,
                                                    garageDoor, garageBackDoor, garageHouseDoor, garageDoors,
-                                                   doorbellButton, garageTemp,
+                                                   doorbellButton,
                                                    windSpeed, windDir, rainMinute, rainHour, rainDay,
                                                    hotWaterRecirc,
                                                    ])
@@ -103,7 +96,6 @@ if __name__ == "__main__":
     doorbellThread.start()
     gpio0.start()
     gpio1.start()
-    temp.start()
     fileInterface.start()
     rainInterface.start()
     schedule.start()

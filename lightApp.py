@@ -9,6 +9,9 @@ restIgnore = ["house", "hvac", "power", "solar", "carcharger", "sprinklers"]
 from ha import *
 from ha.interfaces.neopixelInterface import *
 from ha.interfaces.fileInterface import *
+from ha.interfaces.i2cInterface import *
+from ha.interfaces.tc74Interface import *
+from ha.interfaces.tempInterface import *
 from ha.controls.holidayLightControl import *
 from ha.rest.restServer import *
 from ha.rest.restProxy import *
@@ -59,6 +62,12 @@ if __name__ == "__main__":
     # Interfaces
     neopixelInterface = NeopixelInterface("neopixelInterface", None, length=stringLength, event=stateChangeEvent)
     configData = FileInterface("configData", fileName=stateDir+"lights.conf", event=stateChangeEvent, initialState=defaultConfig)
+    i2c1 = I2CInterface("i2c1", bus=1)
+    tc74 = TC74Interface("tc74", i2c1)
+    temp = TempInterface("temp", tc74, sample=10)
+
+    # Temperature
+    garageTemp = Sensor("garageTemp", temp, 0x4b, group="Temperature", label="Garage temp", type="tempF", event=stateChangeEvent)
 
     # Persistent config data
     holiday = Control("holiday", configData, "holiday", group=["Lights", "Holiday"], label="Holiday")
@@ -197,7 +206,7 @@ if __name__ == "__main__":
     resources = Collection("resources", resources=[valentinesLights, mardigrasLights, presidentsLights, stpatricksLights, maydayLights,
                                                    easterLights, cincodemayoLights, swedenLights, canadaLights, prideLights, flagLights, july4Lights, bastilleLights,
                                                    fallLights, halloweenLights, electionLights, christmasLights, hanukkahLights,
-                                                   testLights, offLights, holiday
+                                                   testLights, offLights, holiday, garageTemp,
                                                    ])
     holidayLights = AliasControl("holidayLights", None, resources, holiday, type="light", group=["Lights", "Holiday"], label="Holiday lights")
 
@@ -274,5 +283,6 @@ if __name__ == "__main__":
     # Start interfaces
     configData.start()
     neopixelInterface.start()
+    temp.start()
     schedule.start()
     restServer.start()
