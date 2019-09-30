@@ -83,22 +83,22 @@ def snaps(camera, date, resource, cameras, templates):
     for i in range(int(nSnaps)):
         if int(snapTime) > int(now):
             break
-        # snapHour = int(snap[8:10])
-        # snapMinute = int(snap[10:12])
-        # snapIndex = snapHour * 12 + snapMinute/5
-        # snapTimes = ["%02d"%(minute) for minute in range(snapMinute, snapMinute+5)]
-        # snapList[snapHour * 12 + snapMinute/5] = (snap, snapHour, snapTimes)
         snapshot = date+snapTime+"_snap.jpg"
         if snapshot not in snapshots:
-            # snapThreads.append(threading.Thread(target=createSnap, args=(camera, snapshot, False,)))
-            # snapThreads[-1].daemon = True
-            # snapThreads[-1].start()
             createSnap(camera, snapshot, False)
         snapHour = int(snapTime[0:2])
         snapMinute = int(snapTime[2:4])
         # snapTimes = ["%02d"%(minute) for minute in range(snapMinute, snapMinute+5)]
-        snapTimes = [snapTime[2:4], "", "", "", ""]
-        snapList.append((snapshot, snapHour, snapTimes))
+        if incr == "000500":    # currently showing 5 minute intervals
+            nextSnap = snapTime+".5.000100"
+            snapTimeDisp = snapTime[2:4]
+        elif incr == "000100":  # currently showing 1 minute intervals
+            nextSnap = snapTime+".6.000010"
+            snapTimeDisp = snapTime[2:4]
+        else:                       # currently showing 10 second intervals
+            nextSnap = ""
+            snapTimeDisp = snapTime[2:4]+":"+snapTime[4:6]
+        snapList.append((snapshot, snapHour, snapTimeDisp, snapTime, nextSnap))
         snapTime = addTimes(snapTime, incr)
 
     if daily:

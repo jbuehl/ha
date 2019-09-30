@@ -50,7 +50,7 @@ def createSnap(cameraName, eventTime, wait=True):
         if wait:
             # wait for the fragment to finish recording
             time.sleep(10)
-        offset = 0 # findOffset(tsFiles[firstFile], hour, minute, second)
+        offset = 1 # findOffset(tsFiles[firstFile], hour, minute, second)
         if offset >= 0:
             debug("debugSnaps", "creating snapshot for camera", cameraName, "at", hour+minute+second, "from", tsFiles[firstFile], "offset", offset)
             cmd = "/usr/bin/ffmpeg -ss 0:%02d"%(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -s "+str(snapWidth)+"x"+str(snapHeight)+ \

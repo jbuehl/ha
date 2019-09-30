@@ -293,10 +293,10 @@ class WebRoot(object):
         try:
             (start, end) = urllib.unquote(resourceName).split(":")
             # create a playlist on the fly
-            start = "%04d"%int(start)
+            start = "%06d"%int(start)
             if end == "":
                 # default is 1 minute
-                end = "%04d"%(int(start)+59)
+                end = "%06d"%(int(start)+59)
             debug('debugResource', "playlist = ", start, end)
             (chunkList, eventList) = getPlaylists(videoDir)
             resourceContent = makePlaylist(date+start, date+end, chunkList)

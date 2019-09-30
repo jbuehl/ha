@@ -18,7 +18,7 @@
     </script>
     {{ script }}
 </head>
-<body onload="JavaScript:TimedRefresh(10000);">
+<body onload="JavaScript:TimedRefresh(300000);">
     <h1>{{ title }}</h1>
     <div class="heading">
         <div class="date">{{ dateDisp }}</div>
@@ -28,19 +28,19 @@
         <div class="snap">
             {% if snap[0] != "" %}
             <div class="snapimage">
-                <a class="snaplink" title="Expand image" href="/thumb/{{ camera }}/{{ date }}/{{ snap[0] }}">
+                {% if snap[4] != "" %}
+                <a class="snaplink" title="Expand snapshot" href="/cameras?function=snaps&camera={{ camera }}&date={{ date }}&resource={{ snap[4] }}">
                     <img class="thumbimage" src="../images/gray.jpg" data-src="/thumb/{{ camera }}/{{ date }}/{{ snap[0] }}">
                 </a>
+                {% else %}
+                <img class="thumbimage" src="../images/gray.jpg" data-src="/thumb/{{ camera }}/{{ date }}/{{ snap[0] }}">
+                {% endif %}
             </div>
-            <div class="snaptimes">
-                {% for snaptime in snap[2] %}
-                <span class="snaplink">
-                    <a class="snaptime" title="Play video starting at {{ snap[1] }}:{{ snaptime }}"
-                       href="/cameras?function=stream&camera={{ camera }}&date={{ date }}&resource={{ snap[1] }}{{ snaptime }}%3A">
-                       :{{ snaptime }}
-                    </a>
-                </span>
-                {% endfor %}
+            <div class="snaplink">
+                <a class="snaptime" title="Play video starting at {{ snap[1] }}:{{ snap[2] }}"
+                   href="/cameras?function=stream&camera={{ camera }}&date={{ date }}&resource={{ snap[3] }}%3A">
+                   {{ snap[1] }}:{{ snap[2] }}
+                </a>
             </div>
             {% else %}
             <div>
