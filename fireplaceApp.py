@@ -12,7 +12,9 @@ if __name__ == "__main__":
 
     # Interfaces
     fileInterface = FileInterface("fileInterface", fileName=stateDir+"fireplace.state", event=stateChangeEvent, initialState=defaultConfig)
-    fireplaceVideo = Control("fireplaceVideo", fileInterface, "video", group="Fireplace", label="Fireplace video")
+    fireplaceVideo = MultiControl("fireplaceVideo", fileInterface, "video", 
+                                  values=["fireplace", "aquarium"],
+                                  group="Fireplace", label="Fireplace video")
     fireplaceInterface = FireplaceInterface("fireplaceInterface", None, videoControl=fireplaceVideo)
 
     # controls
