@@ -45,6 +45,7 @@
             <div class="link"><button onclick="return show('doorPage','dashPage');">Doors</button></div>
             <div class="link"><button onclick="return show('powerPage','dashPage');">Power</button></div>
             <div class="link"><button onclick="return show('weatherPage','dashPage');">Weather</button></div>
+            <div class="link"><button onclick="return show('fireplacePage','dashPage');">Fireplace</button></div>
         </div>
     </div>
 
@@ -100,6 +101,11 @@
     <div id="doorPage" style="display:none">
         {{ groupTemplate.render(templates=templates, widths=[320, [160, 120, 40]], group=["", doorResources], details=False, name=False, link=False, views=views) }}
         <div class="link"><button onclick="return show('dashPage','doorPage');">Back</button></div>
+    </div>
+
+    <div id="fireplacePage" style="display:none">
+        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", fireplaceResources], details=False, name=False, link=False, views=views) }}
+        <div class="link"><button onclick="return show('dashPage','fireplacePage');">Back</button></div>
     </div>
 
 </body>
