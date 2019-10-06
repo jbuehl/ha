@@ -16,7 +16,7 @@ if __name__ == "__main__":
     fireplaceInterface = FireplaceInterface("fireplaceInterface", None, videoControl=fireplaceVideo)
 
     # controls
-    fireplace = Control("fireplace", fireplaceInterface, type="fireplace", group="Fireplace", label="Fireplace")
+    fireplace = Control("fireplace", fireplaceInterface, type="fire", group="Fireplace", label="Fireplace")
 
     # Resources
     resources = Collection("resources", resources=[fireplace, fireplaceVideo,

@@ -408,6 +408,14 @@ td {
     color: OrangeRed;
     }
 
+.fire_Lit {
+    color: Orange;
+    }
+
+.fire_Out {
+    color: SlateGray;
+    }
+
 .V {
 	color: Yellow;
     }
