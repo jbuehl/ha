@@ -69,9 +69,6 @@ if __name__ == "__main__":
     # Temperature
     garageTemp = Sensor("garageTemp", temp, 0x4b, group="Temperature", label="Garage temp", type="tempF", event=stateChangeEvent)
 
-    # Persistent config data
-    holiday = Control("holiday", configData, "holiday", group=["Lights", "Holiday"], label="Holiday")
-
     # Light controls
 #    leftSegment = ("leftSegment", 0, 112)
 #    centerSegment = ("centerSegment", 112, 58)
@@ -177,7 +174,16 @@ if __name__ == "__main__":
                                                            pattern=patterns["spectrumPattern"],
                                                            animation=CrawlAnimation(direction=1))],
                                         type="light", group=["Lights", "Holiday"], label="Test")
-    # Tasks
+
+    holidayLightControls = Collection("HolidayLightControls", resources=[valentinesLights, mardigrasLights, presidentsLights, stpatricksLights, maydayLights,
+                           easterLights, cincodemayoLights, swedenLights, canadaLights, prideLights, flagLights, july4Lights, bastilleLights,
+                           fallLights, halloweenLights, electionLights, christmasLights, hanukkahLights,
+                           testLights, offLights])
+    # Persistent config data
+    holiday = MultiControl("holiday", configData, "holiday", values=sorted(holidayLightControls.keys()),
+                            group=["Lights", "Holiday"], label="Holiday")
+
+# Tasks
     # 2019
     holidayTasks = [
             Task("OffTask",          SchedTime(                              hour=12, minute=00), holiday, "offLights"),
@@ -203,12 +209,8 @@ if __name__ == "__main__":
             ]
 
     # Resources
-    resources = Collection("resources", resources=[valentinesLights, mardigrasLights, presidentsLights, stpatricksLights, maydayLights,
-                                                   easterLights, cincodemayoLights, swedenLights, canadaLights, prideLights, flagLights, july4Lights, bastilleLights,
-                                                   fallLights, halloweenLights, electionLights, christmasLights, hanukkahLights,
-                                                   testLights, offLights, holiday, garageTemp,
-                                                   ])
-    holidayLights = AliasControl("holidayLights", None, resources, holiday, type="light", group=["Lights", "Holiday"], label="Holiday lights")
+    resources = Collection("resources", resources=[holiday, garageTemp])
+    holidayLights = AliasControl("holidayLights", None, holidayLightControls, holiday, type="light", group=["Lights", "Holiday"], label="Holiday lights")
 
     # start the cache to listen for services on other servers
     cacheResources = Collection("cacheResources")
