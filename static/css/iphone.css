@@ -88,6 +88,16 @@ button {
     margin: 4px;
     }
 
+select {
+    height: 40px;
+    width: 160px;
+    border-radius: 8px;
+    font-size: 18px;
+    color: Black;
+    background-color: Gray;
+    margin: 4px;
+    }
+
 input {
     height: 32px;
     width: 60px;
