@@ -34,6 +34,23 @@
                 </form>
             </div>
             {% endif %}
+            {% if resource.className in ["MultiControl"] %}
+            <div class="control {% if dimmed %} dimmed {% endif %}" >
+                <form name='control' action='' method='get'>
+                    <input type='hidden' name='resource' value='{{ resource.name }}' />
+                    <span>
+                        <select name='action'>
+                            {% for value in resource.values %}
+                            <option value='{{ value }}'>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </span>
+                    <span>
+                        <input type='submit' class='button' />
+                    </span>
+                </form>
+            </div>
+            {% endif %}
             {% if details %}
             {% if resource.className == "Task" %}
                 <div class=task>{{ resource.__str__().replace(",", "<br>") }}</div>

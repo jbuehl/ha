@@ -384,11 +384,10 @@ class OneShotControl(Control):
 class MultiControl(Control):
     def __init__(self, name, interface, addr=None, values=[], group="", type="control", location=None, label="", interrupt=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
-        self.className = "Control"
+        self.className = "MultiControl"
         self.values = values
 
     def setState(self, state, wait=False):
-        state = int(state)
         debug("debugState", "MultiControl", self.name, "setState", state, self.values)
         if state in self.values:
             return Control.setState(self, state)

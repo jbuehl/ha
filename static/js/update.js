@@ -29,6 +29,9 @@ $(document).ready(function() {
         event.preventDefault();
         resource = this['form']['children']['0']['defaultValue'];
         value = this['defaultValue'];
+        if (value == '') {
+            value = this['form']['1']['value'];
+        }
         $.post('/submit', {"action": value, "resource": resource});
         $.getJSON('/state', {}, function(data) {    // get new state value and update
             updateAll(data);
