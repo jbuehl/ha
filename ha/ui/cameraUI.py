@@ -119,7 +119,7 @@ def snaps(cameraName, date, resource, cameras, templates):
 
 # display the dates for which there are camera events and videos
 def stats(cameraName, cameras, templates):
-    if camera:
+    if cameraName:
         cameraList = [cameraName]
     else:
         cameraList = list(cameras.keys())

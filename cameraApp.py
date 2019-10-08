@@ -42,8 +42,8 @@ if __name__ == "__main__":
     # purge old video
     if purge:
         purgeThreads = []
-        for camera in list(cameras.keys()):
-            purgeThreads.append(threading.Thread(target=purgeStorage, args=(camera, repeat,)))
+        for cameraName in list(cameras.keys()):
+            purgeThreads.append(threading.Thread(target=purgeStorage, args=(cameraName, repeat,)))
             purgeThreads[-1].daemon = True
             purgeThreads[-1].start()
 
