@@ -6,6 +6,7 @@ import serial
 import struct
 import threading
 from ha import *
+from functools import reduce
 
 ########################################################################################################
 # state of the pool and equipment
@@ -91,7 +92,7 @@ class AqualinkInterface(Interface):
         self.master = Panel("Master", self)
         self.allButtonPanel = AllButtonPanel("All Button", self)
         self.panels = {allButtonPanelAddr: self.allButtonPanel}
-        self.panel = self.panels.values()[0]
+        self.panel = list(self.panels.values())[0]
         self.interface = Interface("RS485", self)
 
         # get control sequences for equipment from the panel
@@ -527,7 +528,7 @@ class AllButtonPanel(Panel):
         if status != self.lastStatus:    # only process changed values
             debug('debugStatus', self.name, cmd.name, "%010x"%(status))
             for equip in self.equipList:
-                shift = min(filter(lambda s: (equip.mask >> s) & 1 != 0, xrange(8*cmd.argLen)))
+                shift = min([s for s in range(8*cmd.argLen) if (equip.mask >> s) & 1 != 0])
                 newState = (status & equip.mask) >> shift
                 oldState = (self.lastStatus & equip.mask) >> shift
                 if newState != oldState:
@@ -673,9 +674,10 @@ class Interface(Resource):
                 debug('debugData', self.name, "-->", debugMsg, 
                                   "*** bad checksum ***")
 
-    def sendMsg(self, (dest, cmd, args)):
+    def sendMsg(self, xxx_todo_changeme):
         """ Send a message.
         The destination address, command, and arguments are specified as a tuple."""
+        (dest, cmd, args) = xxx_todo_changeme
         msg = DLE+STX+dest+cmd+args
         msg = msg+self.checksum(msg)+DLE+ETX
         for i in range(2,len(msg)-2):                       
@@ -690,7 +692,7 @@ class Interface(Resource):
 
     def checksum(self, msg):
         """ Compute the checksum of a string of bytes."""                
-        return struct.pack("!B", reduce(lambda x,y:x+y, map(ord, msg)) % 256)
+        return struct.pack("!B", reduce(lambda x,y:x+y, list(map(ord, msg))) % 256)
 
     def debugRaw(self, byte):
         """ Debug raw serial data."""
@@ -734,11 +736,11 @@ class ReadThread(threading.Thread):
             except KeyError:                      
                 # ignore other messages except...
                 if (dest == masterAddr) and \
-                        (self.lastDest in self.pool.panels.keys()): 
+                        (self.lastDest in list(self.pool.panels.keys())): 
                     # parse ack messages to master that are from these panels
                     self.pool.master.parseMsg(cmd, args)
         # force all pending panel events to complete
-        for panel in self.pool.panels.values():   
+        for panel in list(self.pool.panels.values()):   
             for event in panel.events:
                 event.set()
         debug('debugThread', self.name, "terminated")

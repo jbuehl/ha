@@ -16,7 +16,7 @@
             <div class=control>
             <form name='control' action='' method='get'>
                 <input type='hidden' name='resource' value='{{ spa.name }}' />
-                {% for value in views.getSetValues(spa).values()[:nSetValues] %}
+                {% for value in views.getSetValues(spa)[:nSetValues] %}
                 <input type='submit' class='button' name='action' value='{{ value }}' />
                 {% endfor %}
             </form>

@@ -9,7 +9,7 @@ doorNotifyNumbers = []
 doorNotifyFrom = ""
 
 import requests
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import json
 from twilio.rest import Client
 from ha import *
@@ -53,7 +53,7 @@ def smsNotify(fromNumber, toNumbers, message):
 def appNotify(app, message):
     if app != "":
         debug("debugNotification", "app notify to", app)
-        requests.get("http://"+app+".appspot.com/notify?message="+urllib.quote(message))
+        requests.get("http://"+app+".appspot.com/notify?message="+urllib.parse.quote(message))
 
 # send an IFTTT notification
 def iftttNotify(message):

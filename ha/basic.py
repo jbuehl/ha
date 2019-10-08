@@ -9,10 +9,10 @@ import copy
 import sys
 import json
 from collections import OrderedDict
-from config import *
-from environment import *
-from logging import *
-from debugging import *
+from .config import *
+from .environment import *
+from .logging import *
+from .debugging import *
 
 # states
 off = 0
@@ -158,7 +158,7 @@ class Collection(Resource, OrderedDict):
     # in order of addition to the table
     def getGroup(self, group):
         resourceList = []
-        for resourceName in self.keys():
+        for resourceName in list(self.keys()):
             resource = self.__getitem__(resourceName)
             if group in listize(resource.group):
                 resourceList.append(resource)
@@ -169,7 +169,7 @@ class Collection(Resource, OrderedDict):
         return {"class":self.__class__.__name__,
                 "name":self.name,
                 "type": self.type,
-                "resources":self.keys()}
+                "resources":list(self.keys())}
 
 # A Sensor represents a device that has a state that is represented by a scalar value.
 # The state is associated with a unique address on an interface.

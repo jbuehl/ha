@@ -86,7 +86,7 @@ def recordVideo(cameraDir, camera, date):
             cmd += " -hls_segment_filename "+videoDir+"%Y%m%d%H%M%S.ts "
             cmd += videoDir+time.strftime("%Y%m%d%H%M%S")+".m3u8"
             debug("debugVideo", "recording started for camera", camera.name)
-            output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+            output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True).decode()
             debug("debugVideo", "recording finished for camera", camera.name, output)
         except subprocess.CalledProcessError as exception:
             log("recording failed for camera", camera.name, "exit code:", exception.returncode, exception.output)
@@ -128,7 +128,7 @@ def makeClip(videoDir, startTime, duration, fileType):
     cmd = cmd[:-1]+"' -nostats -loglevel error -y -c copy "+videoDir+clipFileName
     debug("debugClip", "cmd:", cmd)
     try:
-        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True).decode()
         return clipFileName
     except subprocess.CalledProcessError as exception:
         log("clip creation failed for", clipFileName, "exit code:", exception.returncode, exception.output)

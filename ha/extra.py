@@ -1,6 +1,6 @@
 # Extra class definitions derived from basic classes
 
-from basic import *
+from .basic import *
 
 # A Cycle describes the process of setting a Control to a specified state, waiting a specified length of time,
 # and setting the Control to another state.  This may be preceded by an optional delay.
@@ -294,7 +294,7 @@ class ResourceStateSensor(Sensor):
     def getStates(self):
         self.states = {}    # current sensor states
         self.stateTypes = {}
-        for sensor in self.resources.values():
+        for sensor in list(self.resources.values()):
             if sensor != self:
                 sensorName = sensor.name
                 sensorType = sensor.type

@@ -1,12 +1,12 @@
 
 import time
 import smbus
+
 from ha import *
 
 # ADS1015 analog digital converter
 
 class ADS1015Interface(Interface):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, addr=0x48, gain=4096, sps=250, ic=0x00, event=None):
         Interface.__init__(self, name, interface)
         self.addr = addr
@@ -46,7 +46,7 @@ class Adafruit_I2C :
   def getPiI2CBusNumber():
     # Gets the I2C bus number /dev/i2c#
     return 1 if Adafruit_I2C.getPiRevision() > 1 else 0
- 
+
   def __init__(self, address, busnum=-1, debug=False):
     self.address = address
     # By default, the correct I2C bus is auto-detected using /proc/cpuinfo
@@ -68,7 +68,7 @@ class Adafruit_I2C :
     return val
 
   def errMsg(self):
-    print "Error accessing 0x%02X: Check your I2C address" % self.address
+    print(("Error accessing 0x%02X: Check your I2C address" % self.address))
     return -1
 
   def write8(self, reg, value):
@@ -76,8 +76,8 @@ class Adafruit_I2C :
     try:
       self.bus.write_byte_data(self.address, reg, value)
       if self.debug:
-        print "I2C: Wrote 0x%02X to register 0x%02X" % (value, reg)
-    except IOError, err:
+        print(("I2C: Wrote 0x%02X to register 0x%02X" % (value, reg)))
+    except IOError as err:
       return self.errMsg()
 
   def write16(self, reg, value):
@@ -85,19 +85,19 @@ class Adafruit_I2C :
     try:
       self.bus.write_word_data(self.address, reg, value)
       if self.debug:
-        print ("I2C: Wrote 0x%02X to register pair 0x%02X,0x%02X" %
-         (value, reg, reg+1))
-    except IOError, err:
+        print(("I2C: Wrote 0x%02X to register pair 0x%02X,0x%02X" %
+         (value, reg, reg+1)))
+    except IOError as err:
       return self.errMsg()
 
   def writeList(self, reg, list):
     "Writes an array of bytes using I2C format"
     try:
       if self.debug:
-        print "I2C: Writing list to register 0x%02X:" % reg
-        print list
+        print(("I2C: Writing list to register 0x%02X:" % reg))
+        print(list)
       self.bus.write_i2c_block_data(self.address, reg, list)
-    except IOError, err:
+    except IOError as err:
       return self.errMsg()
 
   def readList(self, reg, length):
@@ -105,11 +105,11 @@ class Adafruit_I2C :
     try:
       results = self.bus.read_i2c_block_data(self.address, reg, length)
       if self.debug:
-        print ("I2C: Device 0x%02X returned the following from reg 0x%02X" %
-         (self.address, reg))
-        print results
+        print(("I2C: Device 0x%02X returned the following from reg 0x%02X" %
+         (self.address, reg)))
+        print(results)
       return results
-    except IOError, err:
+    except IOError as err:
       return self.errMsg()
 
   def readU8(self, reg):
@@ -117,10 +117,10 @@ class Adafruit_I2C :
     try:
       result = self.bus.read_byte_data(self.address, reg)
       if self.debug:
-        print ("I2C: Device 0x%02X returned 0x%02X from reg 0x%02X" %
-         (self.address, result & 0xFF, reg))
+        print(("I2C: Device 0x%02X returned 0x%02X from reg 0x%02X" %
+         (self.address, result & 0xFF, reg)))
       return result
-    except IOError, err:
+    except IOError as err:
       return self.errMsg()
 
   def readS8(self, reg):
@@ -129,10 +129,10 @@ class Adafruit_I2C :
       result = self.bus.read_byte_data(self.address, reg)
       if result > 127: result -= 256
       if self.debug:
-        print ("I2C: Device 0x%02X returned 0x%02X from reg 0x%02X" %
-         (self.address, result & 0xFF, reg))
+        print(("I2C: Device 0x%02X returned 0x%02X from reg 0x%02X" %
+         (self.address, result & 0xFF, reg)))
       return result
-    except IOError, err:
+    except IOError as err:
       return self.errMsg()
 
   def readU16(self, reg):
@@ -140,9 +140,9 @@ class Adafruit_I2C :
     try:
       result = self.bus.read_word_data(self.address,reg)
       if (self.debug):
-        print "I2C: Device 0x%02X returned 0x%04X from reg 0x%02X" % (self.address, result & 0xFFFF, reg)
+        print(("I2C: Device 0x%02X returned 0x%04X from reg 0x%02X" % (self.address, result & 0xFFFF, reg)))
       return result
-    except IOError, err:
+    except IOError as err:
       return self.errMsg()
 
   def readS16(self, reg):
@@ -150,9 +150,9 @@ class Adafruit_I2C :
     try:
       result = self.bus.read_word_data(self.address,reg)
       if (self.debug):
-        print "I2C: Device 0x%02X returned 0x%04X from reg 0x%02X" % (self.address, result & 0xFFFF, reg)
+        print(("I2C: Device 0x%02X returned 0x%04X from reg 0x%02X" % (self.address, result & 0xFFFF, reg)))
       return result
-    except IOError, err:
+    except IOError as err:
       return self.errMsg()
 
 # ===========================================================================
@@ -162,8 +162,8 @@ class Adafruit_I2C :
 # Updates and new functions implementation by Pedro Villanueva, 03/2013.
 # The only error in the original code was in line 57:
 #              __ADS1015_REG_CONFIG_DR_920SPS    = 0x0050
-# should be 
-#              __ADS1015_REG_CONFIG_DR_920SPS    = 0x0060     
+# should be
+#              __ADS1015_REG_CONFIG_DR_920SPS    = 0x0060
 #
 # NOT IMPLEMENTED: Conversion ready pin, page 15 datasheet.
 # ===========================================================================
@@ -210,7 +210,7 @@ class ADS1x15:
   __ADS1015_REG_CONFIG_MODE_CONTIN  = 0x0000  # Continuous conversion mode
   __ADS1015_REG_CONFIG_MODE_SINGLE  = 0x0100  # Power-down single-shot mode (default)
 
-  __ADS1015_REG_CONFIG_DR_MASK      = 0x00E0  
+  __ADS1015_REG_CONFIG_DR_MASK      = 0x00E0
   __ADS1015_REG_CONFIG_DR_128SPS    = 0x0000  # 128 samples per second
   __ADS1015_REG_CONFIG_DR_250SPS    = 0x0020  # 250 samples per second
   __ADS1015_REG_CONFIG_DR_490SPS    = 0x0040  # 490 samples per second
@@ -245,8 +245,8 @@ class ADS1x15:
   __ADS1015_REG_CONFIG_CQUE_2CONV   = 0x0001  # Assert ALERT/RDY after two conversions
   __ADS1015_REG_CONFIG_CQUE_4CONV   = 0x0002  # Assert ALERT/RDY after four conversions
   __ADS1015_REG_CONFIG_CQUE_NONE    = 0x0003  # Disable the comparator and put ALERT/RDY in high state (default)
-  
-  
+
+
   # Dictionaries with the sampling speed values
   # These simplify and clean the code (avoid the abuse of if/elif/else clauses)
   spsADS1115 = {
@@ -258,7 +258,7 @@ class ADS1x15:
     250:__ADS1115_REG_CONFIG_DR_250SPS,
     475:__ADS1115_REG_CONFIG_DR_475SPS,
     860:__ADS1115_REG_CONFIG_DR_860SPS
-  }    
+  }
   spsADS1015 = {
     128:__ADS1015_REG_CONFIG_DR_128SPS,
     250:__ADS1015_REG_CONFIG_DR_250SPS,
@@ -276,8 +276,8 @@ class ADS1x15:
     1024:__ADS1015_REG_CONFIG_PGA_1_024V,
     512:__ADS1015_REG_CONFIG_PGA_0_512V,
     256:__ADS1015_REG_CONFIG_PGA_0_256V
-  }    
-  
+  }
+
 
   # Constructor
   def __init__(self, address=0x48, ic=__IC_ADS1015, debug=False):
@@ -293,36 +293,36 @@ class ADS1x15:
     # Make sure the IC specified is valid
     if ((ic < self.__IC_ADS1015) | (ic > self.__IC_ADS1115)):
       if (self.debug):
-        print "ADS1x15: Invalid IC specfied: %h" % ic
+        print(("ADS1x15: Invalid IC specfied: %h" % ic))
       return -1
     else:
       self.ic = ic
-        
+
     # Set pga value, so that getLastConversionResult() can use it,
     # any function that accepts a pga value must update this.
-    self.pga = 6144    
-  
-    
+    self.pga = 6144
+
+
   def readADCSingleEnded(self, channel=0, pga=6144, sps=250):
     "Gets a single-ended ADC reading from the specified channel in mV. \
     The sample rate for this mode (single-shot) can be used to lower the noise \
     (low sps) or to lower the power consumption (high sps) by duty cycling, \
     see datasheet page 14 for more info. \
     The pga must be given in mV, see page 13 for the supported values."
-    
+
     # With invalid channel return -1
     if (channel > 3):
       if (self.debug):
-        print "ADS1x15: Invalid channel specified: %d" % channel
+        print(("ADS1x15: Invalid channel specified: %d" % channel))
       return -1
-    
+
     # Disable comparator, Non-latching, Alert/Rdy active low
     # traditional comparator, single-shot mode
     config = self.__ADS1015_REG_CONFIG_CQUE_NONE    | \
              self.__ADS1015_REG_CONFIG_CLAT_NONLAT  | \
              self.__ADS1015_REG_CONFIG_CPOL_ACTVLOW | \
              self.__ADS1015_REG_CONFIG_CMODE_TRAD   | \
-             self.__ADS1015_REG_CONFIG_MODE_SINGLE    
+             self.__ADS1015_REG_CONFIG_MODE_SINGLE
 
     # Set sample per seconds, defaults to 250sps
     # If sps is in the dictionary (defined in init) it returns the value of the constant
@@ -330,13 +330,13 @@ class ADS1x15:
     if (self.ic == self.__IC_ADS1015):
       config |= self.spsADS1015.setdefault(sps, self.__ADS1015_REG_CONFIG_DR_1600SPS)
     else:
-      if ( (sps not in self.spsADS1115) & self.debug):	  
-	print "ADS1x15: Invalid pga specified: %d, using 6144mV" % sps     
+      if ( (sps not in self.spsADS1115) & self.debug):
+	print(("ADS1x15: Invalid pga specified: %d, using 6144mV" % sps))
       config |= self.spsADS1115.setdefault(sps, self.__ADS1115_REG_CONFIG_DR_250SPS)
 
     # Set PGA/voltage range, defaults to +-6.144V
-    if ( (pga not in self.pgaADS1x15) & self.debug):	  
-      print "ADS1x15: Invalid pga specified: %d, using 6144mV" % sps     
+    if ( (pga not in self.pgaADS1x15) & self.debug):
+      print(("ADS1x15: Invalid pga specified: %d, using 6144mV" % sps))
     config |= self.pgaADS1x15.setdefault(pga, self.__ADS1015_REG_CONFIG_PGA_6_144V)
     self.pga = pga
 
@@ -376,7 +376,7 @@ class ADS1x15:
 	  return (val - 0xFFFF)*pga/32768.0
 	else:
 	  return ( (result[0] << 8) | (result[1]) )*pga/32768.0
-	
+
 
   def readADCDifferential(self, chP=0, chN=1, pga=6144, sps=250):
     "Gets a differential ADC reading from channels chP and chN in mV. \
@@ -384,15 +384,15 @@ class ADS1x15:
     (low sps) or to lower the power consumption (high sps) by duty cycling, \
     see data sheet page 14 for more info. \
     The pga must be given in mV, see page 13 for the supported values."
-    
+
     # Disable comparator, Non-latching, Alert/Rdy active low
-    # traditional comparator, single-shot mode    
+    # traditional comparator, single-shot mode
     config = self.__ADS1015_REG_CONFIG_CQUE_NONE    | \
              self.__ADS1015_REG_CONFIG_CLAT_NONLAT  | \
              self.__ADS1015_REG_CONFIG_CPOL_ACTVLOW | \
              self.__ADS1015_REG_CONFIG_CMODE_TRAD   | \
-             self.__ADS1015_REG_CONFIG_MODE_SINGLE  
-    
+             self.__ADS1015_REG_CONFIG_MODE_SINGLE
+
     # Set channels
     if ( (chP == 0) & (chN == 1) ):
       config |= self.__ADS1015_REG_CONFIG_MUX_DIFF_0_1
@@ -401,25 +401,25 @@ class ADS1x15:
     elif ( (chP == 2) & (chN == 3) ):
       config |= self.__ADS1015_REG_CONFIG_MUX_DIFF_2_3
     elif ( (chP == 1) & (chN == 3) ):
-      config |= self.__ADS1015_REG_CONFIG_MUX_DIFF_1_3  
+      config |= self.__ADS1015_REG_CONFIG_MUX_DIFF_1_3
     else:
       if (self.debug):
-	print "ADS1x15: Invalid channels specified: %d, %d" % (chP, chN)
+	print(("ADS1x15: Invalid channels specified: %d, %d" % (chP, chN)))
 	return -1
-         
+
     # Set sample per seconds, defaults to 250sps
     # If sps is in the dictionary (defined in init()) it returns the value of the constant
     # othewise it returns the value for 250sps. This saves a lot of if/elif/else code!
     if (self.ic == self.__IC_ADS1015):
       config |= self.spsADS1015.setdefault(sps, self.__ADS1015_REG_CONFIG_DR_1600SPS)
     else:
-      if ( (sps not in self.spsADS1115) & self.debug):	  
-	print "ADS1x15: Invalid pga specified: %d, using 6144mV" % sps     
+      if ( (sps not in self.spsADS1115) & self.debug):
+	print(("ADS1x15: Invalid pga specified: %d, using 6144mV" % sps))
       config |= self.spsADS1115.setdefault(sps, self.__ADS1115_REG_CONFIG_DR_250SPS)
-  
+
     # Set PGA/voltage range, defaults to +-6.144V
-    if ( (pga not in self.pgaADS1x15) & self.debug):	  
-      print "ADS1x15: Invalid pga specified: %d, using 6144mV" % sps     
+    if ( (pga not in self.pgaADS1x15) & self.debug):
+      print(("ADS1x15: Invalid pga specified: %d, using 6144mV" % sps))
     config |= self.pgaADS1x15.setdefault(pga, self.__ADS1015_REG_CONFIG_PGA_6_144V)
     self.pga = pga
 
@@ -458,8 +458,8 @@ class ADS1x15:
     see data sheet page 14 for more info. \
     The pga must be given in mV, see page 13 for the supported values."
     return self.readADCDifferential(0, 1, pga, sps)
-   
-  
+
+
   def readADCDifferential03(self, pga=6144, sps=250):
     "Gets a differential ADC reading from channels 0 and 3 in mV \
     The sample rate for this mode (single-shot) can be used to lower the noise \
@@ -467,15 +467,15 @@ class ADS1x15:
     see data sheet page 14 for more info. \
     The pga must be given in mV, see page 13 for the supported values."
     return self.readADCDifferential(0, 3, pga, sps)
-     
-  
+
+
   def readADCDifferential13(self, pga=6144, sps=250):
     "Gets a differential ADC reading from channels 1 and 3 in mV \
     The sample rate for this mode (single-shot) can be used to lower the noise \
     (low sps) or to lower the power consumption (high sps) by duty cycling, \
     see data sheet page 14 for more info. \
     The pga must be given in mV, see page 13 for the supported values."
-    return self.__readADCDifferential(1, 3, pga, sps)  
+    return self.__readADCDifferential(1, 3, pga, sps)
 
 
   def readADCDifferential23(self, pga=6144, sps=250):
@@ -484,23 +484,23 @@ class ADS1x15:
     (low sps) or to lower the power consumption (high sps) by duty cycling, \
     see data sheet page 14 for more info. \
     The pga must be given in mV, see page 13 for the supported values."
-    return self.readADCDifferential(2, 3, pga, sps)   
-  
-  
-  def startContinuousConversion(self, channel=0, pga=6144, sps=250): 
+    return self.readADCDifferential(2, 3, pga, sps)
+
+
+  def startContinuousConversion(self, channel=0, pga=6144, sps=250):
     "Starts the continuous conversion mode and returns the first ADC reading \
     in mV from the specified channel. \
     The sps controls the sample rate. \
     The pga must be given in mV, see datasheet page 13 for the supported values. \
     Use getLastConversionResults() to read the next values and \
     stopContinuousConversion() to stop converting."
-    
+
     # Default to channel 0 with invalid channel, or return -1?
     if (channel > 3):
       if (self.debug):
-	print "ADS1x15: Invalid channel specified: %d" % channel
+	print(("ADS1x15: Invalid channel specified: %d" % channel))
       return -1
-    
+
     # Disable comparator, Non-latching, Alert/Rdy active low
     # traditional comparator, continuous mode
     # The last flag is the only change we need, page 11 datasheet
@@ -508,7 +508,7 @@ class ADS1x15:
              self.__ADS1015_REG_CONFIG_CLAT_NONLAT  | \
              self.__ADS1015_REG_CONFIG_CPOL_ACTVLOW | \
              self.__ADS1015_REG_CONFIG_CMODE_TRAD   | \
-             self.__ADS1015_REG_CONFIG_MODE_CONTIN    
+             self.__ADS1015_REG_CONFIG_MODE_CONTIN
 
     # Set sample per seconds, defaults to 250sps
     # If sps is in the dictionary (defined in init()) it returns the value of the constant
@@ -516,16 +516,16 @@ class ADS1x15:
     if (self.ic == self.__IC_ADS1015):
       config |= self.spsADS1015.setdefault(sps, self.__ADS1015_REG_CONFIG_DR_1600SPS)
     else:
-      if ( (sps not in self.spsADS1115) & self.debug):	  
-	print "ADS1x15: Invalid pga specified: %d, using 6144mV" % sps     
+      if ( (sps not in self.spsADS1115) & self.debug):
+	print(("ADS1x15: Invalid pga specified: %d, using 6144mV" % sps))
       config |= self.spsADS1115.setdefault(sps, self.__ADS1115_REG_CONFIG_DR_250SPS)
-  
+
     # Set PGA/voltage range, defaults to +-6.144V
-    if ( (pga not in self.pgaADS1x15) & self.debug):	  
-      print "ADS1x15: Invalid pga specified: %d, using 6144mV" % sps     
+    if ( (pga not in self.pgaADS1x15) & self.debug):
+      print(("ADS1x15: Invalid pga specified: %d, using 6144mV" % sps))
     config |= self.pgaADS1x15.setdefault(pga, self.__ADS1015_REG_CONFIG_PGA_6_144V)
-    self.pga = pga 
-    
+    self.pga = pga
+
     # Set the channel to be converted
     if channel == 3:
       config |= self.__ADS1015_REG_CONFIG_MUX_SINGLE_3
@@ -534,8 +534,8 @@ class ADS1x15:
     elif channel == 1:
       config |= self.__ADS1015_REG_CONFIG_MUX_SINGLE_1
     else:
-      config |= self.__ADS1015_REG_CONFIG_MUX_SINGLE_0    
-  
+      config |= self.__ADS1015_REG_CONFIG_MUX_SINGLE_0
+
     # Set 'start single-conversion' bit to begin conversions
     # No need to change this for continuous mode!
     config |= self.__ADS1015_REG_CONFIG_OS_SINGLE
@@ -551,7 +551,7 @@ class ADS1x15:
     # We add 0.5ms to be sure
     delay = 1.0/sps+0.0005
     time.sleep(delay)
-  
+
     # Read the conversion results
     result = self.i2c.readList(self.__ADS1015_REG_POINTER_CONVERT, 2)
     if (self.ic == self.__IC_ADS1015):
@@ -564,16 +564,16 @@ class ADS1x15:
 	if val > 0x7FFF:
 	  return (val - 0xFFFF)*pga/32768.0
 	else:
-	  return ( (result[0] << 8) | (result[1]) )*pga/32768.0  
+	  return ( (result[0] << 8) | (result[1]) )*pga/32768.0
 
-  def startContinuousDifferentialConversion(self, chP=0, chN=1, pga=6144, sps=250): 
+  def startContinuousDifferentialConversion(self, chP=0, chN=1, pga=6144, sps=250):
     "Starts the continuous differential conversion mode and returns the first ADC reading \
     in mV as the difference from the specified channels. \
     The sps controls the sample rate. \
     The pga must be given in mV, see datasheet page 13 for the supported values. \
     Use getLastConversionResults() to read the next values and \
     stopContinuousConversion() to stop converting."
-    
+
     # Disable comparator, Non-latching, Alert/Rdy active low
     # traditional comparator, continuous mode
     # The last flag is the only change we need, page 11 datasheet
@@ -581,24 +581,24 @@ class ADS1x15:
              self.__ADS1015_REG_CONFIG_CLAT_NONLAT  | \
              self.__ADS1015_REG_CONFIG_CPOL_ACTVLOW | \
              self.__ADS1015_REG_CONFIG_CMODE_TRAD   | \
-             self.__ADS1015_REG_CONFIG_MODE_CONTIN    
-  
+             self.__ADS1015_REG_CONFIG_MODE_CONTIN
+
     # Set sample per seconds, defaults to 250sps
     # If sps is in the dictionary (defined in init()) it returns the value of the constant
     # othewise it returns the value for 250sps. This saves a lot of if/elif/else code!
     if (self.ic == self.__IC_ADS1015):
       config |= self.spsADS1015.setdefault(sps, self.__ADS1015_REG_CONFIG_DR_1600SPS)
     else:
-      if ( (sps not in self.spsADS1115) & self.debug):	  
-	print "ADS1x15: Invalid pga specified: %d, using 6144mV" % sps     
+      if ( (sps not in self.spsADS1115) & self.debug):
+	print(("ADS1x15: Invalid pga specified: %d, using 6144mV" % sps))
       config |= self.spsADS1115.setdefault(sps, self.__ADS1115_REG_CONFIG_DR_250SPS)
-  
+
     # Set PGA/voltage range, defaults to +-6.144V
-    if ( (pga not in self.pgaADS1x15) & self.debug):	  
-      print "ADS1x15: Invalid pga specified: %d, using 6144mV" % sps     
+    if ( (pga not in self.pgaADS1x15) & self.debug):
+      print(("ADS1x15: Invalid pga specified: %d, using 6144mV" % sps))
     config |= self.pgaADS1x15.setdefault(pga, self.__ADS1015_REG_CONFIG_PGA_6_144V)
-    self.pga = pga 
-    
+    self.pga = pga
+
     # Set channels
     if ( (chP == 0) & (chN == 1) ):
       config |= self.__ADS1015_REG_CONFIG_MUX_DIFF_0_1
@@ -607,28 +607,28 @@ class ADS1x15:
     elif ( (chP == 2) & (chN == 3) ):
       config |= self.__ADS1015_REG_CONFIG_MUX_DIFF_2_3
     elif ( (chP == 1) & (chN == 3) ):
-      config |= self.__ADS1015_REG_CONFIG_MUX_DIFF_1_3  
+      config |= self.__ADS1015_REG_CONFIG_MUX_DIFF_1_3
     else:
       if (self.debug):
-	print "ADS1x15: Invalid channels specified: %d, %d" % (chP, chN)
-	return -1  
-    
+	print(("ADS1x15: Invalid channels specified: %d, %d" % (chP, chN)))
+	return -1
+
     # Set 'start single-conversion' bit to begin conversions
     # No need to change this for continuous mode!
     config |= self.__ADS1015_REG_CONFIG_OS_SINGLE
-  
+
     # Write config register to the ADC
     # Once we write the ADC will convert continously
     # we can read the next values using getLastConversionResult
     bytes = [(config >> 8) & 0xFF, config & 0xFF]
     self.i2c.writeList(self.__ADS1015_REG_POINTER_CONFIG, bytes)
-  
+
     # Wait for the ADC conversion to complete
     # The minimum delay depends on the sps: delay >= 1/sps
     # We add 0.5ms to be sure
     delay = 1.0/sps+0.0005
     time.sleep(delay)
-  
+
     # Read the conversion results
     result = self.i2c.readList(self.__ADS1015_REG_POINTER_CONVERT, 2)
     if (self.ic == self.__IC_ADS1015):
@@ -641,18 +641,18 @@ class ADS1x15:
 	if val > 0x7FFF:
 	  return (val - 0xFFFF)*pga/32768.0
 	else:
-	  return ( (result[0] << 8) | (result[1]) )*pga/32768.0  
+	  return ( (result[0] << 8) | (result[1]) )*pga/32768.0
 
-	  
+
   def stopContinuousConversion(self):
     "Stops the ADC's conversions when in continuous mode \
     and resets the configuration to its default value."
     # Write the default config register to the ADC
-    # Once we write, the ADC will do a single conversion and 
+    # Once we write, the ADC will do a single conversion and
     # enter power-off mode.
     config = 0x8583 # Page 18 datasheet.
     bytes = [(config >> 8) & 0xFF, config & 0xFF]
-    self.i2c.writeList(self.__ADS1015_REG_POINTER_CONFIG, bytes)    
+    self.i2c.writeList(self.__ADS1015_REG_POINTER_CONFIG, bytes)
     return True
 
   def getLastConversionResults(self):
@@ -669,9 +669,9 @@ class ADS1x15:
 	if val > 0x7FFF:
 	  return (val - 0xFFFF)*self.pga/32768.0
 	else:
-	  return ( (result[0] << 8) | (result[1]) )*self.pga/32768.0  
-	
-	
+	  return ( (result[0] << 8) | (result[1]) )*self.pga/32768.0
+
+
   def startSingleEndedComparator(self, channel, thresholdHigh, thresholdLow, \
                                  pga=6144, sps=250, \
                                  activeLow=True, traditionalMode=True, latching=False, \
@@ -687,56 +687,56 @@ class ADS1x15:
     from the one that triggered the alert) and clear the alert pin in latching mode. \
     This function starts the continuous conversion mode.  The sps controls \
     the sample rate and the pga the gain, see datasheet page 13. "
-    
+
     # With invalid channel return -1
     if (channel > 3):
       if (self.debug):
-	print "ADS1x15: Invalid channel specified: %d" % channel
+	print(("ADS1x15: Invalid channel specified: %d" % channel))
       return -1
-    
+
     # Continuous mode
-    config = self.__ADS1015_REG_CONFIG_MODE_CONTIN     
-    
+    config = self.__ADS1015_REG_CONFIG_MODE_CONTIN
+
     if (activeLow==False):
       config |= self.__ADS1015_REG_CONFIG_CPOL_ACTVHI
     else:
       config |= self.__ADS1015_REG_CONFIG_CPOL_ACTVLOW
-      
+
     if (traditionalMode==False):
       config |= self.__ADS1015_REG_CONFIG_CMODE_WINDOW
     else:
       config |= self.__ADS1015_REG_CONFIG_CMODE_TRAD
-      
+
     if (latching==True):
       config |= self.__ADS1015_REG_CONFIG_CLAT_LATCH
     else:
       config |= self.__ADS1015_REG_CONFIG_CLAT_NONLAT
-      
+
     if (numReadings==4):
       config |= self.__ADS1015_REG_CONFIG_CQUE_4CONV
     elif (numReadings==2):
       config |= self.__ADS1015_REG_CONFIG_CQUE_2CONV
     else:
       config |= self.__ADS1015_REG_CONFIG_CQUE_1CONV
-    
+
     # Set sample per seconds, defaults to 250sps
     # If sps is in the dictionary (defined in init()) it returns the value of the constant
     # othewise it returns the value for 250sps. This saves a lot of if/elif/else code!
     if (self.ic == self.__IC_ADS1015):
-      if ( (sps not in self.spsADS1015) & self.debug):	  
-	print "ADS1x15: Invalid sps specified: %d, using 1600sps" % sps       
+      if ( (sps not in self.spsADS1015) & self.debug):
+	print(("ADS1x15: Invalid sps specified: %d, using 1600sps" % sps))
       config |= self.spsADS1015.setdefault(sps, self.__ADS1015_REG_CONFIG_DR_1600SPS)
     else:
-      if ( (sps not in self.spsADS1115) & self.debug):	  
-	print "ADS1x15: Invalid sps specified: %d, using 250sps" % sps     
+      if ( (sps not in self.spsADS1115) & self.debug):
+	print(("ADS1x15: Invalid sps specified: %d, using 250sps" % sps))
       config |= self.spsADS1115.setdefault(sps, self.__ADS1115_REG_CONFIG_DR_250SPS)
 
     # Set PGA/voltage range, defaults to +-6.144V
-    if ( (pga not in self.pgaADS1x15) & self.debug):	  
-      print "ADS1x15: Invalid pga specified: %d, using 6144mV" % pga     
+    if ( (pga not in self.pgaADS1x15) & self.debug):
+      print(("ADS1x15: Invalid pga specified: %d, using 6144mV" % pga))
     config |= self.pgaADS1x15.setdefault(pga, self.__ADS1015_REG_CONFIG_PGA_6_144V)
     self.pga = pga
-    
+
     # Set the channel to be converted
     if channel == 3:
       config |= self.__ADS1015_REG_CONFIG_MUX_SINGLE_3
@@ -749,7 +749,7 @@ class ADS1x15:
 
     # Set 'start single-conversion' bit to begin conversions
     config |= self.__ADS1015_REG_CONFIG_OS_SINGLE
-    
+
     # Write threshold high and low registers to the ADC
     # V_digital = (2^(n-1)-1)/pga*V_analog
     if (self.ic == self.__IC_ADS1015):
@@ -757,20 +757,20 @@ class ADS1x15:
     else:
       thresholdHighWORD = int(thresholdHigh*(32767.0/pga))
     bytes = [(thresholdHighWORD >> 8) & 0xFF, thresholdHighWORD & 0xFF]
-    self.i2c.writeList(self.__ADS1015_REG_POINTER_HITHRESH, bytes) 
-  
+    self.i2c.writeList(self.__ADS1015_REG_POINTER_HITHRESH, bytes)
+
     if (self.ic == self.__IC_ADS1015):
       thresholdLowWORD = int(thresholdLow*(2048.0/pga))
     else:
-      thresholdLowWORD = int(thresholdLow*(32767.0/pga))    
+      thresholdLowWORD = int(thresholdLow*(32767.0/pga))
     bytes = [(thresholdLowWORD >> 8) & 0xFF, thresholdLowWORD & 0xFF]
-    self.i2c.writeList(self.__ADS1015_REG_POINTER_LOWTHRESH, bytes)     
+    self.i2c.writeList(self.__ADS1015_REG_POINTER_LOWTHRESH, bytes)
 
     # Write config register to the ADC
     # Once we write the ADC will convert continously and alert when things happen,
     # we can read the converted values using getLastConversionResult
     bytes = [(config >> 8) & 0xFF, config & 0xFF]
-    self.i2c.writeList(self.__ADS1015_REG_POINTER_CONFIG, bytes)    
+    self.i2c.writeList(self.__ADS1015_REG_POINTER_CONFIG, bytes)
 
 
   def startDifferentialComparator(self, chP, chN, thresholdHigh, thresholdLow, \
@@ -790,48 +790,48 @@ class ADS1x15:
     the sample rate and the pga the gain, see datasheet page 13. "
 
     # Continuous mode
-    config = self.__ADS1015_REG_CONFIG_MODE_CONTIN     
-    
+    config = self.__ADS1015_REG_CONFIG_MODE_CONTIN
+
     if (activeLow==False):
       config |= self.__ADS1015_REG_CONFIG_CPOL_ACTVHI
     else:
       config |= self.__ADS1015_REG_CONFIG_CPOL_ACTVLOW
-      
+
     if (traditionalMode==False):
       config |= self.__ADS1015_REG_CONFIG_CMODE_WINDOW
     else:
       config |= self.__ADS1015_REG_CONFIG_CMODE_TRAD
-      
+
     if (latching==True):
       config |= self.__ADS1015_REG_CONFIG_CLAT_LATCH
     else:
       config |= self.__ADS1015_REG_CONFIG_CLAT_NONLAT
-      
+
     if (numReadings==4):
       config |= self.__ADS1015_REG_CONFIG_CQUE_4CONV
     elif (numReadings==2):
       config |= self.__ADS1015_REG_CONFIG_CQUE_2CONV
     else:
       config |= self.__ADS1015_REG_CONFIG_CQUE_1CONV
-    
+
     # Set sample per seconds, defaults to 250sps
     # If sps is in the dictionary (defined in init()) it returns the value of the constant
     # othewise it returns the value for 250sps. This saves a lot of if/elif/else code!
     if (self.ic == self.__IC_ADS1015):
-      if ( (sps not in self.spsADS1015) & self.debug):	  
-	print "ADS1x15: Invalid sps specified: %d, using 1600sps" % sps       
+      if ( (sps not in self.spsADS1015) & self.debug):
+	print(("ADS1x15: Invalid sps specified: %d, using 1600sps" % sps))
       config |= self.spsADS1015.setdefault(sps, self.__ADS1015_REG_CONFIG_DR_1600SPS)
     else:
-      if ( (sps not in self.spsADS1115) & self.debug):	  
-	print "ADS1x15: Invalid sps specified: %d, using 250sps" % sps     
+      if ( (sps not in self.spsADS1115) & self.debug):
+	print(("ADS1x15: Invalid sps specified: %d, using 250sps" % sps))
       config |= self.spsADS1115.setdefault(sps, self.__ADS1115_REG_CONFIG_DR_250SPS)
 
     # Set PGA/voltage range, defaults to +-6.144V
-    if ( (pga not in self.pgaADS1x15) & self.debug):	  
-      print "ADS1x15: Invalid pga specified: %d, using 6144mV" % pga     
+    if ( (pga not in self.pgaADS1x15) & self.debug):
+      print(("ADS1x15: Invalid pga specified: %d, using 6144mV" % pga))
     config |= self.pgaADS1x15.setdefault(pga, self.__ADS1015_REG_CONFIG_PGA_6_144V)
     self.pga = pga
-    
+
     # Set channels
     if ( (chP == 0) & (chN == 1) ):
       config |= self.__ADS1015_REG_CONFIG_MUX_DIFF_0_1
@@ -840,15 +840,15 @@ class ADS1x15:
     elif ( (chP == 2) & (chN == 3) ):
       config |= self.__ADS1015_REG_CONFIG_MUX_DIFF_2_3
     elif ( (chP == 1) & (chN == 3) ):
-      config |= self.__ADS1015_REG_CONFIG_MUX_DIFF_1_3  
+      config |= self.__ADS1015_REG_CONFIG_MUX_DIFF_1_3
     else:
       if (self.debug):
-	print "ADS1x15: Invalid channels specified: %d, %d" % (chP, chN)
+	print(("ADS1x15: Invalid channels specified: %d, %d" % (chP, chN)))
 	return -1
 
     # Set 'start single-conversion' bit to begin conversions
     config |= self.__ADS1015_REG_CONFIG_OS_SINGLE
-    
+
     # Write threshold high and low registers to the ADC
     # V_digital = (2^(n-1)-1)/pga*V_analog
     if (self.ic == self.__IC_ADS1015):
@@ -856,18 +856,17 @@ class ADS1x15:
     else:
       thresholdHighWORD = int(thresholdHigh*(32767.0/pga))
     bytes = [(thresholdHighWORD >> 8) & 0xFF, thresholdHighWORD & 0xFF]
-    self.i2c.writeList(self.__ADS1015_REG_POINTER_HITHRESH, bytes) 
-  
+    self.i2c.writeList(self.__ADS1015_REG_POINTER_HITHRESH, bytes)
+
     if (self.ic == self.__IC_ADS1015):
       thresholdLowWORD = int(thresholdLow*(2048.0/pga))
     else:
-      thresholdLowWORD = int(thresholdLow*(32767.0/pga))    
+      thresholdLowWORD = int(thresholdLow*(32767.0/pga))
     bytes = [(thresholdLowWORD >> 8) & 0xFF, thresholdLowWORD & 0xFF]
-    self.i2c.writeList(self.__ADS1015_REG_POINTER_LOWTHRESH, bytes)     
+    self.i2c.writeList(self.__ADS1015_REG_POINTER_LOWTHRESH, bytes)
 
     # Write config register to the ADC
     # Once we write the ADC will convert continously and alert when things happen,
     # we can read the converted values using getLastConversionResult
     bytes = [(config >> 8) & 0xFF, config & 0xFF]
-    self.i2c.writeList(self.__ADS1015_REG_POINTER_CONFIG, bytes)    
-
+    self.i2c.writeList(self.__ADS1015_REG_POINTER_CONFIG, bytes)

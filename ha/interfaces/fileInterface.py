@@ -15,6 +15,8 @@ class FileInterface(Interface):
         self.changeMonitor = changeMonitor
         self.defaultValue = defaultValue
         self.initialState = initialState
+        self.data = {}
+        self.mtime = 0
         self.lock = threading.Lock()
 
     def start(self):

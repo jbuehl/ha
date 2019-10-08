@@ -31,7 +31,7 @@ def sendMetricsThread(resourceStates):
                 lastStates = {}
             logFileName = logDir+today+".json"
             changedStates = {}
-            for metric in metrics.keys():
+            for metric in list(metrics.keys()):
                 try:
                     if metrics[metric] != lastStates[metric]:
                         changedStates[metric] = metrics[metric]
@@ -50,7 +50,7 @@ def sendMetricsThread(resourceStates):
                 metricsSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 metricsSocket.connect((metricsHost, metricsPort))
                 debug("debugMetrics", "sendMetrics", "sending", len(metrics), "metrics")
-                for metric in metrics.keys():
+                for metric in list(metrics.keys()):
                     if metric != "states":
                         if metric.split(".")[0] != "loads":
                             if metric.split(".")[0] in ["loads", "solar"]:

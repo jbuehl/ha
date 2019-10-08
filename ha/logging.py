@@ -1,14 +1,15 @@
 # Logging functions
 
+from __future__ import print_function
 import syslog
 import os
 import time
-from environment import *
+from .environment import *
 
 # standard timestamp
 def timeStamp(fmt):
     return time.strftime(fmt, time.localtime())
-    
+
 # log a message to syslog or stdout
 def log(*args):
     message = args[0]+" "   # first argument is the object doing the logging
@@ -17,7 +18,7 @@ def log(*args):
     if sysLogging:
         syslog.syslog(message)
     else:
-        print timeStamp("%b %d %H:%M:%S")+" "+message
+        print(timeStamp("%b %d %H:%M:%S")+" "+message)
 
 # log a data point
 def logData(name, value):
@@ -27,4 +28,3 @@ def logData(name, value):
                 dataLogFile.write(timestamp("%Y %m %d %H:%M:%S")+","+name+","+value)
     except:
         pass
-

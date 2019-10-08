@@ -38,7 +38,7 @@ class View(object):
     # Set the state of the control to the state value corresponding to the specified display value
     def setViewState(self, control, dispValue):
         try:
-            value = self.setValues.keys()[self.setValues.values().index(dispValue)]
+            value = list(self.setValues.keys())[list(self.setValues.values()).index(dispValue)]
             if dispValue in ["-", "v", "+", "^"]:   # increment or decrement current state by the value
                 debug("debugState", "View", "setViewState", "incrementing", control.name, str(value))
                 newState = control.getState() + value
@@ -77,9 +77,9 @@ class ViewDict(dict):
     # Return the printable string values for the states that can be set on the control
     def getSetValues(self, control):
         try:
-            return self.__getitem__(control.type).setValues
+            return list(self.__getitem__(control.type).setValues.values())
         except KeyError:
-            return self.__getitem__("").setValues
+            return list(self.__getitem__("").setValues.values())
 
     # Set the state of the control to the state value corresponding to the specified display value
     def setViewState(self, control, value):

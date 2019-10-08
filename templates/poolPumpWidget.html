@@ -15,7 +15,7 @@
             <div class=control>
             <form name='control' action='' method='get'>
                 <input type='hidden' name='resource' value='{{ poolPumpControl.name }}' />
-                {% for value in views.getSetValues(poolPumpControl).values()[:nSetValues] %}
+                {% for value in views.getSetValues(poolPumpControl)[:nSetValues] %}
                 <input type='submit' class='button' name='action' value='{{ value }}' />
                 {% endfor %}
             </form>

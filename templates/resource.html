@@ -28,7 +28,7 @@
             <div class="control {% if dimmed %} dimmed {% endif %}" >
                 <form name='control' action='' method='get'>
                     <input type='hidden' name='resource' value='{{ resource.name }}' />
-                    {% for value in views.getSetValues(resource).values() %}
+                    {% for value in views.getSetValues(resource) %}
                     <input type='submit' class='button' name='action' value='{{ value }}' />
                     {% endfor %}
                 </form>

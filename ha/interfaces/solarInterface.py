@@ -16,7 +16,7 @@ class SolarInterface(Interface):
         try:
             devices = self.interface.read(addr[0])
             value = 0
-            for device in devices.values():
+            for device in list(devices.values()):
                 value += float(device[addr[2]])
             if addr[1] == "avg":
                 value /= len(devices)

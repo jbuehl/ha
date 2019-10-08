@@ -59,7 +59,7 @@ def getEvents(path):
 # get the sizes of the files in the specified directory
 def getSize(path):
     try:
-        fileSize = subprocess.check_output("du -h "+path, shell=True)
+        fileSize = subprocess.check_output("du -h "+path, shell=True).decode()
         return fileSize.split("\t")[0]
     except subprocess.CalledProcessError:
         return "0"
@@ -67,7 +67,7 @@ def getSize(path):
 # get the capacity, used, and free space on the specified device
 def getStorage():
     device = mountPoint(cameraBase)
-    storage = subprocess.check_output("df -h "+device, shell=True).split("\n")[1].split()
+    storage = subprocess.check_output("df -h "+device, shell=True).decode().split("\n")[1].split()
     return storage[1:5]
 
 # delete video older than the specified number of days

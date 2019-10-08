@@ -4,6 +4,7 @@ import serial
 import struct
 import threading
 from ha import *
+from functools import reduce
 
 # ASCII constants
 NUL = '\x00'
@@ -110,9 +111,10 @@ class PentairInterface(Interface):
                                   "*** bad checksum ***")
                 return (pmsg.src, pmsg.cmd, pmsg.dat)
 
-    def sendMsg(self, (dst, cmd, dat)):
+    def sendMsg(self, xxx_todo_changeme):
         """ Send a message.
         The destination address, command, and data are specified as a tuple."""
+        (dst, cmd, dat) = xxx_todo_changeme
         pmsg = PentairMsg(dst=dst, src=ctrlAddr, cmd=cmd, dat=dat)
         debug('debugPentairData', self.name, "<--", pmsg.printState())
         self.interface.write(None, FIL+NUL+FIL+pmsg.msg)
@@ -197,6 +199,6 @@ class PentairMsgThread(threading.Thread):
 
 def checksum16(msg):
     """ Compute the 16 bit checksum of a string of bytes."""                
-    return struct.pack("!H", reduce(lambda x,y:x+y, map(ord, msg)) % 16384)
+    return struct.pack("!H", reduce(lambda x,y:x+y, list(map(ord, msg))) % 16384)
 
 

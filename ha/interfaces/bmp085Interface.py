@@ -1,4 +1,5 @@
 import time
+from __future__ import print_function
 from ha import *
 
 # BMP085 pressure and temp sensor
@@ -52,7 +53,7 @@ class BMP085Interface(Interface):
         # Make sure the specified mode is in the appropriate range
         if ((mode < 0) | (mode > 3)):
           if (self.debug):
-            print "Invalid Mode: Using STANDARD by default"
+            print()"Invalid Mode: Using STANDARD by default")
           self.mode = self.__BMP085_STANDARD
         else:
           self.mode = mode
@@ -87,16 +88,16 @@ class BMP085Interface(Interface):
         self.showCalibrationData()
 
     def showCalibrationData(self):
-        debug("debugBMP085", self.name, "calibration", "AC1 = %6d" % (self._cal_AC1), 
-                                                       "AC2 = %6d" % (self._cal_AC2), 
-                                                       "AC3 = %6d" % (self._cal_AC3), 
-                                                       "AC4 = %6d" % (self._cal_AC4), 
-                                                       "AC5 = %6d" % (self._cal_AC5), 
-                                                       "AC6 = %6d" % (self._cal_AC6), 
-                                                       "B1  = %6d" % (self._cal_B1), 
-                                                       "B2  = %6d" % (self._cal_B2), 
-                                                       "MB  = %6d" % (self._cal_MB), 
-                                                       "MC  = %6d" % (self._cal_MC), 
+        debug("debugBMP085", self.name, "calibration", "AC1 = %6d" % (self._cal_AC1),
+                                                       "AC2 = %6d" % (self._cal_AC2),
+                                                       "AC3 = %6d" % (self._cal_AC3),
+                                                       "AC4 = %6d" % (self._cal_AC4),
+                                                       "AC5 = %6d" % (self._cal_AC5),
+                                                       "AC6 = %6d" % (self._cal_AC6),
+                                                       "B1  = %6d" % (self._cal_B1),
+                                                       "B2  = %6d" % (self._cal_B2),
+                                                       "MB  = %6d" % (self._cal_MB),
+                                                       "MC  = %6d" % (self._cal_MC),
                                                        "MD  = %6d" % (self._cal_MD))
 
     def readRawTemp(self):
@@ -249,8 +250,7 @@ class BMP085Interface(Interface):
             hibyte -= 256
         result = (hibyte << 8) + self.interface.read((self.addr, reg+1))
         return result
-          
+
     def write8(self, reg, value):
         # Writes an 8-bit value to the specified register/address
         self.interface.write((self.addr, reg), value)
-      

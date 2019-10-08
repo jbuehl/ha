@@ -1,8 +1,8 @@
 # Read configuration files and set global variables
 
 import os
-from environment import *
-from logging import *
+from .environment import *
+from .logging import *
 
 global debugEnable
 debugEnable = False
@@ -18,8 +18,8 @@ try:
                 if (len(configLine) > 0) and (configLine[0] != "#"):
                     try:
                         (key, value) = configLine.split("=")
-                        exec("global "+key)
-                        exec(configLine)
+                        exec("global "+key, globals())
+                        exec(configLine, globals())
                         if debugEnable and debugConf:   # can't use debugging module because of circular references
                             if debugConfOpen:   # log the file open retroactively if debugConf got set
                                 log("config open", configFileName)
@@ -31,4 +31,3 @@ try:
             log("config", "error reading", configDir+configFileName)
 except:
     log("config", "no config directory", configDir)
-

@@ -1,7 +1,7 @@
 # Classes related to schedules
 
-from basic import *
-from sunriseset import *
+from .basic import *
+from .sunriseset import *
 
 # day of week identifiers
 Mon = 0
@@ -68,7 +68,7 @@ class Schedule(Collection):
     # initialize control states in certain cases
     def initControls(self):
         (now, tomorrow) = todaysDate()
-        for taskName in self.keys():
+        for taskName in list(self.keys()):
             task = self[taskName]
             # task must have an end time
             if task.endTime:
@@ -103,7 +103,7 @@ class Schedule(Collection):
                     now.year, now.month, now.day, now.hour, now.minute, now.weekday())
             # run through the schedule and check if any tasks should be run
             # need to handle cases where the schedule could be modified while this is running - FIXME
-            for taskName in self.keys():
+            for taskName in list(self.keys()):
                 task = self[taskName]
                 debug('debugSched', self.name, "checking ", taskName,
                         task.schedTime.year, task.schedTime.month, task.schedTime.day,

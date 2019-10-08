@@ -4,6 +4,7 @@ webSSLDomain = "cloud.buehltech.com"
 webUpdateInterval = 1
 webPageTitle = "Home Automation"
 runRestServer = True
+runCameras = False
 restWatch = []
 restIgnore = []
 serviceMonitorNotifyNumbers = []
@@ -159,7 +160,8 @@ if __name__ == "__main__":
     watchEvents(resources, serviceMonitorNotifyNumbers)
 
     # get the camera attributes
-    cameras = getCameras()
+    if runCameras:
+        cameras = getCameras()
 
     # set up the web server
     baseDir = os.path.abspath(os.path.dirname(__file__))

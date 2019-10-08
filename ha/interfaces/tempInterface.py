@@ -20,7 +20,7 @@ class TempInterface(Interface):
                 thisMinute = int(time.strftime("%M"))
                 debug('debugTemp', self.name, "thisMinute", thisMinute, "lastMinute", lastMinute)
                 if thisMinute != lastMinute:                    # start of a new minute
-                    for addr in self.sensorAddrs.keys():    # average the readings
+                    for addr in list(self.sensorAddrs.keys()):    # average the readings
                         self.states[addr] = temp[addr]/samples
                         temp[addr] = 0.0
                     if self.event:
@@ -29,7 +29,7 @@ class TempInterface(Interface):
                     samples = 0
                     lastMinute = thisMinute
                 sample = self.readData()            # take another sample
-                for addr in sample.keys():
+                for addr in list(sample.keys()):
                     try:
                         temp[addr] += sample[addr]
                     except KeyError:                # a sensor was added during the sample period
@@ -47,7 +47,7 @@ class TempInterface(Interface):
     # take a reading of all sensors
     def readData(self):
         temp = {}
-        for addr in self.sensorAddrs.keys():
+        for addr in list(self.sensorAddrs.keys()):
             temp[addr] = self.interface.read(addr)
         debug('debugTemp', self.name, "readData", temp)
         return temp

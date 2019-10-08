@@ -2,11 +2,11 @@ multicast = False
 
 from ha import *
 from ha.rest.restConfig import *
-from SocketServer import ThreadingMixIn
-from BaseHTTPServer import HTTPServer
-from BaseHTTPServer import BaseHTTPRequestHandler
+from socketserver import ThreadingMixIn
+from http.server import HTTPServer
+from http.server import BaseHTTPRequestHandler
 import json
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import threading
 import socket
 import ssl
@@ -146,7 +146,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
 #            self.wfile.write(json.dumps({"resources": self.server.resources.name}))
             self.wfile.write(json.dumps([self.server.resources.name]))
         else:                   # find the specified resource or attribute
-            (resource, attr) = self.getResFromPath(self.server.resources, urllib.unquote(self.path).lstrip("/"))
+            (resource, attr) = self.getResFromPath(self.server.resources, urllib.parse.unquote(self.path).lstrip("/"))
             debug('debugRestGet', "resource:", resource, "attr:", attr)
             if resource:
                 self.send_response(200)     # success
@@ -176,7 +176,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
     def do_PUT(self):
         debug('debugRestPut', "path:", self.path)
         debug('debugRestPut', "headers:", self.headers.__str__())
-        (resource, attr) = self.getResFromPath(self.server.resources, urllib.unquote(self.path).lstrip("/"))
+        (resource, attr) = self.getResFromPath(self.server.resources, urllib.parse.unquote(self.path).lstrip("/"))
         debug('debugRestPut', "resource:", resource, "attr:", attr)
         if resource:
             try:
@@ -214,7 +214,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                 if sep == "":       # no more elements left in path
                     return (resource, None) # path matches collection
                 else:
-                    for res in resource.values():
+                    for res in list(resource.values()):
                         (matchRes, attr) = self.getResFromPath(res, path)
                         if matchRes:
                             return (matchRes, attr) # there was a match at a lower level

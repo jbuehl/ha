@@ -91,7 +91,7 @@ class RestServiceProxy(Sensor):
         try:
             for serviceResource in serviceResources:
                 self.loadPath(self.resources, self.interface, "/"+serviceResource)
-            self.resourceNames = self.resources.keys()    # FIXME - need to alias the names
+            self.resourceNames = list(self.resources.keys())    # FIXME - need to alias the names
             self.timeStamp = serviceTimeStamp
             self.interface.readStates()          # fill the cache for these resources
             restProxy.addResources(self)
@@ -104,7 +104,7 @@ class RestServiceProxy(Sensor):
         debug('debugLoadResources', self.name, "loadPath", "path:", path)
         node = interface.readRest(path)
         self.loadResource(resources, interface, node, path)
-        if "resources" in node.keys():
+        if "resources" in list(node.keys()):
             # the node is a collection
             for resource in node["resources"]:
                 self.loadPath(resources, interface, path+"/"+resource)
@@ -119,7 +119,7 @@ class RestServiceProxy(Sensor):
                 try:
                     aliasAttrs = resources.aliases[node["name"]]
                     debug('debugLoadResources', self.name, "loadResource", node["name"], "found alias")
-                    for attr in aliasAttrs.keys():
+                    for attr in list(aliasAttrs.keys()):
                         node[attr] = aliasAttrs[attr]
                         debug('debugLoadResources', self.name, "loadResource", node["name"], "attr:", attr, "value:", aliasAttrs[attr])
                 except KeyError:
@@ -127,13 +127,13 @@ class RestServiceProxy(Sensor):
                     pass
                 # assemble the argument string
                 argStr = ""
-                for arg in node.keys():
+                for arg in list(node.keys()):
                     if arg == "class":
                         className = node[arg]
                     elif arg == "interface":                # use the REST interface
                         argStr += "interface=interface, "
                     elif arg == "addr":                     # addr is REST path
-                        argStr += "addr=path+'/state', "
+                        argStr += "addr='"+path+"/state', "
                     elif arg in ["schedTime", "endTime"]:                # FIXME - need to generalize this for any class
                         argStr += arg+"=SchedTime(**"+str(node[arg])+"), "
                     elif arg == "cycleList":                # FIXME - need to generalize this for any class
@@ -141,13 +141,15 @@ class RestServiceProxy(Sensor):
                         for cycle in node["cycleList"]:
                             argStr += "Cycle(**"+str(cycle)+"), "
                         argStr += "], "
-                    elif isinstance(node[arg], str) or isinstance(node[arg], unicode):  # arg is a string
+                    elif isinstance(node[arg], str) or isinstance(node[arg], str):  # arg is a string
                         argStr += arg+"='"+node[arg]+"', "
                     else:                                   # arg is numeric or other
                         argStr += arg+"="+str(node[arg])+", "
                 debug("debugLoadResources", "creating", className+"("+argStr[:-2]+")")
-                exec("resource = "+className+"("+argStr[:-2]+")")
-                resources.addRes(resource)
+                localDict = {"interface": interface}
+                # log("resource = "+className+"("+argStr[:-2]+")")
+                exec("resource = "+className+"("+argStr[:-2]+")", globals(), localDict)
+                resources.addRes(localDict["resource"])
         except Exception as exception:
             log(self.name, "loadResource", interface.name, "exception", str(node), path, str(exception))
             try:

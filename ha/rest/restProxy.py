@@ -87,7 +87,7 @@ class RestProxy(threading.Thread):
             # parse the message
             (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceStateChange, serviceSeq) = parseServiceData(data, addr)
             # rename it if there is an alias
-            if serviceName in self.resources.aliases.keys():
+            if serviceName in list(self.resources.aliases.keys()):
                 newServiceName = self.resources.aliases[serviceName]["name"]
                 newServiceLabel = self.resources.aliases[serviceName]["label"]
                 debug('debugRestProxy', self.name, "renaming", serviceName, "to", newServiceName)
@@ -97,7 +97,7 @@ class RestProxy(threading.Thread):
             # determine if this service should be processed based on watch and ignore lists
             if ((self.watch != []) and (serviceName  in self.watch)) or ((self.watch == []) and (serviceName not in self.ignore)):
                 debug('debugRestProxy', self.name, "processing", serviceName, serviceAddr, serviceTimeStamp)
-                if serviceName not in self.services.keys():
+                if serviceName not in list(self.services.keys()):
                     # create a new service proxy
                     debug('debugRestProxyAdd', self.name, "adding", serviceName, serviceAddr, serviceTimeStamp, serviceStateChange)
                     self.services[serviceName] = RestServiceProxy(serviceName,

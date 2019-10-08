@@ -1,5 +1,5 @@
-from config import *
-from logging import *
+from .config import *
+from .logging import *
 
 # log a debug message conditioned on a specified global variable
 def debug(*args):

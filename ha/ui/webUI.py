@@ -11,7 +11,7 @@ import cherrypy
 import time
 from cherrypy.lib import auth_basic
 import requests
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from twilio.rest import Client
 from ha import *
 from ha.ui.webViews import *
@@ -71,7 +71,7 @@ class WebRoot(object):
                 cacheTime = 0
             updates = {"cacheTime": cacheTime}
             blinkerList = []
-            for resource in resourceStateTypes.keys():
+            for resource in list(resourceStateTypes.keys()):
                 try:
                     state = resourceStateTypes[resource][0] # self.resources.getRes(resource).getState()
                     resClass = resourceStateTypes[resource][1] # self.resources.getRes(resource).type
@@ -120,7 +120,7 @@ class WebRoot(object):
             return self.pathDict[path](**params)
         except KeyError:
             cherrypy.response.status = 404
-            return path+" not found"
+            return bytes(path+" not found", "utf-8")
 
     # get or set a resource state
     @cherrypy.expose
@@ -129,7 +129,7 @@ class WebRoot(object):
         try:
             if resource == "resources":
                 reply = ""
-                for resource in self.resources.keys():
+                for resource in list(self.resources.keys()):
                     if resource != "states":
                         reply += resource+"\n"
                 return reply
@@ -139,7 +139,7 @@ class WebRoot(object):
                     time.sleep(1)   # hack
                 return json.dumps({"state": views.getViewState(self.resources.getRes(resource))})
         except:
-            return "Error"
+            return bytes("Error", "utf-8")
 
     # Return the value of a resource attribute
     @cherrypy.expose
@@ -161,7 +161,7 @@ class WebRoot(object):
         except:
             cherrypy.response.status = 500
             response = "Error"
-        return response
+        return bytes(response, "utf-8")
 
     # Update the states of all resources
     @cherrypy.expose
@@ -172,7 +172,8 @@ class WebRoot(object):
             stateJson = self.stateJson
             debug('debugWebState', "state", "unlock")
         cherrypy.response.headers['Content-Type'] = "application/json"
-        return stateJson
+        cherrypy.response.headers['Content-Length'] = len(stateJson)
+        return bytes(stateJson, "utf-8")
 
     # Update the states of resources when there is a change
     @cherrypy.expose
@@ -188,7 +189,8 @@ class WebRoot(object):
             stateJson = self.stateJson
             debug('debugWebState', "stateChange", "unlock")
         cherrypy.response.headers['Content-Type'] = "application/json"
-        return stateJson
+        cherrypy.response.headers['Content-Length'] = len(stateJson)
+        return bytes(stateJson, "utf-8")
 
     # change the state of a control
     @cherrypy.expose
@@ -196,7 +198,7 @@ class WebRoot(object):
         debug('debugWeb', "/submit", cherrypy.request.method, action, resource)
         views.setViewState(self.resources.getRes(resource), action)
         reply = ""
-        return reply
+        return bytes(reply, "utf-8")
 
     # return a sound
     @cherrypy.expose
@@ -291,7 +293,7 @@ class WebRoot(object):
         debug('debugResource', "date = ", date)
         debug('debugResource', "resource = ", resource)
         try:
-            (start, end) = urllib.unquote(resourceName).split(":")
+            (start, end) = urllib.parse.unquote(resourceName).split(":")
             # create a playlist on the fly
             start = "%06d"%int(start)
             if end == "":

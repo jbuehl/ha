@@ -1,6 +1,6 @@
 import json
 import requests
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import socket
 import threading
 import sys
@@ -84,7 +84,7 @@ class RestInterface(Interface):
             self.enabled = False
             debug('debugRest', self.name, "stopping")
             # invalidate the state cache
-            for state in self.states.keys():
+            for state in list(self.states.keys()):
                 self.states[state] = None
             debug('debugRest', self.name, "closing socket")
             self.socket.close()
@@ -120,13 +120,13 @@ class RestInterface(Interface):
 
     # set state values of all sensors into the cache
     def setStates(self, states):
-        for sensor in states.keys():
+        for sensor in list(states.keys()):
             self.states["/resources/"+sensor+"/state"] = states[sensor]
 
     # read the json data from the specified path and return a dictionary
     def readRest(self, path):
         debug('debugRestStates', self.name, "readRest", path)
-        addrPath = self.serviceAddr+urllib.quote(path)
+        addrPath = self.serviceAddr+urllib.parse.quote(path)
         try:
             if self.secure:
                 url = "https://"+addrPath
@@ -171,7 +171,7 @@ class RestInterface(Interface):
     # write json data to the specified path
     def writeRest(self, path, data):
         debug('debugRestStates', self.name, "writeRest", path, data)
-        addrPath = self.serviceAddr+urllib.quote(path)
+        addrPath = self.serviceAddr+urllib.parse.quote(path)
         try:
             if self.secure:
                 url = "https://"+addrPath

@@ -122,7 +122,7 @@ def stats(camera, cameras, templates):
     if camera:
         cameraList = [camera]
     else:
-        cameraList = cameras.keys()
+        cameraList = list(cameras.keys())
     try:
         eventStorage = json.load(open(stateDir+"storage.json"))
     except IOError:

@@ -16,7 +16,7 @@ class ApplianceInterface(Interface):
         except:
             self.state = {}
         # set the state of all the devices on the interface
-        for addr in self.state.keys():
+        for addr in list(self.state.keys()):
             # addr must be converted to int because json stringified it when dumped
             self.interface.write(int(addr), self.state[addr])
 

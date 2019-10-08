@@ -5,7 +5,6 @@ import json
 from ha import *
 
 cameraDir = cameraBase+"cameras/"
-stateDir = cameraBase+"state/"
 archiveDir = cameraBase+"archive/"
 
 # directory structure:
@@ -55,7 +54,7 @@ class Camera(object):
     def load(self, loadFileName):
         with open(loadFileName) as loadFile:
             attrs = json.load(loadFile)
-        for attr in attrs.keys():
+        for attr in list(attrs.keys()):
             setattr(self, attr, attrs[attr])
 
 # get the camera attributes
