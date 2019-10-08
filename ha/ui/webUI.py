@@ -248,7 +248,7 @@ class WebRoot(object):
         debug('debugImage', "date = ", date)
         debug('debugImage', "imageType = ", imageType)
         debug('debugImage', "image = ", image)
-        with open(imageDir+image) as imageFile:
+        with open(imageDir+image, "rb") as imageFile:
             imageContent = imageFile.read()
         debug('debugImage', "length = ", len(imageContent))
         cherrypy.response.headers['Content-Type'] = "image/jpeg"
@@ -301,9 +301,9 @@ class WebRoot(object):
                 end = "%06d"%(int(start)+59)
             debug('debugResource', "playlist = ", start, end)
             (chunkList, eventList) = getPlaylists(videoDir)
-            resourceContent = makePlaylist(date+start, date+end, chunkList)
+            resourceContent = bytes(makePlaylist(date+start, date+end, chunkList), "utf-8")
         except ValueError:
-            with open(videoDir+resource) as resourceFile:
+            with open(videoDir+resource, "rb") as resourceFile:
                 resourceContent = resourceFile.read()
         debug('debugResource', "length = ", len(resourceContent))
         cherrypy.response.headers['Content-Length'] = len(resourceContent)

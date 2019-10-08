@@ -29,15 +29,15 @@ def wall(cameras, templates):
     date = time.strftime("%Y%m%d")
     debug('debugWall', "date = ", date)
     playlistList = []
-    for camera in cameras:
-        videoDir = cameraDir+camera+"/videos/"+dateDir(date)
+    for cameraName in list(cameras.keys()):
+        videoDir = cameraDir+cameraName+"/videos/"+dateDir(date)
         # return newest playlist that isn't an event
         playlists = os.listdir(videoDir)
         for playlist in sorted(playlists, reverse=True):
             if playlist.split(".")[-1] == "m3u8":
                 if playlist.split(".")[-2][-5:] != "event":
                     playlistList.append(playlist)
-                    debug('debugWall', "camera = ", camera)
+                    debug('debugWall', "camera = ", cameraName)
                     debug('debugWall', "playlist = ", playlist)
                     break
     [capacity, used, avail, percent] = getStorage()
@@ -53,9 +53,9 @@ def wall(cameras, templates):
 #     HHMMSS.NNN.HHMMSS
 #     default: 000000.288.0005
 
-def snaps(camera, date, resource, cameras, templates):
+def snaps(cameraName, date, resource, cameras, templates):
     if not camera:
-        camera = cameras[0]
+        cameraName = cameras[0].name
     if not date:
         date = time.strftime("%Y%m%d")
     if not resource:
@@ -64,12 +64,12 @@ def snaps(camera, date, resource, cameras, templates):
     else:
         daily = False
     (startTime, nSnaps, incr) = (resource.split(".")+["0","0"])[0:3]
-    debug('debugSnaps', "camera = ", camera)
+    debug('debugSnaps', "camera = ", cameraName)
     debug('debugSnaps', "date = ", date)
     debug('debugSnaps', "startTime = ", startTime)
     debug('debugSnaps', "nSnaps = ", nSnaps)
     debug('debugSnaps', "incr = ", incr)
-    snapDir = cameraDir+camera+"/thumbs/"+dateDir(date)
+    snapDir = cameraDir+cameraName+"/thumbs/"+dateDir(date)
     snapshots = os.listdir(snapDir)
     debug('debugSnaps', "snapshots = ", len(snapshots))
     # build a matrix of snapshots
@@ -85,7 +85,7 @@ def snaps(camera, date, resource, cameras, templates):
             break
         snapshot = date+snapTime+"_snap.jpg"
         if snapshot not in snapshots:
-            createSnap(camera, snapshot, False)
+            createSnap(cameraName, snapshot, False)
         snapHour = int(snapTime[0:2])
         snapMinute = int(snapTime[2:4])
         # snapTimes = ["%02d"%(minute) for minute in range(snapMinute, snapMinute+5)]
@@ -104,23 +104,23 @@ def snaps(camera, date, resource, cameras, templates):
     if daily:
         # reverse the order and trim future hours
         snapListDisp = []
-        snapList += [("", "")]*((60-snapMinute)/5)
+        snapList += [("", "")]*int((60-snapMinute)/5)
         for hour in range(snapHour, -1, -1):
             if snapList[hour*12:hour*12+12] != [("", "")]*12:
                 snapListDisp += [("", "%2d"%hour)]
                 snapListDisp += snapList[hour*12:hour*12+12]
     else:
         snapListDisp = [("", "%2d"%snapHour)] + snapList
-    return templates.get_template("snaps.html").render(title=webPageTitle+" "+cameras[camera].label+" camera", script="",
+    return templates.get_template("snaps.html").render(title=webPageTitle+" "+cameras[cameraName].label+" camera", script="",
                         dateDisp=time.strftime("%a %B %-d %Y", time.strptime(date, "%Y%m%d")),
-                        camera=camera,
+                        camera=cameraName,
                         date=date,
                         snaps=snapListDisp)
 
 # display the dates for which there are camera events and videos
-def stats(camera, cameras, templates):
+def stats(cameraName, cameras, templates):
     if camera:
-        cameraList = [camera]
+        cameraList = [cameraName]
     else:
         cameraList = list(cameras.keys())
     try:
@@ -129,8 +129,8 @@ def stats(camera, cameras, templates):
         eventStorage = {}
 
     # update today's stats
-    for camera in cameraList:
-        updateStorageStats(camera, time.strftime("%Y%m%d"), cameraDir, eventStorage)
+    for cameraName in cameraList:
+        updateStorageStats(cameraName, time.strftime("%Y%m%d"), cameraDir, eventStorage)
 
     # create a multidimensional array containing the data for display
     #    cameraDays = ["displayCamera1", camera1, ["displayYearMonth1", yearMonth1, [[displayDay1, day1, nEvents, size],
@@ -152,16 +152,16 @@ def stats(camera, cameras, templates):
     lastCamera = ""
     weekday = 0
     for cameraDay in sorted(eventStorage.keys()):
-        (camera, year, month, day) = cameraDay.split("/")
+        (cameraName, year, month, day) = cameraDay.split("/")
         lastWeekday = weekday
         weekday = int(time.strftime("%w", time.strptime(year+month+day, "%Y%m%d")))
-        if camera != lastCamera:    # new camera
+        if cameraName != lastCamera:    # new camera
             if lastCamera != "":    # not the first camera
                 # fill out the remainder of the week for the previous camera/year/month
                 for d in range(7 - lastWeekday - 1):
                     cameraDays[-1][2][-1][2].append(["", "", "", ""])
-            cameraDays.append([cameras[camera].label, camera, []])
-            lastCamera = camera
+            cameraDays.append([cameras[cameraName].label, cameraName, []])
+            lastCamera = cameraName
             lastYearMonth = ""
         if year+month != lastYearMonth: # new year/month
             if lastYearMonth != "": # same camera
@@ -186,12 +186,12 @@ def stats(camera, cameras, templates):
                         cameraDays=cameraDays)
 
 # return a set of event thumbnails for a specified camera and date
-def events(camera, date, cameras, templates):
+def events(cameraName, date, cameras, templates):
     if not date:
         date = time.strftime("%Y%m%d")
-    debug('debugImage', "camera = ", camera)
+    debug('debugImage', "camera = ", cameraName)
     debug('debugImage', "date = ", date)
-    imageDir = cameraDir+camera+"/images/"+dateDir(date)
+    imageDir = cameraDir+cameraName+"/images/"+dateDir(date)
     imageFiles = os.listdir(imageDir)
     images = []
     for imageFile in sorted(imageFiles, reverse=True):
@@ -201,19 +201,19 @@ def events(camera, date, cameras, templates):
     # fill out the remainder of the row if there are < 4 images
     if len(images) < 4:
         images += [["", "", "", ""] for i in range((int(len(images)/4)+1)*4-len(images))]
-    return templates.get_template("events.html").render(title=webPageTitle+" "+cameras[camera].label+" events", script="",
+    return templates.get_template("events.html").render(title=webPageTitle+" "+cameras[cameraName].label+" events", script="",
                         date=date,
                         dateDisp=time.strftime("%a %B %-d %Y", time.strptime(date, "%Y%m%d")),
-                        camera=camera,
+                        camera=cameraName,
                         images=images)
 
 # stream a playlist from a camera
-def stream(camera, date, playlist, cameras, templates):
-    if not camera:
-        camera = cameras[0]
+def stream(cameraName, date, playlist, cameras, templates):
+    if not cameraName:
+        cameraName = cameras[0].name
     if not date:
         date = time.strftime("%Y%m%d")
-    videoDir = cameraDir+camera+"/videos/"+dateDir(date)
+    videoDir = cameraDir+cameraName+"/videos/"+dateDir(date)
     if playlist:
         playlist += ".m3u8"
     else:
@@ -223,35 +223,35 @@ def stream(camera, date, playlist, cameras, templates):
             if playlist.split(".")[-1] == "m3u8":
                 if playlist.split(".")[-2][-5:] != "event":
                     break
-    debug('debugStream', "camera = ", camera)
+    debug('debugStream', "camera = ", cameraName)
     debug('debugStream', "date = ", date)
     debug('debugStream', "playlist = ", playlist)
-    return templates.get_template("stream.html").render(title=webPageTitle+" "+cameras[camera].label+" camera", script="",
+    return templates.get_template("stream.html").render(title=webPageTitle+" "+cameras[cameraName].label+" camera", script="",
                         dateDisp=time.strftime("%a %B %-d %Y", time.strptime(date, "%Y%m%d")),
-                        camera=camera,
+                        camera=cameraName,
                         date=date,
                         playlist=playlist)
 
 # download a video clip from a camera
-def download(camera, date, playlist, cameras, templates):
-    if not camera:
-        camera = cameras[0]
+def download(cameraName, date, playlist, cameras, templates):
+    if not cameraName:
+        cameraName = cameras[0].name
     if not date:
         date = time.strftime("%Y%m%d")
     if not playlist:
         playlist = time.strftime("%H%M")
-    videoDir = cameraDir+camera+"/videos/"+dateDir(date)
+    videoDir = cameraDir+cameraName+"/videos/"+dateDir(date)
     startHour = playlist[0:2]
     startMinute = playlist[2:4]
     endHour = startHour
     endMinute = str(int(startMinute) + 1)
-    debug('debugDownload', "camera = ", camera)
+    debug('debugDownload', "camera = ", cameraName)
     debug('debugDownload', "date = ", date)
     debug('debugDownload', "startHour = ", startHour)
     debug('debugDownload', "startMinute = ", startMinute)
     debug('debugDownload', "endHour = ", endHour)
     debug('debugDownload', "endMinute = ", endMinute)
-    return templates.get_template("download.html").render(title=webPageTitle+" "+cameras[camera].label+" camera download", script="",
+    return templates.get_template("download.html").render(title=webPageTitle+" "+cameras[cameraName].label+" camera download", script="",
                         dateDisp=time.strftime("%a %B %-d %Y", time.strptime(date, "%Y%m%d")),
-                        camera=camera, date=date,
+                        camera=cameraName, date=date,
                         starthour=startHour, startminute=startMinute, endhour=endHour, endminute=endMinute)

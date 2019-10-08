@@ -202,7 +202,7 @@ def writeGraphite(timeStamp):
         for item in list(stateDict.keys()):
             metric = "%s.%s %s %d" % (metricsPrefix, item, str(stateDict[item]), timeStamp)
             debug("debugStats", "metric:", metric)
-            metricsSocket.send(metric+"\n")
+            metricsSocket.send(bytes(metric+"\n", "utf-8"))
     except socket.error as exception:
         log("sendMetrics", "socket error", str(exception))
     if metricsSocket:
