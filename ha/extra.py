@@ -6,7 +6,6 @@ from .basic import *
 # and setting the Control to another state.  This may be preceded by an optional delay.
 # If the duration is zero, then the end state is not set and the Control is left in the start state.
 class Cycle(object):
-    objectArgs = ["control"]
     def __init__(self, control=None, duration=0, delay=0, startState=1, endState=0, name=None):
         self.control = control
         self.duration = duration
@@ -33,7 +32,6 @@ sequenceStopped = 0
 sequenceRunning = 1
 
 class Sequence(Control):
-    objectArgs = ["interface", "event", "cycleList"]
     def __init__(self, name, cycleList=[], addr=None, interface=None, event=None, group="", type="sequence", label="", location=None):
         Control.__init__(self, name, addr=addr, interface=interface, event=event, group=group, type=type, label=label, location=location)
         self.cycleList = cycleList
@@ -142,7 +140,6 @@ class Sequence(Control):
 
 # A collection of sensors whose state is on if any one of them is on
 class SensorGroup(Sensor):
-    objectArgs = ["interface", "event", "sensorList", "resources"]
     def __init__(self, name, sensorList, resources=None, interface=None, addr=None, group="", type="sensor", label="", location=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, label=label, location=location)
         self.sensorList = sensorList
@@ -188,7 +185,6 @@ class SensorGroup(Sensor):
 
 # A set of Controls whose state can be changed together
 class ControlGroup(SensorGroup, Control):
-    objectArgs = ["interface", "event", "controlList", "resources"]
     def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False, interface=None, addr=None,
                  group="", type="controlGroup", label="", location=None):
         SensorGroup.__init__(self, name, controlList, resources, interface, addr, group=group, type=type, label=label, location=location)
@@ -255,7 +251,6 @@ class ControlGroup(SensorGroup, Control):
 
 # Calculate a function of a list of sensor states
 class CalcSensor(Sensor):
-    objectArgs = ["interface", "event", "sensors"]
     def __init__(self, name, sensors=[], function="", interface=None, addr=None, group="", type="sensor", label="", location=None):
         Sensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, label=label, location=location)
         self.sensors = sensors
@@ -273,7 +268,6 @@ class CalcSensor(Sensor):
 
 # Sensor that contains the states of all sensors in a list of resources
 class ResourceStateSensor(Sensor):
-    objectArgs = ["interface", "event", "resources"]
     def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None):
         Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.resources = resources

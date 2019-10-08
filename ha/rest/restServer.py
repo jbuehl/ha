@@ -21,7 +21,6 @@ def openBroadcastSocket():
 
 # RESTful web services server interface
 class RestServer(object):
-    objectArgs = ["resources", "event"]
     def __init__(self, name, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label="", stateChange=True):
         debug('debugRestServer', name, "creating RestServer")
         self.name = name

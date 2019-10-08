@@ -60,7 +60,6 @@ class Resource(object):
 
 # Base class for Interfaces
 class Interface(Resource):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None):
         Resource.__init__(self, name)
         self.interface = interface
@@ -114,7 +113,6 @@ class Interface(Resource):
 # - delete collection
 
 class Collection(Resource, OrderedDict):
-    objectArgs = ["resources"]
     def __init__(self, name, resources=[], aliases={}):
         Resource.__init__(self, name)
         OrderedDict.__init__(self)
@@ -175,7 +173,6 @@ class Collection(Resource, OrderedDict):
 # The state is associated with a unique address on an interface.
 # Sensors can also optionally be associated with a group and a physical location.
 class Sensor(Resource):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Resource.__init__(self, name)
         try:
@@ -263,7 +260,6 @@ class Sensor(Resource):
 
 # A Control is a Sensor whose state can be set
 class Control(Sensor):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface, addr=None, group="", type="control", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.running = False

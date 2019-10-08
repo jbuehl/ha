@@ -13,7 +13,6 @@ from ha import *
 
 # thermostat control for heating and cooling
 class ThermostatControl(Control):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, heatControl, coolControl, fanControl, inhibitSensor=None, persistenceControl=None,
                 interface=None, addr=None, group="", type="control", location=None, label="", interrupt=None, event=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
@@ -31,12 +30,12 @@ class ThermostatControl(Control):
             self.setState(modeOff)
         else:
             self.setState(currentState)
-        
+
         # inhibit the tempControl after a delay
         def inhibitTimer():
             debug('debugThermostat', self.name, "inhibitTimer ended")
             self.setInhibit(True)
-            
+
         # thread to monitor the state of the inhibit sensor
         def inhibitWatch():
             debug('debugThermostat', self.name, "inhibitWatch started")
@@ -69,7 +68,7 @@ class ThermostatControl(Control):
         self.inhibited = value
         self.heatControl.setInhibit(value)
         self.coolControl.setInhibit(value)
-    
+
     def getState(self, wait=False):
         debug('debugState', self.name, "getState ", self.currentState)
         return self.currentState
@@ -101,7 +100,7 @@ class ThermostatControl(Control):
             return
         self.currentState = state
         if self.persistenceControl:
-            self.persistenceControl.setState(state)                    
+            self.persistenceControl.setState(state)
         self.notify()
 
 heatOn = modeHeat
@@ -130,6 +129,3 @@ class ThermostatUnitSensor(Sensor):
             return coolOn
         else:
             return Off
-        
-    
-

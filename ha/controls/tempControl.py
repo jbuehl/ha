@@ -11,7 +11,6 @@ from ha import *
 
 # a temperature controlled heating or cooling unit
 class TempControl(Control):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface, unitControl, tempSensor,
                 tempTargetControl=None, unitType=0, hysteresis=[1, 1],
                 addr=None, group="", type="control", location=None, label="", interrupt=None):

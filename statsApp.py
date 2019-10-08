@@ -144,7 +144,7 @@ def terminate(code, msg=""):
 # zero the daily totals
 def zeroDaily():
     global stateDict
-    for item in stateDict.keys():
+    for item in list(stateDict.keys()):
         itemParts = item.split(".")
         if itemParts[2] == "dailyEnergy":
             stateDict[item] = 0.0
@@ -166,7 +166,7 @@ def parseInput(inRec):
         debug("debugStats", "input:", timeStamp, inDict)
         # compute energy consumed since last measurement
         stateDict["loads.stats.power"] = 0.0
-        for item in stateDict.keys():
+        for item in list(stateDict.keys()):
             itemParts = item.split(".")
             if itemParts[0] == "loads":
                 if itemParts[1] != "stats":
@@ -182,7 +182,7 @@ def parseInput(inRec):
                             stateDict["loads."+itemParts[1]+".dailyEnergy"] = 0.0
                         debug("debugStats", "energy:", item, stateDict[item], energy, stateDict["loads."+itemParts[1]+".dailyEnergy"])
         # update the measurements
-        for item in inDict.keys():
+        for item in list(inDict.keys()):
             itemParts = item.split(".")
             if itemParts[0] == "loads":
                 if itemParts[1] != "stats":
@@ -199,7 +199,7 @@ def writeGraphite(timeStamp):
     try:
         metricsSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         metricsSocket.connect((metricsHost, port))
-        for item in stateDict.keys():
+        for item in list(stateDict.keys()):
             metric = "%s.%s %s %d" % (metricsPrefix, item, str(stateDict[item]), timeStamp)
             debug("debugStats", "metric:", metric)
             metricsSocket.send(metric+"\n")
