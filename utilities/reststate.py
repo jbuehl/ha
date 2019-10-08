@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # Print the messages that are sent to advertise REST service states
+from __future__ import print_function
 
 multicast = False
 multicastGroup = "224.0.0.1"
 restStatePort = 4243
 
-from __future__ import print_function
 import socket
 import json
 import time

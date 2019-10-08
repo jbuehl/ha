@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # Print the messages that are sent to advertise REST services
+from __future__ import print_function
 
 multicast = False
 multicastGroup = "224.0.0.1"
 restBeaconPort = 4242
 
-from __future__ import print_function
 import socket
 import json
 import time

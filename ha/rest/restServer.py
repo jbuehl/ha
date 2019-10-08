@@ -65,14 +65,14 @@ class RestServer(object):
                     if not self.beaconSocket:
                         self.beaconSocket = openBroadcastSocket()
                     try:
-                        self.beaconSocket.sendto(json.dumps({"hostname": self.hostname,
+                        self.beaconSocket.sendto(bytes(json.dumps({"hostname": self.hostname,
                                                              "port": self.port,
                                                              "resources": [self.server.resources.name],
                                                              "timestamp": self.timeStamp,
                                                              "label": self.label,
                                                              "name": self.name,
                                                              "statechange": self.stateChange,
-                                                             "seq": beaconSequence}),
+                                                             "seq": beaconSequence}), "utf-8"),
                                                         (self.restAddr, restBeaconPort))
                     except socket.error as exception:
                         log("socket error", str(exception))
@@ -80,6 +80,7 @@ class RestServer(object):
                     beaconSequence += 1
                     time.sleep(restBeaconInterval)
             beaconThread = threading.Thread(target=beacon)
+            beaconThread.daemon = True
             beaconThread.start()
 
         # start the heartbeat to periodically send the state of all resources
@@ -106,10 +107,10 @@ class RestServer(object):
                     if not self.heartbeatSocket:
                         self.heartbeatSocket = openBroadcastSocket()
                     try:
-                        self.heartbeatSocket.sendto(json.dumps({"state": stateResource.states,
+                        self.heartbeatSocket.sendto(bytes(json.dumps({"state": stateResource.states,
                                                                 "hostname": self.hostname,
                                                                 "port": self.port,
-                                                                "seq": stateSequence}),
+                                                                "seq": stateSequence}), "utf-8"),
                                                             (self.restAddr, restStatePort))
                         if self.event:
                             # set the state event so the stateChange request returns
@@ -121,6 +122,7 @@ class RestServer(object):
                     stateSequence += 1
                     time.sleep(restHeartbeatInterval)
             heartbeatThread = threading.Thread(target=heartbeat)
+            heartbeatThread.daemon = True
             heartbeatThread.start()
 
         # start the HTTP server
@@ -167,7 +169,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                         self.send_error(500)
                 self.send_header("Content-type", contentType)
                 self.end_headers()
-                self.wfile.write(data)
+                self.wfile.write(bytes(data, "utf-8"))
             else:
                 self.send_error(404)     # resource not found
 
@@ -179,7 +181,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
         debug('debugRestPut', "resource:", resource, "attr:", attr)
         if resource:
             try:
-                data = self.rfile.read(int(self.headers['Content-Length']))
+                data = self.rfile.read(int(self.headers['Content-Length'])).decode("utf-8")
                 debug('debugRestPut', "data:", data)
                 if self.headers['Content-type'] == "application/json":
                     data = json.loads(data)
