@@ -5,6 +5,7 @@ multicast = False
 multicastGroup = "224.0.0.1"
 restBeaconPort = 4242
 
+from __future__ import print_function
 import socket
 import json
 import time
@@ -16,14 +17,14 @@ if __name__ == "__main__":
     beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     if multicast:
         restAddr = multicastGroup
-        beaconSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, 
+        beaconSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
                 struct.pack("4sl", socket.inet_aton(multicastGroup), socket.INADDR_ANY))
     else:
         restAddr = ""
     beaconSocket.bind((restAddr, restBeaconPort))
     while True:
         (data, addr) = beaconSocket.recvfrom(8192)   # FIXME - need to handle arbitrarily large data
-        print time.asctime(time.localtime()), "addr:", addr, "data:", data
+        print(time.asctime(time.localtime()), "addr:", addr, "data:", data)
 #        try:
 #            serviceData = json.loads(data)
 #            print "  hostname:", serviceData[0]
@@ -35,4 +36,3 @@ if __name__ == "__main__":
 #            pass
 #        print
         sys.stdout.flush()
-

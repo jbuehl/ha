@@ -5,6 +5,7 @@ multicast = False
 multicastGroup = "224.0.0.1"
 restStatePort = 4243
 
+from __future__ import print_function
 import socket
 import json
 import time
@@ -20,26 +21,25 @@ if __name__ == "__main__":
     beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     beaconSocket.bind((restAddr, restStatePort))
     if multicast:
-        beaconSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, 
+        beaconSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
                 struct.pack("4sl", socket.inet_aton(multicastGroup), socket.INADDR_ANY))
     seqDir = {}
     while True:
         (data, addr) = beaconSocket.recvfrom(8192)   # FIXME - need to handle arbitrarily large data
         state = json.loads(data)
-        print time.asctime(time.localtime()), "addr:", addr, "hostname:", state["hostname"], "port:", state["port"],
+        print(time.asctime(time.localtime()), "addr:", addr, "hostname:", state["hostname"], "port:", state["port"], end=' ')
         try:
             hostname = state["hostname"]
             seq = int(state["seq"])
-            print "seq:", seq,
+            print("seq:", seq, end=' ')
             try:
                 if seq != seqDir[hostname] + 1:
-                    print "***"
+                    print("***")
                 else:
-                    print ""
+                    print("")
             except KeyError:
-                print ""
+                print("")
             seqDir[hostname] = seq
         except KeyError:
-            print ""
+            print("")
         sys.stdout.flush()
-        
