@@ -14,6 +14,7 @@ from ha import *
 
 def startMetrics(resourceStates):
     metricsThread = threading.Thread(target=sendMetricsThread, args=(resourceStates,))
+    metricsThread.daemon = True
     metricsThread.start()
 
 def sendMetricsThread(resourceStates):
@@ -59,7 +60,7 @@ def sendMetricsThread(resourceStates):
                                 metricsGroup = ".ha."
                             msg = metricsPrefix+metricsGroup+metric.replace(" ", "_")+" "+str(metrics[metric])+" "+str(int(time.time()))
                             debug("debugMetricsMsg", "sendMetrics", msg)
-                            metricsSocket.send(msg+"\n")
+                            metricsSocket.send(bytes(msg+"\n", "utf-8"))
             except socket.error as exception:
                 log("sendMetrics", "socket error", str(exception))
             if metricsSocket:
