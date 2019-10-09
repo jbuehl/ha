@@ -61,7 +61,7 @@ def createSnap(cameraName, eventTime, wait=True):
         log("createSnap", "exception", str(ex))
 
 # create thumbnail images for periodic snapshots
-def snapshots(imageBase, camera, date, force=False, repeat=0):
+def snapshots(imageBase, camera, date, force=False, repeat=0, delay=0):
     debug('debugEnable', "starting snapshot thread for camera", camera.name)
     # create snapshots starting at the current time
     lastSecond = "--"
@@ -75,6 +75,7 @@ def snapshots(imageBase, camera, date, force=False, repeat=0):
             if second != lastSecond:
                 lastSecond = second
                 # create a snapshot for the time 10 seconds ago
+                time.sleep(delay)   # delay to stagger the processing for multiple cameras
                 createSnap(camera.name, date+subTimes(now, "000010"), False)
         repeating = repeat
         time.sleep(repeat)
