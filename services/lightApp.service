@@ -1,8 +1,0 @@
-[Unit]
-Description=Home Automation Light schedule
-After=syslog.target
-[Service]
-ExecStart=/usr/bin/python /root/ha/lightApp.py
-Restart=on-abort
-[Install]
-WantedBy=multi-user.target

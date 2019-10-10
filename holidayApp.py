@@ -180,7 +180,7 @@ if __name__ == "__main__":
                            fallLights, halloweenLights, electionLights, christmasLights, hanukkahLights,
                            testLights])
     # Persistent config data
-    holiday = MultiControl("holiday", configData, "holiday", values=holidayLightControls.keys(),
+    holiday = MultiControl("holiday", configData, "holiday", values=list(holidayLightControls.keys()),
                             group=["Lights", "Holiday"], label="Holiday")
 
 # Tasks
@@ -280,7 +280,7 @@ if __name__ == "__main__":
     schedule.addTask(resources["xmasLightsOffSunrise"])
     #        schedule.addTask(resources["xmasTreeOnXmas"])
 
-    restServer = RestServer("lights", resources, event=stateChangeEvent, label="Lights")
+    restServer = RestServer("holiday", resources, event=stateChangeEvent, label="Holiday lights")
 
     # Start interfaces
     configData.start()
