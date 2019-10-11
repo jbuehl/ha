@@ -178,7 +178,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
         debug('debugRestPut', "path:", self.path)
         debug('debugRestPut', "headers:", self.headers.__str__())
         (resource, attr) = self.getResFromPath(self.server.resources, urllib.parse.unquote(self.path).lstrip("/"))
-        debug('debugRestPut', "resource:", resource, "attr:", attr)
+        debug('debugRestPut', "resource:", resource.name, "attr:", attr)
         if resource:
             try:
                 data = self.rfile.read(int(self.headers['Content-Length'])).decode("utf-8")

@@ -60,7 +60,7 @@ class RestInterface(Interface):
             try:
                 # wait to receive a state change notification message
                 (data, addr) = self.socket.recvfrom(32768)
-                msg = json.loads(data)
+                msg = json.loads(data.decode("utf-8"))
                 if addr[0]+":"+str(msg["port"]) == self.serviceAddr:   # is this from the correct service
                     debug('debugRestStates', self.name, "received state notification from", addr[0]+":"+str(msg["port"]), "matches serviceAddr", self.serviceAddr)
                     # this one is for us

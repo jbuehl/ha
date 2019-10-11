@@ -85,7 +85,7 @@ class RestProxy(threading.Thread):
             (data, addr) = self.socket.recvfrom(32768)   # FIXME - need to handle arbitrarily large data
             debug('debugRestBeacon', self.name, "beacon data", data)
             # parse the message
-            (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceStateChange, serviceSeq) = parseServiceData(data, addr)
+            (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceStateChange, serviceSeq) = parseServiceData(data.decode("utf-8"), addr)
             # rename it if there is an alias
             if serviceName in list(self.resources.aliases.keys()):
                 newServiceName = self.resources.aliases[serviceName]["name"]
