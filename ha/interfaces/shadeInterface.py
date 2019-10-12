@@ -15,7 +15,6 @@ travelTime = [15, 15, 12, 12]
 gpioPins = [18, 23, 24, 25, 22, 27, 17, 4]   # A/B BCM
 
 class ShadeInterface(Interface):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None):
         Interface.__init__(self, name, interface=interface, event=event)
         self.timers = [None, None, None, None]
