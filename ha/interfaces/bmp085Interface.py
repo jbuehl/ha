@@ -1,12 +1,11 @@
-import time
 from __future__ import print_function
+import time
 from ha import *
 
 # BMP085 pressure and temp sensor
 # Code lifted from Adafruit_BMP085
 
 class BMP085Interface(Interface):
-    objectArgs = ["interface", "event"]
 
     # Operating Modes
     __BMP085_ULTRALOWPOWER     = 0
@@ -53,7 +52,7 @@ class BMP085Interface(Interface):
         # Make sure the specified mode is in the appropriate range
         if ((mode < 0) | (mode > 3)):
           if (self.debug):
-            print()"Invalid Mode: Using STANDARD by default")
+            print("Invalid Mode: Using STANDARD by default")
           self.mode = self.__BMP085_STANDARD
         else:
           self.mode = mode
