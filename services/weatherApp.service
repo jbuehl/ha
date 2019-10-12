@@ -1,0 +1,8 @@
+[Unit]
+Description=Home Automation Weather app
+After=syslog.target network-online.target
+[Service]
+ExecStart=/usr/bin/python /root/ha/weatherApp.py
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
