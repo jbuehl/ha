@@ -10,11 +10,14 @@ shadeDown = 1
 shadeRaising = 2
 shadeLowering = 3
 
+travelTime = [15, 15, 12, 12]
+
+gpioPins = [18, 23, 24, 25, 22, 27, 17, 4]   # A/B BCM
+
 class ShadeInterface(Interface):
     objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None):
         Interface.__init__(self, name, interface=interface, event=event)
-        self.travelTime = [15, 15, 12, 12]
         self.timers = [None, None, None, None]
         self.lock = threading.Lock()
 
@@ -39,22 +42,21 @@ class ShadeInterface(Interface):
         with self.lock:
             # set the direction
             debug('debugShades', self.name, "direction", addr, value)
-            self.interface.write(addr*2, value)
+            self.interface.write(gpioPins[addr*2], value)
             # start the motion
             debug('debugShades', self.name, "motion", addr, 1)
-            self.interface.write(addr*2+1, 1)
+            self.interface.write(gpioPins[addr*2+1], 1)
         # clean up and set the final state when motion is finished
         def doneMoving():
             with self.lock:
                 # stop the motion
                 debug('debugShades', self.name, "motion", addr, 0)
-                self.interface.write(addr*2+1, 0)
+                self.interface.write(gpioPins[addr*2+1], 0)
                 # reset the direction
                 debug('debugShades', self.name, "direction", addr, 0)
-                self.interface.write(addr*2, 0)
+                self.interface.write(gpioPins[addr*2], 0)
                 self.states[addr] = self.newValue # done moving
-#                time.sleep(addr)    # wait a different amount of time for each shade - FIXME
                 self.sensorAddrs[addr].notify()
                 debug('debugShades', self.name, "state", addr, self.states[addr])
-        self.timers[addr] = threading.Timer(self.travelTime[addr], doneMoving)
+        self.timers[addr] = threading.Timer(travelTime[addr], doneMoving)
         self.timers[addr].start()

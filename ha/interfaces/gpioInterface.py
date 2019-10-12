@@ -7,6 +7,10 @@ except ImportError:
     import RPIO as gpio
     gpioLibrary = "RPIO"
 
+# all available GPIO pins
+bcmPins = [4, 17, 18, 22, 23, 24, 25, 27] # A/B
+# bcmPins = [4, 5, 6, 12, 13, 16, 17, 18, 22, 23, 24, 25, 26, 27] # B+
+
 # dictionary of GPIOInterfaces indexed by their interrupt pins
 gpioInterfaces = {}
 
@@ -23,7 +27,6 @@ def interruptCallback(pin, value=1):
 
 # Interface to GPIO either directly or via MCP23017 I2C I/O expander
 class GPIOInterface(Interface):
-    objectArgs = ["interface", "event"]
     # MCP23017 I2C I/O expander
     IODIR = 0x00        # I/O direction
     IPOL = 0x02         # input polarity
@@ -36,10 +39,6 @@ class GPIOInterface(Interface):
     INTCAP = 0x10       # interrupt capture
     GPIO = 0x12         # I/O data
     OLAT = 0x14         # output latch
-
-    # direct GPIO
-    gpioPins = [12, 16, 18, 22, 15, 13, 11, 7]   # A/B
-#            32, 36, 38, 40, 37, 35, 33, 31]     # B+
 
     def __init__(self, name, interface=None, event=None,
                                              addr=0x20,         # I2C address of MCP23017
@@ -86,9 +85,9 @@ class GPIOInterface(Interface):
             elif gpioLibrary == "RPi.GPIO":
                 gpio.setup(self.interruptPin, gpio.IN, pull_up_down=gpio.PUD_UP)
                 gpio.add_event_detect(self.interruptPin, gpio.FALLING, callback=interruptCallback)
-        else:   # direct only supports output - FIXME
-            gpio.setmode(gpio.BOARD)
-            for pin in GPIOInterface.gpioPins:
+        else:
+            gpio.setmode(gpio.BCM)
+            for pin in bcmPins:
                 debug('debugGPIO', self.name, "setup", pin, gpio.OUT)
                 gpio.setup(pin, gpio.OUT)
                 debug('debugGPIO', self.name, "write", pin, 0)
@@ -130,9 +129,9 @@ class GPIOInterface(Interface):
             byte = self.state
             mask = 0x01<<addr
             byte = (byte & (~mask)) | ((value << addr) & mask)
-            debug('debugGPIO', self.name, "write", "addr: 0x%02x"%self.addr, "reg: 0x%02x"%(GPIOInterface.GPIO+self.bank), "value: 0x%02x"%byte)
+            debug('debugGPIO', self.name, "write", "addr:", self.addr, "reg: 0x%02x"%(GPIOInterface.GPIO+self.bank), "value: 0x%02x"%byte)
             self.interface.write((self.addr, GPIOInterface.GPIO+self.bank), byte)
             self.state = byte
         else:
-            debug('debugGPIO', self.name, "write", "addr: 0x%02x"%addr, "value: 0x%02x"%value)
-            gpio.output(GPIOInterface.gpioPins[addr], value)
+            debug('debugGPIO', self.name, "write", "addr:", addr, "value: 0x%02x"%value)
+            gpio.output(addr, value)
