@@ -10,7 +10,7 @@ import time
 import json
 from ha import *
 from ha.interfaces.serialInterface import *
-from ha.interfaces.gpioInterface import *
+from ha.interfaces.mcp23017Interface import *
 from ha.interfaces.i2cInterface import *
 from ha.interfaces.pentairInterface import *
 from ha.interfaces.powerInterface import *
@@ -36,8 +36,8 @@ if __name__ == "__main__":
     nullInterface = Interface("nullInterface", Interface("None"))
     serialInterface = SerialInterface("serialInterface", device=pentairDevice, config=serialConfig, event=stateChangeEvent)
     i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
-    gpioInterface0 = GPIOInterface("gpioInterface0", i2cInterface, addr=0x20, bank=0, inOut=0x00)
-    gpioInterface1 = GPIOInterface("gpioInterface1", i2cInterface, addr=0x20, bank=1, inOut=0x00)
+    gpioInterface0 = MCP23017Interface("gpioInterface0", i2cInterface, addr=0x20, bank=0, inOut=0x00)
+    gpioInterface1 = MCP23017Interface("gpioInterface1", i2cInterface, addr=0x20, bank=1, inOut=0x00)
     pentairInterface = PentairInterface("pentairInterface", serialInterface)
     powerInterface = PowerInterface("powerInterface", Interface("None"), event=stateChangeEvent)
     owfsInterface = OWFSInterface("owfsInterface", event=stateChangeEvent)

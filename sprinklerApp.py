@@ -18,7 +18,7 @@ defaultConfig = {
 
 from ha import *
 from ha.interfaces.fileInterface import *
-from ha.interfaces.gpioInterface import *
+from ha.interfaces.mcp23017Interface import *
 from ha.interfaces.i2cInterface import *
 from ha.rest.restServer import *
 from ha.rest.restProxy import *
@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     # Interfaces
     i2c1 = I2CInterface("i2c1", bus=1, event=stateChangeEvent)
-    gpioInterface = GPIOInterface("gpio", i2c1, addr=0x20, bank=1)
+    gpioInterface = MCP23017Interface("gpio", i2c1, addr=0x20, bank=1)
     stateInterface = FileInterface("stateInterface", fileName=stateDir+"sprinklers.state", event=stateChangeEvent, initialState=defaultConfig)
     stateInterface.start()
 

@@ -5,7 +5,7 @@ defaultConfig = {
 
 import threading
 from ha import *
-from ha.interfaces.gpioInterface import *
+from ha.interfaces.mcp23017Interface import *
 from ha.interfaces.i2cInterface import *
 from ha.interfaces.owfsInterface import *
 from ha.interfaces.fileInterface import *
@@ -22,8 +22,8 @@ if __name__ == "__main__":
     owfs = OWFSInterface("owfs", event=stateChangeEvent)
     fileInterface = FileInterface("fileInterface", fileName=stateDir+"backhouse.state", event=stateChangeEvent, initialState=defaultConfig)
     i2c1 = I2CInterface("i2c1", bus=1, event=stateChangeEvent)
-    gpio0 = GPIOInterface("gpio0", i2c1, addr=0x20, bank=0, inOut=0xff, config=[(GPIOInterface.IPOL, 0x00)])
-    gpio1 = GPIOInterface("gpio1", i2c1, addr=0x20, bank=1, inOut=0x00)
+    gpio0 = MCP23017Interface("gpio0", i2c1, addr=0x20, bank=0, inOut=0xff, config=[(MCP23017Interface.IPOL, 0x00)])
+    gpio1 = MCP23017Interface("gpio1", i2c1, addr=0x20, bank=1, inOut=0x00)
 
     # Doors
     backHouseDoor = Sensor("backHouseDoor", gpio0, 0, type="door", group=["Doors", "Hvac"], label="Back house")

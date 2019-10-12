@@ -44,8 +44,8 @@ class GPIOInterface(Interface):
                                              addr=0x20,         # I2C address of MCP23017
                                              bank=0,            # bank within MCP23017 A=0, B=1
                                              inOut=0x00,        # I/O direction out=0, in=1
-                                             interruptPin=17,   # RPIO pin used for interrupt (BCM number)
-                                             config=[]):        # additional configuration
+                                             interruptPin=17,   # RPIO pin used for MCP23017 interrupt (BCM number)
+                                             config=[]):        # additional MCP23017 configuration
         Interface.__init__(self, name, interface=interface, event=event)
         global gpioInterfaces
         self.name = name
@@ -87,30 +87,50 @@ class GPIOInterface(Interface):
                 gpio.add_event_detect(self.interruptPin, gpio.FALLING, callback=interruptCallback)
         else:
             gpio.setmode(gpio.BCM)
+            # set I/O direction of pins
+            inOut = self.inOut
             for pin in bcmPins:
-                debug('debugGPIO', self.name, "setup", pin, gpio.OUT)
-                gpio.setup(pin, gpio.OUT)
-                debug('debugGPIO', self.name, "write", pin, 0)
-                gpio.output(pin, 0)
+                if inOut & 0x01:    # input pin
+                    debug('debugGPIO', self.name, "setup", pin, gpio.IN)
+                    gpio.setup(pin, gpio.IN, pull_up_down=gpio.PUD_UP)
+                    gpio.add_event_detect(pin, gpio.FALLING, callback=interruptCallback)
+                else:               # output pin
+                    debug('debugGPIO', self.name, "setup", pin, gpio.OUT)
+                    gpio.setup(pin, gpio.OUT)
+                    debug('debugGPIO', self.name, "write", pin, 0)
+                    gpio.output(pin, 0)
+                inOut >>= 1
+
+    def notifySensor(self, ):
+        try:
+            sensor = self.sensorAddrs[i]
+            state = (self.state >> i) & 0x01
+            debug('debugGPIO', self.name, "notifying", sensor.name)
+            sensor.notify()
+            if sensor.interrupt:
+                debug('debugGPIO', self.name, "calling", sensor.name, state)
+                sensor.interrupt(sensor, state)
+        except KeyError:
+            debug('debugGPIO', self.name, "no sensor for interrupt on addr", i, self.sensorAddrs)
 
     # interrupt handler for this interface
     def interrupt(self):
-        intFlags = self.interface.read((self.addr, GPIOInterface.INTF+self.bank))
-        debug('debugGPIO', self.name, "interrupt", "addr: 0x%02x"%self.addr, "bank:", self.bank, "intFlags: 0x%02x"%intFlags)
-        self.readState()
-        for i in range(8):
-            if (intFlags >> i) & 0x01:
-                try:
-                    sensor = self.sensorAddrs[i]
-                    state = (self.state >> i) & 0x01
-                    debug('debugGPIO', self.name, "notifying", sensor.name)
-                    sensor.notify()
-                    if sensor.interrupt:
-                        debug('debugGPIO', self.name, "calling", sensor.name, state)
-                        sensor.interrupt(sensor, state)
-                except KeyError:
-                    debug('debugGPIO', self.name, "no sensor for interrupt on addr", i, self.sensorAddrs)
-
+        if self.interface:
+            intFlags = self.interface.read((self.addr, GPIOInterface.INTF+self.bank))
+            debug('debugGPIO', self.name, "interrupt", "addr: 0x%02x"%self.addr, "bank:", self.bank, "intFlags: 0x%02x"%intFlags)
+            self.readState()
+            for i in range(8):
+                if (intFlags >> i) & 0x01:
+                    try:
+                        sensor = self.sensorAddrs[i]
+                        state = (self.state >> i) & 0x01
+                        debug('debugGPIO', self.name, "notifying", sensor.name)
+                        sensor.notify()
+                        if sensor.interrupt:
+                            debug('debugGPIO', self.name, "calling", sensor.name, state)
+                            sensor.interrupt(sensor, state)
+                    except KeyError:
+                        debug('debugGPIO', self.name, "no sensor for interrupt on addr", i, self.sensorAddrs)
 
     def read(self, addr):
         if self.interface:

@@ -7,7 +7,7 @@ doorbellSound = "doorbell.wav"
 doorbellNotifyMsg = "Doorbell "
 
 from ha import *
-from ha.interfaces.gpioInterface import *
+from ha.interfaces.mcp23017Interface import *
 from ha.interfaces.i2cInterface import *
 from ha.interfaces.ledInterface import *
 from ha.interfaces.fileInterface import *
@@ -40,8 +40,8 @@ if __name__ == "__main__":
 
     # Interfaces
     i2c1 = I2CInterface("i2c1", bus=1)
-    gpio0 = GPIOInterface("gpio0", i2c1, addr=0x20, bank=0, inOut=0x00)
-    gpio1 = GPIOInterface("gpio1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(GPIOInterface.IPOL, 0x08)])
+    gpio0 = MCP23017Interface("gpio0", i2c1, addr=0x20, bank=0, inOut=0x00)
+    gpio1 = MCP23017Interface("gpio1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(GPIOInterface.IPOL, 0x08)])
     led = LedInterface("led", gpio0)
     fileInterface = FileInterface("fileInterface", fileName=stateDir+"garage.state", event=stateChangeEvent)
 
