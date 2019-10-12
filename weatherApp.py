@@ -2,6 +2,8 @@ windSpeedAddr = 22
 windDirAddr = 23
 rainGaugeAddr = 4
 
+defaultConfig = {"rainSamples": []}
+
 from ha import *
 from ha.interfaces.gpioInterface import *
 from ha.interfaces.i2cInterface import *
@@ -19,8 +21,8 @@ if __name__ == "__main__":
 
     # Interfaces
     i2c1 = I2CInterface("i2c1", bus=1)
-    gpio1 = GPIOInterface("gpio1", inOut=0x19)
-    fileInterface = FileInterface("fileInterface", fileName=stateDir+"garage.state", event=stateChangeEvent)
+    gpio1 = GPIOInterface("gpio1", input=[windSpeedAddr, windDirAddr, rainGaugeAddr])
+    fileInterface = FileInterface("fileInterface", fileName=stateDir+"weather.state", event=stateChangeEvent, initialState=defaultConfig)
     barometerSensor = BMP085Interface("bmp085Interface", i2c1)
     humiditySensor = HIH6130Interface("hih6130Interface", i2c1)
     barometerCache = TempInterface("barometerCache", barometerSensor, sample=10)

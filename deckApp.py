@@ -1,3 +1,5 @@
+gpioPins = [18, 23, 24, 25, 22, 27, 17, 4]
+
 from ha import *
 from ha.interfaces.gpioInterface import *
 from ha.interfaces.shadeInterface import *
@@ -7,8 +9,8 @@ if __name__ == "__main__":
 
     # Interfaces
     stateChangeEvent = threading.Event()
-    gpioInterface = GPIOInterface("gpioInterface", event=stateChangeEvent)
-    shadeInterface = ShadeInterface("shadeInterface", gpioInterface)
+    gpioInterface = GPIOInterface("gpioInterface", output=gpioPins, event=stateChangeEvent)
+    shadeInterface = ShadeInterface("shadeInterface", gpioInterface, gpioPins=gpioPins)
 
     # Controls
     shade1 = Control("shade1", shadeInterface, 0, type="shade", group="Shades", label="Shade 1")
