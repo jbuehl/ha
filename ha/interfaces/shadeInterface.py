@@ -42,19 +42,19 @@ class ShadeInterface(Interface):
         with self.lock:
             # set the direction
             debug('debugShades', self.name, "direction", addr, value)
-            self.interface.write(gpioPins[addr*2], value)
+            self.interface.write(self.gpioPins[addr*2], value)
             # start the motion
             debug('debugShades', self.name, "motion", addr, 1)
-            self.interface.write(gpioPins[addr*2+1], 1)
+            self.interface.write(self.gpioPins[addr*2+1], 1)
         # clean up and set the final state when motion is finished
         def doneMoving():
             with self.lock:
                 # stop the motion
                 debug('debugShades', self.name, "motion", addr, 0)
-                self.interface.write(gpioPins[addr*2+1], 0)
+                self.interface.write(self.gpioPins[addr*2+1], 0)
                 # reset the direction
                 debug('debugShades', self.name, "direction", addr, 0)
-                self.interface.write(gpioPins[addr*2], 0)
+                self.interface.write(self.gpioPins[addr*2], 0)
                 self.states[addr] = self.newValue # done moving
                 self.sensorAddrs[addr].notify()
                 debug('debugShades', self.name, "state", addr, self.states[addr])
