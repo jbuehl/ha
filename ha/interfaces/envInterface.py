@@ -8,6 +8,6 @@ class EnvInterface(Interface):
         Interface.__init__(self, name, interface=interface, event=event)
 
     def read(self, addr):
-        if addr == "cpuTemp";
+        if addr == "cpuTemp":
             value = float(subprocess.check_output("vcgencmd measure_temp", shell=True)[5:-3])
         return value

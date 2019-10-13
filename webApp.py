@@ -131,6 +131,7 @@ if __name__ == "__main__":
     resources.addRes(Sensor("theDay", timeInterface, "%a %b %-d %Y", type="date", label="Day"))
     resources.addRes(Sensor("theTime", timeInterface, "%I:%M", type="time", label="Time"))
     resources.addRes(Sensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
+    envInterface = EnvInterface("envInterface")
     resources.addRes(Sensor("cpuTemp", envInterface, "cpuTemp", type="tempC", label="CPU temp"))
 
     stateInterface = FileInterface("stateInterface", fileName=stateDir+"ha.state", event=stateChangeEvent, initialState=defaultConfig)
