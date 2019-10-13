@@ -3,8 +3,10 @@ import RPi.GPIO as gpio
 from ha import *
 
 # available GPIO pins
-# bcmPins = [4, 17, 18, 22, 23, 24, 25, 27] # A/B
-# bcmPins = [4, 5, 6, 12, 13, 16, 17, 18, 22, 23, 24, 25, 26, 27] # B+
+if int(gpio.RPI_INFO['REVISION'], 16) < 0x0010:
+    bcmPins = [4, 17, 18, 22, 23, 24, 25, 27] # A/B
+else:
+    bcmPins = [4, 5, 6, 12, 13, 16, 17, 18, 22, 23, 24, 25, 26, 27] # B+
 
 gpioInterface = None
 
@@ -36,14 +38,20 @@ class GPIOInterface(Interface):
         gpio.setmode(gpio.BCM)
         # set I/O direction of pins
         for pin in self.input:
-            debug('debugGPIO', self.name, "setup", pin, gpio.IN)
-            gpio.setup(pin, gpio.IN, pull_up_down=gpio.PUD_UP)
-            gpio.add_event_detect(pin, gpio.FALLING, callback=interruptCallback)
+            if pin in bcmPins:
+                debug('debugGPIO', self.name, "setup", pin, gpio.IN)
+                gpio.setup(pin, gpio.IN, pull_up_down=gpio.PUD_UP)
+                gpio.add_event_detect(pin, gpio.FALLING, callback=interruptCallback)
+            else:
+                debug('debugGPIO', self.name, "ignoring", pin)
         for pin in self.output:               # output pin
-            debug('debugGPIO', self.name, "setup", pin, gpio.OUT)
-            gpio.setup(pin, gpio.OUT)
-            debug('debugGPIO', self.name, "write", pin, 0)
-            gpio.output(pin, 0)
+            if pin in bcmPins:
+                debug('debugGPIO', self.name, "setup", pin, gpio.OUT)
+                gpio.setup(pin, gpio.OUT)
+                debug('debugGPIO', self.name, "write", pin, 0)
+                gpio.output(pin, 0)
+            else:
+                debug('debugGPIO', self.name, "ignoring", pin)
 
     def read(self, addr):
         value = gpio.input(addr)
