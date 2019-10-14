@@ -33,6 +33,7 @@ chargingVolts = 4.5/3   # 1.5V
 # current sensor parameters
 currentFactor = 10  # = 50A / 5V
 powerThreshold = 10.0
+voltageThreshold = 0.1
 
 # general parameters
 chargingVoltage = 240       # volts
@@ -45,21 +46,29 @@ class VoltageSensor(Sensor):
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
+        self.lastVoltage = 0.0
 
     def getState(self):
-        return self.interface.read(self.addr) / 1000
+        voltage = self.interface.read(self.addr) / 1000
+        if abs(voltage - self.lastVoltage) > voltageThreshold:
+            self.notify()
+            self.lastVoltage = voltage
+        return voltage
 
 class PowerSensor(Sensor):
     def __init__(self, name, interface, addr=None,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
+        self.lastPower = 0.0
 
     def getState(self):
         adcVolts = self.interface.read(self.addr)
         power = chargingVoltage * currentFactor * adcVolts / 1000
-#        debug('debugCarcharger', self.name, "adcVolts", adcVolts, "current", current)
         if power > powerThreshold:
+            if abs(power - self.lastPower) > powerThreshold:
+                self.notify()
+                self.lastPower = power
             return power
         else:
             return 0.0
@@ -110,7 +119,7 @@ class CarChargerControl(Control):
                 # connected
                 if self.pilotState != connected:
                     self.pilotState = connected
-                    dutyCycle = maxCurrent/.6   # percent
+                    dutyCycle = int(maxCurrent/.6)   # percent
                     self.gpio.hardware_PWM(pilotPin, pilotFreq, dutyCycle*10000)
                     self.gpioWrite(relayPin, off)
                     self.notify()

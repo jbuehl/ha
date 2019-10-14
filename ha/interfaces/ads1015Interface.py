@@ -331,7 +331,7 @@ class ADS1x15:
     else:
       if ( (sps not in self.spsADS1115) & self.debug):
         print("ADS1x15: Invalid pga specified: %d, using 6144mV" % sps)
-        config |= self.spsADS1115.setdefault(sps, self.__ADS1115_REG_CONFIG_DR_250SPS)
+      config |= self.spsADS1115.setdefault(sps, self.__ADS1115_REG_CONFIG_DR_250SPS)
 
     # Set PGA/voltage range, defaults to +-6.144V
     if ( (pga not in self.pgaADS1x15) & self.debug):
