@@ -15,19 +15,18 @@ dirTime = 0.0           # delta tDir
 def speedInterrupt(sensor, state):
     global startTime, speedTime, dirTime
     curTime = time.time()
-    if state == 1:
+    if state == 0:
         speedTime = curTime - startTime
         startTime = curTime
 
-# wind vane contact closure interrupt routine        
+# wind vane contact closure interrupt routine
 def dirInterrupt(sensor, state):
     global startTime, speedTime, dirTime
     curTime = time.time()
-    if state == 1:
+    if state == 0:
         dirTime = curTime - startTime
 
 class WindInterface(Interface):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface, anemometer, windVane, event=None):
         Interface.__init__(self, name, interface=interface, event=event)
         self.anemometer = anemometer    # anemometer contact closure sensor
@@ -74,4 +73,3 @@ class WindInterface(Interface):
             return int(self.dir + .5)
         else:
             return 0.0
-

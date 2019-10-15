@@ -15,13 +15,12 @@ sampleEvent = threading.Event()
 def rainInterrupt(sensor, state):
     global rainSamples, sampleLock, sampleEvent
     curTime = time.time()
-    if state == 1:
+    if state == 0:
         with sampleLock:
             rainSamples.append(curTime)
         sampleEvent.set()
 
 class RainInterface(Interface):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface, rainGauge, event=None):
         Interface.__init__(self, name, interface=interface, event=event)
         self.rainGauge = rainGauge    # rain gauge contact closure sensor
