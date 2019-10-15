@@ -1,6 +1,7 @@
 windSpeedAddr = 22
 windDirAddr = 23
 rainGaugeAddr = 4
+wunderground = True
 
 defaultConfig = {"rainSamples": []}
 
@@ -15,6 +16,7 @@ from ha.interfaces.windInterface import *
 from ha.interfaces.rainInterface import *
 from ha.rest.restServer import *
 from ha.notification.notificationClient import *
+from ha.wunderground import *
 
 if __name__ == "__main__":
     stateChangeEvent = threading.Event()
@@ -55,10 +57,14 @@ if __name__ == "__main__":
     schedule = Schedule("schedule", tasks=[rainResetTask])
 
     # Resources
-    resources = Collection("resources", resources=[deckTemp, barometer, deckTemp2, humidity, dewpoint,
+    resources = Collection("resources", resources=[deckTemp, deckTemp2, humidity, dewpoint, barometer,
                                                    windSpeed, windDir, rainMinute, rainHour, rainDay,
                                                    ])
     restServer = RestServer("weather", resources, event=stateChangeEvent, label="Weather")
+
+    # report to Weather Underground
+    if wunderground:
+        wunderground(deckTemp, barometer, humidity, dewpoint, windSpeed, windDir, rainHour, rainDay)
 
     # Start interfaces
     gpio1.start()

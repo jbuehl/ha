@@ -12,6 +12,8 @@ dewpointSensor = "dewpoint"
 rainHourSensor = "rainHour"
 rainDailySensor = "rainDay"
 
+reportHumidity = True
+reportBarometer = True
 reportWind = False
 reportRain = False
 
@@ -37,12 +39,19 @@ if __name__ == "__main__":
         try:
             temp = resources[tempSensor].getState()
             debug('debugWunderground', "temp:", temp)
-            humidity = resources[humiditySensor].getState()
-            debug('debugWunderground', "humidity:", humidity)
-            dewpoint = resources[dewpointSensor].getState()
-            debug('debugWunderground', "dewpoint:", dewpoint)
-            barometer = resources[barometerSensor].getState()
-            debug('debugWunderground', "barometer:", barometer)
+            if reportHumidity:
+                humidity = resources[humiditySensor].getState()
+                debug('debugWunderground', "humidity:", humidity)
+                dewpoint = resources[dewpointSensor].getState()
+                debug('debugWunderground', "dewpoint:", dewpoint)
+            else:
+                humidity = 0
+                dewpoint = 0
+            if reportBarometer:
+                barometer = resources[barometerSensor].getState()
+                debug('debugWunderground', "barometer:", barometer)
+            else:
+                barometer = 0
             if reportWind:
                 windSpeed = resources[windSpeedSensor].getState()
                 debug('debugWunderground', "windSpeed:", windSpeed)
@@ -72,4 +81,3 @@ if __name__ == "__main__":
             log("connection error")
         except requests.exceptions.ReadTimeout:
             log("read timeout")
-    
