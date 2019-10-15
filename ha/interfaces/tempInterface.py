@@ -36,8 +36,9 @@ class TempInterface(Interface):
                         temp[addr] = sample[addr]
                 samples += 1
                 time.sleep(self.sample)
-                
+
         readStatesThread = threading.Thread(target=readData)
+        readStatesThread.daemon = True
         readStatesThread.start()
 
     def read(self, addr):
@@ -51,5 +52,3 @@ class TempInterface(Interface):
             temp[addr] = self.interface.read(addr)
         debug('debugTemp', self.name, "readData", temp)
         return temp
-        
-

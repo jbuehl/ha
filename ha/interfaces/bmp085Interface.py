@@ -109,7 +109,7 @@ class BMP085Interface(Interface):
 
     def readRawPressure(self):
         # Reads the raw (uncompensated) pressure level from the sensor
-        self.write8(self.__BMP085_CONTROL, self.__BMP085_READPRESSURECMD + (self.mode << 6))
+        self.write8(self.__BMP085_CONTROL, self.__BMP085_READPRESSURECMD + (self.mode * 2**6))
         if (self.mode == self.__BMP085_ULTRALOWPOWER):
             time.sleep(0.005)
         elif (self.mode == self.__BMP085_HIGHRES):
@@ -121,83 +121,47 @@ class BMP085Interface(Interface):
         msb = self.readU8(self.__BMP085_PRESSUREDATA)
         lsb = self.readU8(self.__BMP085_PRESSUREDATA+1)
         xlsb = self.readU8(self.__BMP085_PRESSUREDATA+2)
-        raw = ((msb << 16) + (lsb << 8) + xlsb) >> (8 - self.mode)
-        debug("debugBMP085", self.name, "Raw Pressure: 0x%04X (%d)" % (raw & 0xFFFF, raw))
+        raw = ((msb * 2**16) + (lsb * 2**8) + xlsb) / 2**(8 - self.mode)
+        debug("debugBMP085", self.name, "Raw Pressure: 0x%04X (%d)" % (int(raw) & 0xFFFF, raw))
         return raw
 
     def readTemperature(self):
         # Gets the compensated temperature in degrees celsius
-        UT = 0
-        X1 = 0
-        X2 = 0
-        B5 = 0
-        temp = 0.0
 
         # Read raw temp before aligning it with the calibration values
         UT = self.readRawTemp()
-        X1 = ((UT - self._cal_AC6) * self._cal_AC5) >> 15
-        X2 = (self._cal_MC << 11) / (X1 + self._cal_MD)
+        X1 = ((UT - self._cal_AC6) * self._cal_AC5) / 2**15
+        X2 = (self._cal_MC * 2**11) / (X1 + self._cal_MD)
         B5 = X1 + X2
-        temp = ((B5 + 8) >> 4) / 10.0
+        temp = ((B5 + 8) / 2**4) / 10.0
         debug("debugBMP085", self.name, "Calibrated temperature = %f C" % temp)
         return temp
 
     def readPressure(self):
         # Gets the compensated pressure in pascal
-        UT = 0
-        UP = 0
-        B3 = 0
-        B5 = 0
-        B6 = 0
-        X1 = 0
-        X2 = 0
-        X3 = 0
-        p = 0
-        B4 = 0
-        B7 = 0
-
         UT = self.readRawTemp()
         UP = self.readRawPressure()
-
-        # You can use the datasheet values to test the conversion results
-        # dsValues = True
-        dsValues = False
-
-        if (dsValues):
-            UT = 27898
-            UP = 23843
-            self._cal_AC6 = 23153
-            self._cal_AC5 = 32757
-            self._cal_MC = -8711
-            self._cal_MD = 2868
-            self._cal_B1 = 6190
-            self._cal_B2 = 4
-            self._cal_AC3 = -14383
-            self._cal_AC2 = -72
-            self._cal_AC1 = 408
-            self._cal_AC4 = 32741
-            self.mode = self.__BMP085_ULTRALOWPOWER
         self.showCalibrationData()
 
         # True Temperature Calculations
-        X1 = ((UT - self._cal_AC6) * self._cal_AC5) >> 15
-        X2 = (self._cal_MC << 11) / (X1 + self._cal_MD)
+        X1 = ((UT - self._cal_AC6) * self._cal_AC5) / 2**15
+        X2 = (self._cal_MC * 2**11) / (X1 + self._cal_MD)
         B5 = X1 + X2
-        debug("debugBMP085", self.name, "X1 = %d" % (X1), "X2 = %d" % (X2), "B5 = %d" % (B5), "True Temperature = %.2f C" % (((B5 + 8) >> 4) / 10.0))
+        debug("debugBMP085", self.name, "X1 = %d" % (X1), "X2 = %d" % (X2), "B5 = %d" % (B5), "True Temperature = %.2f C" % (((B5 + 8) / 2**4) / 10.0))
 
         # Pressure Calculations
         B6 = B5 - 4000
-        X1 = (self._cal_B2 * (B6 * B6) >> 12) >> 11
-        X2 = (self._cal_AC2 * B6) >> 11
+        X1 = (self._cal_B2 * (B6 * B6) / 2**12) / 2**11
+        X2 = (self._cal_AC2 * B6) / 2**11
         X3 = X1 + X2
-        B3 = (((self._cal_AC1 * 4 + X3) << self.mode) + 2) / 4
+        B3 = (((self._cal_AC1 * 4 + X3) * 2**self.mode) + 2) / 4
         debug("debugBMP085", self.name, "B6 = %d" % (B6), "X1 = %d" % (X1), "X2 = %d" % (X2), "B3 = %d" % (B3))
 
-        X1 = (self._cal_AC3 * B6) >> 13
-        X2 = (self._cal_B1 * ((B6 * B6) >> 12)) >> 16
-        X3 = ((X1 + X2) + 2) >> 2
-        B4 = (self._cal_AC4 * (X3 + 32768)) >> 15
-        B7 = (UP - B3) * (50000 >> self.mode)
+        X1 = (self._cal_AC3 * B6) / 2**13
+        X2 = (self._cal_B1 * ((B6 * B6) / 2**12)) / 2**16
+        X3 = ((X1 + X2) + 2) / 2**2
+        B4 = (self._cal_AC4 * (X3 + 32768)) / 2**15
+        B7 = (UP - B3) * (50000 / 2**self.mode)
         debug("debugBMP085", self.name, "X1 = %d" % (X1), "X2 = %d" % (X2), "B4 = %d" % (B4), "B7 = %d" % (B7))
 
         if (B7 < 0x80000000):
@@ -205,12 +169,12 @@ class BMP085Interface(Interface):
         else:
           p = (B7 / B4) * 2
 
-        X1 = (p >> 8) * (p >> 8)
-        X1 = (X1 * 3038) >> 16
-        X2 = (-7375 * p) >> 16
+        X1 = (p / 2**8) * (p / 2**8)
+        X1 = (X1 * 3038) / 2**16
+        X2 = (-7375 * p) / 2**16
         debug("debugBMP085", self.name, "p  = %d" % (p), "X1 = %d" % (X1), "X2 = %d" % (X2))
 
-        p = p + ((X1 + X2 + 3791) >> 4)
+        p = p + ((X1 + X2 + 3791) / 2**4)
         debug("debugBMP085", self.name, "Pressure = %d Pa" % (p))
 
         return p
@@ -239,7 +203,7 @@ class BMP085Interface(Interface):
     def readU16(self, reg):
         # Reads an unsigned 16-bit value from the I2C device
         hibyte = self.interface.read((self.addr, reg))
-        result = (hibyte << 8) + self.interface.read((self.addr, reg+1))
+        result = (hibyte * 2**8) + self.interface.read((self.addr, reg+1))
         return result
 
     def readS16(self, reg):
@@ -247,7 +211,7 @@ class BMP085Interface(Interface):
         hibyte = self.interface.read((self.addr, reg))
         if (hibyte > 127):
             hibyte -= 256
-        result = (hibyte << 8) + self.interface.read((self.addr, reg+1))
+        result = (hibyte * 2**8) + self.interface.read((self.addr, reg+1))
         return result
 
     def write8(self, reg, value):
