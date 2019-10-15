@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     # report to Weather Underground
     if wunderground:
-        wunderground(deckTemp, barometer, humidity, dewpoint, windSpeed, windDir, rainHour, rainDay)
+        wunderground(deckTemp, humidity, dewpoint, barometer, windSpeed, windDir, rainHour, rainDay)
 
     # Start interfaces
     gpio1.start()
