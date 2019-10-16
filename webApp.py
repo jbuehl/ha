@@ -10,6 +10,7 @@ restIgnore = []
 serviceMonitorNotifyNumbers = []
 sendMetrics = True
 logMetrics = True
+logDir = "/data/ha/"
 
 defaultConfig = {
     "smsAlerts": True,

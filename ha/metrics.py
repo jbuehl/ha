@@ -2,7 +2,6 @@
 metricsPrefix = "com.example.ha"
 metricsHost = "metrics.example.com"
 metricsPort = 2003
-logDir = "/data/ha/"
 
 import time
 import socket
@@ -12,7 +11,7 @@ from ha import *
 
 def startMetrics(resourceStates, sendMetrics, logMetrics, logChanged=True):
 
-    def sendMetricsThread(resourceStates):
+    def sendMetricsThread():
         debug("debugMetrics", "sendMetrics", "metrics thread started")
         lastDay = ""
         while True:
