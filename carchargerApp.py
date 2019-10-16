@@ -5,6 +5,7 @@ import json
 from ha import *
 from ha.interfaces.i2cInterface import *
 from ha.interfaces.ads1015Interface import *
+from ha.controls.electricalSensors import *
 from ha.controls.carchargerControl import *
 from ha.rest.restServer import *
 
@@ -23,7 +24,10 @@ if __name__ == "__main__":
 
     # Sensors
     pilotVoltage = VoltageSensor("pilotVoltage", ads1015Interface, 0, group=["Car"], label="Pilot voltage", type="V", event=stateChangeEvent)
-    chargingPower = PowerSensor("loads.carcharger.power", ads1015Interface, 1, group=["Car", "Power", "Loads"], label="Charging power", type="KVA", event=stateChangeEvent)
+    chargingCurrent = CurrentSensor("loads.carcharger.current", ads1015Interface, 1, 10,
+                                group=["Car", "Power", "Loads"], label="Charging power", type="KVA", event=stateChangeEvent)
+    chargingPower = PowerSensor("loads.carcharger.power", currentSensor=chargingCurrent, 240,
+                                group=["Car", "Power", "Loads"], label="Charging power", type="KVA", event=stateChangeEvent)
 
     # Charger control
     charger = CarChargerControl("charger", None, pilotVoltage, chargingPower, group="Car", label="Car charger", type="charger", event=stateChangeEvent)
@@ -34,7 +38,7 @@ if __name__ == "__main__":
     schedule = Schedule("schedule", [carChargerEnabledTask, carChargerDisabledTask])
 
     # Resources
-    resources = Collection("resources", [pilotVoltage, chargingPower, charger,
+    resources = Collection("resources", [pilotVoltage, chargingCurrent, chargingPower, charger,
                                          carChargerEnabledTask, carChargerDisabledTask,
                                         ])
     restServer = RestServer("carcharger", resources, event=stateChangeEvent, label="Car charger")

@@ -8,7 +8,6 @@ import pigpio
 import time
 import threading
 from ha import *
-#from ha.notification import *
 
 # GPIO pins
 pilotPin = 18
@@ -30,48 +29,10 @@ unpluggedVolts = 10.5/3 # 3.5V
 connectedVolts = 7.5/3  # 2.5V
 chargingVolts = 4.5/3   # 1.5V
 
-# current sensor parameters
-currentFactor = 10  # = 50A / 5V
-powerThreshold = 10.0
-voltageThreshold = 0.1
-
 # general parameters
-chargingVoltage = 240       # volts
 maxCurrent = 30             # amps
 sampleInterval = 1          # seconds
 pilotFreq = 1000            # Hz
-
-class VoltageSensor(Sensor):
-    def __init__(self, name, interface, addr=None,
-            group="", type="sensor", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
-        self.className = "Sensor"
-        self.lastVoltage = 0.0
-
-    def getState(self):
-        voltage = self.interface.read(self.addr) / 1000
-        if abs(voltage - self.lastVoltage) > voltageThreshold:
-            self.notify()
-            self.lastVoltage = voltage
-        return voltage
-
-class PowerSensor(Sensor):
-    def __init__(self, name, interface, addr=None,
-            group="", type="sensor", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
-        self.className = "Sensor"
-        self.lastPower = 0.0
-
-    def getState(self):
-        adcVolts = self.interface.read(self.addr)
-        power = chargingVoltage * currentFactor * adcVolts / 1000
-        if power > powerThreshold:
-            if abs(power - self.lastPower) > powerThreshold:
-                self.notify()
-                self.lastPower = power
-            return power
-        else:
-            return 0.0
 
 class CarChargerControl(Control):
     def __init__(self, name, interface, voltageSensor, currentSensor, addr=None,
