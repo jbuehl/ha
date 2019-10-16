@@ -25,9 +25,9 @@ if __name__ == "__main__":
     # Sensors
     pilotVoltage = VoltageSensor("pilotVoltage", ads1015Interface, 0, group=["Car"], label="Pilot voltage", type="V", event=stateChangeEvent)
     chargingCurrent = CurrentSensor("loads.carcharger.current", ads1015Interface, 1, 10,
-                                group=["Car", "Power", "Loads"], label="Charging power", type="KVA", event=stateChangeEvent)
+                                group=["Car", "Power", "Loads"], label="Car charger current", type="A", event=stateChangeEvent)
     chargingPower = PowerSensor("loads.carcharger.power", currentSensor=chargingCurrent, 240,
-                                group=["Car", "Power", "Loads"], label="Charging power", type="KVA", event=stateChangeEvent)
+                                group=["Car", "Power", "Loads"], label="Car charger", type="KVA", event=stateChangeEvent)
 
     # Charger control
     charger = CarChargerControl("charger", None, pilotVoltage, chargingPower, group="Car", label="Car charger", type="charger", event=stateChangeEvent)
