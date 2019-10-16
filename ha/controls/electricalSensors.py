@@ -24,12 +24,12 @@ class CurrentSensor(Sensor):
         self.className = "Sensor"
         self.currentFactor = currentFactor
         self.threshold = threshold
-        self.lastPower = 0.0
+        self.lastCurrent = 0.0
 
     def getState(self):
-        current = chargingVoltage * self.currentFactor / 1000
+        current = self.interface.read(self.addr) * self.currentFactor / 1000
         if current > self.threshold:
-            if abs(current - self.lastCurrent) > currentThreshold:
+            if abs(current - self.lastCurrent) > self.threshold:
                 self.notify()
                 self.lastCurrent = current
             return current
@@ -50,7 +50,7 @@ class PowerSensor(Sensor):
         current = self.currentSensor.getState()
         power = current * self.voltage
         if power > self.threshold:
-            if abs(power - self.lastPower) > powerThreshold:
+            if abs(power - self.lastPower) > self.threshold:
                 self.notify()
                 self.lastPower = power
             return power

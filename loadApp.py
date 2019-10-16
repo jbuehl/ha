@@ -1,8 +1,5 @@
-Current#!/usr/bin/python
-
 # Monitor current sensors for each circuit and log the average VA for each circuit
-# at intervals of 1 minute
-sampleInterval = 1
+
 logDir = "/data/loads/"
 sendMetrics = False
 logMetrics = True
@@ -10,6 +7,7 @@ logChanged = False
 
 import time
 import json
+from ha.interfaces.i2cInterface import *
 from ha.interfaces.ads1015Interface import *
 from ha.controls.electricalSensors import *
 from ha.metrics import *
@@ -31,8 +29,8 @@ if __name__ == "__main__":
 
     # Interfaces
     i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
-    ads1015Interface0 = ADS1015Interface("ads1015Interface1", addr=0x48, gain=adcGain, sps=adcSps, ic=adcType)
-    ads1015Interface0 = ADS1015Interface("ads1015Interface2", addr=0x49, gain=adcGain, sps=adcSps, ic=adcType)
+    ads1015Interface0 = ADS1015Interface("ads1015Interface0", addr=0x48, gain=adcGain, sps=adcSps, ic=adcType)
+    ads1015Interface1 = ADS1015Interface("ads1015Interface1", addr=0x49, gain=adcGain, sps=adcSps, ic=adcType)
 
     # Sensors
     lightsCurrent = CurrentSensor("loads.lights.current", ads1015Interface0, 0, VC25,
