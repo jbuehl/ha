@@ -1,0 +1,8 @@
+[Unit]
+Description=Home Automation monitor power loads
+After=syslog.target network-online.target
+[Service]
+ExecStart=/usr/bin/python /root/ha/loadApp.py
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
