@@ -8,6 +8,8 @@ runCameras = True
 restWatch = []
 restIgnore = []
 serviceMonitorNotifyNumbers = []
+sendMetrics = True
+logMetrics = True
 
 defaultConfig = {
     "smsAlerts": True,
@@ -153,7 +155,7 @@ if __name__ == "__main__":
 
     # start the task to transmit resource metrics
     resourceStates = ResourceStateSensor("states", None, resources=resources, event=stateChangeEvent)
-    startMetrics(resourceStates)
+    startMetrics(resourceStates, sendMetrics, logMetrics)
 
     # start the cache to listen for services on other servers
     restCache = RestProxy("restProxy", resources, watch=restWatch, ignore=restIgnore, event=stateChangeEvent)
