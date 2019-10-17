@@ -52,7 +52,7 @@ if __name__ == "__main__":
                                   group=["Power", "Loads"], label="Cooking current", type="A", event=stateChangeEvent)
     appl2Current = CurrentSensor("loads.appliance2.current", ads1015Interface1, 0, VC25,
                                   group=["Power", "Loads"], label="Appliances 2 current", type="A", event=stateChangeEvent)
-    acCurrent = CurrentSensor("loads.ac.current", ads1015Interface1, 1, VC50, 240,
+    acCurrent = CurrentSensor("loads.ac.current", ads1015Interface1, 1, VC50,
                                   group=["Power", "Loads"], label="Air conditioners current", type="A", event=stateChangeEvent)
     backhouseCurrent = CurrentSensor("loads.backhouse.current", ads1015Interface1, 2, VC25,
                                   group=["Power", "Loads"], label="Back house current", type="A", event=stateChangeEvent)
