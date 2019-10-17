@@ -7,23 +7,26 @@ import time
 import socket
 import threading
 import json
+import subprocess
+import os
+import socket
 from ha import *
 
-def startMetrics(resourceStates, sendMetrics, logMetrics, logChanged=True):
+def startMetrics(resourceStates, sendMetrics=False, logMetrics=True, backupMetrics=True, logChanged=True):
 
     def sendMetricsThread():
         debug("debugMetrics", "sendMetrics", "metrics thread started")
+        hostname = socket.gethostname()
         lastDay = ""
         changedStates = {}
         while True:
             # wait for a new set of states
             metrics = resourceStates.getStateChange()
+            today = time.strftime("%Y%m%d")
 
             # log state deltas to a file
             if logMetrics:
-                today = time.strftime("%Y%m%d")
                 if today != lastDay:
-                    lastDay = today
                     lastStates = {}
                 logFileName = logDir+today+".json"
                 if logChanged:
@@ -64,7 +67,26 @@ def startMetrics(resourceStates, sendMetrics, logMetrics, logChanged=True):
                 if metricsSocket:
                     debug("debugMetrics", "sendMetrics", "closing socket to", metricsHost)
                     metricsSocket.close()
-        debug("debugMetrics", "sendMetrics", "metrics thread terminated")
+
+            # copy to the backup server once per day
+            if backupMetrics:
+                if today != lastDay:
+                    def backupMetricsThread():
+                        debug("debugMetrics", "sendMetrics", "backup thread started")
+                        try:
+                            backupServer = subprocess.check_output("avahi-browse -atp|grep _backup|grep IPv4|cut -d';' -f4", shell=True).decode().split("\n")[0]+".local"
+                            debug("debugMetrics", "backupMetrics", "backing up metrics to", backupServer)
+                            os.popen("rsync -a "+logDir+"* "+backupServer+":/backups/ha/"+hostname+"/")
+                        except Exception as ex:
+                            log("metrics", "exception backing up metrics", str(ex))
+                        debug("debugMetrics", "sendMetrics", "metrics thread ended")
+                    backupThread = threading.Thread(target=backupMetricsThread)
+                    backupThread.daemon = True
+                    backupThread.start()
+
+            if today != lastDay:
+                lastDay = today
+        debug("debugMetrics", "sendMetrics", "metrics thread ended")
 
     metricsThread = threading.Thread(target=sendMetricsThread)
     metricsThread.daemon = True
