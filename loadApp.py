@@ -4,6 +4,8 @@ logDir = "/data/loads/"
 sendMetrics = False
 logMetrics = True
 logChanged = False
+backupMetrics = True
+restWatch = ["carcharger"]
 
 import time
 import json
@@ -12,6 +14,7 @@ from ha.interfaces.ads1015Interface import *
 from ha.controls.electricalSensors import *
 from ha.metrics import *
 from ha.rest.restServer import *
+from ha.rest.restProxy import *
 
 # ADC parameters
 adcType = 0x00 #__IC_ADS1015
@@ -26,6 +29,12 @@ VC100 = 20
 
 if __name__ == "__main__":
     stateChangeEvent = threading.Event()
+
+    # start the cache to listen for services on other servers
+    cacheResources = Collection("cacheResources")
+    restCache = RestProxy("restProxy", cacheResources, watch=restWatch, event=stateChangeEvent)
+    restCache.start()
+
 
     # Interfaces
     i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
@@ -67,16 +76,21 @@ if __name__ == "__main__":
     poolPower = PowerSensor("loads.pool.power", currentSensor=poolCurrent, voltage=240,
                                   group=["Power", "Loads"], label="Pool equipment", type="KVA", event=stateChangeEvent)
 
+    totalPower = CalcSensor("loads.stats.power", [lightsPower, plugsPower, appl1Power, cookingPower,
+                                                  appl2Power,acPower, backhousePower, poolPower,
+                                                  "loads.carcharger.power"], "sum", resources=cacheResources,
+                                  group=["Power", "Loads"], label="Total load", type="KVA")
     # Resources
     resources = Collection("resources", [lightsCurrent, plugsCurrent, appl1Current, cookingCurrent,
                                          appl2Current, acCurrent, backhouseCurrent, poolCurrent,
                                          lightsPower, plugsPower, appl1Power, cookingPower,
                                          appl2Power, acPower, backhousePower, poolPower,
-                                        ])
+                                         totalPower
+                                         ])
 
     # start the task to transmit resource metrics
     resourceStates = ResourceStateSensor("states", None, resources=resources, event=stateChangeEvent)
-    startMetrics(resourceStates, sendMetrics, logMetrics, logChanged)
+    startMetrics(resourceStates, sendMetrics, logMetrics, backupMetrics, logChanged)
 
     restServer = RestServer("loads", resources, event=stateChangeEvent, label="Power loads")
 
