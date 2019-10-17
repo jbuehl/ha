@@ -14,6 +14,7 @@ def startMetrics(resourceStates, sendMetrics, logMetrics, logChanged=True):
     def sendMetricsThread():
         debug("debugMetrics", "sendMetrics", "metrics thread started")
         lastDay = ""
+        changedStates = {}
         while True:
             # wait for a new set of states
             metrics = resourceStates.getStateChange()
@@ -25,7 +26,8 @@ def startMetrics(resourceStates, sendMetrics, logMetrics, logChanged=True):
                     lastDay = today
                     lastStates = {}
                 logFileName = logDir+today+".json"
-                changedStates = {}
+                if logChanged:
+                    changedStates = {}
                 for metric in list(metrics.keys()):
                     try:
                         # log the metric unless logChanged is True and if it has not changed from the last time
