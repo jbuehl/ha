@@ -251,17 +251,25 @@ class ControlGroup(SensorGroup, Control):
 
 # Calculate a function of a list of sensor states
 class CalcSensor(Sensor):
-    def __init__(self, name, sensors=[], function="", interface=None, addr=None, group="", type="sensor", label="", location=None):
+    def __init__(self, name, sensors=[], function="", resources=None, interface=None, addr=None, group="", type="sensor", label="", location=None):
         Sensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, label=label, location=location)
         self.sensors = sensors
         self.function = function.lower()
+        self.resources = resources
         self.className = "Sensor"
 
     def getState(self):
         value = 0
         if (self.function == "sum") or (self.function == "avg"):
             for sensor in self.sensors:
-                value += sensor.getState()
+                if isinstance(sensor, str):
+                    if self.resources:
+                        try:
+                            value += self.resources[sensor].getState()
+                        except KeyError:
+                            pass
+                else:
+                    value += sensor.getState()
             if self.function == "avg":
                 value /+ len(self.sensors)
         return value
