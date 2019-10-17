@@ -3,7 +3,7 @@ import time
 from ha import *
 
 class VoltageSensor(Sensor):
-    def __init__(self, name, interface, addr=None, threshold=0.1,
+    def __init__(self, name, interface, addr=None, threshold=0.0,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
@@ -18,7 +18,7 @@ class VoltageSensor(Sensor):
         return voltage
 
 class CurrentSensor(Sensor):
-    def __init__(self, name, interface, addr, currentFactor, threshold=0.1,
+    def __init__(self, name, interface, addr, currentFactor, threshold=0.0,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
@@ -37,7 +37,7 @@ class CurrentSensor(Sensor):
             return 0.0
 
 class PowerSensor(Sensor):
-    def __init__(self, name, interface=None, addr=None, currentSensor=None, voltage=0.0, threshold=10,
+    def __init__(self, name, interface=None, addr=None, currentSensor=None, voltage=0.0, threshold=0.0,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
