@@ -54,14 +54,13 @@ def startMetrics(resourceStates, sendMetrics=False, logMetrics=True, backupMetri
                     debug("debugMetrics", "sendMetrics", "sending", len(metrics), "metrics")
                     for metric in list(metrics.keys()):
                         if metric != "states":
-                            if metric.split(".")[0] != "loads":
-                                if metric.split(".")[0] in ["loads", "solar"]:
-                                    metricsGroup = "."
-                                else:
-                                    metricsGroup = ".ha."
-                                msg = metricsPrefix+metricsGroup+metric.replace(" ", "_")+" "+str(metrics[metric])+" "+str(int(time.time()))
-                                debug("debugMetricsMsg", "sendMetrics", msg)
-                                metricsSocket.send(bytes(msg+"\n", "utf-8"))
+                            if metric.split(".")[0] in ["loads", "solar"]:
+                                metricsGroup = "."
+                            else:
+                                metricsGroup = ".ha."
+                            msg = metricsPrefix+metricsGroup+metric.replace(" ", "_")+" "+str(metrics[metric])+" "+str(int(time.time()))
+                            debug("debugMetricsMsg", "sendMetrics", msg)
+                            metricsSocket.send(bytes(msg+"\n", "utf-8"))
                 except socket.error as exception:
                     log("sendMetrics", "socket error", str(exception))
                 if metricsSocket:
