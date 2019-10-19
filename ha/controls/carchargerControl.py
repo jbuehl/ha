@@ -35,13 +35,14 @@ sampleInterval = 1          # seconds
 pilotFreq = 1000            # Hz
 
 class CarChargerControl(Control):
-    def __init__(self, name, interface, voltageSensor, currentSensor, addr=None,
+    def __init__(self, name, interface, voltageSensor, currentSensor, maxCurrentSensor, addr=None,
             group="", type="control", location=None, label="", interrupt=None, event=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Control"
         self.eventThread = None
         self.voltageSensor = voltageSensor
         self.currentSensor = currentSensor
+        self.maxCurrentSensor = maxCurrentSensor
         self.pilotVolts = 0.0
         self.chargeCurrent = 0.0
         self.gpio = pigpio.pi()
@@ -53,6 +54,8 @@ class CarChargerControl(Control):
     def start(self):
         debug('debugCarcharger', self.name, "starting")
         self.pilotState = on
+        self.maxCurrent = float(self.maxCurrentSensor.getState())
+        debug('debugCarcharger', self.name, "max current", self.maxCurrent)
         self.gpioWrite(pilotPin, on)
         self.gpioWrite(relayPin, off)
         self.gpioWrite(readyLed, on)
@@ -80,7 +83,7 @@ class CarChargerControl(Control):
                 # connected
                 if self.pilotState != connected:
                     self.pilotState = connected
-                    dutyCycle = int(maxCurrent/.6)   # percent
+                    dutyCycle = int(self.maxCurrent/.6)   # percent
                     self.gpio.hardware_PWM(pilotPin, pilotFreq, dutyCycle*10000)
                     self.gpioWrite(relayPin, off)
                     self.notify()
