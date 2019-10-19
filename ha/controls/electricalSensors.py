@@ -4,6 +4,7 @@ import time
 import threading
 from ha import *
 
+# Measure a voltage
 class VoltageSensor(Sensor):
     def __init__(self, name, interface, addr=None, threshold=0.0,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
@@ -22,6 +23,7 @@ class VoltageSensor(Sensor):
     def getLastState(self):
         return self.lastVoltage
 
+# Measure a current
 class CurrentSensor(Sensor):
     def __init__(self, name, interface, addr, currentFactor, threshold=0.0,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
@@ -45,6 +47,7 @@ class CurrentSensor(Sensor):
     def getLastState(self):
         return self.lastCurrent
 
+# Compute power using a current measurement and a known voltage
 class PowerSensor(Sensor):
     def __init__(self, name, interface=None, addr=None, currentSensor=None, voltage=0.0, threshold=0.0,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
@@ -69,6 +72,7 @@ class PowerSensor(Sensor):
     def getLastState(self):
         return self.lastPower
 
+# Accumulate the energy of a power measurement over time
 class EnergySensor(Sensor):
     def __init__(self, name, interface=None, addr=None, powerSensor=None, interval=10, resources=None, persistence=None,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
@@ -97,6 +101,7 @@ class EnergySensor(Sensor):
         if self.persistence:
             self.stateControl.setState(value)
 
+    # Thread to periodically compute energy over the specified interval
     def monitorEnergy(self):
         value = 0.0
         while True:

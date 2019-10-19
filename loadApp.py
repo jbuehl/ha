@@ -42,7 +42,7 @@ if __name__ == "__main__":
     ads1015Interface1 = ADS1015Interface("ads1015Interface1", addr=0x49, gain=adcGain, sps=adcSps, ic=adcType)
     stateInterface = FileInterface("stateInterface", fileName=stateDir+"power.state")
 
-    # Sensors
+    # Current sensors
     lightsCurrent = CurrentSensor("loads.lights.current", ads1015Interface0, 0, VC25, threshold=.01,
                                   group=["Power", "Loads"], label="Lights current", type="A", event=stateChangeEvent)
     plugsCurrent = CurrentSensor("loads.plugs.current", ads1015Interface0, 1, VC25, threshold=.01,
@@ -60,6 +60,7 @@ if __name__ == "__main__":
     poolCurrent = CurrentSensor("loads.pool.current", ads1015Interface1, 3, VC50, threshold=.1,
                                   group=["Power", "Loads"], label="Pool equipment current", type="A", event=stateChangeEvent)
 
+    # Power sensors
     lightsPower = PowerSensor("loads.lights.power", currentSensor=lightsCurrent, voltage=120, threshold=1,
                                   group=["Power", "Loads"], label="Lights", type="KVA", event=stateChangeEvent)
     plugsPower = PowerSensor("loads.plugs.power", currentSensor=plugsCurrent, voltage=120, threshold=1,
@@ -82,6 +83,7 @@ if __name__ == "__main__":
                                                   "loads.carcharger.power"], "sum", resources=cacheResources,
                                   group=["Power", "Loads"], label="Load", type="KVA")
 
+    # Daily energy sensors
     stateInterface.start()
     lightsEnergy = EnergySensor("loads.lights.dailyEnergy", powerSensor=lightsPower, persistence=stateInterface,
                                   group=["Power", "Loads"], label="Lights daily energy", type="KWh", event=stateChangeEvent)
