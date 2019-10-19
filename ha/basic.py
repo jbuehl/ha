@@ -207,6 +207,10 @@ class Sensor(Resource):
     def getState(self):
         return normalState(self.interface.read(self.addr))
 
+    # Return the last state of the sensor that was read from the address on the interface.
+    def getLastState(self):
+        return self.getState()
+
     # return the data type of the state
     def getStateType(self):
         return self.interface.getStateType(self)
