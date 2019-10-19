@@ -1,6 +1,9 @@
 
+sampleRate = .02
+
 import time
 import smbus
+import threading
 from ha import *
 
 # ADS1015 analog digital converter
@@ -14,12 +17,17 @@ class ADS1015Interface(Interface):
         self.sps = sps
         self.ic = ic
         self.adc = ADS1x15(address=self.addr, ic=self.ic)
+        self.lock = threading.Lock()
 
     def read(self, addr):
         debug('debugAds', self.name, "read", addr)
         try:
-            return self.adc.readADCSingleEnded(addr, self.gain, self.sps)
-        except:
+            with self.lock:
+                time.sleep(sampleRate)
+                value = self.adc.readADCSingleEnded(addr, self.gain, self.sps)
+            return value
+        except Exception as ex:
+            log("ADS1015Interface exception", str(ex))
             return 0
 
 # ===========================================================================
