@@ -11,6 +11,7 @@ import time
 import json
 from ha.interfaces.i2cInterface import *
 from ha.interfaces.ads1015Interface import *
+from ha.interfaces.fileInterface import *
 from ha.controls.electricalSensors import *
 from ha.metrics import *
 from ha.rest.restServer import *
@@ -40,6 +41,7 @@ if __name__ == "__main__":
     i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
     ads1015Interface0 = ADS1015Interface("ads1015Interface0", addr=0x48, gain=adcGain, sps=adcSps, ic=adcType)
     ads1015Interface1 = ADS1015Interface("ads1015Interface1", addr=0x49, gain=adcGain, sps=adcSps, ic=adcType)
+    stateInterface = FileInterface("stateInterface", fileName=stateDir+"power.state")
 
     # Sensors
     lightsCurrent = CurrentSensor("loads.lights.current", ads1015Interface0, 0, VC25, threshold=.01,
@@ -81,23 +83,23 @@ if __name__ == "__main__":
                                                   "loads.carcharger.power"], "sum", resources=cacheResources,
                                   group=["Power", "Loads"], label="Load", type="KVA")
 
-    lightsEnergy = EnergySensor("loads.lights.dailyEnergy", powerSensor=lightsPower,
+    lightsEnergy = EnergySensor("loads.lights.dailyEnergy", powerSensor=lightsPower, persistence=stateInterface,
                                   group=["Power", "Loads"], label="Lights daily energy", type="KWh", event=stateChangeEvent)
-    plugsEnergy = EnergySensor("loads.plugs.dailyEnergy", powerSensor=plugsPower,
+    plugsEnergy = EnergySensor("loads.plugs.dailyEnergy", powerSensor=plugsPower, persistence=stateInterface,
                                   group=["Power", "Loads"], label="Plugs daily energy", type="KWh", event=stateChangeEvent)
-    appl1Energy = EnergySensor("loads.appliance1.dailyEnergy", powerSensor=appl1Power,
+    appl1Energy = EnergySensor("loads.appliance1.dailyEnergy", powerSensor=appl1Power, persistence=stateInterface,
                                   group=["Power", "Loads"], label="Appliances 1 daily energy", type="KWh", event=stateChangeEvent)
-    cookingEnergy = EnergySensor("loads.cooking.dailyEnergy", powerSensor=cookingPower,
+    cookingEnergy = EnergySensor("loads.cooking.dailyEnergy", powerSensor=cookingPower, persistence=stateInterface,
                                   group=["Power", "Loads"], label="Cooking daily energy", type="KWh", event=stateChangeEvent)
-    appl2Energy = EnergySensor("loads.appliance2.dailyEnergy", powerSensor=appl2Power,
+    appl2Energy = EnergySensor("loads.appliance2.dailyEnergy", powerSensor=appl2Power, persistence=stateInterface,
                                   group=["Power", "Loads"], label="Appliances 2 daily energy", type="KWh", event=stateChangeEvent)
-    acEnergy = EnergySensor("loads.ac.dailyEnergy", powerSensor=acPower,
+    acEnergy = EnergySensor("loads.ac.dailyEnergy", powerSensor=acPower, persistence=stateInterface,
                                   group=["Power", "Loads"], label="Air conditioners daily energy", type="KWh", event=stateChangeEvent)
-    backhouseEnergy = EnergySensor("loads.backhouse.dailyEnergy", powerSensor=backhousePower,
+    backhouseEnergy = EnergySensor("loads.backhouse.dailyEnergy", powerSensor=backhousePower, persistence=stateInterface,
                                   group=["Power", "Loads"], label="Back house daily energy", type="KWh", event=stateChangeEvent)
-    poolEnergy = EnergySensor("loads.pool.dailyEnergy", powerSensor=poolPower,
+    poolEnergy = EnergySensor("loads.pool.dailyEnergy", powerSensor=poolPower, persistence=stateInterface,
                                   group=["Power", "Loads"], label="Pool equipment daily energy", type="KWh", event=stateChangeEvent)
-    carchargerEnergy = EnergySensor("loads.carcharger.dailyEnergy", powerSensor="loads.carcharger.power", resources=cacheResources,
+    carchargerEnergy = EnergySensor("loads.carcharger.dailyEnergy", powerSensor="loads.carcharger.power", resources=cacheResources, persistence=stateInterface,
                                   group=["Power", "Loads"], label="Car charger daily energy", type="KWh", event=stateChangeEvent)
 
     dailyEnergy = CalcSensor("loads.stats.dailyEnergy", [lightsEnergy, plugsEnergy, appl1Energy, cookingEnergy,

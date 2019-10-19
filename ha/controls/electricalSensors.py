@@ -68,14 +68,21 @@ class PowerSensor(Sensor):
         return self.lastPower
 
 class EnergySensor(Sensor):
-    def __init__(self, name, interface=None, addr=None, powerSensor=None, interval=10, resources=None,
+    def __init__(self, name, interface=None, addr=None, powerSensor=None, interval=10, resources=None, persistence=None,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
         self.powerSensor = powerSensor
         self.interval = interval
         self.resources = resources
-        self.energy = 0.0
+        self.persistence = persistence  # FileInterface for state persistence
+        if self.persistence:
+            self.stateControl = Control(self.name+"State", self.persistence, self.name)
+            self.energy = self.stateControl.getState()
+            if self.energy == None:
+                self.energy = 0.0
+        else:
+            self.energy = 0.0
         monitorEnergy = threading.Thread(target=self.monitorEnergy)
         monitorEnergy.daemon = True
         monitorEnergy.start()
@@ -85,6 +92,8 @@ class EnergySensor(Sensor):
 
     def setState(self, value):
         self.energy = value
+        if self.persistence:
+            self.stateControl.setState(value)
 
     def monitorEnergy(self):
         value = 0.0
@@ -98,4 +107,6 @@ class EnergySensor(Sensor):
             else:
                 value = self.powerSensor.getLastState()
             self.energy += value * self.interval / 3600
+            if self.persistence:
+                self.stateControl.setState(self.energy)
             time.sleep(self.interval)
