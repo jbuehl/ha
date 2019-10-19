@@ -16,7 +16,7 @@ class VoltageSensor(Sensor):
         voltage = self.interface.read(self.addr) / 1000
         if abs(voltage - self.lastVoltage) > self.threshold:
             self.notify()
-            self.lastVoltage = voltage
+        self.lastVoltage = voltage
         return voltage
 
     def getLastState(self):
@@ -35,10 +35,11 @@ class CurrentSensor(Sensor):
         current = self.interface.read(self.addr) * self.currentFactor / 1000
         if current > self.threshold:
             if abs(current - self.lastCurrent) > self.threshold:
-                # self.notify()
-                self.lastCurrent = current
+                self.notify()
+            self.lastCurrent = current
             return current
         else:
+            self.lastCurrent = current
             return 0.0
 
     def getLastState(self):
@@ -58,10 +59,11 @@ class PowerSensor(Sensor):
         power = self.currentSensor.getLastState() * self.voltage
         if power > self.threshold:
             if abs(power - self.lastPower) > self.threshold:
-                # self.notify()
-                self.lastPower = power
+                self.notify()
+            self.lastPower = power
             return power
         else:
+            self.lastPower = power
             return 0.0
 
     def getLastState(self):
