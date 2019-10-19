@@ -35,7 +35,7 @@ def getStorageStats(cameraDir, cameras, repeat):
         debug('debugStorage', "eventStorage", eventStorage)
         os.popen("mkdir -p "+stateDir)
         json.dump(eventStorage, open(stateDir+"storage.json", "w"))
-        debug('debugEnable', "saved storage stats")
+        debug('debugStorage', "saved storage stats")
         repeating = repeat
         time.sleep(storageUpdateInterval)
 
