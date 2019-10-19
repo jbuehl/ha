@@ -86,28 +86,28 @@ if __name__ == "__main__":
     # Daily energy sensors
     stateInterface.start()
     lightsEnergy = EnergySensor("loads.lights.dailyEnergy", powerSensor=lightsPower, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Lights daily energy", type="KWh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Lights daily energy", type="KVAh", event=stateChangeEvent)
     plugsEnergy = EnergySensor("loads.plugs.dailyEnergy", powerSensor=plugsPower, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Plugs daily energy", type="KWh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Plugs daily energy", type="KVAh", event=stateChangeEvent)
     appl1Energy = EnergySensor("loads.appliance1.dailyEnergy", powerSensor=appl1Power, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Appliances 1 daily energy", type="KWh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Appliances 1 daily energy", type="KVAh", event=stateChangeEvent)
     cookingEnergy = EnergySensor("loads.cooking.dailyEnergy", powerSensor=cookingPower, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Cooking daily energy", type="KWh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Cooking daily energy", type="KVAh", event=stateChangeEvent)
     appl2Energy = EnergySensor("loads.appliance2.dailyEnergy", powerSensor=appl2Power, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Appliances 2 daily energy", type="KWh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Appliances 2 daily energy", type="KVAh", event=stateChangeEvent)
     acEnergy = EnergySensor("loads.ac.dailyEnergy", powerSensor=acPower, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Air conditioners daily energy", type="KWh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Air conditioners daily energy", type="KVAh", event=stateChangeEvent)
     backhouseEnergy = EnergySensor("loads.backhouse.dailyEnergy", powerSensor=backhousePower, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Back house daily energy", type="KWh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Back house daily energy", type="KVAh", event=stateChangeEvent)
     poolEnergy = EnergySensor("loads.pool.dailyEnergy", powerSensor=poolPower, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Pool equipment daily energy", type="KWh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Pool equipment daily energy", type="KVAh", event=stateChangeEvent)
     carchargerEnergy = EnergySensor("loads.carcharger.dailyEnergy", powerSensor="loads.carcharger.power", resources=cacheResources, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Car charger daily energy", type="KWh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Car charger daily energy", type="KVAh", event=stateChangeEvent)
 
     dailyEnergy = CalcSensor("loads.stats.dailyEnergy", [lightsEnergy, plugsEnergy, appl1Energy, cookingEnergy,
                                                   appl2Energy,acEnergy, backhouseEnergy, poolEnergy,
                                                   carchargerEnergy], "sum", resources=cacheResources,
-                                  group=["Power", "Loads"], label="Daily load", type="KWh")
+                                  group=["Power", "Loads"], label="Daily load", type="KVAh")
 
     # Tasks
     energySensors = ControlGroup("energySensors", None, [lightsEnergy, plugsEnergy, appl1Energy, cookingEnergy,
