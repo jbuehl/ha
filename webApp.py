@@ -10,6 +10,7 @@ restIgnore = []
 serviceMonitorNotifyNumbers = []
 sendMetrics = True
 logMetrics = True
+backupMetrics = False
 logDir = "/data/ha/"
 
 defaultConfig = {
@@ -156,7 +157,7 @@ if __name__ == "__main__":
 
     # start the task to transmit resource metrics
     resourceStates = ResourceStateSensor("states", None, resources=resources, event=stateChangeEvent)
-    startMetrics(resourceStates, sendMetrics, logMetrics)
+    startMetrics(resourceStates, sendMetrics, logMetrics, backupMetrics)
 
     # start the cache to listen for services on other servers
     restCache = RestProxy("restProxy", resources, watch=restWatch, ignore=restIgnore, event=stateChangeEvent)
