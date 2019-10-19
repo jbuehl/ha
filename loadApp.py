@@ -36,7 +36,6 @@ if __name__ == "__main__":
     restCache = RestProxy("restProxy", cacheResources, watch=restWatch, event=stateChangeEvent)
     restCache.start()
 
-
     # Interfaces
     i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
     ads1015Interface0 = ADS1015Interface("ads1015Interface0", addr=0x48, gain=adcGain, sps=adcSps, ic=adcType)
@@ -83,6 +82,7 @@ if __name__ == "__main__":
                                                   "loads.carcharger.power"], "sum", resources=cacheResources,
                                   group=["Power", "Loads"], label="Load", type="KVA")
 
+    stateInterface.start()
     lightsEnergy = EnergySensor("loads.lights.dailyEnergy", powerSensor=lightsPower, persistence=stateInterface,
                                   group=["Power", "Loads"], label="Lights daily energy", type="KWh", event=stateChangeEvent)
     plugsEnergy = EnergySensor("loads.plugs.dailyEnergy", powerSensor=plugsPower, persistence=stateInterface,
