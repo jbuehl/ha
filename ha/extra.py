@@ -260,7 +260,7 @@ class CalcSensor(Sensor):
 
     def getState(self):
         value = 0
-        if (self.function == "sum") or (self.function == "avg"):
+        if self.function in ["sum", "avg"]:
             for sensor in self.sensors:
                 if isinstance(sensor, str):
                     if self.resources:
