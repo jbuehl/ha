@@ -1,3 +1,10 @@
+# Reads SolarEdge data from a JSON file produced by se2state.py
+
+# addr consists of a string of the form "deviceType.deviceName.deviceAttr"
+#   deviceType = optimizers|inverters
+#   deviceName = serial number of device
+#   deviceAttr = attribute
+
 from ha import *
 
 class SolarSensor(Sensor):
