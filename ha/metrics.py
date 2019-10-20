@@ -80,7 +80,6 @@ def startMetrics(resourceStates, sendMetrics=False, logMetrics=True, backupMetri
                             log("metrics", "exception backing up metrics", str(ex))
                         debug("debugMetrics", "sendMetrics", "metrics thread ended")
                     backupThread = threading.Thread(target=backupMetricsThread)
-                    backupThread.daemon = True
                     backupThread.start()
 
             if today != lastDay:
@@ -88,5 +87,4 @@ def startMetrics(resourceStates, sendMetrics=False, logMetrics=True, backupMetri
         debug("debugMetrics", "sendMetrics", "metrics thread ended")
 
     metricsThread = threading.Thread(target=sendMetricsThread)
-    metricsThread.daemon = True
     metricsThread.start()

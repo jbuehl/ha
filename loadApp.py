@@ -110,9 +110,9 @@ if __name__ == "__main__":
                                   group=["Power", "Loads"], label="Daily load", type="KVAh")
 
     # Tasks
-    energySensors = ControlGroup("energySensors", None, [lightsEnergy, plugsEnergy, appl1Energy, cookingEnergy,
+    energySensors = ControlGroup("energySensors", [lightsEnergy, plugsEnergy, appl1Energy, cookingEnergy,
                                                           appl2Energy, acEnergy, backhouseEnergy, poolEnergy, carchargerEnergy])
-    resetEnergySensorsTask = Task("resetEnergySensorsTask", SchedTime(hour=0, minute=0), energySensors, 0.0, enabled=True, group="Power")
+    resetEnergySensorsTask = Task("resetEnergySensorsTask", SchedTime(hour=8, minute=0), energySensors, 0.0, enabled=True, group="Power")
     schedule = Schedule("schedule", tasks=[resetEnergySensorsTask])
 
     # Resources

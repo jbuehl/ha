@@ -38,7 +38,6 @@ class TempInterface(Interface):
                 time.sleep(self.sample)
 
         readStatesThread = threading.Thread(target=readData)
-        readStatesThread.daemon = True
         readStatesThread.start()
 
     def read(self, addr):

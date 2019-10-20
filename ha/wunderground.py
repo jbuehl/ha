@@ -61,5 +61,4 @@ def wunderground(tempSensor, humiditySensor, dewpointSensor, barometerSensor, wi
                 log("wunderground", "read timeout")
         debug('debugWunderground', "ending wunderground thread")
     wundergroundThread = threading.Thread(target=reportWeather)
-    wundergroundThread.daemon = True
     wundergroundThread.start()

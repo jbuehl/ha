@@ -90,7 +90,6 @@ class EnergySensor(Sensor):
         else:
             self.energy = 0.0
         monitorEnergy = threading.Thread(target=self.monitorEnergy)
-        monitorEnergy.daemon = True
         monitorEnergy.start()
 
     def getState(self):

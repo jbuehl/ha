@@ -80,7 +80,6 @@ class RestServer(object):
                     beaconSequence += 1
                     time.sleep(restBeaconInterval)
             beaconThread = threading.Thread(target=beacon)
-            beaconThread.daemon = True
             beaconThread.start()
 
         # start the heartbeat to periodically send the state of all resources
@@ -122,7 +121,6 @@ class RestServer(object):
                     stateSequence += 1
                     time.sleep(restHeartbeatInterval)
             heartbeatThread = threading.Thread(target=heartbeat)
-            heartbeatThread.daemon = True
             heartbeatThread.start()
 
         # start the HTTP server
