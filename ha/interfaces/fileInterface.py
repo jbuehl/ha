@@ -7,7 +7,6 @@ import threading
 import time
 
 class FileInterface(Interface):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None, fileName="", readOnly=False, changeMonitor=True, defaultValue=None, initialState={}):
         Interface.__init__(self, name, interface=interface, event=event)
         self.fileName = fileName
@@ -78,11 +77,14 @@ class FileInterface(Interface):
 
     def readData(self):
         try:
-            with open(self.fileName) as dataFile:
-                with self.lock:
-                    self.data = json.load(dataFile)
-        except:
-            log(self.name, self.fileName, "readData file read error")
+            jsonData = ""
+            while jsonData == "":
+                with open(self.fileName) as dataFile:
+                    with self.lock:
+                        jsonData = dataFile.read()
+            self.data = json.loads(jsonData)
+        except Exception as ex:
+            log(self.name, self.fileName, "readData file read error", str(ex), "jsonData", str(jsonData))
         debug('debugFile', self.name, "readData", self.data)
 
     def writeData(self):
