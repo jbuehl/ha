@@ -69,6 +69,7 @@ def iphoneUI(resources, templates, views):
                                                                  ]),
                             garageResources=resources.getResList(["garageTemp", "recircPump", "charger", "loads.carcharger.power"]),
                             fireplaceResources=resources.getResList(["fireplace", "fireplaceVideo"]),
+                            xmasResources=resources.getResList(["xmasTree", "xmasTreePattern", "xmasCowTree", "xmasBackLights"]),
                             views=views)
     return reply
 

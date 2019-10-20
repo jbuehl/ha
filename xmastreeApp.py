@@ -121,16 +121,8 @@ if __name__ == "__main__":
                                                           pattern=patterns["fallPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Fall")
     halloweenLights = HolidayLightControl("Halloween", neopixelInterface,
-                                        segments=[Segment("leftSegment",     0, 112,
-                                                           pattern=5*[orange]),
-                                                  Segment("centerSegment", 112,  58,
-                                                           pattern=2*[indigo]),
-                                                  Segment("rightSegment",  170, 140,
-                                                           pattern=5*[orange],
-                                                           animation=FlickerAnimation(rate=3)),
-                                                  Segment("farRightSegment", 310, 33,
-                                                           pattern=5*[orange],
-                                                           animation=FlickerAnimation())],
+                                        segments=[Segment("all",     0, stringLength,
+                                                           pattern=patterns["halloweenPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Halloween")
     electionLights = HolidayLightControl("Election day", neopixelInterface,
                                         segments=[Segment("leftSegment",     0, 112,
