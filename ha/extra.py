@@ -203,7 +203,7 @@ class ControlGroup(SensorGroup, Control):
             return Control.setState(self, state)
         else:
             debug('debugState', self.name, "setState ", state)
-            self.groupState = state  # use Cycle - FIXME
+            self.groupState = int(state)  # use Cycle - FIXME
             # Run it asynchronously in a separate thread.
             def setGroup():
                 debug('debugThread', self.name, "started")
