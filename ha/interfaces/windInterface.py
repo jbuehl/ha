@@ -66,7 +66,7 @@ class WindInterface(Interface):
             # calculate direction only if there is wind
             if self.speed > 0.0:
                 try:
-                    self.dir = (360 * dirTime / speedTime) % 360
+                    self.dir = (180 + (360 * dirTime / speedTime)) % 360
                 except ZeroDivisionError:
                     self.dir = 0.0
                 debug("debugWind", self.name, "dirTime:", dirTime, "speedTime:", speedTime, "direction:", self.dir)
