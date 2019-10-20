@@ -272,6 +272,8 @@ class CalcSensor(Sensor):
                     value += sensor.getState()
             if self.function == "avg":
                 value /+ len(self.sensors)
+        elif self.function == "diff":
+            value = sensor[0].getState() - sensor[1].getState()
         return value
 
 # Sensor that contains the states of all sensors in a list of resources
