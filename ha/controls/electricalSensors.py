@@ -49,17 +49,18 @@ class CurrentSensor(Sensor):
 
 # Compute power using a current measurement and a known voltage
 class PowerSensor(Sensor):
-    def __init__(self, name, interface=None, addr=None, currentSensor=None, voltage=0.0, threshold=0.0,
+    def __init__(self, name, interface=None, addr=None, currentSensor=None, voltage=0.0, threshold=0.0, pf=1.0,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
         self.currentSensor = currentSensor
         self.voltage = voltage
         self.threshold = threshold
+        self.pf = pf
         self.lastPower = 0.0
 
     def getState(self):
-        power = self.currentSensor.getLastState() * self.voltage
+        power = self.currentSensor.getLastState() * self.voltage * self.pf
         if power > self.threshold:
             if abs(power - self.lastPower) > self.threshold:
                 self.notify()
