@@ -6,15 +6,16 @@ from ha import *
 
 # Measure a voltage
 class VoltageSensor(Sensor):
-    def __init__(self, name, interface, addr=None, threshold=0.0,
+    def __init__(self, name, interface, addr, voltageFactor=1.0, threshold=0.0,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
+        self.voltageFactor = voltageFactor
         self.threshold = threshold
         self.lastVoltage = 0.0
 
     def getState(self):
-        voltage = self.interface.read(self.addr) / 1000
+        voltage = self.interface.read(self.addr) * self.voltageFactor / 1000
         if abs(voltage - self.lastVoltage) > self.threshold:
             self.notify()
         self.lastVoltage = voltage
@@ -25,7 +26,7 @@ class VoltageSensor(Sensor):
 
 # Measure a current
 class CurrentSensor(Sensor):
-    def __init__(self, name, interface, addr, currentFactor, threshold=0.0,
+    def __init__(self, name, interface, addr, currentFactor=1.0, threshold=0.0,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
@@ -49,18 +50,18 @@ class CurrentSensor(Sensor):
 
 # Compute power using a current measurement and a known voltage
 class PowerSensor(Sensor):
-    def __init__(self, name, interface=None, addr=None, currentSensor=None, voltage=0.0, threshold=0.0, pf=1.0,
+    def __init__(self, name, interface=None, addr=None, currentSensor=None, voltage=0.0, powerFactor=1.0, threshold=0.0,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
         self.currentSensor = currentSensor
         self.voltage = voltage
+        self.powerFactor = powerFactor
         self.threshold = threshold
-        self.pf = pf
         self.lastPower = 0.0
 
     def getState(self):
-        power = self.currentSensor.getLastState() * self.voltage * self.pf
+        power = self.currentSensor.getLastState() * self.voltage * self.powerFactor
         if power > self.threshold:
             if abs(power - self.lastPower) > self.threshold:
                 self.notify()
