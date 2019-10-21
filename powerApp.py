@@ -11,7 +11,7 @@ import time
 import json
 from ha.interfaces.i2cInterface import *
 from ha.interfaces.ads1015Interface import *
-from ha.interfaces.solarInterface import *
+from ha.interfaces.fileInterface import *
 from ha.controls.electricalSensors import *
 from ha.controls.solarSensor import *
 from ha.metrics import *
@@ -163,7 +163,7 @@ if __name__ == "__main__":
     dailyEnergy = CalcSensor("loads.stats.dailyEnergy", [lightsEnergy, plugsEnergy, appl1Energy, cookingEnergy,
                                                   appl2Energy,acEnergy, backhouseEnergy, poolEnergy,
                                                   carchargerEnergy], "sum", resources=cacheResources,
-                                  group=["Power", "Loads"], label="Daily load", type="KVAh")
+                                  group=["Power", "Loads"], label="Load today", type="KVAh")
 
     # Resources
     resources = Collection("resources", [lightsCurrent, plugsCurrent, appl1Current, cookingCurrent,
@@ -172,7 +172,7 @@ if __name__ == "__main__":
                                          appl2Power, acPower, backhousePower, poolPower,
                                          lightsEnergy, plugsEnergy, appl1Energy, cookingEnergy,
                                          appl2Energy, acEnergy, backhouseEnergy, poolEnergy, carchargerEnergy,
-                                         load, dailyEnergy, resetEnergySensorsTask,
+                                         load, dailyEnergy,
                                          ])
 
     # Solar devices
@@ -201,18 +201,22 @@ if __name__ == "__main__":
 
     # Solar stats
     resources.addRes(SolarSensor("solar.inverters.stats.avgVoltage", solarInterface, "inverters.stats.Vac",
-        group=["Power", "Solar"], label="Current voltage", type="V"))
+        group=["Power", "Solar"], label="Voltage", type="V"))
     resources.addRes(SolarSensor("solar.inverters.stats.power", solarInterface, "inverters.stats.Pac",
-        group=["Power", "Solar"], label="Current power", type="KW"))
+        group=["Power", "Solar"], label="Solar", type="KW"))
     resources.addRes(SolarSensor("solar.inverters.stats.dailyEnergy", solarInterface, "inverters.stats.Eday",
-        group=["Power", "Solar"], label="Energy today", type="KWh"))
+        group=["Power", "Solar"], label="Solar today", type="KWh"))
     resources.addRes(SolarSensor("solar.inverters.stats.lifetimeEnergy", solarInterface, "inverters.stats.Etot",
-        group=["Power", "Solar"], label="Lifetime energy", type="MWh"))
+        group=["Power", "Solar"], label="Solar total", type="MWh"))
+
+    resources.addRes(CalcSensor("solar.stats.netDailyEnergy", [resources["solar.inverters.stats.dailyEnergy"], dailyEnergy], "diff",
+        group=["Power", "Solar"], label="Net energy today", type="KWh"))
 
     # Tasks
     energySensors = ControlGroup("energySensors", [lightsEnergy, plugsEnergy, appl1Energy, cookingEnergy,
                                                           appl2Energy, acEnergy, backhouseEnergy, poolEnergy, carchargerEnergy])
     resetEnergySensorsTask = Task("resetEnergySensorsTask", SchedTime(hour=0, minute=0), energySensors, 0, enabled=True, group="Power")
+    resources.addRes(resetEnergySensorsTask)
     schedule = Schedule("schedule", tasks=[resetEnergySensorsTask])
 
     # start the task to transmit resource metrics
