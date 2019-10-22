@@ -90,12 +90,12 @@
     </div>
 
     <div id="powerPage" style="display:none">
-        {{ groupTemplate.render(templates=templates, widths=[320, [180, 100, 40]], group=["", powerResources], details=False, name=False, link=False, views=views) }}
+        {{ groupTemplate.render(templates=templates, widths=[320, [200, 100, 20]], group=["", powerResources], details=False, name=False, link=False, views=views) }}
         <div class="link"><button onclick="return show('dashPage','powerPage');">Back</button></div>
     </div>
 
     <div id="weatherPage" style="display:none">
-        {{ groupTemplate.render(templates=templates, widths=[320, [160, 120, 40]], group=["", weatherResources], details=False, name=False, link=False, views=views) }}
+        {{ groupTemplate.render(templates=templates, widths=[320, [200, 100, 20]], group=["", weatherResources], details=False, name=False, link=False, views=views) }}
         <div class="link"><button onclick="return show('dashPage','weatherPage');">Back</button></div>
     </div>
 
