@@ -24,10 +24,10 @@ charging = 3
 fault = 4
 
 # Voltage thresholds
-maxVolts = 12/3         # 4V
-unpluggedVolts = 10.5/3 # 3.5V
-connectedVolts = 7.5/3  # 2.5V
-chargingVolts = 4.5/3   # 1.5V
+maxVolts = 12
+unpluggedVolts = 10.5 # 9V +/- 1.5V
+connectedVolts = 7.5  # 6V +/- 1.5V
+chargingVolts = 4.5   # 3V +/- 1.5V
 
 # general parameters
 maxCurrent = 30             # amps
@@ -95,7 +95,7 @@ class CarChargerControl(Control):
                     self.gpioWrite(relayPin, on)
                     self.notify()
                     debug('debugCarcharger', self.name, "charging", self.pilotVolts, self.chargeCurrent)
-            else:
+            else: # (self.pilotVolts >= maxVolts) or (self.pilotVolts <= unpluggedVolts)
                 # error
                 self.pilotState = fault
                 self.gpioWrite(pilotPin, off)
