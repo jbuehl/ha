@@ -55,24 +55,36 @@
                 </div>
                 <div class="statsGroup">
                     <div>
-                        <span class="label">{{ currentVoltage.label }}</span>
-                        <span id="{{ currentVoltage.name.replace(".", "_") }}" class="{{ currentVoltage.type }}">{{ views.getViewState(currentVoltage) }}</span>
+                        <span class="label">{{ voltage.label }}</span>
+                        <span id="{{ voltage.name.replace(".", "_") }}" class="{{ voltage.type }}">{{ views.getViewState(voltage) }}</span>
                     </div>
                     <div>
-                        <span class="label">{{ currentLoad.label }}</span>
-                        <span id="{{ currentLoad.name.replace(".", "_") }}" class="{{ currentLoad.type }}">{{ views.getViewState(currentLoad) }}</span>
+                        <span class="label">{{ solar.label }}</span>
+                        <span id="{{ solar.name.replace(".", "_") }}" class="{{ solar.type }}">{{ views.getViewState(solar) }}</span>
                     </div>
                     <div>
-                        <span class="label">{{ currentPower.label }}</span>
-                        <span id="{{ currentPower.name.replace(".", "_") }}" class="{{ currentPower.type }}">{{ views.getViewState(currentPower) }}</span>
+                        <span class="label">{{ load.label }}</span>
+                        <span id="{{ load.name.replace(".", "_") }}" class="{{ load.type }}">{{ views.getViewState(load) }}</span>
                     </div>
                     <div>
-                        <span class="label">{{ todaysEnergy.label }}</span>
-                        <span id="{{ todaysEnergy.name.replace(".", "_") }}" class="{{ todaysEnergy.type }}">{{ views.getViewState(todaysEnergy) }}</span>
+                        <span class="label">{{ net.label }}</span>
+                        <span id="{{ net.name.replace(".", "_") }}" class="{{ net.type }}">{{ views.getViewState(net) }}</span>
                     </div>
                     <div>
-                        <span class="label">{{ lifetimeEnergy.label }}</span>
-                        <span id="{{ lifetimeEnergy.name.replace(".", "_") }}" class="{{ lifetimeEnergy.type }}">{{ views.getViewState(lifetimeEnergy) }}</span>
+                        <span class="label">{{ dailySolar.label }}</span>
+                        <span id="{{ dailySolar.name.replace(".", "_") }}" class="{{ dailySolar.type }}">{{ views.getViewState(dailySolar) }}</span>
+                    </div>
+                    <div>
+                        <span class="label">{{ dailyLoad.label }}</span>
+                        <span id="{{ dailyLoad.name.replace(".", "_") }}" class="{{ dailyLoad.type }}">{{ views.getViewState(loadailyLoadd) }}</span>
+                    </div>
+                    <div>
+                        <span class="label">{{ dailyNet.label }}</span>
+                        <span id="{{ dailyNet.name.replace(".", "_") }}" class="{{ dailyNet.type }}">{{ views.getViewState(dailyNet) }}</span>
+                    </div>
+                    <div>
+                        <span class="label">{{ lifetimeSolar.label }}</span>
+                        <span id="{{ lifetimeSolar.name.replace(".", "_") }}" class="{{ lifetimeSolar.type }}">{{ views.getViewState(lifetimeSolar) }}</span>
                     </div>
                 </div>
             </div>
