@@ -108,11 +108,13 @@ def dashboardUI(resources, templates, views):
                     templates.get_template("powerWidget.html").render(
                             widths=[columnWidth, labelWidth],
                             templates=templates,
-                            power=resources.getRes("solar.inverters.stats.power"),
+                            solar=resources.getRes("solar.inverters.stats.power"),
                             load=resources.getRes("loads.stats.power"),
-                            voltage=resources.getRes("solar.inverters.stats.avgVoltage"),
-                            energy=resources.getRes("solar.inverters.stats.dailyEnergy"),
-                            lifetime=resources.getRes("solar.inverters.stats.lifetimeEnergy"),
+                            net=resources.getRes("solar.stats.netPower"),
+                            dailySolar=resources.getRes("solar.inverters.stats.dailyEnergy"),
+                            dailyLoad=resources.getRes("loads.stats.dailyEnergy"),
+                            dailyNet=resources.getRes("solar.stats.netDailyEnergy"),
+                            lifetimeSolar=resources.getRes("solar.inverters.stats.lifetimeEnergy"),
                             views=views)
         return templates.get_template("dashboard.html").render(script="",
                             templates=templates,
