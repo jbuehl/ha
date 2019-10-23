@@ -8,9 +8,9 @@ from ha import *
 def dashboardUI(resources, templates, views):
     with resources.lock:
         screenWidth = 1280
-        labelWidth = 180
+        labelWidth = 160
         columnWidth = screenWidth/2
-        columnWidths = [columnWidth, [labelWidth, 200, 260]]
+        columnWidths = [columnWidth, [labelWidth, 200, 280]]
         widths = [screenWidth, [columnWidths, columnWidths]]
         groupTemplate = templates.get_template("group.html")
         timeGroup = groupTemplate.render(templates=templates, views=views, widths=columnWidths,
