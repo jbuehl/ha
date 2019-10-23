@@ -209,6 +209,9 @@ if __name__ == "__main__":
     resources.addRes(SolarSensor("solar.inverters.stats.lifetimeEnergy", solarInterface, "inverters.stats.Etot",
         group=["Power", "Solar"], label="Solar lifetime total", type="MWh"))
 
+    resources.addRes(CalcSensor("solar.stats.netPower", [resources["solar.inverters.stats.power"], load], "diff",
+        group=["Power", "Solar"], label="Net power", type="KW-"))
+
     resources.addRes(CalcSensor("solar.stats.netDailyEnergy", [resources["solar.inverters.stats.dailyEnergy"], dailyEnergy], "diff",
         group=["Power", "Solar"], label="Net energy today", type="KWh-"))
 

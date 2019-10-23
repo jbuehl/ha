@@ -441,6 +441,14 @@ td {
 	color: Orange;
     }
 
+.KW_plus {
+    color: Lime;
+    }
+
+.KW_minus {
+    color: Red;
+    }
+
 .KVA {
 	color: Orange;
     }
