@@ -74,20 +74,24 @@ class WebRoot(object):
             for resource in list(resourceStateTypes.keys()):
                 try:
                     state = resourceStateTypes[resource][0] # self.resources.getRes(resource).getState()
-                    resClass = resourceStateTypes[resource][1] # self.resources.getRes(resource).type
-                    resState = views.getViewState(None, resClass, state) # views.getViewState(self.resources.getRes(resource))
+                    resType = resourceStateTypes[resource][1] # self.resources.getRes(resource).type
+                    resState = views.getViewState(None, resType, state) # views.getViewState(self.resources.getRes(resource))
                     jqueryName = resource.replace(".", "_") # jquery doesn't like periods in names
-                    debug('debugWebUpdate', "/updateStates", resource, resClass, resState, state)
-                    if resClass in tempTypes:
+                    debug('debugWebUpdate', "/updateStates", resource, resType, resState, state)
+                    # determine the HTML class for the resource
+                    if resType in tempTypes:         # temperature
                         updates[jqueryName] = ("temp", resState)
                     elif (resource[0:16] == "solar.optimizers") and (resource[-5:] == "power"):
                         updates[jqueryName] = ("panel", resState)
-                    else:
-                        if resClass not in staticTypes:
-                            resClass += "_"+resState
-                        updates[jqueryName] = (resClass, resState)
+                    elif resType in staticTypes:
+                        if resType[-1] == "-":      # + or - value
+                            updates[jqueryName] = (resType[:-1]+("_plus" if state >= 0 else "_minus"), resState)
+                        else:                       # class doesn't depend on value
+                            updates[jqueryName] = (resType, resState)
+                    else:                           # class is specific to the type and value
+                        updates[jqueryName] = (resType+"_"+resState, resState)
                     if (resource in blinkers) and (state > 0):
-                        debug('debugWebBlink', "/updateStates", resource, resClass, resState, state)
+                        debug('debugWebBlink', "/updateStates", resource, resType, resState, state)
                         blinkerList.append(jqueryName)
                 except:
                     raise

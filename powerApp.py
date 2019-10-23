@@ -207,10 +207,10 @@ if __name__ == "__main__":
     resources.addRes(SolarSensor("solar.inverters.stats.dailyEnergy", solarInterface, "inverters.stats.Eday",
         group=["Power", "Solar"], label="Solar today", type="KWh"))
     resources.addRes(SolarSensor("solar.inverters.stats.lifetimeEnergy", solarInterface, "inverters.stats.Etot",
-        group=["Power", "Solar"], label="Solar total", type="MWh"))
+        group=["Power", "Solar"], label="Solar lifetime total", type="MWh"))
 
     resources.addRes(CalcSensor("solar.stats.netDailyEnergy", [resources["solar.inverters.stats.dailyEnergy"], dailyEnergy], "diff",
-        group=["Power", "Solar"], label="Net energy today", type="KWh"))
+        group=["Power", "Solar"], label="Net energy today", type="KWh-"))
 
     # Tasks
     energySensors = ControlGroup("energySensors", [lightsEnergy, plugsEnergy, appl1Energy, cookingEnergy,
@@ -223,7 +223,7 @@ if __name__ == "__main__":
     resourceStates = ResourceStateSensor("states", None, resources=resources, event=stateChangeEvent)
     startMetrics(resourceStates, sendMetrics, logMetrics, backupMetrics, logChanged)
 
-    restServer = RestServer("loads", resources, event=stateChangeEvent, label="Power loads")
+    restServer = RestServer("power", resources, event=stateChangeEvent, label="Power")
 
     # Start interfaces
     solarInterface.start()

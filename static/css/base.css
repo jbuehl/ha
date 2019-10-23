@@ -428,7 +428,7 @@ td {
 .A {
     color: Yellow;
     }
-    
+
 .V {
 	color: Yellow;
     }
@@ -451,6 +451,14 @@ td {
 
 .KWh {
 	color: OrangeRed;
+    }
+
+.KWh_plus {
+    color: Lime;
+    }
+
+.KWh_minus {
+    color: Red;
     }
 
 .MWh {
