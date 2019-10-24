@@ -3,7 +3,7 @@ import subprocess
 import time
 from ha import *
 
-class FireplaceInterface(Interface):
+class VideoInterface(Interface):
     def __init__(self, name, interface, videoControl, event=None):
         Interface.__init__(self, name, interface=interface, event=event)
         self.videoControl = videoControl
