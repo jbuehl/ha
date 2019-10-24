@@ -1,0 +1,8 @@
+[Unit]
+Description=Halloween video
+After=syslog.target
+[Service]
+ExecStart=/usr/bin/python /root/ha/halloweenApp.py
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
