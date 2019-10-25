@@ -20,7 +20,7 @@ def iphoneUI(resources, templates, views):
                                     poolPumpControl=resources.getRes("poolPump"), poolPumpFlowSensor=resources.getRes("poolPumpFlow"), nSetValues=5, views=views),
                             poolResources=resources.getResList(["valveMode", "spaBlower", "spaFill", "spaFlush", "spaDrain", "cleanSequence"]),
                             lightResources=resources.getResList(["frontLights", "backLights", "deckLights", "trashLights", "garageBackDoorLight",
-                                                                 "poolLight", "spaLight", "holidayLights", "holiday"]),
+                                                                 "poolLight", "spaLight"]),
                             shadeResources=resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"]),
                             sprinklerResources=resources.getResList(["backLawnSequence", "backBedSequence", "gardenSequence",
                                                                      "sideBedSequence", "frontLawnSequence", "frontBedSequence",
@@ -71,7 +71,8 @@ def iphoneUI(resources, templates, views):
                                                                  ]),
                             garageResources=resources.getResList(["garageTemp", "recircPump", "charger", "loads.carcharger.power"]),
                             fireplaceResources=resources.getResList(["fireplace", "fireplaceVideo"]),
-                            xmasResources=resources.getResList(["xmasTree", "xmasTreePattern", "xmasCowTree", "xmasBackLights"]),
+                            holidayResources=resources.getResList(["holidayLights", "holiday", "halloween", "halloweenVideo",
+                                                                    "xmasTree", "xmasTreePattern", "xmasCowTree", "xmasBackLights"]),
                             views=views)
     return reply
 
