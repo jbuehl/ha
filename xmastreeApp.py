@@ -1,5 +1,9 @@
 
 stringLength = 200
+# xmasTreeLabel = "Xmas tree"
+# xmasTreePatternLabel = "Xmas tree pattern"
+xmasTreeLabel = "Holiday back lights"
+xmasTreePatternLabel = "Holiday back light pattern"
 defaultConfig = {
     "pattern": "None",
 }
@@ -46,6 +50,7 @@ patterns = {"onPattern": [on],
             "columbusPattern": [green]+[white]+[red],
             "mlkPattern": [white]+[red]+[yellow]+[rust],
             "spectrumPattern": [red]+[orange]+[yellow]+[green]+[blue]+[purple],
+            "rabbitPattern": 3*[rust]+3*[red]+3*[orange]+3*[yellow]+3*[white]+3*[yellow]+3*[orange]+3*[red]+3*[rust]+73*[off],
             }
 
 stateChangeEvent = threading.Event()
@@ -148,14 +153,25 @@ if __name__ == "__main__":
                                                            pattern=patterns["spectrumPattern"],
                                                            animation=CrawlAnimation(direction=1))],
                                         type="light", group=["Lights", "Holiday"], label="Test")
+    rabbitLights = HolidayLightControl("Rabbit", neopixelInterface,
+                                        segments=[Segment("all",     0, stringLength,
+                                                           pattern=patterns["rabbitPattern"],
+                                                           animation=CrawlAnimation(direction=1, rate=1))],
+                                        type="light", group=["Lights", "Holiday"], label="Test")
+
+    randomLights = HolidayLightControl("Random", neopixelInterface,
+                                        segments=[Segment("all",     0, stringLength,
+                                                           pattern=patterns["onPattern"],
+                                                           animation=RandomColorAnimation(rate=5))],
+                                        type="light", group=["Lights", "Holiday"], label="Test")
 
     holidayLightControls = Collection("HolidayLightControls", resources=[offLights, valentinesLights, presidentsLights, mardigrasLights, stpatricksLights,
                            easterLights, maydayLights, cincodemayoLights, swedenLights, prideLights, flagLights, canadaLights, july4Lights, bastilleLights,
                            fallLights, halloweenLights, electionLights, christmasLights, hanukkahLights,
-                           testLights])
+                           testLights, rabbitLights, randomLights])
     # Persistent config data
     xmasTreePattern = MultiControl("xmasTreePattern", configData, "pattern", values=list(holidayLightControls.keys()),
-                            group=["Lights", "Holiday"], label="Xmas tree pattern")
+                            group=["Lights", "Holiday"], label=xmasTreePatternLabel)
 
 # Tasks
     # 2019
@@ -183,7 +199,7 @@ if __name__ == "__main__":
     #         ]
 
     # Resources
-    xmasTree = AliasControl("xmasTree", None, holidayLightControls, xmasTreePattern, type="light", group=["Lights", "Holiday"], label="Xmas tree")
+    xmasTree = AliasControl("xmasTree", None, holidayLightControls, xmasTreePattern, type="light", group=["Lights", "Holiday"], label=xmasTreeLabel)
     resources = Collection("resources", resources=[xmasTree, xmasTreePattern])
 
 
