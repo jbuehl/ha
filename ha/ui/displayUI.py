@@ -53,7 +53,7 @@ def tempColor(tempString):
 
 # convert PNG to frame buffer
 def png2fb(pngImage):
-    fbPixMap = ""
+    fbPixMap = b""
     pngArrayList = list(pngImage[2])
     pngDict = pngImage[3]
     planes = pngDict["planes"]
@@ -61,11 +61,12 @@ def png2fb(pngImage):
         rowList = list(row)
         try:
             for pix in range(0, len(rowList), planes):
-                fbPixMap += chr(rowList[pix+2]) + chr(rowList[pix+1]) + chr(rowList[pix])
+                # fbPixMap += chr(rowList[pix+2]) + chr(rowList[pix+1]) + chr(rowList[pix])
+                fbPixMap += bytes([rowList[pix+2], rowList[pix+1], rowList[pix]])
                 if planes == 4:
-                    fbPixMap += chr(rowList[pix+3])
+                    fbPixMap += bytes([rowList[pix+3]])
                 elif planes == 3:
-                    fbPixMap += "\xff"
+                    fbPixMap += b"\xff"
         except IndexError:
             pass
     return fbPixMap
@@ -76,7 +77,7 @@ def readImage(imageFileName):
     (imageName, ext) = imageFileName.split(".")
     try:
         # attempt to read the .fb file
-        with open(imageName+".fb") as imageFile:
+        with open(imageName+".fb", "rb") as imageFile:
             fbData = imageFile.read()
             (width, height) = struct.unpack("!hh", fbData[0:4])
             return (width, height, fbData[4:])
@@ -94,9 +95,9 @@ def readImage(imageFileName):
 
 # convert RGB pixmp to frame buffer
 def rgb2fb(rgbPixMap):
-    fbPixMap = ""
+    fbPixMap = b""
     for pix in range(0, len(rgbPixMap), 3):
-        fbPixMap += chr(rgbPixMap[pix+2]) + chr(rgbPixMap[pix+1]) + chr(rgbPixMap[pix]) + "\xff"
+        fbPixMap += bytes([rgbPixMap[pix+2], rgbPixMap[pix+1], rgbPixMap[pix]]) + b"\xff"
     return fbPixMap
 
 # return frame buffer value for named color
@@ -117,10 +118,13 @@ class Display(object):
 
     def initDisplay(self, displayDeviceName):
         self.FrameBuffer = cdll.LoadLibrary(fbLib)
-        self.frameBuffer = self.FrameBuffer.init(displayDeviceName)
+        self.frameBuffer = self.FrameBuffer.init(bytes(displayDeviceName, "utf-8"))
         self.xRes = self.FrameBuffer.getXres(self.frameBuffer)
         self.yRes = self.FrameBuffer.getYres(self.frameBuffer)
         self.bitsPerPix = self.FrameBuffer.getBitsPerPix(self.frameBuffer)
+        debug("debugDisplay", "xRes", self.xRes)
+        debug("debugDisplay", "yRes", self.yRes)
+        debug("debugDisplay", "bitsPerPix", self.bitsPerPix)
         self.lock = threading.Lock()
         self.buttons = []
         self.elements = []
@@ -184,21 +188,25 @@ class Display(object):
 
     # clear the display
     def clear(self, color):
+        debug("debugDisplay", "clear", color)
         with self.lock:
             self.FrameBuffer.fill(self.frameBuffer, color)
 
     # fill an area of the display with a solid color
     def fill(self, xPos, yPos, width, height, color):
+        debug("debugDisplay", "fill", xPos, yPos, width, height, color)
         with self.lock:
             self.FrameBuffer.setPixMap(self.frameBuffer, xPos, yPos, width, height, color*width*height)
 
     # render a pixmap on the display
     def renderPixMap(self, xPos, yPos, width, height, pixMap):
+        debug("debugDisplay", "renderPixMap", xPos, yPos, width, height)
         with self.lock:
             self.FrameBuffer.setPixMap(self.frameBuffer, xPos, yPos, width, height, pixMap)
 
     # render text on the display
     def renderChars(self, face, fontSize, chars, xPos, yPos, xOffset, yOffset, fgColor, bgColor, width, height, just=0):
+        debug("debugDisplay", "renderChars", face, fontSize, chars, xPos, yPos, xOffset, yOffset, fgColor, bgColor, width, height, just)
         with self.lock:
             y = yOffset
             face.set_pixel_sizes(0, fontSize)
@@ -209,23 +217,23 @@ class Display(object):
                     face.load_char(char)
                     bitmap = face.glyph.bitmap
                     metrics = face.glyph.metrics
-                    if x+metrics.horiAdvance/64 > width:   # truncate if too big
+                    if int(x+metrics.horiAdvance/64) > width:   # truncate if too big
                         break
-                    self.FrameBuffer.setGrayMap(self.frameBuffer, x, y-metrics.horiBearingY/64, bitmap.width, bitmap.rows,
-                                        "".join(chr(c) for c in bitmap.buffer), fgColor, bgColor,
+                    self.FrameBuffer.setGrayMap(self.frameBuffer, x, int(y-metrics.horiBearingY/64), bitmap.width, bitmap.rows,
+                                        bytes(bitmap.buffer), fgColor, bgColor,
                                         bgMap, width, height)
-                    x += metrics.horiAdvance/64
+                    x += int(metrics.horiAdvance/64)
             else:           # right justified
                 x = xOffset + width
                 for char in reversed(chars):
                     face.load_char(char)
                     bitmap = face.glyph.bitmap
                     metrics = face.glyph.metrics
-                    x -= metrics.horiAdvance/64
+                    x -= int(metrics.horiAdvance/64)
                     if x < 0: # truncate if too big
                         break
-                    self.FrameBuffer.setGrayMap(self.frameBuffer, x, y-metrics.horiBearingY/64, bitmap.width, bitmap.rows,
-                                        "".join(chr(c) for c in bitmap.buffer), fgColor, bgColor,
+                    self.FrameBuffer.setGrayMap(self.frameBuffer, x, int(y-metrics.horiBearingY/64), bitmap.width, bitmap.rows,
+                                        bytes(bitmap.buffer), fgColor, bgColor,
                                         bgMap, width, height)
             self.FrameBuffer.setPixMap(self.frameBuffer, xPos, yPos, width, height, bgMap)
             self.FrameBuffer.freeMap(bgMap)

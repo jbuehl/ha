@@ -192,21 +192,21 @@ def wifiOff():
 # return the current wifi SSID
 def getSSID():
     try:
-        return subprocess.check_output("iwconfig "+wlan+"|grep ESSID", shell=True).strip("\n").split(":")[-1].split("/")[0].strip().strip('"')
+        return subprocess.check_output("iwconfig "+wlan+"|grep ESSID", shell=True).decode().strip("\n").split(":")[-1].split("/")[0].strip().strip('"')
     except:
         return ""
 
 # return the current wifi IP addr
 def getIPAddr():
     try:
-        return subprocess.check_output("ifconfig "+wlan+"|grep inet\ ", shell=True).strip("\n").split()[1]
+        return subprocess.check_output("ifconfig "+wlan+"|grep inet\ ", shell=True).decode().strip("\n").split()[1]
     except:
         return ""
 
 # return the up time
 def getUptime():
     try:
-        return "Uptime "+" ".join(c for c in subprocess.check_output("uptime", shell=True).strip("\n").split(",")[0].split()[2:])
+        return "Uptime "+" ".join(c for c in subprocess.check_output("uptime", shell=True).decode().strip("\n").split(",")[0].split()[2:])
     except:
         return ""
 
@@ -339,11 +339,11 @@ if __name__ == "__main__":
     timeStyle = Style("timeStyle", textStyle, fontSize=80, width=240, height=90, fgColor=color("Yellow"), just=1)
     ampmStyle = Style("ampmStyle", timeStyle, fontSize=32, width=60, height=90)
     tzStyle = Style("tzStyle", timeStyle, fontSize=32, width=80, height=90)
-    dateStyle = Style("dateStyle", textStyle, fontSize=24, width=220, height=36)
-    tempStyle = Style("tempStyle", textStyle, fontSize=72, width=180, height=90)
-    labelStyle = Style("labelStyle", textStyle, fontSize=32, width=190, height=50, fgColor=color("Cyan"))
-    valueStyle = Style("valueStyle", textStyle, fontSize=32, width=210, height=50, fgColor=color("LightYellow"))
-    velocityStyle = Style("velocityStyle", valueStyle, width=110)
+    dateStyle = Style("dateStyle", textStyle, fontSize=24, width=210, height=36)
+    tempStyle = Style("tempStyle", textStyle, fontSize=72, width=190, height=90)
+    labelStyle = Style("labelStyle", textStyle, fontSize=32, width=180, height=50, fgColor=color("Cyan"))
+    valueStyle = Style("valueStyle", textStyle, fontSize=32, width=220, height=50, fgColor=color("LightYellow"))
+    velocityStyle = Style("velocityStyle", valueStyle, width=120)
     compassStyle = Style("compassStyle", defaultStyle, width=100, height=100)
     containerStyle = Style("containerStyle", defaultStyle)
     buttonStyle = Style("buttonStyle", defaultStyle, width=100, height=90, margin=2, bgColor=color("Gray"))
