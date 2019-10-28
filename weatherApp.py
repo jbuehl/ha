@@ -31,9 +31,9 @@ if __name__ == "__main__":
     humidityCache = TempInterface("humidityCache", humiditySensor, sample=10)
 
     # Sensors
-    deckTemp = Sensor("deckTemp", barometerCache, "temp", group=["Temperature", "Weather"], label="Deck temp 2", type="tempF")
+    deckTemp = Sensor("deckTemp", barometerCache, "temp", group=["Temperature", "Weather"], label="Deck temp", type="tempF")
     barometer = Sensor("barometer", barometerCache, "barometer", group="Weather", label="Barometer", type="barometer")
-    deckTemp2 = Sensor("deckTemp2", humidityCache, "temp", group=["Temperature", "Weather"], label="Deck temp", type="tempF")
+    deckTemp2 = Sensor("deckTemp2", humidityCache, "temp", group=["Temperature", "Weather"], label="Deck temp 2", type="tempF")
     humidity = Sensor("humidity", humidityCache, "humidity", group="Weather", label="Humidity", type="humidity")
     dewpoint = Sensor("dewpoint", humidityCache, "dewpoint", group="Weather", label="Dewpoint", type="tempF")
 
