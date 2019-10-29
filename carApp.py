@@ -33,6 +33,7 @@ from ha.interfaces.timeInterface import *
 from ha.interfaces.i2cInterface import *
 from ha.interfaces.tc74Interface import *
 from ha.interfaces.tempInterface import *
+from ha.interfaces.osInterface import *
 
 # global variables
 resources = None
@@ -189,27 +190,6 @@ def wifiOff():
     wifiEnabled = False
     writeState()
 
-# return the current wifi SSID
-def getSSID():
-    try:
-        return subprocess.check_output("iwconfig "+wlan+"|grep ESSID", shell=True).decode().strip("\n").split(":")[-1].split("/")[0].strip().strip('"')
-    except:
-        return ""
-
-# return the current wifi IP addr
-def getIPAddr():
-    try:
-        return subprocess.check_output("ifconfig "+wlan+"|grep inet\ ", shell=True).decode().strip("\n").split()[1]
-    except:
-        return ""
-
-# return the up time
-def getUptime():
-    try:
-        return "Uptime "+" ".join(c for c in subprocess.check_output("uptime", shell=True).decode().strip("\n").split(",")[0].split()[2:])
-    except:
-        return ""
-
 def watchWifi(button):
     def checkWifi():
         while True:
@@ -242,21 +222,6 @@ class LinkSensor(Sensor):
     def getState(self):
         return self.sensor.getState()
 
-# sensor that returns an OS stat
-class OSSensor(Sensor):
-    def __init__(self, name, interface, addr, group="", type="sensor", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
-
-    def getState(self):
-        if self.addr == "ssid":
-            return getSSID()
-        elif self.addr == "ipAddr":
-            return getIPAddr()
-        elif self.addr == "uptime":
-            return getUptime()
-        else:
-            return ""
-
 if __name__ == "__main__":
     # get the persistent state
     readState()
@@ -272,6 +237,7 @@ if __name__ == "__main__":
     i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
     tc74Interface = TC74Interface("tc74Interface", i2cInterface)
     tempInterface = TempInterface("tempInterface", tc74Interface, sample=1)
+    osInterface = OSInterface("osInterface")
 
     # time sensors
     timeResource = Sensor("time", timeInterface, "%-I:%M", type="time", label="Time")
@@ -305,9 +271,9 @@ if __name__ == "__main__":
 
     # OS stat sensors
     osStatSensors = [
-        OSSensor("SSID", None, "ssid"),
-        OSSensor("IPAddr", None, "ipAddr"),
-        OSSensor("uptime", None, "uptime"),
+        Sensor("ipAddr", osInterface, "ssid "+wlan),
+        Sensor("ipAddr", osInterface, "ipAddr "+wlan),
+        Sensor("ipAddr", osInterface, "uptime"),
     ]
     # diag sensors
     diagSensors = [
@@ -343,6 +309,8 @@ if __name__ == "__main__":
     tempStyle = Style("tempStyle", textStyle, fontSize=72, width=190, height=90)
     labelStyle = Style("labelStyle", textStyle, fontSize=32, width=180, height=50, fgColor=color("Cyan"))
     valueStyle = Style("valueStyle", textStyle, fontSize=32, width=220, height=50, fgColor=color("LightYellow"))
+    diagLabelStyle = Style("diagLabelStyle", textStyle, fontSize=32, width=200, height=50, fgColor=color("Cyan"))
+    diagValueStyle = Style("diagValueStyle", textStyle, fontSize=32, width=200, height=50, fgColor=color("LightYellow"))
     velocityStyle = Style("velocityStyle", valueStyle, width=120)
     compassStyle = Style("compassStyle", defaultStyle, width=100, height=100)
     containerStyle = Style("containerStyle", defaultStyle)
@@ -415,8 +383,8 @@ if __name__ == "__main__":
                                 ]),
                            Div("diagSensors", containerStyle, [
                                Span(sensor.name, containerStyle, [
-                                   Text(sensor.name+"Label", labelStyle, sensor.label),
-                                   Text(sensor.name+"Value", valueStyle, resource=sensor),
+                                   Text(sensor.name+"Label", diagLabelStyle, sensor.label),
+                                   Text(sensor.name+"Value", diagValueStyle, resource=sensor),
                                    ],
                                )
                                for sensor in diagSensors]),

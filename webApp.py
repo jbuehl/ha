@@ -31,7 +31,7 @@ from ha.eventMonitor import *
 from ha.interfaces.restInterface import *
 from ha.interfaces.timeInterface import *
 from ha.interfaces.fileInterface import *
-from ha.interfaces.envInterface import *
+from ha.interfaces.osInterface import *
 from ha.rest.restServer import *
 from ha.rest.restProxy import *
 from ha.ui.webUI import *
@@ -135,10 +135,13 @@ if __name__ == "__main__":
     resources.addRes(Sensor("theDay", timeInterface, "%a %b %-d %Y", type="date", label="Day"))
     resources.addRes(Sensor("theTime", timeInterface, "%I:%M", type="time", label="Time"))
     resources.addRes(Sensor("theAmPm", timeInterface, "%p", type="ampm", label="AmPm"))
-    envInterface = EnvInterface("envInterface")
-    resources.addRes(Sensor("cpuTemp", envInterface, "cpuTemp", type="tempC", label="CPU temp"))
-    resources.addRes(Sensor("disk1use", envInterface, "/mnt/disk1", type="pct", label="Disk1 usage"))
-    resources.addRes(Sensor("disk2use", envInterface, "/mnt/disk2", type="pct", label="Disk2 usage"))
+    osInterface = OSInterface("osInterface")
+    resources.addRes(Sensor("hostname", osInterface, "hostname", group="System", label="Hostname"))
+    resources.addRes(Sensor("cpuTemp", osInterface, "cpuTemp", type="tempC", group="System", label="CPU temp"))
+    resources.addRes(Sensor("uptime", osInterface, "uptime", group="System", label="Uptime"))
+    resources.addRes(Sensor("ipAddr", osInterface, "ipAddr eth0", group="System", label="IP address"))
+    resources.addRes(Sensor("disk1use", osInterface, "diskUse /mnt/disk1", type="pct", group="System", label="Disk1 usage"))
+    resources.addRes(Sensor("disk2use", osInterface, "diskUse /mnt/disk2", type="pct", group="System", label="Disk2 usage"))
 
     stateInterface = FileInterface("stateInterface", fileName=stateDir+"ha.state", event=stateChangeEvent, initialState=defaultConfig)
     stateInterface.start()
