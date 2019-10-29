@@ -9,8 +9,7 @@ from ha import *
 from ha.interfaces.gpioInterface import *
 from ha.interfaces.i2cInterface import *
 from ha.interfaces.fileInterface import *
-from ha.interfaces.bmp085Interface import *
-from ha.interfaces.hih6130Interface import *
+from ha.interfaces.bme680Interface import *
 from ha.interfaces.tempInterface import *
 from ha.interfaces.windInterface import *
 from ha.interfaces.rainInterface import *
@@ -25,17 +24,16 @@ if __name__ == "__main__":
     i2c1 = I2CInterface("i2c1", bus=1)
     gpio1 = GPIOInterface("gpio1", input=[windSpeedAddr, windDirAddr, rainGaugeAddr])
     fileInterface = FileInterface("fileInterface", fileName=stateDir+"weather.state", event=stateChangeEvent, initialState=defaultConfig)
-    barometerSensor = BMP085Interface("bmp085Interface", i2c1)
-    humiditySensor = HIH6130Interface("hih6130Interface", i2c1)
+    barometerSensor = BME680Interface("barometerSensor", i2c1)
+    humiditySensor = barometerSensor
     barometerCache = TempInterface("barometerCache", barometerSensor, sample=10)
     humidityCache = TempInterface("humidityCache", humiditySensor, sample=10)
 
     # Sensors
-    deckTemp = Sensor("deckTemp", barometerCache, "temp", group=["Temperature", "Weather"], label="Deck temp", type="tempF")
+    deckTemp = Sensor("deckTemp", barometerCache, "temp", group=["Temperature", "Weather"], label="Deck temp", type="tempC")
     barometer = Sensor("barometer", barometerCache, "barometer", group="Weather", label="Barometer", type="barometer")
-    deckTemp2 = Sensor("deckTemp2", humidityCache, "temp", group=["Temperature", "Weather"], label="Deck temp 2", type="tempF")
     humidity = Sensor("humidity", humidityCache, "humidity", group="Weather", label="Humidity", type="humidity")
-    dewpoint = Sensor("dewpoint", humidityCache, "dewpoint", group="Weather", label="Dewpoint", type="tempF")
+    dewpoint = Sensor("dewpoint", humidityCache, "dewpoint", group="Weather", label="Dewpoint", type="tempC")
 
     anemometer = Sensor("anemometer", gpio1, addr=windSpeedAddr)
     windVane = Sensor("windVane", gpio1, addr=windDirAddr)
@@ -57,7 +55,7 @@ if __name__ == "__main__":
     schedule = Schedule("schedule", tasks=[rainResetTask])
 
     # Resources
-    resources = Collection("resources", resources=[deckTemp, deckTemp2, humidity, dewpoint, barometer,
+    resources = Collection("resources", resources=[deckTemp, humidity, dewpoint, barometer,
                                                    windSpeed, windDir, rainMinute, rainHour, rainDay,
                                                    ])
     restServer = RestServer("weather", resources, event=stateChangeEvent, label="Weather")
