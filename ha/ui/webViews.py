@@ -190,6 +190,7 @@ views = ViewDict(  {"none": View(),
          "int": View({}, "%d", intFormat),
          "int2": View({}, "%02d", intFormat),
          "int3": View({}, "%03d", intFormat),
+         "pct": View({}, "%3d %%"),
          "sequence": View({0:"Stopped", 1:"Running"}, "%s", None, {0:"Stop", 1:"Run"}),
          "task": View({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"})
          })

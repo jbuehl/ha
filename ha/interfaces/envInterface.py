@@ -10,4 +10,6 @@ class EnvInterface(Interface):
     def read(self, addr):
         if addr == "cpuTemp":
             value = float(subprocess.check_output("vcgencmd measure_temp", shell=True)[5:-3])
+        elif addr[1:4] == "mnt":
+            value = int(subprocess.check_output("df -h "+addr, shell=True).decode().split("\n")[1].split()[4].strip("%"))
         return value
