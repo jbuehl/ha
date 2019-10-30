@@ -6,8 +6,8 @@ from ha import *
 
 class BME680Interface(Interface):
     objectArgs = ["interface", "event"]
-    def __init__(self, name, interface, addr=0x77):
-        Interface.__init__(self, name, interface)
+    def __init__(self, name, interface=None, addr=0x77, event=None):
+        Interface.__init__(self, name, interface, event=event)
         self.addr = addr
         self.sensor = bme680.BME680(self.addr)
         self.sensor.set_humidity_oversample(bme680.OS_2X)
@@ -27,7 +27,7 @@ class BME680Interface(Interface):
             return self.sensor.data.humidity
         elif addr == "dewpoint":
             return self.sensor.data.temperature - (100 - self.sensor.data.humidity) / 5
-        elif addr == "pressure":
+        elif addr == "barometer":
             return self.sensor.data.pressure  * 0.029529983071445
         elif addr == "voc":
             if self.sensor.data.heat_stable:
