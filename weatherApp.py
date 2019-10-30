@@ -2,8 +2,14 @@ windSpeedAddr = 22
 windDirAddr = 23
 rainGaugeAddr = 4
 wunderground = True
+initialMinTemp = 999
+initialMaxTemp = 0
 
-defaultConfig = {"rainSamples": []}
+defaultConfig = {
+    "rainSamples": [],
+    "minTemp": initialMinTemp,
+    "maxTemp": initialMaxTemp,
+}
 
 from ha import *
 from ha.interfaces.gpioInterface import *
@@ -23,8 +29,8 @@ if __name__ == "__main__":
     # Interfaces
     i2c1 = I2CInterface("i2c1", bus=1)
     gpio1 = GPIOInterface("gpio1", input=[windSpeedAddr, windDirAddr, rainGaugeAddr])
-    fileInterface = FileInterface("fileInterface", fileName=stateDir+"weather.state", event=stateChangeEvent, initialState=defaultConfig)
-    weatherInterface = BME680Interface("weatherInterface", event=stateChangeEvent)
+    stateInterface = FileInterface("fileInterface", fileName=stateDir+"weather.state", event=stateChangeEvent, initialState=defaultConfig)
+    weatherInterface = BME680Interface("weatherInterface")
     # weatherCache = TempInterface("weatherCache", weatherInterface, sample=10)
 
     # Sensors
@@ -34,6 +40,9 @@ if __name__ == "__main__":
     dewpoint = Sensor("dewpoint", weatherInterface, "dewpoint", group="Weather", label="Dewpoint", type="tempC")
     voc = Sensor("voc", weatherInterface, "voc", group="Weather", label="VOC")
 
+    minTemp = MinSensor("minTemp", stateInterface, "minTemp", deckTemp, group=["Weather", "Sprinklers"], type="tempC", label="Min temp")
+    maxTemp = MaxSensor("maxTemp", stateInterface, "maxTemp", deckTemp, group=["Weather", "Sprinklers"], type="tempC", label="Max temp")
+
     anemometer = Sensor("anemometer", gpio1, addr=windSpeedAddr)
     windVane = Sensor("windVane", gpio1, addr=windDirAddr)
     windInterface = WindInterface("windInterface", None, anemometer=anemometer, windVane=windVane)
@@ -41,7 +50,7 @@ if __name__ == "__main__":
     windDir = Sensor("windDir", windInterface, addr="dir", type="Deg", group="Weather", label="Wind direction")
 
     rainGauge = Sensor("rainGauge", gpio1, addr=rainGaugeAddr)
-    rainInterface = RainInterface("rainInterface", fileInterface, rainGauge=rainGauge)
+    rainInterface = RainInterface("rainInterface", stateInterface, rainGauge=rainGauge)
     rainMinute = Sensor("rainMinute", rainInterface, "minute", type="in", group="Weather", label="Rain per minute")
     rainHour = Sensor("rainHour", rainInterface, "hour", type="in", group="Weather", label="Rain last hour")
     rainDay = Sensor("rainDay", rainInterface, "today", type="in", group="Weather", label="Rain today")
@@ -49,13 +58,17 @@ if __name__ == "__main__":
 
     # Tasks
     rainResetTask = Task("rainResetTask", SchedTime(hour=0, minute=0), rainReset, 0, enabled=True)
+    resetMinTempTask = Task("resetMinTempTask", SchedTime(hour=0, minute=0), minTemp, initialMinTemp, enabled=True, group="Sprinklers")
+    resetMaxTempTask = Task("resetMaxTempTask", SchedTime(hour=0, minute=0), maxTemp, initialMaxTemp, enabled=True, group="Sprinklers")
 
     # Schedule
-    schedule = Schedule("schedule", tasks=[rainResetTask])
+    schedule = Schedule("schedule", tasks=[rainResetTask, resetMinTempTask, resetMaxTempTask])
 
     # Resources
     resources = Collection("resources", resources=[deckTemp, humidity, dewpoint, barometer, voc,
                                                    windSpeed, windDir, rainMinute, rainHour, rainDay,
+                                                   minTemp, maxTemp,
+                                                   rainResetTask, resetMinTempTask, resetMaxTempTask,
                                                    ])
     restServer = RestServer("weather", resources, event=stateChangeEvent, label="Weather")
 
@@ -65,7 +78,7 @@ if __name__ == "__main__":
 
     # Start interfaces
     gpio1.start()
-    fileInterface.start()
+    stateInterface.start()
     # weatherSensor.start()
     rainInterface.start()
     schedule.start()
