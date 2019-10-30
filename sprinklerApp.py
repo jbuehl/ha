@@ -61,7 +61,7 @@ if __name__ == "__main__":
     dailySequence = Sequence("dailySequence", [frontLawnSequence, backLawnSequence, backBedSequence, gardenSequence, sideBedSequence], group="Sprinklers", label="Daily sprinklers")
     weeklySequence = Sequence("weeklySequence", [frontBedSequence, dailySequence], group="Sprinklers", label="Weekly sprinklers")
     # run sprinklers if the day's max temp exceeds a threshold
-    hotControl = DependentControl("hotControl", None, dailySequence, [(cacheResources["maxTemp"], ">=", hotTemp)], type="sequence", group="Sprinklers", label="Hot sprinklers")
+    hotControl = DependentControl("hotControl", None, dailySequence, [("maxTemp", ">=", hotTemp)], resources=cacheResources, type="sequence", group="Sprinklers", label="Hot sprinklers")
 
     # Tasks
     startHour = startTime.getState() / 60
@@ -72,12 +72,11 @@ if __name__ == "__main__":
     hotTask = Task("hotTask", SchedTime(hour=startHour, minute=00, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep]),
                         hotControl, 1, enabled=True, group="Sprinklers", label="Hot sprinkler task")
 
-    schedule = Schedule("schedule", tasks=[resetMinTempTask, resetMaxTempTask,
-                                           dailyTask, weeklyTask, hotTask,
+    schedule = Schedule("schedule", tasks=[dailyTask, weeklyTask, hotTask,
                                            ])
 
     # Resources
-    resources = Collection("resources", resources=[startTime, hotTemp, minTemp, maxTemp,
+    resources = Collection("resources", resources=[startTime, hotTemp,
                                                    frontLawn, frontBeds, garden, backLawn, sideBeds, backBeds,
                                                    frontLawnTime, frontBedTime, gardenTime, backLawnTime, sideBedTime, backBedTime,
                                                    frontLawnSequence, frontBedSequence, gardenSequence,

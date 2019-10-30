@@ -335,11 +335,12 @@ class ResourceStateSensor(Sensor):
 
 # Control that can only be turned on if all the specified resources are in the specified states
 class DependentControl(Control):
-    def __init__(self, name, interface, control, conditions, addr=None, group="", type="control", location=None, label="", interrupt=None):
+    def __init__(self, name, interface, control, conditions, resources=None, addr=None, group="", type="control", location=None, label="", interrupt=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.className = "Control"
         self.control = control
         self.conditions = conditions
+        self.resources = resources
 
     def getState(self):
         return self.control.getState()
@@ -347,10 +348,19 @@ class DependentControl(Control):
     def setState(self, state, wait=False):
         debug('debugState', self.name, "setState ", state)
         for (sensor, condition, value) in self.conditions:
-            sensorState = sensor.getState()
+            if isinstance(sensor, str):
+                sensorName = sensor
+                if self.resources:
+                    try:
+                        sensorState = self.resources[sensor].getState()
+                    except KeyError:
+                        sensorState = None
+            else:
+                sensorState = sensor.getState()
+                sensorName = sensor.name
             if isinstance(value, Sensor):
                 value = value.getState()
-            debug('debugDependentControl', self.name, sensor.name, sensorState, condition, value)
+            debug('debugDependentControl', self.name, sensorName, sensorState, condition, value)
             try:
                 if eval(str(sensorState)+condition+str(value)):
                     self.control.setState(state)
