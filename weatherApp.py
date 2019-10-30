@@ -34,14 +34,14 @@ if __name__ == "__main__":
     # weatherCache = TempInterface("weatherCache", weatherInterface, sample=10)
 
     # Sensors
-    deckTemp = Sensor("deckTemp", weatherInterface, "temp", group=["Temperature", "Weather"], label="Deck temp", type="tempC")
+    deckTemp = Sensor("deckTemp", weatherInterface, "temp", group=["Temperature", "Weather"], label="Deck temp", type="tempF")
     barometer = Sensor("barometer", weatherInterface, "barometer", group="Weather", label="Barometer", type="barometer")
     humidity = Sensor("humidity", weatherInterface, "humidity", group="Weather", label="Humidity", type="humidity")
-    dewpoint = Sensor("dewpoint", weatherInterface, "dewpoint", group="Weather", label="Dewpoint", type="tempC")
-    voc = Sensor("voc", weatherInterface, "voc", group="Weather", label="VOC")
+    dewpoint = Sensor("dewpoint", weatherInterface, "dewpoint", group="Weather", label="Dewpoint", type="tempF")
+    # voc = Sensor("voc", weatherInterface, "voc", group="Weather", label="VOC")
 
-    minTemp = MinSensor("minTemp", stateInterface, "minTemp", deckTemp, group=["Weather", "Sprinklers"], type="tempC", label="Min temp")
-    maxTemp = MaxSensor("maxTemp", stateInterface, "maxTemp", deckTemp, group=["Weather", "Sprinklers"], type="tempC", label="Max temp")
+    minTemp = MinSensor("minTemp", stateInterface, "minTemp", deckTemp, group=["Weather", "Sprinklers"], type="tempF", label="Min temp")
+    maxTemp = MaxSensor("maxTemp", stateInterface, "maxTemp", deckTemp, group=["Weather", "Sprinklers"], type="tempF", label="Max temp")
 
     anemometer = Sensor("anemometer", gpio1, addr=windSpeedAddr)
     windVane = Sensor("windVane", gpio1, addr=windDirAddr)
@@ -65,12 +65,12 @@ if __name__ == "__main__":
     schedule = Schedule("schedule", tasks=[rainResetTask, resetMinTempTask, resetMaxTempTask])
 
     # Resources
-    resources = Collection("resources", resources=[deckTemp, humidity, dewpoint, barometer, voc,
+    resources = Collection("resources", resources=[deckTemp, humidity, dewpoint, barometer, # voc,
                                                    windSpeed, windDir, rainMinute, rainHour, rainDay,
                                                    minTemp, maxTemp,
                                                    rainResetTask, resetMinTempTask, resetMaxTempTask,
                                                    ])
-    restServer = RestServer("weather", resources, event=stateChangeEvent, label="Weather")
+    restServer = RestServer("weather", resources, label="Weather")
 
     # report to Weather Underground
     if wunderground:

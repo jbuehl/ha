@@ -1,13 +1,8 @@
-tempSensorServices = []
-tempSensorName = "outsideTemp"
-initialMinTemp = 999
-initialMaxTemp = 0
+weatherService = ["weather"]
 
 defaultConfig = {
     "startTime": 18*60,    # sprinkler start time in minutes past midnight
     "hotTemp": 100,        # temperature threshold to run extra
-    "minTemp": initialMinTemp,
-    "maxTemp": initialMaxTemp,
     "sideBedTime": 600,
     "frontLawnTime": 1200,
     "frontBedTime": 3600,
@@ -26,7 +21,7 @@ from ha.rest.restProxy import *
 if __name__ == "__main__":
     stateChangeEvent = threading.Event()
     cacheResources = Collection("cacheResources")
-    restCache = RestProxy("restProxy", cacheResources, watch=tempSensorServices, event=stateChangeEvent)
+    restCache = RestProxy("restProxy", cacheResources, watch=weatherService, event=stateChangeEvent)
     restCache.start()
 
     # Interfaces
@@ -36,9 +31,6 @@ if __name__ == "__main__":
     stateInterface.start()
 
     # Sensors
-    tempSensor = SensorGroup("tempSensor", [tempSensorName], resources=cacheResources)
-    minTemp = MinSensor("minTemp", stateInterface, "minTemp", tempSensor, group=["Weather", "Sprinklers"], type="tempF", label="Min temp")
-    maxTemp = MaxSensor("maxTemp", stateInterface, "maxTemp", tempSensor, group=["Weather", "Sprinklers"], type="tempF", label="Max temp")
     startTime = Control("startTime", stateInterface, "startTime", group="Sprinklers", type="timeControl", label="Sprinkler start time")
     hotTemp = Control("hotTemp", stateInterface, "hotTemp", group="Sprinklers", type="tempFControl", label="Hot temp threshold")
 
@@ -69,11 +61,9 @@ if __name__ == "__main__":
     dailySequence = Sequence("dailySequence", [frontLawnSequence, backLawnSequence, backBedSequence, gardenSequence, sideBedSequence], group="Sprinklers", label="Daily sprinklers")
     weeklySequence = Sequence("weeklySequence", [frontBedSequence, dailySequence], group="Sprinklers", label="Weekly sprinklers")
     # run sprinklers if the day's max temp exceeds a threshold
-    hotControl = DependentControl("hotControl", None, dailySequence, [(maxTemp, ">=", hotTemp)], type="sequence", group="Sprinklers", label="Hot sprinklers")
+    hotControl = DependentControl("hotControl", None, dailySequence, [(cacheResources["maxTemp"], ">=", hotTemp)], type="sequence", group="Sprinklers", label="Hot sprinklers")
 
     # Tasks
-    resetMinTempTask = Task("resetMinTempTask", SchedTime(hour=0, minute=0), minTemp, initialMinTemp, enabled=True, group="Sprinklers")
-    resetMaxTempTask = Task("resetMaxTempTask", SchedTime(hour=0, minute=0), maxTemp, initialMaxTemp, enabled=True, group="Sprinklers")
     startHour = startTime.getState() / 60
     dailyTask = Task("dailyTask", SchedTime(hour=startHour, minute=00, weekday=[Mon, Wed], month=[May, Jun, Jul, Aug, Sep, Oct]),
                         dailySequence, 1, enabled=True, group="Sprinklers", label="Daily sprinkler task")
@@ -94,7 +84,6 @@ if __name__ == "__main__":
                                                    backLawnSequence, backBedSequence, sideBedSequence,
                                                    dailySequence, weeklySequence,
                                                    dailyTask, weeklyTask, hotTask,
-                                                   resetMinTempTask, resetMaxTempTask,
                                                    ])
     restServer = RestServer("sprinklers", resources, event=stateChangeEvent, label="Sprinklers")
 
