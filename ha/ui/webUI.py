@@ -332,7 +332,7 @@ class WebRoot(object):
         videoDir = cameraDir+camera+"/videos/"+dateDir(date)
         duration = (int(endhour) * 3600 + int(endminute) * 60) - (int(starthour) * 3600 + int(startminute) * 60)
         clipFileName = makeClip(videoDir, date+starthour+startminute, duration, "mp4")
-        videoClip = open(videoDir+clipFileName).read()
+        videoClip = open(videoDir+clipFileName, "rb").read()
         # archive the clip or delete it
         if archive == "true":
             debug('debugClip', "archiving", clipFileName)
