@@ -61,7 +61,7 @@ def iphoneUI(resources, templates, views):
                                                                  "loads.ac.power",
                                                                  "loads.cooking.power", "loads.pool.power", "loads.backhouse.power", "loads.carcharger.power",
                                                                  ]),
-                            weatherResources=resources.getResList(["deckTemp2", "poolEquipTemp", "atticTemp",
+                            weatherResources=resources.getResList(["poolEquipTemp", "atticTemp",
                                                                    "solar.inverters.stats.avgTemp", "solar.optimizers.stats.avgTemp", "maxTemp", "minTemp",
                                                                    "dewpoint", "humidity", "barometer",
                                                                    "windSpeed", "windDir", "rainDay", "rainHour", "rainMinute",
