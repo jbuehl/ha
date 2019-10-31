@@ -123,7 +123,6 @@ def makeClip(videoDir, startTime, duration, fileType):
     catFileName = startTime+"-cat.ts"
     with open(videoDir+catFileName, "wb") as catFile:
         for tsFileName in tsFileNames[firstFileIndex:firstFileIndex+nChunks]:
-            debug("debugClip", "chunk:", tsFileName)
             with open(videoDir+tsFileName, "rb") as tsFile:
                 catFile.write(tsFile.read())
     # convert the clip
