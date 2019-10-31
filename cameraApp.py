@@ -54,12 +54,12 @@ if __name__ == "__main__":
             videoThreads[-1].start()
 
     # start the snapshot threads
-    snapThreads = []
-    delay = 0
-    for camera in cameras:
-        snapThreads.append(threading.Thread(target=snapshots, args=(cameraDir, cameras[camera], today, force, repeat, delay,)))
-        snapThreads[-1].start()
-        delay += 1
+    # snapThreads = []
+    # delay = 0
+    # for camera in cameras:
+    #     snapThreads.append(threading.Thread(target=snapshots, args=(cameraDir, cameras[camera], today, force, repeat, delay,)))
+    #     snapThreads[-1].start()
+    #     delay += 1
 
     # start the motion event threads
     motionEventThreads = []
