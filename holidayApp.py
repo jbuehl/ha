@@ -139,6 +139,10 @@ if __name__ == "__main__":
                                                           pattern=patterns["fallPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Fall")
     halloweenLights = HolidayLightControl("Halloween", neopixelInterface,
+                                        segments=[Segment("all",     0, stringLength,
+                                                           pattern=patterns["halloweenPattern"])],
+                                        type="light", group=["Lights", "Holiday"], label="Halloween")
+    spookyLights = HolidayLightControl("Spooky", neopixelInterface,
                                         segments=[Segment("leftSegment",     0, 112,
                                                            pattern=5*[orange]),
                                                   Segment("centerSegment", 112,  58,
@@ -149,7 +153,7 @@ if __name__ == "__main__":
                                                   Segment("farRightSegment", 310, 33,
                                                            pattern=5*[orange],
                                                            animation=FlickerAnimation())],
-                                        type="light", group=["Lights", "Holiday"], label="Halloween")
+                                        type="light", group=["Lights", "Holiday"], label="Spooky")
     electionLights = HolidayLightControl("Election day", neopixelInterface,
                                         segments=[Segment("leftSegment",     0, 112,
                                                            pattern=10*[red]+10*[white]+10*[blue],
@@ -177,7 +181,7 @@ if __name__ == "__main__":
 
     holidayLightControls = Collection("HolidayLightControls", resources=[offLights, valentinesLights, presidentsLights, mardigrasLights, stpatricksLights,
                            easterLights, maydayLights, cincodemayoLights, swedenLights, prideLights, flagLights, canadaLights, july4Lights, bastilleLights,
-                           fallLights, halloweenLights, electionLights, christmasLights, hanukkahLights,
+                           fallLights, halloweenLights, spookyLights, electionLights, christmasLights, hanukkahLights,
                            testLights])
     # Persistent config data
     holiday = MultiControl("holiday", configData, "holiday", values=list(holidayLightControls.keys()),
@@ -209,7 +213,7 @@ if __name__ == "__main__":
             ]
 
     # Resources
-    resources = Collection("resources", resources=[holiday, garageTemp])
+    resources = Collection("resources", resources=[garageTemp])
     holidayLights = AliasControl("holidayLights", None, holidayLightControls, holiday, type="light", group=["Lights", "Holiday"], label="Holiday lights")
 
     # start the cache to listen for services on other servers
@@ -252,6 +256,7 @@ if __name__ == "__main__":
                                                resources=cacheResources,
                                                type="light", group="Lights", label="Outside lights")
     resources.addRes(holidayLights)
+    resources.addRes(holiday)
     resources.addRes(porchLights)
     resources.addRes(xmasLights)
     resources.addRes(bedroomLights)
