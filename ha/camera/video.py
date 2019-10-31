@@ -95,40 +95,45 @@ def recordVideo(cameraDir, camera, date):
 
 # find a video fragment that contains the specified time
 def findChunk(videoDir, startTime):
+    startTime = (startTime+"00")[0:6]   # add seconds if there aren't any
     videoFiles = os.listdir(videoDir)
-    tsFiles = []
+    tsFileNames = []
     # filter out files that are not .ts
     for videoFile in videoFiles:
        if videoFile.split(".")[1] == "ts":
-           tsFiles.append(videoFile)
-    tsFiles.sort(reverse=True)
+           if videoFile.split(".")[0].isnumeric():
+               tsFileNames.append(videoFile)
+    tsFileNames.sort()
     # find the chunk where the event starts
-    firstFile = 0
-    for tsFile in tsFiles:
-         if int(tsFile[-9:-3]) <= int(startTime[-6:]): # hhmmss
-            firstFile = tsFiles.index(tsFile)
+    firstFileIndex = len(tsFileNames)
+    for tsFileName in tsFileNames:
+        if int(tsFileName[8:14]) >= int(startTime[8:14]): # hhmmss
+            firstFileIndex = tsFileNames.index(tsFileName)
             break
-    return (tsFiles, firstFile)
+    return (tsFileNames, firstFileIndex)
 
 # make a video clip from a series of ts chunks
 def makeClip(videoDir, startTime, duration, fileType):
-    chunks = int(duration / chunkDuration)
-    debug("debugClip", "creating clip", "videoDir:", videoDir, "startTime:", startTime, "duration:", duration, "chunks:", chunks)
-    (tsFiles, firstFile) = findChunk(videoDir, startTime)
-    chunks = min(chunks, firstFile+1)
+    nChunks = int(duration / chunkDuration)
+    nChunks = min(nChunks, 60)  # 10 minutes max
+    debug("debugClip", "creating clip", "videoDir:", videoDir, "startTime:", startTime, "duration:", duration, "nChunks:", nChunks)
+    (tsFileNames, firstFileIndex) = findChunk(videoDir, startTime)
+    debug("debugClip", "firstChunk:", tsFileNames[0], "firstChunkIndex:", firstFileIndex)
+    # concatenate the chunks into one file
+    catFileName = startTime+"-cat.ts"
+    with open(videoDir+catFileName, "wb") as catFile:
+        for tsFileName in tsFileNames[firstFileIndex:firstFileIndex+nChunks]:
+            debug("debugClip", "chunk:", tsFileName)
+            with open(videoDir+tsFileName, "rb") as tsFile:
+                catFile.write(tsFile.read())
+    # convert the clip
     clipFileName = startTime+"."+fileType
-    # concatenate the chunks into a clip
-    cmd  = "/usr/bin/ffmpeg -i 'concat:"
-    i = 0
-    while i < chunks:
-        tsFile = videoDir+tsFiles[firstFile-i]
-        debug("debugClip", "chunk:", tsFile)
-        cmd += tsFile+"|"
-        i += 1
-    cmd = cmd[:-1]+"' -nostats -loglevel error -y -c copy "+videoDir+clipFileName
+    cmd = "/usr/bin/ffmpeg -i "+videoDir+catFileName+" -nostats -loglevel error -y -c copy "+videoDir+clipFileName
     debug("debugClip", "cmd:", cmd)
     try:
         output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True).decode()
+        debug("debugClip", "deleting", catFileName)
+        output = subprocess.check_output("rm "+videoDir+catFileName, stderr=subprocess.STDOUT, shell=True).decode()
         return clipFileName
     except subprocess.CalledProcessError as exception:
         log("clip creation failed for", clipFileName, "exit code:", exception.returncode, exception.output)
