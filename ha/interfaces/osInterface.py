@@ -14,9 +14,15 @@ class OSInterface(Interface):
         elif addrParts[0] == "diskUse":
             return int(subprocess.check_output("df -h "+addrParts[1], shell=True).decode().split("\n")[1].split()[4].strip("%"))
         elif addrParts[0] == "ssid":
-            return subprocess.check_output("iwconfig "+addrParts[1]+"|grep ESSID", shell=True).decode().strip("\n").split(":")[-1].split("/")[0].strip().strip('"')
+            try:
+                return subprocess.check_output("iwconfig "+addrParts[1]+"|grep ESSID", shell=True).decode().strip("\n").split(":")[-1].split("/")[0].strip().strip('"')
+            except subprocess.CalledProcessError:
+                return ""
         elif addrParts[0] == "ipAddr":
-            return subprocess.check_output("ifconfig "+addrParts[1]+"|grep inet\ ", shell=True).decode().strip("\n").split()[1]
+            try:
+                return subprocess.check_output("ifconfig "+addrParts[1]+"|grep inet\ ", shell=True).decode().strip("\n").split()[1]
+            except subprocess.CalledProcessError:
+                return ""
         elif addrParts[0] == "uptime":
             return " ".join(c for c in subprocess.check_output("uptime", shell=True).decode().strip("\n").split(",")[0].split()[2:])
         elif addrParts[0] == "hostname":

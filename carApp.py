@@ -194,7 +194,7 @@ def watchWifi(button):
     def checkWifi():
         while True:
             if wifiEnabled:
-                ssid = getSSID()
+                ssid = subprocess.check_output("iwconfig "+wlan+"|grep ESSID", shell=True).decode().strip("\n").split(":")[-1].split("/")[0].strip().strip('"')
                 if ssid == "off":
                     button.setFront(2)
                 else:
