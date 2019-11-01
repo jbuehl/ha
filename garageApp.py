@@ -1,8 +1,9 @@
 
 doorbellState = 0
-doorbellSound = "doorbell.wav"
+doorbellSound = "addamsdoorbell.wav"
 doorbellNotifyMsg = "Doorbell "
 
+import time
 from ha import *
 from ha.interfaces.mcp23017Interface import *
 from ha.interfaces.i2cInterface import *
@@ -20,8 +21,8 @@ def doorbellHandler(doorbellControl):
         doorbellControl.setState(1)
         debug('debugDoorbell', "sending notification")
         notify("alertDoorbell", doorbellNotifyMsg)
-        # debug('debugDoorbell', "playing", soundDir+doorbellSound)
-        # os.system("aplay "+soundDir+doorbellSound)
+        debug('debugDoorbell', "playing", soundDir+doorbellSound)
+        os.system("aplay "+soundDir+doorbellSound)
 
 def doorbellInterrupt(sensor, state):
     global doorbellState

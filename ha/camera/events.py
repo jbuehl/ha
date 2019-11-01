@@ -26,7 +26,7 @@ def createEvent(eventType, cameraName, eventTime):
     os.popen("mkdir -p "+imageDir)
     os.popen("chown -R "+ftpUsername+"."+ftpUsername+" "+cameraDir+cameraName+"/images/")
     try:
-        (tsFiles, firstFile) = findChunk(videoDir, hour+minute+second)
+        (tsFiles, firstFile) = findChunk(videoDir, eventTime)
         # wait for the fragment to finish recording
         time.sleep(10)
         offset = 0 # findOffset(tsFiles[firstFile], hour, minute, second)
@@ -45,7 +45,7 @@ def createSnap(cameraName, eventTime, wait=True):
     thumbDir = cameraDir+cameraName+"/thumbs/"+dateDir(date)
     os.popen("mkdir -p "+thumbDir)
     try:
-        (tsFiles, firstFile) = findChunk(videoDir, hour+minute+second)
+        (tsFiles, firstFile) = findChunk(videoDir, eventTime)
         # debug("debugSnaps", "createSnap", cameraName, firstFile, tsFiles[firstFile])
         if wait:
             # wait for the fragment to finish recording

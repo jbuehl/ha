@@ -95,7 +95,7 @@ def recordVideo(cameraDir, camera, date):
 
 # find a video fragment that contains the specified time
 def findChunk(videoDir, startTime):
-    startTime = (startTime+"00")[0:6]   # add seconds if there aren't any
+    startTime = (startTime+"00")[0:14]   # add seconds if there aren't any
     videoFiles = os.listdir(videoDir)
     tsFileNames = []
     # filter out files that are not .ts
