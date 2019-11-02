@@ -105,7 +105,7 @@ def findChunk(videoDir, startTime):
                tsFileNames.append(videoFile)
     tsFileNames.sort()
     # find the chunk where the event starts
-    firstFileIndex = len(tsFileNames)
+    firstFileIndex = len(tsFileNames) - 1
     for tsFileName in tsFileNames:
         if int(tsFileName[8:14]) >= int(startTime[8:14]): # hhmmss
             firstFileIndex = tsFileNames.index(tsFileName)
