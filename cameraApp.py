@@ -1,4 +1,9 @@
 # Camera management
+cameraPurge = False
+cameraVideo = False
+cameraSnaps = False
+cameraMotion = False
+cameraStorage = False
 
 import sys
 import time
@@ -15,60 +20,53 @@ if __name__ == "__main__":
         today = sys.argv[1]
         force = True
         repeat = 0
-        purge = False
-        video = False
-        storage = False
         block = False
     except:
         # running as service
         today = time.strftime("%Y%m%d")
         force = False
         repeat = True
-        purge = True
-        video = True
-        storage = True
         block = True
     debug('debugEnable', "date:", today)
     debug('debugEnable', "force:", force)
     debug('debugEnable', "repeat:", repeat)
-    debug('debugEnable', "purge:", purge)
-    debug('debugEnable', "video:", video)
-    debug('debugEnable', "storage:", storage)
     debug('debugEnable', "block:", block)
 
     # get the camera attributes
     cameras = getCameras()
 
     # purge old video
-    if purge:
+    if cameraPurge:
         purgeThreads = []
         for cameraName in list(cameras.keys()):
             purgeThreads.append(threading.Thread(target=purgeStorage, args=(cameraName, repeat,)))
             purgeThreads[-1].start()
 
     # start the video threads
-    if video:
+    if cameraVideo:
         videoThreads = []
         for camera in cameras:
             videoThreads.append(threading.Thread(target=recordVideo, args=(cameraDir, cameras[camera], today,)))
             videoThreads[-1].start()
 
     # start the snapshot threads
-    # snapThreads = []
-    # delay = 0
-    # for camera in cameras:
-    #     snapThreads.append(threading.Thread(target=snapshots, args=(cameraDir, cameras[camera], today, force, repeat, delay,)))
-    #     snapThreads[-1].start()
-    #     delay += 1
+    if cameraSnaps:
+        snapThreads = []
+        delay = 0
+        for camera in cameras:
+            snapThreads.append(threading.Thread(target=snapshots, args=(cameraDir, cameras[camera], today, force, repeat, delay,)))
+            snapThreads[-1].start()
+            delay += 1
 
     # start the motion event threads
-    motionEventThreads = []
-    for camera in cameras:
-        motionEventThreads.append(threading.Thread(target=motionEvents, args=(cameraDir, cameras[camera], today, force, repeat,)))
-        motionEventThreads[-1].start()
+    if cameraMotion:
+        motionEventThreads = []
+        for camera in cameras:
+            motionEventThreads.append(threading.Thread(target=motionEvents, args=(cameraDir, cameras[camera], today, force, repeat,)))
+            motionEventThreads[-1].start()
 
     # start the event storage thread
-    if storage:
+    if cameraStorage:
         storageThread = threading.Thread(target=getStorageStats, args=(cameraDir, cameras, repeat,))
         storageThread.start()
 
