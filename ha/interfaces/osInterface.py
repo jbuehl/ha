@@ -25,7 +25,5 @@ class OSInterface(Interface):
                 return ""
         elif addrParts[0] == "uptime":
             return " ".join(c for c in subprocess.check_output("uptime", shell=True).decode().strip("\n").split(",")[0].split()[2:])
-        elif addrParts[0] == "hostname":
-            return subprocess.check_output("hostname", shell=True).decode().strip("\n")
         else:
             return None
