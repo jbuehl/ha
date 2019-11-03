@@ -20,7 +20,7 @@ def iphoneUI(resources, templates, views):
                                     poolPumpControl=resources.getRes("poolPump"), poolPumpFlowSensor=resources.getRes("poolPumpFlow"), nSetValues=5, views=views),
                             poolResources=resources.getResList(["valveMode", "spaBlower", "spaFill", "spaFlush", "spaDrain", "cleanSequence"]),
                             lightResources=resources.getResList(["frontLights", "backLights", "deckLights", "trashLights", "garageBackDoorLight",
-                                                                 "poolLight", "spaLight"]),
+                                                                 "poolLight", "spaLight", "sculptureLights"]),
                             shadeResources=resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"]),
                             sprinklerResources=resources.getResList(["backLawnSequence", "backBedSequence", "gardenSequence",
                                                                      "sideBedSequence", "frontLawnSequence", "frontBedSequence",
