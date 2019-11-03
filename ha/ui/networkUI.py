@@ -31,7 +31,7 @@ def networkUI(order, templates, views):
     try:
         with stateLock.acquire(timeout=5):
             (sampleTime, netStats, deviceStats) = json.load(open(stateDir+stateFileName, "r"))
-    except Timeout:
+    except filelock.Timeout:
         return "state file locked"
     # add pin time and signal strength colors
     netLines = [[netStat[0]]+[[pingTime, pingColor(pingTime)] for pingTime in netStat[1:4]]+netStat[4:] for netStat in netStats]
