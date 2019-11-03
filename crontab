@@ -1,2 +1,1 @@
-0 0 * * * /usr/bin/systemctl restart datalogApp
-
+0 0 * * * /bin/systemctl restart cameraApp
