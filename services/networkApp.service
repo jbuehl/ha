@@ -1,0 +1,8 @@
+[Unit]
+Description=Network devices
+After=syslog.target network-online.target
+[Service]
+ExecStart=/usr/bin/python /root/ha/networkApp.py
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target

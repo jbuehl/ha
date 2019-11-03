@@ -41,6 +41,7 @@ from ha.ui.ipadUI import *
 from ha.ui.iphoneUI import *
 from ha.ui.bedroomUI import *
 from ha.ui.solarUI import *
+from ha.ui.networkUI import *
 from ha.ui.cameraUI import *
 from ha.camera.classes import *
 
@@ -104,11 +105,17 @@ def cameras(function=None, camera=None, date=None, resource=None):
     debug('debugWeb', "/cameras", cherrypy.request.method)
     return cameraUI(function, camera, date, resource, cameras, resources, templates, views)
 
+# Network statistics
+def network(order=None):
+    debug('debugWeb', "/network", cherrypy.request.method)
+    return networkUI(order, templates, views)
+
 # dispatch table
 pathDict = {"": index,
             "details": details,
             "solar": solar,
             "cameras": cameras,
+            "network": network,
             "ipad": ipad,
             "iphone": iphone,
             "bedroom": bedroom,

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+<head>
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' type='text/css' href='/css/network.css'>
+    <script src='/js/jquery.min.js'></script>
+    <script type="text/JavaScript">
+        function TimedRefresh(t) {
+            setTimeout("location.reload(true);", t);
+        }
+        // set the color for the signal strength
+        function signalColor(nSignal) {
+            if (nSignal < -79) {return "OrangeRed";}
+            else if (nSignal < -67) {return "Gold";}
+            else {return "LawnGreen";}
+        }
+        // set the color for the ping time
+        function pingColor(pingTime) {
+            if (pingTime > maxPingTime*1000) {return "Crimson";}
+            else if (pingTime > 1000) {return "OrangeRed";}
+            else if (pingTime > 500) {return "Gold";}
+            else {return "LawnGreen";}
+        }
+    </script>
+</head>
+<body onload="JavaScript:TimedRefresh(60000);">
+    <div class="heading">
+        <span class="title">{{ title }}</span>
+        <span class="time">{{ time }}</span>
+    </div>
+    <br>
+    <div class="netstats">
+        <div class="netcolumns">
+            {% for nethead in netheads %}
+            <span class="nethead">{{ nethead }}</span>
+            {% endfor %}
+        </div>
+        {% for netline in netlines %}
+        <div class="netcolumns">
+            <span class="network">{{ netline[0] }}</span>
+            <span class="netstat" style="color:{{ netline[1][1] }};">{{ netline[1][0] }} msec</span>
+            <span class="netstat" style="color:{{ netline[2][1] }};">{{ netline[2][0] }} msec</span>
+            <span class="netstat" style="color:{{ netline[3][1] }};">{{ netline[3][0] }} msec</span>
+            <span class="netstat">{{ netline[7] }} GB</span>
+            <span class="netstat">{{ netline[8] }} GB</span>
+        </div>
+        {% endfor %}
+    </div>
+    <br>
+    <div class="devices">
+        <div class="columnheads">
+            {% for columnhead in columnheads %}
+            <span>
+                <a class="columnhead" href="/network?order={{ columnhead }}">{{ columnhead }}</a>
+            </span>
+            {% endfor %}
+        </div>
+        {% for line in lines %}
+        <div class="device">
+            <span class="ip">{{ line[0][0] }}.{{ line[0][1] }}.{{ line[0][2] }}.{{ line[0][3] }}</span>
+            <span class="sd">{{ line[1] }}</span>
+            <span class="mac">{{ line[2] }}</span>
+            <span class="ap">{{ line[3] }}</span>
+            <span class="signal" style="color:{{ line[4][1] }};">{{ line[4][0] }}</span>
+            <span class="host">{{ line[5] }}</span>
+            <span class="manuf">{{ line[6] }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

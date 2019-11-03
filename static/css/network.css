@@ -1,0 +1,144 @@
+:root {
+    --bg-color: #424242;
+}
+
+body, html {
+    background-color: var(--bg-color);
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;    }
+
+* {
+  	color: LightYellow;
+  	font-size: 16px;
+  	font-family: "Courier", Courier, monospace;
+  	text-align: left;
+  	text-indent: 0px;
+    margin-left: 10px;
+    margin-right: 10px;
+    box-sizing: inherit;
+    }
+
+h1 {
+  	color: OrangeRed;
+  	font-weight: bold;
+  	font-family: "Helvetica", Helvetica, sans-serif;
+  	font-size: 32px;
+  	text-align: left;
+	margin-top: 0px;
+}
+
+.heading {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 880px 320px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.title {
+    color: OrangeRed;
+  	font-weight: bold;
+  	font-family: "Helvetica", Helvetica, sans-serif;
+  	font-size: 32px;
+  	text-align: left;
+	margin-top: 0px;
+    }
+
+.time {
+  	font-weight: bold;
+  	font-family: "Helvetica", Helvetica, sans-serif;
+  	text-align: right;
+	margin-top: 0px;
+    }
+
+.devices {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    }
+
+.netstats {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    }
+
+.netcolumns {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 160px 160px 160px 160px 160px 160px;
+    }
+
+.nethead{
+    color: LightGray;
+    text-align: left;
+    text-decoration: underline;
+    }
+
+.columnheads {
+    width: 100%;
+    margin-left: 0;
+    display: grid;
+    grid-template-columns: 160px 16px 180px 160px 48px 280px 360px;
+    }
+
+.columnhead {
+	color: LightGray;
+    text-decoration: underline;
+    text-align: left;
+    }
+
+.device {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 160px 16px 180px 160px 48px 280px 360px;
+    }
+
+.network {
+    text-align: left;
+    }
+
+.netstat {
+    text-align: left;
+    }
+
+.ip {
+	text-align: left;
+    }
+
+.sd {
+	text-align: center;
+    margin-left: 0px;
+    margin-right: 0px;
+    }
+
+.mac {
+	text-align: left;
+    }
+
+.ap {
+	text-align: left;
+    }
+
+.signal {
+	text-align: right;
+    }
+
+.host {
+	text-align: left;
+    }
+
+.manuf {
+	text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    }
+
+a {
+    color: LightGray;
+    text-decoration: underline;
+    text-align: left;
+    }
