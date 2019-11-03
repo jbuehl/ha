@@ -67,7 +67,10 @@ class TimeInterface(Interface):
             elif addr == "timeZone":
                 return self.tz
             elif addr == "timeZoneName":
-                return pytz.timezone(self.tz).tzname(utcNow)
+                try:
+                    return pytz.timezone(self.tz).tzname(utcNow)
+                except pytz.exceptions.AmbiguousTimeError:
+                    return "WTF"
             else:
                 return time.strftime(addr, localNow.timetuple()).lstrip("0")
         else:
