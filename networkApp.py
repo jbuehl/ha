@@ -206,8 +206,9 @@ def getNetwork():
             sampleTime = time.strftime("%a %b %d %Y %H:%M")
 
             # write everything to the state file
-            with stateLock:
-                json.dump((sampleTime, netLines, deviceStats), open(stateDir+stateFileName, "w"))
+            # with stateLock:
+            #     json.dump((sampleTime, netLines, deviceStats), open(stateDir+stateFileName, "w"))
+            json.dump((sampleTime, netLines, deviceStats), open(stateDir+stateFileName, "w"))
         time.sleep(dataInterval)
 
 if __name__ == "__main__":
