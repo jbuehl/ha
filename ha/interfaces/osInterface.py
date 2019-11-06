@@ -13,7 +13,7 @@ class OSInterface(Interface):
             return float(subprocess.check_output("vcgencmd measure_temp", shell=True)[5:-3])
         elif addrParts[0] == "diskUse":
             useParts = subprocess.check_output("df "+addrParts[1], shell=True).decode().split("\n")[1].split()
-            return 100 * int(useParts[2]) / (int(useParts[2] + int(useParts[3])))
+            return 100 * int(useParts[2]) / (int(useParts[2]) + int(useParts[3]))
         elif addrParts[0] == "ssid":
             try:
                 return subprocess.check_output("iwconfig "+addrParts[1]+"|grep ESSID", shell=True).decode().strip("\n").split(":")[-1].split("/")[0].strip().strip('"')
