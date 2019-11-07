@@ -39,7 +39,7 @@ def networkUI(order, templates, views):
             (sampleTime, netStats, deviceStats) = json.load(open(stateDir+stateFileName, "r"))
             decoded = True
         except Exception as ex:
-            log("exception", str(ex), stateData)
+            log("exception", str(ex))
     # add pin time and signal strength colors
     netLines = [[netStat[0]]+[[pingTime, pingColor(pingTime)] for pingTime in netStat[1:4]]+netStat[4:] for netStat in netStats]
     deviceLines = [[tuple(int(x) for x in deviceStat[0].split("."))]+deviceStat[1:4]+ \
