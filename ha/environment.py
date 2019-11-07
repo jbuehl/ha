@@ -12,6 +12,7 @@ soundDir = rootDir+"sounds/"
 dataLogDir = "data/"
 dataLogFileName = ""
 hostname = socket.gethostname()
+metricsServer = "metrics.buehl.co"
 
 # Localization - FIXME - put in a config file
 latLong = (34.149044, -118.401994)

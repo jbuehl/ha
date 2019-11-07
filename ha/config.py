@@ -1,6 +1,8 @@
 # Read configuration files and set global variables
 
 import os
+import socket
+import time
 from .environment import *
 from .logging import *
 
@@ -31,3 +33,13 @@ try:
             log("config", "error reading", configDir+configFileName)
 except:
     log("config", "no config directory", configDir)
+
+def waitForDns():
+    while True:
+        try:
+            metricsHost = socket.gethostbyname(metricsServer)
+            log("DNS is up")
+            return
+        except:
+            log("Waiting for DNS")
+            time.sleep(1)

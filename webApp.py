@@ -122,6 +122,7 @@ pathDict = {"": index,
             }
 
 if __name__ == "__main__":
+    waitForDns()
     # initialize resources
     try:
         with open(rootDir+"aliases") as aliasFile:

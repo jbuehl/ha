@@ -212,6 +212,8 @@ def getNetwork():
         time.sleep(dataInterval)
 
 if __name__ == "__main__":
+    
+    waitForDns()
     # start the thread to get vendor names
     getVendorThread = threading.Thread(target=getVendors)
     getVendorThread.start()
