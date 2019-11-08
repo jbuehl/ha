@@ -93,9 +93,11 @@ def splitTime(timeStamp):
 def addTimes(time1, time2):
     [hh1, mm1, ss1] = [int(time1[0:2]), int(time1[2:4]), int(time1[4:6])]
     [hh2, mm2, ss2] = [int(time2[0:2]), int(time2[2:4]), int(time2[4:6])]
-    ss = (ss1 + ss2)%60
-    mm = (mm1 + mm2 + (ss1 + ss2)/60)%60
-    hh = (hh1 + hh2 + (mm1 + mm2)/60)
+    t1 = hh1 * 3600 + mm1 * 60 + ss1
+    t2 = hh2 * 3600 + mm2 * 60 + ss2
+    hh = int((t1 + t2) / 3600)
+    mm = int(((t1 + t2) % 3600) / 60)
+    ss = int(((t1 + t2) % 3600) % 60)
     return "%02d%02d%02d"%(hh, mm, ss)
 
 # subtract two times represented by a string of the form HHMMSS
@@ -103,7 +105,9 @@ def addTimes(time1, time2):
 def subTimes(time1, time2):
     [hh1, mm1, ss1] = [int(time1[0:2]), int(time1[2:4]), int(time1[4:6])]
     [hh2, mm2, ss2] = [int(time2[0:2]), int(time2[2:4]), int(time2[4:6])]
-    ss = (ss1 - ss2)%60
-    mm = (mm1 - mm2 + (ss1 - ss2)/60)%60
-    hh = (hh1 - hh2 + (mm1 - mm2)/60)
+    t1 = hh1 * 3600 + mm1 * 60 + ss1
+    t2 = hh2 * 3600 + mm2 * 60 + ss2
+    hh = int((t1 - t2) / 3600)
+    mm = int(((t1 - t2) % 3600) / 60)
+    ss = int(((t1 - t2) % 3600) % 60)
     return "%02d%02d%02d"%(hh, mm, ss)
