@@ -137,7 +137,7 @@ def getNetwork():
                     debug("debugNetwork", pingCmd)
                     pingTime = float(subprocess.check_output(pingCmd, shell=True).decode().split("\n")[-2].split()[3].split("/")[0])
                 except:
-                    pingTime = 9999.999
+                    pingTime = 999.999
                 debug("debugNetwork", hostName, "ping time", pingTime)
                 pingTimes.append(pingTime)
 
@@ -150,8 +150,8 @@ def getNetwork():
                 inBytes = bytes2GB(todayStats["in"])
                 outBytes = bytes2GB(todayStats["out"])
             except:
-                inBytes = "0"
-                outBytes = "0"
+                inBytes = 0
+                outBytes = 0
             netstats[network] = pingTimes+[inBytes, outBytes]
 
         # create network stats table
