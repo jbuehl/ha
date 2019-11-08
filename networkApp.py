@@ -137,7 +137,6 @@ def getNetwork():
                     debug("debugNetwork", pingCmd)
                     pingTime = float(subprocess.check_output(pingCmd, shell=True).decode().split("\n")[-2].split()[3].split("/")[0])
                 except:
-                    raise
                     pingTime = 9999.999
                 debug("debugNetwork", hostName, "ping time", pingTime)
                 pingTimes.append(pingTime)
@@ -212,7 +211,7 @@ def getNetwork():
         time.sleep(dataInterval)
 
 if __name__ == "__main__":
-    
+
     waitForDns()
     # start the thread to get vendor names
     getVendorThread = threading.Thread(target=getVendors)
