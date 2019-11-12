@@ -1,6 +1,7 @@
 
 
 from jinja2 import FileSystemLoader
+import time
 import filelock
 from ha import *
 from ha.network.environment import *
@@ -39,7 +40,8 @@ def networkUI(order, templates, views):
             (sampleTime, netStats, deviceStats) = json.load(open(stateDir+stateFileName, "r"))
             decoded = True
         except Exception as ex:
-            log("exception", str(ex))
+            log("exception reading network data", str(ex))
+            time.sleep(1)
     # add pin time and signal strength colors
     netLines = [[netStat[0]]+[[pingTime, pingColor(pingTime)] for pingTime in netStat[1:4]]+netStat[4:] for netStat in netStats]
     deviceLines = [[tuple(int(x) for x in deviceStat[0].split("."))]+deviceStat[1:4]+ \
