@@ -238,7 +238,7 @@ if __name__ == "__main__":
     bedroomLights = ControlGroup("bedroomLights", ["bedroomLight",
                                                "bathroomLight"],
                                                resources=cacheResources,
-                                               stateList=[[0, 100, 0], [0, 100, 10]],
+                                               stateList=[[0, 30, 0], [0, 100, 10]],
                                                type="nightLight", group="Lights", label="Night lights")
     outsideLights = ControlGroup("outsideLights", ["frontLights",
                                                "sculptureLights",
