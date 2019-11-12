@@ -1,9 +1,9 @@
 # python2 to python3 update
 
-apt-get -y upgrade
-apt-get -y update
-apt-get -y install python3
-apt-get -y install python3-pip
+apt -y update
+apt -y upgrade
+apt -y install python3
+apt -y install python3-pip
 
 ln -sf /usr/bin/python3 /usr/bin/python
 ln -sf /usr/bin/pip3 /usr/bin/pip
