@@ -31,11 +31,13 @@ def watchEvents(resources, notifyNumbers, timeout=60):
                             else:
                                 try:        # send notification if service was previously up
                                     if time.time() - serviceUpTimes[resource] > timeout:
+                                        log("eventMonitor", "service down", resources[resource].label, serviceUpTimes[resource])
                                         msg = "service "+resources[resource].label+" is down"
                                         debug("debugEventMonitor", "eventMonitor", msg)
                                         notify(resources, "alertServices", msg)
                                         serviceUpTimes[resource] = float("inf")
                                 except KeyError:    # service is down at the start
+                                    log("eventMonitor", "adding service", resources[resource].label)
                                     serviceUpTimes[resource] = float("inf")
                         elif (group == "Doors") and (resource[-5:] != "Doors") and (resource != "doorbell"):
                             if resources[resource].state == 0:  # door is closed
