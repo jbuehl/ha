@@ -8,6 +8,7 @@ if __name__ == "__main__":
 
     osInterface = OSInterface("osInterface")
     resources.addRes(Sensor("system."+hostname+".cpuTemp", osInterface, "cpuTemp", type="tempC", group="System", label=hostname+" CPU temp"))
+    resources.addRes(Sensor("system."+hostname+".cpuLoad", osInterface, "cpuLoad", type="pct", group="System", label=hostname+" CPU load"))
     resources.addRes(Sensor("system."+hostname+".uptime", osInterface, "uptime", group="System", label=hostname+" Uptime"))
     resources.addRes(Sensor("system."+hostname+".ipAddr", osInterface, "ipAddr eth0", group="System", label=hostname+" IP address"))
 
