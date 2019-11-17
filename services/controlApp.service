@@ -1,0 +1,9 @@
+[Unit]
+Description=Device control
+Wants=network-online.target
+After=syslog.target network-online.target
+[Service]
+ExecStart=/usr/bin/python /root/ha/controlApp.py
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target

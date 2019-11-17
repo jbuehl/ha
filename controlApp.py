@@ -1,0 +1,97 @@
+
+restWatch = []
+restIgnore = ["house", "power"]
+defaultConfig = {
+
+}
+
+from ha import *
+from ha.interfaces.fileInterface import *
+from ha.interfaces.tplinkInterface import *
+from ha.rest.restServer import *
+from ha.rest.restProxy import *
+
+stateChangeEvent = threading.Event()
+
+if __name__ == "__main__":
+    stateChangeEvent = threading.Event()
+
+    # Interfaces
+    tplinkInterface = TplinkInterface("tplinkInterface")
+    configData = FileInterface("configData", fileName=stateDir+"control.state", event=stateChangeEvent, initialState=defaultConfig)
+
+    # Controls
+    garageLight = Control("garageLight", tplinkInterface, "192.168.1.115", type="light", group=["Lights", "Garage"], label="Garage light")
+
+    # start the cache to listen for services on other servers
+    cacheResources = Collection("cacheResources")
+    restCache = RestProxy("restProxy", cacheResources, watch=restWatch, ignore=restIgnore, event=stateChangeEvent)
+    restCache.start()
+
+    # light groups
+    porchLights = ControlGroup("porchLights", ["frontLights",
+                                               "sculptureLights",
+                                               "holidayLights",
+                                               "backLights",
+                                               "garageBackDoorLight"],
+                                               resources=cacheResources,
+                                               type="light", group="Lights", label="Porch lights")
+    xmasLights = ControlGroup("xmasLights", ["xmasTree",
+                                               "xmasCowTree",
+                                               "xmasBackLights"],
+                                               resources=cacheResources,
+                                               type="light", group=["Lights", "Xmas"], label="Xmas lights")
+    bedroomLights = ControlGroup("bedroomLights", ["bedroomLight",
+                                               "bathroomLight"],
+                                               resources=cacheResources,
+                                               stateList=[[0, 30, 0], [0, 100, 10]],
+                                               type="nightLight", group="Lights", label="Night lights")
+    outsideLights = ControlGroup("outsideLights", ["frontLights",
+                                               "sculptureLights",
+                                               "backLights",
+                                               "garageBackDoorLight",
+                                               "bbqLights",
+                                               "backYardLights",
+                                               "deckLights",
+                                               "trashLights",
+                                               "garageLight",
+                                               "poolLights",
+                                               "holidayLights",
+                                               "xmasTree",
+                                               "xmasCowTree",
+                                               "xmasBackLights"],
+                                               resources=cacheResources,
+                                               type="light", group="Lights", label="Outside lights")
+
+    # Resources
+    resources = Collection("resources", resources=[garageLight, porchLights, xmasLights, bedroomLights, outsideLights])
+
+    # Light tasks
+    resources.addRes(Task("bedroomLightsOnSunset", SchedTime(event="sunset"), "bedroomLights", 1, resources=resources, group="Lights"))
+    resources.addRes(Task("bedroomLightsOffSunrise", SchedTime(event="sunrise"), "bedroomLights", 0, resources=resources, group="Lights"))
+    resources.addRes(Task("lightsOnSunset", SchedTime(event="sunset"), "porchLights", 1, resources=resources, group="Lights"))
+    resources.addRes(Task("lightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "outsideLights", 0, resources=resources, group="Lights"))
+    resources.addRes(Task("lightsOffSunrise", SchedTime(event="sunrise"), "outsideLights", 0, resources=resources, group="Lights"))
+    resources.addRes(Task("xmasLightsOnSunset", SchedTime(event="sunset"), "xmasLights", 1, resources=resources, group="Lights"))
+    resources.addRes(Task("xmasLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, resources=resources, group="Lights"))
+    resources.addRes(Task("xmasLightsOffSunrise", SchedTime(event="sunrise"), "xmasLights", 0, resources=resources, group="Lights"))
+    #        resources.addRes(Task("xmasTreeOnXmas", SchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1, resources=resources))
+
+    # Schedule
+    schedule = Schedule("schedule")
+    schedule.addTask(resources["bedroomLightsOnSunset"])
+    schedule.addTask(resources["bedroomLightsOffSunrise"])
+    schedule.addTask(resources["lightsOnSunset"])
+    schedule.addTask(resources["lightsOffMidnight"])
+    schedule.addTask(resources["lightsOffSunrise"])
+    schedule.addTask(resources["xmasLightsOnSunset"])
+    schedule.addTask(resources["xmasLightsOffMidnight"])
+    schedule.addTask(resources["xmasLightsOffSunrise"])
+    #        schedule.addTask(resources["xmasTreeOnXmas"])
+
+    restServer = RestServer("control", resources, port=7379, event=stateChangeEvent, label="Control app")
+
+    # Start interfaces
+    configData.start()
+    schedule.start()
+    restServer.start()
