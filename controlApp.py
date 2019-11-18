@@ -17,7 +17,7 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
 
     # Interfaces
-    tplinkInterface = TplinkInterface("tplinkInterface")
+    tplinkInterface = TplinkInterface("tplinkInterface", event=stateChangeEvent)
     configData = FileInterface("configData", fileName=stateDir+"control.state", event=stateChangeEvent, initialState=defaultConfig)
 
     # Controls

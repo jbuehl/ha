@@ -1,6 +1,8 @@
 import socket
 import json
 import struct
+import threading
+import time
 from ha import *
 
 # TP-Link device control
@@ -29,8 +31,19 @@ def decrypt(msg):
     return result.decode("utf-8")
 
 class TplinkInterface(Interface):
-    def __init__(self, name, interface=None):
-        Interface.__init__(self, name, interface)
+    def __init__(self, name, interface=None, event=None):
+        Interface.__init__(self, name, interface, event=event)
+        # poll sensors every second to generate state change notifications
+        def getStates():
+            while True:
+                for sensor in list(self.sensors.values()):
+                    state = self.read(sensor.addr)
+                    if state != self.states[sensor.addr]:
+                        self.states[sensor.addr] = state
+                        sensor.notify()
+                time.sleep(1)
+        stateThread = threading.Thread(target=getStates)
+        stateThread.start()
 
     def read(self, addr):
         try:
