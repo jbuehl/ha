@@ -37,7 +37,7 @@ class TplinkInterface(Interface):
         def getStates():
             while True:
                 for sensor in list(self.sensors.values()):
-                    state = self.read(sensor.addr)
+                    state = self.readState(sensor.addr)
                     if state != self.states[sensor.addr]:
                         self.states[sensor.addr] = state
                         sensor.notify()
@@ -45,7 +45,7 @@ class TplinkInterface(Interface):
         stateThread = threading.Thread(target=getStates)
         stateThread.start()
 
-    def read(self, addr):
+    def readState(self, addr):
         try:
             sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock_tcp.connect((addr, port))
@@ -56,6 +56,9 @@ class TplinkInterface(Interface):
         except Exception as ex:
             log("tplink read exception", str(ex))
             return None
+
+    def read(self, addr):
+        return self.states[addr]
 
     def write(self, addr, state):
         try:
