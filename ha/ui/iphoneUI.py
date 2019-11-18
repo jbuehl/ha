@@ -69,7 +69,7 @@ def iphoneUI(resources, templates, views):
                             doorResources=resources.getResList(["frontDoor", "familyRoomDoor", "masterBedroomDoor",
                                                                 "garageDoor", "garageBackDoor", "garageHouseDoor", "backHouseDoor",
                                                                  ]),
-                            garageResources=resources.getResList(["garageTemp", "recircPump", "charger", "loads.carcharger.power"]),
+                            garageResources=resources.getResList(["garageTemp", "recircPump", "garageLight", "charger", "loads.carcharger.power"]),
                             fireplaceResources=resources.getResList(["fireplace", "fireplaceVideo"]),
                             holidayResources=resources.getResList(["holidayLights", "holiday", "halloween", "halloweenVideo",
                                                                     "xmasTree", "xmasTreePattern", "xmasCowTree", "xmasBackLights"]),
