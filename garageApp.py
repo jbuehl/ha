@@ -7,6 +7,8 @@ import time
 from ha import *
 from ha.interfaces.mcp23017Interface import *
 from ha.interfaces.i2cInterface import *
+from ha.interfaces.tc74Interface import *
+from ha.interfaces.tempInterface import *
 from ha.interfaces.ledInterface import *
 from ha.interfaces.fileInterface import *
 from ha.rest.restServer import *
@@ -36,10 +38,15 @@ if __name__ == "__main__":
 
     # Interfaces
     i2c1 = I2CInterface("i2c1", bus=1)
+    tc74 = TC74Interface("tc74", i2c1)
+    temp = TempInterface("temp", tc74, sample=10)
     gpio0 = MCP23017Interface("gpio0", i2c1, addr=0x20, bank=0, inOut=0x00)
     gpio1 = MCP23017Interface("gpio1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(MCP23017Interface.IPOL, 0x08)])
     led = LedInterface("led", gpio0)
     fileInterface = FileInterface("fileInterface", fileName=stateDir+"garage.state", event=stateChangeEvent)
+
+    # Temperature
+    garageTemp = Sensor("garageTemp", temp, 0x4b, group="Temperature", label="Garage temp", type="tempF", event=stateChangeEvent)
 
     # Water
     recircPump = Control("recircPump", gpio0, 0, type="hotwater", group="Water", label="Hot water")
@@ -65,7 +72,7 @@ if __name__ == "__main__":
     resources = Collection("resources", resources=[recircPump, sculptureLights, doorbell,
                                                    garageDoor, garageBackDoor, garageHouseDoor, garageDoors,
                                                    doorbellButton,
-                                                   hotWaterRecirc,
+                                                   hotWaterRecirc, garageTemp,
                                                    ])
     restServer = RestServer("garage", resources, event=stateChangeEvent, label="Garage")
 
@@ -75,5 +82,6 @@ if __name__ == "__main__":
     gpio0.start()
     gpio1.start()
     fileInterface.start()
+    temp.start()
     schedule.start()
     restServer.start()
