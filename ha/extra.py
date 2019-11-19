@@ -294,7 +294,7 @@ class ResourceStateSensor(Sensor):
         self.getStates()
         return self.stateTypes
 
-    # update the current state and type of all sensors in theresource collection
+    # update the current state and type of all sensors in the resource collection
     def getStates(self):
         self.states = {}    # current sensor states
         self.stateTypes = {}
@@ -304,12 +304,13 @@ class ResourceStateSensor(Sensor):
                 sensorType = sensor.type
                 if sensorType in ["schedule", "collection"]:   # recurse into schedules and collections
                     self.getStates(sensor)
-                elif sensor.getStateType() != dict:     # sensor has a scalar state
-                    sensorState = sensor.getState()
-                else:                                   # sensor has a complex state
-                    sensorState = sensor.getState()["contentType"]
-            self.states[sensorName] = sensorState
-            self.stateTypes[sensorName] = (sensorState, sensorType)
+                else:
+                    if sensor.getStateType() != dict:     # sensor has a scalar state
+                        sensorState = sensor.getState()
+                    else:                                   # sensor has a complex state
+                        sensorState = sensor.getState()["contentType"]
+                    self.states[sensorName] = sensorState
+                    self.stateTypes[sensorName] = (sensorState, sensorType)
 
     # wait for a sensor state to change
     def waitStateChange(self):
