@@ -3,18 +3,12 @@ stringLength = 343
 defaultConfig = {
     "holiday": "None",
 }
-restWatch = []
-restIgnore = ["house", "hvac", "power", "solar", "carcharger", "sprinklers"]
 
 from ha import *
 from ha.interfaces.neopixelInterface import *
 from ha.interfaces.fileInterface import *
-from ha.interfaces.i2cInterface import *
-from ha.interfaces.tc74Interface import *
-from ha.interfaces.tempInterface import *
 from ha.controls.holidayLightControl import *
 from ha.rest.restServer import *
-from ha.rest.restProxy import *
 
 # dictionary of patterns
 patterns = {"onPattern": [on],
@@ -62,12 +56,6 @@ if __name__ == "__main__":
     # Interfaces
     neopixelInterface = NeopixelInterface("neopixelInterface", None, length=stringLength, event=stateChangeEvent)
     configData = FileInterface("configData", fileName=stateDir+"lights.conf", event=stateChangeEvent, initialState=defaultConfig)
-    i2c1 = I2CInterface("i2c1", bus=1)
-    tc74 = TC74Interface("tc74", i2c1)
-    temp = TempInterface("temp", tc74, sample=10)
-
-    # Temperature
-    garageTemp = Sensor("garageTemp", temp, 0x4b, group="Temperature", label="Garage temp", type="tempF", event=stateChangeEvent)
 
     # Light controls
 #    leftSegment = ("leftSegment", 0, 112)
@@ -187,6 +175,8 @@ if __name__ == "__main__":
     holiday = MultiControl("holiday", configData, "holiday", values=list(holidayLightControls.keys()),
                             group=["Lights", "Holiday"], label="Holiday")
 
+    holidayLights = AliasControl("holidayLights", None, holidayLightControls, holiday, type="light", group=["Lights", "Holiday"], label="Holiday lights")
+
 # Tasks
     # 2019
     holidayTasks = [
@@ -212,23 +202,15 @@ if __name__ == "__main__":
             Task("hanukkahTask",     SchedTime(year=2019, month=Dec, day=22, hour=12, minute=0), holiday, "Hanukkah"),
             ]
 
-    # Resources
-    resources = Collection("resources", resources=[garageTemp])
-    holidayLights = AliasControl("holidayLights", None, holidayLightControls, holiday, type="light", group=["Lights", "Holiday"], label="Holiday lights")
-
-    # start the cache to listen for services on other servers
-    cacheResources = Collection("cacheResources")
-    restCache = RestProxy("restProxy", cacheResources, watch=restWatch, ignore=restIgnore, event=stateChangeEvent)
-    restCache.start()
-
     # Schedule
     schedule = Schedule("schedule", tasks=holidayTasks)
 
+    # Resources
+    resources = Collection("resources", resources=[holidayLights, holiday])
     restServer = RestServer("holiday", resources, event=stateChangeEvent, label="Holiday lights")
 
     # Start interfaces
     configData.start()
     neopixelInterface.start()
-    temp.start()
     schedule.start()
     restServer.start()
