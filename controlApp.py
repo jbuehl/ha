@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     # Controls
     garageLight = Control("garageLight", tplinkInterface, "192.168.1.115", type="light", group=["Lights", "Garage"], label="Garage light")
-    backHouseMusic = Control("backHouseMusic", tplinkInterface, "192.168.1.117", type="light", group=["Lights", "Backhouse"], label="Back house music")
+    backHouseMusic = Control("backHouseMusic", tplinkInterface, "192.168.1.117", type="plug", group=["Plugs", "Backhouse"], label="Back house music")
 
     # start the cache to listen for services on other servers
     cacheResources = Collection("cacheResources")

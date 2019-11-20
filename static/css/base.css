@@ -184,6 +184,14 @@ td {
 	color: #FFFF66;
     }
 
+.plug_Off {
+	color: SlateGray;
+    }
+
+.plug_On {
+	color: Lime;
+    }
+
 .led_Off {
 	color: SlateGray;
     }
