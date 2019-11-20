@@ -22,6 +22,7 @@ if __name__ == "__main__":
 
     # Controls
     garageLight = Control("garageLight", tplinkInterface, "192.168.1.115", type="light", group=["Lights", "Garage"], label="Garage light")
+    backHouseMusic = Control("backHouseMusic", tplinkInterface, "192.168.1.117", type="light", group=["Lights", "Backhouse"], label="Back house music")
 
     # start the cache to listen for services on other servers
     cacheResources = Collection("cacheResources")
@@ -62,14 +63,16 @@ if __name__ == "__main__":
                                                    "xmasBackLights"],
                                                resources=cacheResources,
                                                type="light", group="Lights", label="Outside lights")
-    guestMode = ControlGroup("guestMode", ["backHeatTempTarget",
+    guestMode = ControlGroup("guestMode", ["backHouseMusic",
+                                           "backHeatTempTarget",
                                            "backCoolTempTarget",
                                            "backHeatTempUpMorning",
                                            "backHeatTempDownMorning",
                                            "backHeatTempDownEvening"],
                                        resources=cacheResources, stateMode=True,
-                                       stateList=[[60, 66], [80, 75],
-                                                  [0, 1], [0, 1], [0, 1]],
+                                       stateList=[[0, 1],
+                                                 [60, 66], [80, 75],
+                                                 [0, 1], [0, 1], [0, 1]],
                                        group="Modes", label="Guest mode")
     vacationMode = ControlGroup("vacationMode", ["alertDoors",
                                                  "recircPump",
@@ -93,7 +96,7 @@ if __name__ == "__main__":
                                                           [1, 0], [1, 0], [1, 0]],
                                                group="Modes", label="Vacation mode")
     # Resources
-    resources = Collection("resources", resources=[garageLight, porchLights, xmasLights, bedroomLights, outsideLights, guestMode, vacationMode])
+    resources = Collection("resources", resources=[garageLight, backHouseMusic, porchLights, xmasLights, bedroomLights, outsideLights, guestMode, vacationMode])
 
     # Light tasks
     resources.addRes(Task("bedroomLightsOnSunset", SchedTime(event="sunset"), "bedroomLights", 1, resources=resources, group="Lights"))
