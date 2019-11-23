@@ -75,7 +75,7 @@ if __name__ == "__main__":
                                        stateList=[[0, 1],
                                                  [60, 66], [80, 75],
                                                  [0, 1], [0, 1], [0, 1]],
-                                       group="Modes", label="Guest mode")
+                                       group="Modes", label="Guest")
     vacationMode = ControlGroup("vacationMode", ["alertDoors",
                                                  "recircPump",
                                                  "hotWaterRecirc",
@@ -96,7 +96,7 @@ if __name__ == "__main__":
                                                           [1, 0], [1, 0], [1, 0],
                                                           [66, 60], [75, 80],
                                                           [1, 0], [1, 0], [1, 0]],
-                                               group="Modes", label="Vacation mode")
+                                               group="Modes", label="Vacation")
     # Resources
     resources = Collection("resources", resources=[garageLights, deckLights, trashLights,
                                                    porchLights, xmasLights, bedroomLights, outsideLights,
