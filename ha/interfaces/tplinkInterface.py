@@ -34,23 +34,28 @@ class TplinkInterface(Interface):
     def __init__(self, name, interface=None, event=None):
         Interface.__init__(self, name, interface, event=event)
         # poll sensors every second to generate state change notifications
+        # cached state is the dictionary that is returned
         def getStates():
             while True:
                 for sensor in list(self.sensors.values()):
-                    state = self.readState(sensor.addr)
-                    if state != self.states[sensor.addr]:
-                        self.states[sensor.addr] = state
-                        sensor.notify()
+                    try:
+                        (ipAddr, attr) = sensor.addr.split(",")
+                    except ValueError: # ignore sensors with an attribute so devices are only polled once
+                        ipAddr = sensor.addr.split(",")[0]
+                        state = self.readState(ipAddr)
+                        if state != self.states[ipAddr]:
+                            self.states[ipAddr] = state
+                            sensor.notify()
                 time.sleep(1)
         stateThread = threading.Thread(target=getStates)
         stateThread.start()
 
-    def readState(self, addr):
+    def readState(self, ipAddr):
         try:
             sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock_tcp.connect((addr, port))
+            sock_tcp.connect((ipAddr, port))
             sock_tcp.send(encrypt('{"system":{"get_sysinfo":{}}}'))
-            state = int(json.loads(decrypt(sock_tcp.recv(2048)))["system"]["get_sysinfo"]["relay_state"])
+            state = json.loads(decrypt(sock_tcp.recv(2048)))["system"]["get_sysinfo"]
             sock_tcp.close()
             return state
         except Exception as ex:
@@ -58,12 +63,21 @@ class TplinkInterface(Interface):
             return None
 
     def read(self, addr):
-        return self.states[addr]
+        try:
+            (ipAddr, attr) = addr.split(",")
+        except ValueError:
+            ipAddr = addr
+            attr = "relay_state"
+        try:
+            return int(self.states[ipAddr][attr])
+        except TypeError:
+            return None
 
     def write(self, addr, state):
+        ipAddr = addr.split(",")[0]
         try:
             sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock_tcp.connect((addr, port))
+            sock_tcp.connect((ipAddr, port))
             sock_tcp.send(encrypt('{"system":{"set_relay_state":{"state":'+str(state)+'}}}'))
             status = int(json.loads(decrypt(sock_tcp.recv(2048)))["system"]["set_relay_state"]["err_code"])
             sock_tcp.close()
