@@ -115,7 +115,13 @@
     </div>
 
     <div id="weatherPage" style="display:none">
+        {{ groupTemplate.render(templates=templates, widths=[320, [200, 100, 20]], group=["", tempResources], details=False, name=False, link=False, views=views) }}
+        <hr>
         {{ groupTemplate.render(templates=templates, widths=[320, [200, 100, 20]], group=["", weatherResources], details=False, name=False, link=False, views=views) }}
+        <hr>
+        {{ groupTemplate.render(templates=templates, widths=[320, [200, 100, 20]], group=["", windResources], details=False, name=False, link=False, views=views) }}
+        <hr>
+        {{ groupTemplate.render(templates=templates, widths=[320, [200, 100, 20]], group=["", rainResources], details=False, name=False, link=False, views=views) }}
         <hr>
         <div class="link"><button onclick="return show('dashPage','weatherPage');">Back</button></div>
     </div>
