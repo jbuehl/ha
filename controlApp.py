@@ -100,7 +100,7 @@ if __name__ == "__main__":
     # Resources
     resources = Collection("resources", resources=[garageLights, deckLights, trashLights,
                                                    porchLights, xmasLights, bedroomLights, outsideLights,
-                                                   guestMode, vacationMode])
+                                                   guestMode, vacationMode, backHouseMusic])
 
     # Light tasks
     resources.addRes(Task("bedroomLightsOnSunset", SchedTime(event="sunset"), "bedroomLights", 1, resources=resources, group="Lights"))
