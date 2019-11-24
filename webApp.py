@@ -155,9 +155,9 @@ if __name__ == "__main__":
 
     stateInterface = FileInterface("stateInterface", fileName=stateDir+"ha.state", event=stateChangeEvent, initialState=defaultConfig)
     stateInterface.start()
-    smsAlerts = Control("smsAlerts", stateInterface, "smsAlerts", group="Alerts", label="Send SMS alerts")
-    appAlerts = Control("appAlerts", stateInterface, "appAlerts", group="Alerts", label="Send app alerts")
-    iftttAlerts = Control("iftttAlerts", stateInterface, "iftttAlerts", group="Alerts", label="Send IFTTT alerts")
+    smsAlerts = Control("smsAlerts", stateInterface, "smsAlerts", group="Alerts", label="SMS alerts")
+    appAlerts = Control("appAlerts", stateInterface, "appAlerts", group="Alerts", label="App alerts")
+    iftttAlerts = Control("iftttAlerts", stateInterface, "iftttAlerts", group="Alerts", label="IFTTT alerts")
     alertServices = Control("alertServices", stateInterface, "alertServices", group="Alerts", label="Service down")
     alertSpa = Control("alertSpa", stateInterface, "alertSpa", group="Alerts", label="Spa is ready")
     alertDoorbell = Control("alertDoorbell", stateInterface, "alertDoorbell", group="Alerts", label="Doorbell")
