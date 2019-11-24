@@ -13,7 +13,7 @@ def ipadUI(location, resources, templates, views):
         widths = [headerWidths, [screenWidth, [columnWidths, columnWidths]]]
         if location == "backhouse":
             location = "Back house"
-            lightsGroup=["Lights", resources.getResList(["backLights", "poolLight", "spaLight"])]
+            lightsGroup=["Lights", resources.getResList(["backLights", "poolLight", "spaLight", "backHouseMusic"])]
             hvac = templates.get_template("hvacWidget.html").render(label="Inside temp",
                     widths=columnWidths,
                     templates=templates,
