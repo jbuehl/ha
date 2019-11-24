@@ -59,7 +59,7 @@ def dashboardUI(resources, templates, views):
                             group=["Xmas", resources.getResList(["xmasLights", "xmasTree"])],
                             details=False, name=True, link=True)
         lightsGroup = groupTemplate.render(templates=templates, views=views, widths=columnWidths,
-                            group=["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "bedroomLights",
+                            group=["Lights", resources.getResList(["porchLights", "frontLights", "backLights", "nightLights",
                                                        "poolLight", "spaLight"])],
                             details=False, name=True, link=True)
         shadesGroup = groupTemplate.render(templates=templates, views=views, widths=columnWidths,
