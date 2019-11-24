@@ -44,8 +44,8 @@ if __name__ == "__main__":
                                              "xmasBackLights"],
                                            resources=cacheResources,
                                            type="light", group=["Lights", "Xmas"], label="Xmas lights")
-    bedroomLights = ControlGroup("bedroomLights", ["bedroomLight",
-                                                   "bathroomLight"],
+    nightLights = ControlGroup("nightLights", ["bedroomLight",
+                                               "bathroomLight"],
                                                resources=cacheResources,
                                                stateList=[[0, 30, 0], [0, 100, 10]],
                                                type="nightLight", group="Lights", label="Night lights")
@@ -99,7 +99,7 @@ if __name__ == "__main__":
                                                group="Modes", label="Vacation")
     # Resources
     resources = Collection("resources", resources=[garageLights, deckLights, trashLights,
-                                                   porchLights, xmasLights, bedroomLights, outsideLights,
+                                                   porchLights, xmasLights, nightLights, outsideLights,
                                                    guestMode, vacationMode, backHouseMusic])
 
     # Light tasks

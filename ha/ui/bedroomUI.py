@@ -25,6 +25,6 @@ def bedroomUI(resources, templates, views):
                             hvac=northHvac,
                             resources=resources.getResList(["porchLights",
 #                                                            "xmasLights",
-                                                            "bedroomLights", "recircPump", "garageDoors", "houseDoors", "backHouseDoor"]),
+                                                            "nightLights", "recircPump", "garageDoors", "houseDoors", "backHouseDoor"]),
                             views=views)
     return reply

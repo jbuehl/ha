@@ -20,7 +20,7 @@ def iphoneUI(resources, templates, views):
                                     poolPumpControl=resources.getRes("poolPump"), poolPumpFlowSensor=resources.getRes("poolPumpFlow"), nSetValues=5, views=views),
                             poolResources=resources.getResList(["valveMode", "spaBlower", "spaFill", "spaFlush", "spaDrain", "cleanSequence"]),
                             lightResources=resources.getResList(["frontLights", "backLights", "deckLights", "trashLights", "garageLights", "garageBackDoorLight",
-                                                                 "poolLight", "spaLight", "sculptureLights"]),
+                                                                 "poolLight", "spaLight", "sculptureLights", "nightLights"]),
                             shadeResources=resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"]),
                             sprinklerResources=resources.getResList(["backLawnSequence", "backBedSequence", "gardenSequence",
                                                                      "sideBedSequence", "frontLawnSequence", "frontBedSequence",
@@ -63,7 +63,7 @@ def iphoneUI(resources, templates, views):
                                                                  "loads.ac.power",
                                                                  "loads.cooking.power", "loads.pool.power", "loads.backhouse.power", "loads.carcharger.power",
                                                                  ]),
-                            tempResources=resources.getResList(["poolEquipTemp", "atticTemp",
+                            tempResources=resources.getResList(["poolEquipTemp", "atticTemp", "garageTemp",
                                                                 "solar.inverters.stats.avgTemp", "solar.optimizers.stats.avgTemp", "maxTemp", "minTemp",
                                                                 "dewpoint", ]),
                             weatherResources=resources.getResList(["humidity", "barometer",]),
@@ -71,10 +71,10 @@ def iphoneUI(resources, templates, views):
                             rainResources=resources.getResList(["rainDay", "rainHour", "rainMinute",]),
                             doorResources=resources.getResList(["frontDoor", "familyRoomDoor", "masterBedroomDoor",
                                                                 "garageDoor", "garageBackDoor", "garageHouseDoor", "backHouseDoor",]),
-                            garageResources=resources.getResList(["garageTemp", "recircPump", "garageLights", "charger", "loads.carcharger.power"]),
+                            garageResources=resources.getResList(["recircPump", "charger", "loads.carcharger.power"]),
                             fireplaceResources=resources.getResList(["fireplace", "fireplaceVideo"]),
                             holidayResources=resources.getResList(["holidayLights", "holiday", "halloween", "halloweenVideo",
-                                                                    "xmasTree", "xmasTreePattern", "xmasCowTree", "xmasBackLights"]),
+                                                                   "xmasTree", "xmasTreePattern", "xmasCowTree", "xmasBackLights"]),
                             views=views)
     return reply
 
