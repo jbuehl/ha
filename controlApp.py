@@ -25,10 +25,14 @@ if __name__ == "__main__":
     deckLights = Control("deckLights", tplinkInterface, "192.168.1.128", type="light", group=["Lights", "Garage"], label="Deck lights")
     trashLights = Control("trashLights", tplinkInterface, "192.168.1.133", type="light", group=["Lights", "Garage"], label="Trash lights")
     backHouseMusic = Control("backHouseMusic", tplinkInterface, "192.168.1.117", type="plug", group=["Plugs", "Backhouse"], label="Back house music")
-    garageLightsRssi = Control("garageLights-rssi", tplinkInterface, "192.168.1.115,rssi", type="dBm", group=["Lights", "Garage"], label="Garage lights rssi")
-    deckLightsRssi = Control("deckLights-rssi", tplinkInterface, "192.168.1.128,rssi", type="dBm", group=["Lights", "Garage"], label="Deck lights rssi")
-    trashLightsRssi = Control("trashLights-rssi", tplinkInterface, "192.168.1.133,rssi", type="dBm", group=["Lights", "Garage"], label="Trash lights rssi")
-    backHouseMusicRssi = Control("backHouseMusic-rssi", tplinkInterface, "192.168.1.117,rssi", type="dBm", group=["Plugs", "Backhouse"], label="Back house music rssi")
+    familyRoomLamp = Control("familyRoomLamp", tplinkInterface, "192.168.1.135", type="plug", group="Lights", label="Family room lamp")
+
+    # Wifi signal strengths
+    garageLightsRssi = Control("garageLights-rssi", tplinkInterface, "192.168.1.115,rssi", type="dBm", group="Network", labellabel="Garage lights rssi")
+    deckLightsRssi = Control("deckLights-rssi", tplinkInterface, "192.168.1.128,rssi", type="dBm", group="Network", labellabel="Deck lights rssi")
+    trashLightsRssi = Control("trashLights-rssi", tplinkInterface, "192.168.1.133,rssi", type="dBm", group="Network", labellabel="Trash lights rssi")
+    backHouseMusicRssi = Control("backHouseMusic-rssi", tplinkInterface, "192.168.1.117,rssi", type="dBm", group="Network", labellabel="Back house music rssi")
+    familyRoomLampRssi = Control("familyRoomLamp-rssi", tplinkInterface, "192.168.1.135,rssi", type="plug", group="Network", label="Family room lamp rssi")
 
     # start the cache to listen for services on other servers
     cacheResources = Collection("cacheResources")
@@ -104,6 +108,7 @@ if __name__ == "__main__":
     # Resources
     resources = Collection("resources", resources=[garageLights, deckLights, trashLights,
                                                    garageLightsRssi, deckLightsRssi, trashLightsRssi,
+                                                   familyRoomLamp, familyRoomLampRssi,
                                                    porchLights, xmasLights, nightLights, outsideLights,
                                                    guestMode, vacationMode,
                                                    backHouseMusic, backHouseMusicRssi])
