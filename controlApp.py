@@ -28,10 +28,10 @@ if __name__ == "__main__":
     familyRoomLamp = Control("familyRoomLamp", tplinkInterface, "192.168.1.135", type="plug", group="Lights", label="Family room lamp")
 
     # Wifi signal strengths
-    garageLightsRssi = Control("garageLights-rssi", tplinkInterface, "192.168.1.115,rssi", type="dBm", group="Network", labellabel="Garage lights rssi")
-    deckLightsRssi = Control("deckLights-rssi", tplinkInterface, "192.168.1.128,rssi", type="dBm", group="Network", labellabel="Deck lights rssi")
-    trashLightsRssi = Control("trashLights-rssi", tplinkInterface, "192.168.1.133,rssi", type="dBm", group="Network", labellabel="Trash lights rssi")
-    backHouseMusicRssi = Control("backHouseMusic-rssi", tplinkInterface, "192.168.1.117,rssi", type="dBm", group="Network", labellabel="Back house music rssi")
+    garageLightsRssi = Control("garageLights-rssi", tplinkInterface, "192.168.1.115,rssi", type="dBm", group="Network", label="Garage lights rssi")
+    deckLightsRssi = Control("deckLights-rssi", tplinkInterface, "192.168.1.128,rssi", type="dBm", group="Network", label="Deck lights rssi")
+    trashLightsRssi = Control("trashLights-rssi", tplinkInterface, "192.168.1.133,rssi", type="dBm", group="Network", label="Trash lights rssi")
+    backHouseMusicRssi = Control("backHouseMusic-rssi", tplinkInterface, "192.168.1.117,rssi", type="dBm", group="Network", label="Back house music rssi")
     familyRoomLampRssi = Control("familyRoomLamp-rssi", tplinkInterface, "192.168.1.135,rssi", type="plug", group="Network", label="Family room lamp rssi")
 
     # start the cache to listen for services on other servers

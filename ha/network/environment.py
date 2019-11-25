@@ -24,6 +24,7 @@ hostAliases = {"00:17:EE:02:54:01": "Vonage",
                "D8:0D:17:19:6D:45": "deck lights",
                "D8:0D:17:19:8B:0C": "trash lights",
                "68:FF:7B:BA:4E:7E": "back house music",
+               "68:FF:7B:BA:52:B9": "family room lamp",
               }
 ignoreHosts = {"router", "house",
                "prod.solaredge.com", "prod2.solaredge.com", "prod3.solaredge.com",
