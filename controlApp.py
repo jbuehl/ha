@@ -24,6 +24,7 @@ if __name__ == "__main__":
     garageLights = Control("garageLights", tplinkInterface, "192.168.1.115", type="light", group=["Lights", "Garage"], label="Garage lights")
     deckLights = Control("deckLights", tplinkInterface, "192.168.1.128", type="light", group=["Lights", "Garage"], label="Deck lights")
     trashLights = Control("trashLights", tplinkInterface, "192.168.1.133", type="light", group=["Lights", "Garage"], label="Trash lights")
+    backLights = Control("backLights", tplinkInterface, "192.168.1.148", type="light", group=["Lights", "Garage"], label="Back lights")
     backHouseMusic = Control("backHouseMusic", tplinkInterface, "192.168.1.117", type="plug", group=["Plugs", "Backhouse"], label="Back house music")
     familyRoomLamp = Control("familyRoomLamp", tplinkInterface, "192.168.1.135", type="plug", group="Lights", label="Family room lamp")
 
@@ -31,6 +32,7 @@ if __name__ == "__main__":
     garageLightsRssi = Control("garageLights-rssi", tplinkInterface, "192.168.1.115,rssi", type="dBm", group="Network", label="Garage lights rssi")
     deckLightsRssi = Control("deckLights-rssi", tplinkInterface, "192.168.1.128,rssi", type="dBm", group="Network", label="Deck lights rssi")
     trashLightsRssi = Control("trashLights-rssi", tplinkInterface, "192.168.1.133,rssi", type="dBm", group="Network", label="Trash lights rssi")
+    backLightsRssi = Control("backLights-rssi", tplinkInterface, "192.168.1.148,rssi", type="dBm", group="Network", label="Back lights rssi")
     backHouseMusicRssi = Control("backHouseMusic-rssi", tplinkInterface, "192.168.1.117,rssi", type="dBm", group="Network", label="Back house music rssi")
     familyRoomLampRssi = Control("familyRoomLamp-rssi", tplinkInterface, "192.168.1.135,rssi", type="plug", group="Network", label="Family room lamp rssi")
 
@@ -106,7 +108,7 @@ if __name__ == "__main__":
                                                           [1, 0], [1, 0], [1, 0]],
                                                group="Modes", label="Vacation")
     # Resources
-    resources = Collection("resources", resources=[garageLights, deckLights, trashLights,
+    resources = Collection("resources", resources=[garageLights, deckLights, trashLights, backLights,
                                                    garageLightsRssi, deckLightsRssi, trashLightsRssi,
                                                    familyRoomLamp, familyRoomLampRssi,
                                                    porchLights, xmasLights, nightLights, outsideLights,
@@ -114,8 +116,8 @@ if __name__ == "__main__":
                                                    backHouseMusic, backHouseMusicRssi])
 
     # Light tasks
-    resources.addRes(Task("bedroomLightsOnSunset", SchedTime(event="sunset"), "bedroomLights", 1, resources=resources, group="Lights"))
-    resources.addRes(Task("bedroomLightsOffSunrise", SchedTime(event="sunrise"), "bedroomLights", 0, resources=resources, group="Lights"))
+    resources.addRes(Task("nightLightsOnSunset", SchedTime(event="sunset"), "nightLights", 1, resources=resources, group="Lights"))
+    resources.addRes(Task("nightLightsOffSunrise", SchedTime(event="sunrise"), "nightLights", 0, resources=resources, group="Lights"))
     resources.addRes(Task("lightsOnSunset", SchedTime(event="sunset"), "porchLights", 1, resources=resources, group="Lights"))
     resources.addRes(Task("lightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "outsideLights", 0, resources=resources, group="Lights"))
     resources.addRes(Task("lightsOffSunrise", SchedTime(event="sunrise"), "outsideLights", 0, resources=resources, group="Lights"))
@@ -126,8 +128,8 @@ if __name__ == "__main__":
 
     # Schedule
     schedule = Schedule("schedule")
-    schedule.addTask(resources["bedroomLightsOnSunset"])
-    schedule.addTask(resources["bedroomLightsOffSunrise"])
+    schedule.addTask(resources["nightLightsOnSunset"])
+    schedule.addTask(resources["nightLightsOffSunrise"])
     schedule.addTask(resources["lightsOnSunset"])
     schedule.addTask(resources["lightsOffMidnight"])
     schedule.addTask(resources["lightsOffSunrise"])
