@@ -78,27 +78,3 @@ def iphoneUI(resources, templates, views):
                                                                    "xmasTree", "xmasTreePattern", "xmasCowTree", "xmasBackLights"]),
                             views=views)
     return reply
-
-# iPhone 5 - 320x568
-def iphone5():
-    debug('debugWeb', "/iphone5", cherrypy.request.method)
-    with resources.lock:
-        widths = [[320, [60, 100, 60]], [320, [120, 72, 128]]]
-        reply = templates.get_template("iphone5.html").render(script="",
-                            templates=templates,
-                            widths=widths,
-                            time=resources.getRes("theTime"),
-                            ampm=resources.getRes("theAmPm"),
-                            temp=resources.getRes(outsideTemp),
-                            spa=resources.getRes("spa"),
-                            spaTemp=resources.getRes("spaTemp"),
-                            spaTempTarget=resources.getRes("spaTempTarget"),
-                            poolPumpControl=resources.getRes("poolPump"),
-                            poolPumpFlowSensor=resources.getRes("poolPumpFlow"),
-                            resources=resources.getResList(["spaBlower", "porchLights",
-#                                                            "xmasLights", "xmasTree",
-                                                            "shade1", "shade2", "shade3", "shade4",
-                                                            "backLawnSequence", "backBedSequence", "gardenSequence", "sideBedSequence", "frontLawnSequence", "frontBedSequence"
-                                                            ]),
-                            views=views)
-    return reply
