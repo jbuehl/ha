@@ -24,7 +24,8 @@ class FileInterface(Interface):
             debug('debugFile', self.name, "reading", self.fileName)
             self.readData()
             self.mtime = os.stat(self.fileName).st_mtime
-        except:
+        except Exception as ex:
+            log("read exception", str(ex))
             # create a new file
             debug('debugFile', self.name, "creating", self.fileName)
             self.data = self.initialState

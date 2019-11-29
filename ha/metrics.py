@@ -74,7 +74,7 @@ def startMetrics(resourceStates, sendMetrics=False, logMetrics=True, backupMetri
                         debug("debugMetrics", "sendMetrics", "backup thread started")
                         try:
                             backupServer = subprocess.check_output("avahi-browse -atp|grep _backup|grep IPv4|cut -d';' -f4", shell=True).decode().split("\n")[0]+".local"
-                            debug("debugMetrics", "backupMetrics", "backing up metrics to", backupServer)
+                            debug("debugMetrics", "backupMetrics", "backing up "+logDir+" to", backupServer)
                             os.popen("rsync -a "+logDir+"* "+backupServer+":/backups/ha/"+hostname+"/")
                         except Exception as ex:
                             log("metrics", "exception backing up metrics", str(ex))
