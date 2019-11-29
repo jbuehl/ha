@@ -26,7 +26,7 @@ if __name__ == "__main__":
     trashLights = Control("trashLights", tplinkInterface, "192.168.1.133", type="light", group=["Lights", "Garage"], label="Trash lights")
     backLights = Control("backLights", tplinkInterface, "192.168.1.148", type="light", group=["Lights", "Garage"], label="Back lights")
     backHouseMusic = Control("backHouseMusic", tplinkInterface, "192.168.1.117", type="plug", group=["Plugs", "Backhouse"], label="Back house music")
-    plugControl = Control("plugControl", tplinkInterface, "192.168.1.135", type="plug", group="Lights", label="Plug control")
+    # plugControl = Control("plugControl", tplinkInterface, "192.168.1.135", type="plug", group="Lights", label="Plug control")
 
     # Wifi signal strengths
     garageLightsRssi = Control("garageLights-rssi", tplinkInterface, "192.168.1.115,rssi", type="dBm", group="Network", label="Garage lights rssi")
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     trashLightsRssi = Control("trashLights-rssi", tplinkInterface, "192.168.1.133,rssi", type="dBm", group="Network", label="Trash lights rssi")
     backLightsRssi = Control("backLights-rssi", tplinkInterface, "192.168.1.148,rssi", type="dBm", group="Network", label="Back lights rssi")
     backHouseMusicRssi = Control("backHouseMusic-rssi", tplinkInterface, "192.168.1.117,rssi", type="dBm", group="Network", label="Back house music rssi")
-    plugControlRssi = Control("plugControl-rssi", tplinkInterface, "192.168.1.135,rssi", type="plug", group="Network", label="Plug control rssi")
+    # plugControlRssi = Control("plugControl-rssi", tplinkInterface, "192.168.1.135,rssi", type="plug", group="Network", label="Plug control rssi")
 
     # start the cache to listen for services on other servers
     cacheResources = Collection("cacheResources")
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     # Resources
     resources = Collection("resources", resources=[garageLights, deckLights, trashLights, backLights,
                                                    garageLightsRssi, deckLightsRssi, trashLightsRssi,
-                                                   plugControl, plugControlRssi,
+                                                   # plugControl, plugControlRssi,
                                                    porchLights, xmasLights, nightLights, outsideLights,
                                                    guestMode, vacationMode,
                                                    backHouseMusic, backHouseMusicRssi])
