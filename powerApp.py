@@ -226,7 +226,7 @@ if __name__ == "__main__":
     resourceStates = ResourceStateSensor("states", None, resources=resources, event=stateChangeEvent)
     startMetrics(resourceStates, sendMetrics, logMetrics, backupMetrics, logChanged)
 
-    restServer = RestServer("power", resources, event=stateChangeEvent, label="Power")
+    restServer = RestServer("power", resources, label="Power")
 
     # Start interfaces
     solarInterface.start()
