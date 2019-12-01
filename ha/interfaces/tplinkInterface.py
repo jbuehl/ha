@@ -59,7 +59,7 @@ class TplinkInterface(Interface):
             sock_tcp.close()
             return state
         except Exception as ex:
-            log("tplink read exception", str(ex))
+            log("tplink read exception", ipAddr, str(ex))
             return None
 
     def read(self, addr):
@@ -86,5 +86,5 @@ class TplinkInterface(Interface):
             else:
                 return None
         except Exception as ex:
-            log("tplink write exception", str(ex))
+            log("tplink write exception", ipAddr, str(ex))
             return None
