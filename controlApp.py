@@ -26,7 +26,7 @@ if __name__ == "__main__":
     trashLights = Control("trashLights", tplinkInterface, "192.168.1.133", type="light", group=["Lights", "Garage"], label="Trash lights")
     backLights = Control("backLights", tplinkInterface, "192.168.1.148", type="light", group=["Lights", "Garage"], label="Back lights")
     backHouseMusic = Control("backHouseMusic", tplinkInterface, "192.168.1.117", type="plug", group=["Plugs", "Backhouse"], label="Back house music")
-    # plugControl = Control("plugControl", tplinkInterface, "192.168.1.135", type="plug", group="Lights", label="Plug control")
+    xmasBeamLights = Control("xmasBeamLights", tplinkInterface, "192.168.1.119", type="plug", group="Lights", label="Xmas beam lights")
 
     # Wifi signal strengths
     garageLightsRssi = Control("garageLights-rssi", tplinkInterface, "192.168.1.115,rssi", type="dBm", group="Network", label="Garage lights rssi")
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     trashLightsRssi = Control("trashLights-rssi", tplinkInterface, "192.168.1.133,rssi", type="dBm", group="Network", label="Trash lights rssi")
     backLightsRssi = Control("backLights-rssi", tplinkInterface, "192.168.1.148,rssi", type="dBm", group="Network", label="Back lights rssi")
     backHouseMusicRssi = Control("backHouseMusic-rssi", tplinkInterface, "192.168.1.117,rssi", type="dBm", group="Network", label="Back house music rssi")
-    # plugControlRssi = Control("plugControl-rssi", tplinkInterface, "192.168.1.135,rssi", type="plug", group="Network", label="Plug control rssi")
+    xmasBeamLightsRssi = Control("xmasBeamLights-rssi", tplinkInterface, "192.168.1.119,rssi", type="plug", group="Network", label="Xmas Beam lights rssi")
 
     # start the cache to listen for services on other servers
     cacheResources = Collection("cacheResources")
@@ -50,7 +50,9 @@ if __name__ == "__main__":
                                            resources=cacheResources,
                                            type="light", group="Lights", label="Porch lights")
     xmasLights = ControlGroup("xmasLights", ["xmasTree",
-                                             "xmasCowTree",
+                                             "xmasWindowLights",
+                                             "xmasFireplaceLights",
+                                             "xmasBeamLights",
                                              "xmasBackLights"],
                                            resources=cacheResources,
                                            type="light", group=["Lights", "Xmas"], label="Xmas lights")
@@ -71,7 +73,9 @@ if __name__ == "__main__":
                                                    "poolLights",
                                                    "holidayLights",
                                                    "xmasTree",
-                                                   "xmasCowTree",
+                                                   "xmasWindowLights",
+                                                   "xmasFireplaceLights",
+                                                   "xmasBeamLights",
                                                    "xmasBackLights"],
                                                resources=cacheResources,
                                                type="light", group="Lights", label="Outside lights")
@@ -110,7 +114,7 @@ if __name__ == "__main__":
     # Resources
     resources = Collection("resources", resources=[garageLights, deckLights, trashLights, backLights,
                                                    garageLightsRssi, deckLightsRssi, trashLightsRssi,
-                                                   # plugControl, plugControlRssi,
+                                                   xmasBeamLights, xmasBeamLightsRssi,
                                                    porchLights, xmasLights, nightLights, outsideLights,
                                                    guestMode, vacationMode,
                                                    backHouseMusic, backHouseMusicRssi])
@@ -124,6 +128,7 @@ if __name__ == "__main__":
     resources.addRes(Task("xmasLightsOnSunset", SchedTime(event="sunset"), "xmasLights", 1, resources=resources, group="Lights"))
     resources.addRes(Task("xmasLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, resources=resources, group="Lights"))
     resources.addRes(Task("xmasLightsOffSunrise", SchedTime(event="sunrise"), "xmasLights", 0, resources=resources, group="Lights"))
+    resources.addRes(Task("fireplaceOffMidnight", SchedTime(hour=[23,0], minute=[00]), "fireplace", 0, resources=resources, group="Lights"))
     #        resources.addRes(Task("xmasTreeOnXmas", SchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1, resources=resources))
 
     # Schedule
@@ -136,6 +141,7 @@ if __name__ == "__main__":
     schedule.addTask(resources["xmasLightsOnSunset"])
     schedule.addTask(resources["xmasLightsOffMidnight"])
     schedule.addTask(resources["xmasLightsOffSunrise"])
+    schedule.addTask(resources["fireplaceOffMidnight"])
     #        schedule.addTask(resources["xmasTreeOnXmas"])
 
     restServer = RestServer("control", resources, port=7379, event=stateChangeEvent, label="Control app")

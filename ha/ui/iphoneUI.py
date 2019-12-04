@@ -75,6 +75,7 @@ def iphoneUI(resources, templates, views):
                             familyRoomResources=resources.getResList(["familyRoomLamp", "fireplace", "fireplaceVideo"]),
                             holidayResources=resources.getResList(["holidayLights", "holiday",
                                                                    # "halloween", "halloweenVideo",
-                                                                   "xmasTree", "xmasTreePattern", "xmasCowTree", "xmasBackLights"]),
+                                                                   "xmasTree", "xmasTreePattern", "xmasWindowLights",
+                                                                   "xmasFireplaceLights", "xmasBeamLights", "xmasBackLights"]),
                             views=views)
     return reply

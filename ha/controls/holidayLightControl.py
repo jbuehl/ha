@@ -11,7 +11,7 @@ def randomPattern(length=1, colors=3):
     for i in range(length):
         pattern[i] = int(16777215 * random.random()) # random number between 0 and 256**3-1
     return pattern
-    
+
 # define a segment of a string of lights
 class Segment(object):
     def __init__(self, name, start, length, pattern=None, animation=None):
@@ -43,7 +43,7 @@ class Segment(object):
     def animate(self):
         if self.animation:
             self.animation.animate(self)
-            
+
     # shift the pattern by the specified number of pixels
     def shift(self, n):
         debug("debugHolidayLights", "segment", self.name, "shift", n)
@@ -76,12 +76,12 @@ class Animation(object):
         self.name = name
         self.rate = rate
         self.animationCount = 0
-        
+
     # define an animation cycle
     def animate(self, segment):
         self.segment = segment
         if self.animationCount == 0:
-            self.cycle()        
+            self.cycle()
         self.animationCount += 1
         if self.animationCount == self.rate:
             self.animationCount = 0
@@ -89,24 +89,24 @@ class Animation(object):
 class RandomColorAnimation(Animation):
     def __init__(self, name="randomcolor", rate=3):
         Animation.__init__(self, name, rate)
-                                    
-    def cycle(self):                                    
+
+    def cycle(self):
         self.segment.fill(randomPattern(len(self.segment.pixels)))
 
 class CrawlAnimation(Animation):
     def __init__(self, name="crawl", rate=3, direction=1):
         Animation.__init__(self, name, rate)
         self.direction = direction
-                                    
-    def cycle(self):                                    
+
+    def cycle(self):
         self.segment.shift(self.direction)
 
 class SparkleAnimation(Animation):
     def __init__(self, name="sparkle", rate=3, factor=.7):
         Animation.__init__(self, name, rate)
         self.factor = factor
-                                    
-    def cycle(self):                                    
+
+    def cycle(self):
         self.segment.fill()
         self.segment.decimate(self.factor)
 
@@ -114,8 +114,8 @@ class FlickerAnimation(Animation):
     def __init__(self, name="flicker", rate=1, factor=.7):
         Animation.__init__(self, name, rate)
         self.factor = factor
-                                    
-    def cycle(self):                                    
+
+    def cycle(self):
         if random.random() < self.factor:
             self.segment.fill()
         else:
@@ -125,8 +125,8 @@ class BlinkAnimation(Animation):
     def __init__(self, name="blink", rate=15):
         Animation.__init__(self, name, rate)
         self.state = True
-                                    
-    def cycle(self):                                    
+
+    def cycle(self):
         if self.state:
             self.segment.fill([off])
             self.state = False
@@ -140,13 +140,13 @@ class FadeAnimation(Animation):
         self.fadeFactor = 10
         self.fadeIncr = -1
 
-    def cycle(self):                                    
+    def cycle(self):
         self.segment.fill()
         self.segment.dim(float(self.fadeFactor)/10)
         self.fadeFactor += self.fadeIncr
         if (self.fadeFactor == 0) or (self.fadeFactor == 10):
             self.fadeIncr = -self.fadeIncr
-     
+
 class AliasControl(Control):
     def __init__(self, name, interface, resources, control,
                     addr=None, group="", type="control", location=None, label="", event=None):
@@ -160,24 +160,20 @@ class AliasControl(Control):
 
     def setState(self, value):
         return self.resources.getRes(self.control.getState()).setState(value)
-     
+
 class HolidayLightControl(Control):
-    def __init__(self, name, interface, 
+    def __init__(self, name, interface,
                     segments=None,
                     addr=None, group="", type="control", location=None, label="", event=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, event=event)
         self.className = "Control"
+        self.lock = threading.Lock()
         if segments:
             self.segments = segments
         else:
             self.segments = [Segment(self.interface, 0, self.interface.length)]
-        # compute segment positions if not explicitly specified
-        pos = 0
-        for segment in self.segments:
-            if segment.start == 0:
-                segment.start = pos
-            pos += segment.length
         self.running = False
+        self.setSegments(segments)
 
     def getState(self):
         return self.running
@@ -186,31 +182,41 @@ class HolidayLightControl(Control):
         debug("debugHolidayLights", self.name, "setState", "value:", value)
         def runDisplay():
             debug("debugHolidayLights", self.name, "runDisplay started")
-            for segment in self.segments:
-                segment.fill()
-                segment.display(self.interface)
-            self.interface.show()
-            shift = 1
-#            last = 0
-            while self.running:
-#                time.sleep(.1)
-#                now = time.time()
-#                debug("debugEnable", self.name, now-last)
-#                last = now
+            with self.lock:
+                # fill the segments with their patterns
                 for segment in self.segments:
-                    segment.animate()
+                    segment.fill()
+                    segment.display(self.interface)
+                self.interface.show()
+                # run the animations
+                while self.running:
+                    for segment in self.segments:
+                        segment.animate()
+                        segment.display(self.interface)
+                    self.interface.show()
+                # turn all lights off
+                for segment in self.segments:
+                    segment.fill([off])
                     segment.display(self.interface)
                 self.interface.show()
             debug("debugHolidayLights", self.name, "runDisplay terminated")
-            for segment in self.segments:
-                segment.fill([off])
-                segment.display(self.interface)
-            self.interface.show()
         if value:
             displayThread = threading.Thread(target=runDisplay)
             self.running = True
             displayThread.start()
         else:
            self.running = False
-                
 
+    def setSegments(self, segments):
+        wasRunning = self.running  # save the running state
+        self.running = False
+        # wait for animations to finish
+        with self.lock:
+            self.segments = segments
+            # compute segment positions if not explicitly specified
+            pos = 0
+            for segment in self.segments:
+                if segment.start == 0:
+                    segment.start = pos
+                pos += segment.length
+        self.setState(wasRunning)

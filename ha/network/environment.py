@@ -24,7 +24,7 @@ hostAliases = {"00:17:EE:02:54:01": "Vonage",
                "D8:0D:17:19:6D:45": "deckLights",
                "D8:0D:17:19:8B:0C": "trashLights",
                "68:FF:7B:BA:4E:7E": "backHouseMusic",
-               "68:FF:7B:BA:52:B9": "plugControl",
+               "68:FF:7B:BA:52:B9": "xmasBeamLights",
                "B0:BE:76:FE:16:30": "backLights",
               }
 ignoreHosts = {"router", "house",
