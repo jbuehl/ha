@@ -236,6 +236,14 @@ td {
 	color: #FFFF7F;
     }
 
+.motion_Off {
+    color: SlateGray;
+    }
+
+.motion_Motion {
+    color: Orange;
+    }
+
 .door_Closed {
 	color: SlateGray;
     }
