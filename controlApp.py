@@ -34,7 +34,7 @@ if __name__ == "__main__":
     trashLightsRssi = Control("trashLights-rssi", tplinkInterface, "192.168.1.133,rssi", type="dBm", group="Network", label="Trash lights rssi")
     backLightsRssi = Control("backLights-rssi", tplinkInterface, "192.168.1.148,rssi", type="dBm", group="Network", label="Back lights rssi")
     backHouseMusicRssi = Control("backHouseMusic-rssi", tplinkInterface, "192.168.1.117,rssi", type="dBm", group="Network", label="Back house music rssi")
-    xmasBeamLightsRssi = Control("xmasBeamLights-rssi", tplinkInterface, "192.168.1.119,rssi", type="plug", group="Network", label="Xmas Beam lights rssi")
+    xmasBeamLightsRssi = Control("xmasBeamLights-rssi", tplinkInterface, "192.168.1.119,rssi", type="dBm", group="Network", label="Xmas Beam lights rssi")
 
     # start the cache to listen for services on other servers
     cacheResources = Collection("cacheResources")
