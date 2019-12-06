@@ -46,12 +46,18 @@ def watchEvents(resources, notifyNumbers, timeout=60):
                             else:
                                 try:        # send notification if door was previously closed
                                     if time.time() - serviceUpTimes[resource] > 1:
-                                        msg = resources[resource].label+" door is open"
+                                        eventType = resources[resource].type
+                                        if eventType == "door":
+                                            msg = resources[resource].label+" door is open"
+                                        elif eventType == "motion":
+                                            msg = resources[resource].label.split(" ")[0]+" motion"
+                                        else:
+                                            msg =  resources[resource].label
                                         eventTime = time.strftime("%Y%m%d%H%M%S")
                                         debug("debugEventMonitor", "eventMonitor", msg)
                                         if resource == "frontDoor":
                                             camera = "frontdoor"
-                                        elif resource == "garageDoor":
+                                        elif resource in ["garageDoor", "drivewayMotionSensor"]:
                                             camera = "driveway"
                                         elif resource == "garageBackDoor":
                                             camera = "southside"
@@ -64,9 +70,9 @@ def watchEvents(resources, notifyNumbers, timeout=60):
                                         if camera != "":
                                             msg += " https://shadyglade.thebuehls.com/"
                                             msg += "image/"+camera+"/"+eventTime[0:8]+"/"
-                                            msg += eventTime+"_door"
+                                            msg += eventTime+"_"+eventType
                                         notify(resources, "alertDoors", msg)
-                                        createEvent("door", camera, eventTime)
+                                        createEvent(eventType, camera, eventTime)
                                         serviceUpTimes[resource] = float("inf")
                                 except KeyError:    # service is down at the start
                                     serviceUpTimes[resource] = float("inf")
