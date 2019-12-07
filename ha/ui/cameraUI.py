@@ -197,7 +197,7 @@ def events(cameraName, date, cameras, templates):
     for imageFile in sorted(imageFiles, reverse=True):
         [imageName, ext] = imageFile.split(".")
         [eventName, eventType] = imageName.split("_")
-        images.append([imageName, eventName[8:12]+"%3A", eventName[8:10]+":"+eventName[10:12]+":"+eventName[12:14], eventType])
+        images.append([imageName, eventName[8:14]+"%3A", eventName[8:10]+":"+eventName[10:12]+":"+eventName[12:14], eventType])
     # fill out the remainder of the row if there are < 4 images
     if len(images) < 4:
         images += [["", "", "", ""] for i in range((int(len(images)/4)+1)*4-len(images))]
