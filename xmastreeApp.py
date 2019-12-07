@@ -1,9 +1,10 @@
 
 stringLength = 200
+darkLength = 46
 # xmasTreeLabel = "Xmas tree"
 # xmasTreePatternLabel = "Xmas tree pattern"
-xmasTreeLabel = "Holiday back lights"
-xmasTreePatternLabel = "Holiday back light pattern"
+xmasTreeLabel = "Living room lights"
+xmasTreePatternLabel = "Living room light pattern"
 defaultConfig = {
     "pattern": "None",
 }
@@ -63,70 +64,70 @@ if __name__ == "__main__":
     configData = FileInterface("configData", fileName=stateDir+"lights.conf", event=stateChangeEvent, initialState=defaultConfig)
 
     offLights = HolidayLightControl("None", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                           pattern=patterns["offPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="None")
     valentinesLights = HolidayLightControl("Valentines day", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["valentinesPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Valentines day")
     mardigrasLights = HolidayLightControl("Mardi gras", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["mardigrasPattern"],
                                                            animation=SparkleAnimation(rate=5))],
                                         type="light", group=["Lights", "Holiday"], label="Mardi gras")
     presidentsLights = HolidayLightControl("Presidents day", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["presidentsPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Presidents day")
     stpatricksLights = HolidayLightControl("St Patricks day", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["stpatricksPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="St Patricks day")
     maydayLights = HolidayLightControl("May day", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["maydayPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="May day")
     easterLights = HolidayLightControl("Easter", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["easterPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Easter")
     cincodemayoLights = HolidayLightControl("Cinco de Mayo", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["cincodemayoPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Cinco de mayo")
     swedenLights = HolidayLightControl("Sweden day", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["swedenPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Sweden day")
     canadaLights = HolidayLightControl("Canada day", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["canadaPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Canada day")
     prideLights = HolidayLightControl("Gay pride", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["pridePattern"],
                                                            animation=SparkleAnimation(rate=3))],
                                         type="light", group=["Lights", "Holiday"], label="Gay pride")
     flagLights = HolidayLightControl("Flag day", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["presidentsPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Flag day")
     july4Lights = HolidayLightControl("4th of July", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["july4Pattern"],
                                                            animation=SparkleAnimation(rate=1))],
                                         type="light", group=["Lights", "Holiday"], label="4th of july")
     bastilleLights = HolidayLightControl("Bastille day", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["bastillePattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Bastille day")
     fallLights = HolidayLightControl("Fall", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                           pattern=patterns["fallPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Fall")
     halloweenLights = HolidayLightControl("Halloween", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["halloweenPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Halloween")
     electionLights = HolidayLightControl("Election day", neopixelInterface,
@@ -141,26 +142,26 @@ if __name__ == "__main__":
                                                            animation=CrawlAnimation(direction=-1))],
                                         type="light", group=["Lights", "Holiday"], label="Election day")
     christmasLights = HolidayLightControl("Christmas", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["christmasPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Christmas")
     hanukkahLights = HolidayLightControl("Hanukkah", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["hanukkahPattern"])],
                                         type="light", group=["Lights", "Holiday"], label="Hanukkah")
     testLights = HolidayLightControl("Test", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["spectrumPattern"],
                                                            animation=CrawlAnimation(direction=1))],
                                         type="light", group=["Lights", "Holiday"], label="Test")
     rabbitLights = HolidayLightControl("Rabbit", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["rabbitPattern"],
                                                            animation=CrawlAnimation(direction=1, rate=1))],
                                         type="light", group=["Lights", "Holiday"], label="Test")
 
     randomLights = HolidayLightControl("Random", neopixelInterface,
-                                        segments=[Segment("all",     0, stringLength,
+                                        segments=[Segment("all",     darkLength, stringLength-darkLength,
                                                            pattern=patterns["onPattern"],
                                                            animation=RandomColorAnimation(rate=5))],
                                         type="light", group=["Lights", "Holiday"], label="Test")
@@ -216,7 +217,7 @@ if __name__ == "__main__":
     # schedule.addTask(resources["xmasLightsOffSunrise"])
     # schedule.addTask(resources["xmasTreeOnXmas"])
 
-    restServer = RestServer("xmastree", resources, event=stateChangeEvent, label="Xmas tree")
+    restServer = RestServer("livingroom", resources, event=stateChangeEvent, label="Living room")
 
     # Start interfaces
     configData.start()
