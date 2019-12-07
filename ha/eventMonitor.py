@@ -13,11 +13,6 @@ def watchEvents(resources, notifyNumbers, timeout=60):
         while True:
             with resources.lock:
                 monitoredGroups = ["Services", "Doors"]
-                # if resources["alertServices"].getState():
-                #     monitoredGroups.append("Services")
-                # if resources["alertDoors"].getState():
-                #     monitoredGroups.append("Doors")
-                # debug("debugEventMonitor", "eventMonitor", str(monitoredGroups))
                 for resource in resources:
                     if isinstance(resources[resource].group, list):
                         group = resources[resource].group[0]
