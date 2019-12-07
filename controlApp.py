@@ -26,7 +26,7 @@ if __name__ == "__main__":
     trashLights = Control("trashLights", tplinkInterface, "192.168.1.133", type="light", group=["Lights", "Garage"], label="Trash lights")
     backLights = Control("backLights", tplinkInterface, "192.168.1.148", type="light", group=["Lights", "Garage"], label="Back lights")
     backHouseMusic = Control("backHouseMusic", tplinkInterface, "192.168.1.117", type="plug", group=["Plugs", "Backhouse"], label="Back house music")
-    xmasBeamLights = Control("xmasBeamLights", tplinkInterface, "192.168.1.119", type="plug", group="Lights", label="Xmas beam lights")
+    xmasBeamLights = Control("xmasBeamLights", tplinkInterface, "192.168.1.119", type="light", group="Lights", label="Xmas beam lights")
 
     # Wifi signal strengths
     garageLightsRssi = Control("garageLights-rssi", tplinkInterface, "192.168.1.115,rssi", type="dBm", group="Network", label="Garage lights rssi")
