@@ -8,7 +8,7 @@ router = "zog"
 accessPoints = ["dundermifflin", "piedpiper", "initech", "wernhamhogg", "hooli"]
 wiredHosts = ["gecko", "minnie", "pluto", "elfo", "oona",
               "holiday", "weather", "xmastree", "family-room-speakers",
-              "piaware", "carcharger", "garage", "lights", "deck",
+              "piaware", "carcharger", "garage", "lights", "deck", "livingroom",
               "solar", "power", "pool", "backhouse", "hvac", "sprinklers",
               "Front door", "Driveway", "South", "North side", "Family room TV",
               "Family room Roku", "Back house Roku", "Darth", "solaredge", "raspberrypi",
