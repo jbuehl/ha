@@ -41,7 +41,11 @@
                     <span>
                         <select name='action'>
                             {% for value in resource.values %}
-                            <option value='{{ value }}'>{{ value }}</option>
+                            {% if value == resource.getState() %}
+                                <option value='{{ value }}' selected>{{ value }}</option>
+                            {% else %}
+                                <option value='{{ value }}'>{{ value }}</option>
+                            {% endif %}
                             {% endfor %}
                         </select>
                     </span>
