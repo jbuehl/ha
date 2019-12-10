@@ -39,7 +39,7 @@
                 <form name='control' action='' method='get'>
                     <input type='hidden' name='resource' value='{{ resource.name }}' />
                     <span>
-                        <select name='action'>
+                        <select name='action' id="{{ resource.name.replace(".", "_") }}_select">
                             {% for value in resource.values %}
                             {% if value == resource.getState() %}
                                 <option value='{{ value }}' selected>{{ value }}</option>

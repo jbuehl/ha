@@ -398,7 +398,7 @@ class OneShotControl(Control):
 # Control that has a specified list of values it can be set to
 class MultiControl(Control):
     def __init__(self, name, interface, addr=None, values=[], group="", type="control", location=None, label="", interrupt=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
+        Control.__init__(self, name, interface, addr, group=group, type="select", location=location, label=label, interrupt=interrupt)
         self.className = "MultiControl"
         self.values = values
 

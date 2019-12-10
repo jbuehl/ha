@@ -56,12 +56,18 @@ $(document).ready(function() {
                     soundPlaying = 1;
                     var audio = new Audio('/sound/' + val[1]);
                     audio.play();
+                    }
                 }
             else {
                 soundPlaying = 0;
                 }
             }
-        }
+        else if (val[0] == 'select') {
+            $('#'+key).text(val[1]);
+            // $('#'+key+'_select').prop('value', val[1]);
+            $('#'+key+'_select').removeAttr('selected')
+            $('#'+key+'_select'+' option[value="'+val[1]+'"]').prop({defaultSelected: true});
+            }
         else {                                  // change the class
             $('#'+key).text(val[1]);            // set the value
             $('#'+key).attr('class', val[0]);
