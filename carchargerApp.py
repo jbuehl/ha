@@ -23,7 +23,7 @@ if __name__ == "__main__":
     # i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
     ads1015Interface = ADS1015Interface("ads1015Interface", addr=adcAddr, gain=adcGain, sps=adcSps, ic=adcType)
     fileInterface = FileInterface("fileInterface", fileName=stateDir+"carcharger.state", event=stateChangeEvent, initialState={"maxChargingCurrent": 30})
-    maxChargingCurrent = MultiControl("maxChargingCurrent", fileInterface, "maxChargingCurrent", values=[30, 24, 18, 15, 9.6, 6],
+    maxChargingCurrent = MultiControl("maxChargingCurrent", fileInterface, "maxChargingCurrent", values=[30, 24, 18, 15, 10, 6],
                                   group=["Car"], label="Max charging current")
 
     # Sensors
