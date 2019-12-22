@@ -93,7 +93,7 @@ if __name__ == "__main__":
     holidayTasks = [
             Task("offTask",          SchedTime(                              hour=12, minute=0), holiday, "Off"),
             Task("christmasTask",    SchedTime(year=2019, month=Dec,         hour=12, minute=0), holiday, "Christmas"),
-            Task("hanukkahTask",     SchedTime(year=2019, month=Dec, day=22, hour=12, minute=0), holiday, "Hanukkah"),
+            Task("hanukkahTask",     SchedTime(year=2019, month=Dec, day=23, hour=12, minute=0), holiday, "Hanukkah"),
             Task("valentinesTask",   SchedTime(year=2020, month=Feb, day=14, hour=12, minute=0), holiday, "Valentines day"),
             Task("presidentsTask",   SchedTime(year=2020, month=Feb, day=17, hour=12, minute=0), holiday, "Presidents day"),
             Task("mardigrasTask",    SchedTime(year=2020, month=Feb, day=[22,23,24,25],  hour=12, minute=0), holiday, "Mardi gras"),
