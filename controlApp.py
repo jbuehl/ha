@@ -117,7 +117,7 @@ if __name__ == "__main__":
                                                group="Modes", label="Vacation")
     # Resources
     resources = Collection("resources", resources=[garageLights, deckLights, trashLights, backLights,
-                                                   garageLightsRssi, deckLightsRssi, trashLightsRssi,
+                                                   garageLightsRssi, deckLightsRssi, trashLightsRssi, backLightsRssi,
                                                    xmasBeamLights, xmasBeamLightsRssi,
                                                    porchLights, xmasLights, nightLights, outsideLights,
                                                    guestMode, vacationMode,
