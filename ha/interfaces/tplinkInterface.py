@@ -46,6 +46,8 @@ class TplinkInterface(Interface):
                         if state != self.states[ipAddr]:
                             self.states[ipAddr] = state
                             sensor.notify()
+                    except Exception as ex:
+                        log("tplink state exception", ipAddr, str(ex))
                 time.sleep(1)
         stateThread = threading.Thread(target=getStates)
         stateThread.start()
