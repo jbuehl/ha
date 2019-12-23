@@ -166,15 +166,17 @@ class HolidayLightControl(Control):
                  addr=None, group="", type="control", location=None, label="", event=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, event=event)
         self.className = "Control"
-        self.patterns = patterns
-        self.patternControl = patternControl
-        self.pattern = ""
+        self.patterns = patterns                # list of patterns
+        self.patternControl = patternControl    # a Control whose state specifies which pattern is active
+        self.pattern = ""                       # name of the active pattern
         self.running = False
 
-    # set the pattern based on the pattern control if it has changed
+    # set the pattern based on the pattern control
     def setPattern(self):
-        if self.patternControl.getState() != self.pattern:
-            self.pattern = self.patternControl.getState()
+        #  do nothing if the pattern has not changed
+        newPattern = self.patternControl.getState()
+        if newPattern != self.pattern:
+            self.pattern = newPattern
             debug("debugHolidayLights", self.name, "setPattern", "pattern:", self.pattern)
             self.segments = self.patterns[self.pattern]
             # compute segment positions if not explicitly specified
@@ -182,6 +184,7 @@ class HolidayLightControl(Control):
             for segment in self.segments:
                 if segment.start == 0:
                     segment.start = pos
+                debug("debugHolidayLights", self.name, "segment", segment.start, segment.length, segment.pattern)
                 pos += segment.length
             # if it is running, fill the segments
             if self.running:
