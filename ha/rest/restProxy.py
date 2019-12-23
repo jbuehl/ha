@@ -61,13 +61,14 @@ def parseServiceData(data, addr):
 # Remove resources on services that don't respond
 
 class RestProxy(threading.Thread):
-    def __init__(self, name, resources, watch=[], ignore=[], event=None, lock=None):
+    def __init__(self, name, resources, watch=[], ignore=[], event=None, cache=True):
         debug('debugRestProxy', name, "starting", name)
         threading.Thread.__init__(self, target=self.restProxyThread)
         self.name = name
         self.services = {}                      # cached services
         self.resources = resources              # resource cache
         self.event = event
+        self.cache = cache
         self.cacheTime = 0                      # time of the last update to the cache
         self.watch = setServicePorts(watch)     # services to watch for
         self.ignore = setServicePorts(ignore)   # services to ignore
@@ -103,7 +104,7 @@ class RestProxy(threading.Thread):
                     self.services[serviceName] = RestServiceProxy(serviceName,
                                                                     RestInterface(serviceName+"Interface",
                                                                                     serviceAddr=serviceAddr,
-                                                                                    event=self.event,
+                                                                                    event=self.event, cache=self.cache,
                                                                                     secure=False, stateChange=serviceStateChange),
                                                                     addr=0,
                                                                     timeStamp=serviceTimeStamp,
