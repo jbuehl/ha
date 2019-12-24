@@ -1,9 +1,9 @@
 
 stringLength = 343
 darkLength = 0
-farLeftLength = 10
+farLeftLength = 12
 cameraLength = 10
-leftLength = 92
+leftLength = 90
 centerLength = 58
 rightLength = 140
 farRightLength = 33
@@ -33,11 +33,17 @@ patterns = {"On": [Segment(0, stringLength, [on], None)],
             "Magenta": [Segment(0, stringLength, [magenta], None)],
             "Rust": [Segment(0, stringLength, [rust], None)],
             "Indigo": [Segment(0, stringLength, [indigo], None)],
-            "Christmas": [Segment(0, farLeftLength, 4*[white]+6*[red], None),
+            "Christmas": [Segment(0, farLeftLength, 4*[green]+4*[white]+4*[red], None),
                           Segment(0, cameraLength, [off], None),
-                          Segment(0, leftLength, 3*[green]+4*[white]+6*[red], None),
+                          Segment(0, leftLength, 4*[green]+4*[white]+4*[red], None),
                           Segment(0, centerLength, [white], None),
-                          Segment(0, rightLength+farRightLength, 3*[green]+4*[white]+6*[red], None),
+                          Segment(0, rightLength+farRightLength, 4*[green]+4*[white]+4*[red], None),
+                         ],
+            "Christmas sparkle": [Segment(0, farLeftLength, 4*[green]+4*[white]+4*[red], CrawlAnimation(direction=1)),
+                          Segment(0, cameraLength, [off], None),
+                          Segment(0, leftLength, 4*[green]+4*[white]+4*[red], CrawlAnimation(direction=1)),
+                          Segment(0, centerLength, [white], SparkleAnimation(rate=2, factor=.7)),
+                          Segment(0, rightLength+farRightLength, 4*[green]+4*[white]+4*[red], CrawlAnimation(direction=0)),
                          ],
             "Hanukkah": [Segment(0, stringLength, 7*[blue]+3*[white], None)],
             "Halloween": [Segment(0, stringLength, 5*[orange]+3*[rust]+2*[purple], FlickerAnimation())],
@@ -94,6 +100,7 @@ if __name__ == "__main__":
             Task("offTask",          SchedTime(                              hour=12, minute=0), holiday, "Off"),
             Task("christmasTask",    SchedTime(year=2019, month=Dec,         hour=12, minute=0), holiday, "Christmas"),
             Task("hanukkahTask",     SchedTime(year=2019, month=Dec, day=23, hour=12, minute=0), holiday, "Hanukkah"),
+            Task("christmasSparkleTask",    SchedTime(year=2019, month=Dec, day=[24,25], hour=12, minute=0), holiday, "Christmas sparkle"),
             Task("valentinesTask",   SchedTime(year=2020, month=Feb, day=14, hour=12, minute=0), holiday, "Valentines day"),
             Task("presidentsTask",   SchedTime(year=2020, month=Feb, day=17, hour=12, minute=0), holiday, "Presidents day"),
             Task("mardigrasTask",    SchedTime(year=2020, month=Feb, day=[22,23,24,25],  hour=12, minute=0), holiday, "Mardi gras"),
