@@ -6,6 +6,17 @@ logMetrics = True
 logChanged = False
 backupMetrics = True
 restWatch = ["carcharger"]
+defaultConfig = {
+                "loads.lights.dailyEnergy": 0.0,
+                "loads.plugs.dailyEnergy": 0.0,
+                "loads.appliance1.dailyEnergy": 0.0,
+                "loads.cooking.dailyEnergy": 0.0,
+                "loads.appliance2.dailyEnergy": 0.0,
+                "loads.ac.dailyEnergy": 0.0,
+                "loads.backhouse.dailyEnergy": 0.0,
+                "loads.pool.dailyEnergy": 0.0,
+                "loads.carcharger.dailyEnergy": 0.0,
+                }
 
 import time
 import json
@@ -95,7 +106,7 @@ if __name__ == "__main__":
     i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
     ads1015Interface0 = ADS1015Interface("ads1015Interface0", addr=0x48, gain=adcGain, sps=adcSps, ic=adcType)
     ads1015Interface1 = ADS1015Interface("ads1015Interface1", addr=0x49, gain=adcGain, sps=adcSps, ic=adcType)
-    stateInterface = FileInterface("stateInterface", fileName=stateDir+"power.state")
+    stateInterface = FileInterface("stateInterface", fileName=stateDir+"power.state", initialState=defaultConfig)
     solarInterface = FileInterface("solarInterface", fileName=solarFileName, readOnly=True, event=stateChangeEvent)
 
     # Current sensors
