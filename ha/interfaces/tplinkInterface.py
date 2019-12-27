@@ -1,3 +1,6 @@
+tcpTimeout = 10.0
+stateInterval = 1
+
 import socket
 import json
 import struct
@@ -36,6 +39,7 @@ class TplinkInterface(Interface):
         # poll sensors every second to generate state change notifications
         # cached state is the dictionary that is returned
         def getStates():
+            debug("debugTplink", "tplink", "getStates starting")
             while True:
                 for sensor in list(self.sensors.values()):
                     try:
@@ -44,24 +48,30 @@ class TplinkInterface(Interface):
                         ipAddr = sensor.addr.split(",")[0]
                         state = self.readState(ipAddr)
                         if state != self.states[ipAddr]:
+                            if state and self.states[ipAddr]:
+                                if state["relay_state"] != self.states[ipAddr]["relay_state"]:
+                                    debug("debugTplink", sensor.name, "state:", state["relay_state"], "rssi:", state["rssi"])
                             self.states[ipAddr] = state
                             sensor.notify()
                     except Exception as ex:
-                        log("tplink state exception", ipAddr, str(ex))
-                time.sleep(1)
+                        log("tplink state exception", self.sensorAddrs[ipAddr].name, ipAddr, str(ex))
+                time.sleep(stateInterval)
+            debug("debugTplink", "tplink", "getStates terminated")
         stateThread = threading.Thread(target=getStates)
         stateThread.start()
 
     def readState(self, ipAddr):
+        debug("debugTplink", "tplink", "readState", ipAddr)
         try:
-            sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock_tcp.connect((ipAddr, port))
-            sock_tcp.send(encrypt('{"system":{"get_sysinfo":{}}}'))
-            state = json.loads(decrypt(sock_tcp.recv(2048)))["system"]["get_sysinfo"]
-            sock_tcp.close()
+            tcpSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            tcpSocket.connect((ipAddr, port))
+            tcpSocket.settimeout(tcpTimeout)
+            tcpSocket.send(encrypt('{"system":{"get_sysinfo":{}}}'))
+            state = json.loads(decrypt(tcpSocket.recv(2048)))["system"]["get_sysinfo"]
+            tcpSocket.close()
             return state
         except Exception as ex:
-            log("tplink read exception", ipAddr, str(ex))
+            log("tplink read exception", self.sensorAddrs[ipAddr].name, ipAddr, str(ex))
             return None
 
     def read(self, addr):
@@ -78,15 +88,16 @@ class TplinkInterface(Interface):
     def write(self, addr, state):
         ipAddr = addr.split(",")[0]
         try:
-            sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock_tcp.connect((ipAddr, port))
-            sock_tcp.send(encrypt('{"system":{"set_relay_state":{"state":'+str(state)+'}}}'))
-            status = int(json.loads(decrypt(sock_tcp.recv(2048)))["system"]["set_relay_state"]["err_code"])
-            sock_tcp.close()
+            tcpSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            tcpSocket.connect((ipAddr, port))
+            tcpSocket.settimeout(tcpTimeout)
+            tcpSocket.send(encrypt('{"system":{"set_relay_state":{"state":'+str(state)+'}}}'))
+            status = int(json.loads(decrypt(tcpSocket.recv(2048)))["system"]["set_relay_state"]["err_code"])
+            tcpSocket.close()
             if status == 0:
                 return state
             else:
                 return None
         except Exception as ex:
-            log("tplink write exception", ipAddr, str(ex))
+            log("tplink write exception", self.sensorAddrs[ipAddr].name, ipAddr, str(ex))
             return None
