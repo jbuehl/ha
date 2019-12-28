@@ -86,6 +86,7 @@ class TplinkInterface(Interface):
             return None
 
     def write(self, addr, state):
+        # only relay_state can be written
         ipAddr = addr.split(",")[0]
         try:
             tcpSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -95,6 +96,9 @@ class TplinkInterface(Interface):
             status = int(json.loads(decrypt(tcpSocket.recv(2048)))["system"]["set_relay_state"]["err_code"])
             tcpSocket.close()
             if status == 0:
+                # update the cached state
+                self.states[ipAddr]["relay_state"] = state
+                self.sensorAddrs[ipAddr].notify()
                 return state
             else:
                 return None
