@@ -150,8 +150,8 @@ if __name__ == "__main__":
     resources.addRes(Sensor("system."+hostname+".cpuLoad", osInterface, "cpuLoad", type="pct", group="System", label=hostname+" CPU load"))
     resources.addRes(Sensor("system."+hostname+".uptime", osInterface, "uptime", group="System", label=hostname+" Uptime"))
     resources.addRes(Sensor("system."+hostname+".ipAddr", osInterface, "ipAddr eth0", group="System", label=hostname+" IP address"))
-    resources.addRes(Sensor("system.disk1.usage", osInterface, "diskUse /mnt/disk1", type="pct", group="System", label="Disk1 usage"))
-    resources.addRes(Sensor("system.disk2.usage", osInterface, "diskUse /mnt/disk2", type="pct", group="System", label="Disk2 usage"))
+    resources.addRes(Sensor("system.cameras.usage", osInterface, "diskUse /mnt/disk1", type="pct", group="System", label="Camera disk usage"))
+    resources.addRes(Sensor("system.backups.usage", osInterface, "diskUse /mnt/disk2", type="pct", group="System", label="Backup disk usage"))
 
     stateInterface = FileInterface("stateInterface", fileName=stateDir+"ha.state", event=stateChangeEvent, initialState=defaultConfig)
     stateInterface.start()
