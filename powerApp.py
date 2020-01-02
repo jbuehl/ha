@@ -112,7 +112,7 @@ if __name__ == "__main__":
 
     # system resources
     osInterface = OSInterface("osInterface")
-    diskUsage = Sensor("system.power.usage", osInterface, "diskUse /", type="pct", group="System", label="Power usage")
+    diskUsage = Sensor("system.power.usage", osInterface, "diskUse /", type="pct", group="System", label="Power disk usage")
 
     # Current sensors
     lightsCurrent = CurrentSensor("loads.lights.current", ads1015Interface0, 0, VC25, threshold=.01,
