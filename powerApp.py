@@ -23,6 +23,7 @@ import json
 from ha.interfaces.i2cInterface import *
 from ha.interfaces.ads1015Interface import *
 from ha.interfaces.fileInterface import *
+from ha.interfaces.osInterface import *
 from ha.controls.electricalSensors import *
 from ha.controls.solarSensor import *
 from ha.metrics import *
@@ -109,6 +110,10 @@ if __name__ == "__main__":
     stateInterface = FileInterface("stateInterface", fileName=stateDir+"power.state", initialState=defaultConfig)
     solarInterface = FileInterface("solarInterface", fileName=solarFileName, readOnly=True, event=stateChangeEvent)
 
+    # system resources
+    osInterface = OSInterface("osInterface")
+    diskUsage = Sensor("system.power.usage", osInterface, "diskUse /", type="pct", group="System", label="Power usage")
+
     # Current sensors
     lightsCurrent = CurrentSensor("loads.lights.current", ads1015Interface0, 0, VC25, threshold=.01,
                                   group=["Power", "Loads"], label="Lights current", type="A", event=stateChangeEvent)
@@ -177,7 +182,8 @@ if __name__ == "__main__":
                                   group=["Power", "Loads"], label="Load today", type="KVAh")
 
     # Resources
-    resources = Collection("resources", [lightsCurrent, plugsCurrent, appl1Current, cookingCurrent,
+    resources = Collection("resources", [diskUsage,
+                                         lightsCurrent, plugsCurrent, appl1Current, cookingCurrent,
                                          appl2Current, acCurrent, backhouseCurrent, poolCurrent,
                                          lightsPower, plugsPower, appl1Power, cookingPower,
                                          appl2Power, acPower, backhousePower, poolPower,
