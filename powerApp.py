@@ -5,6 +5,8 @@ sendMetrics = False
 logMetrics = True
 logChanged = False
 backupMetrics = True
+purgeMetrics = True
+purgeDays = 2
 restWatch = ["carcharger"]
 defaultConfig = {
                 "loads.lights.dailyEnergy": 0.0,
@@ -241,7 +243,7 @@ if __name__ == "__main__":
 
     # start the task to transmit resource metrics
     resourceStates = ResourceStateSensor("states", None, resources=resources, event=stateChangeEvent)
-    startMetrics(resourceStates, sendMetrics, logMetrics, backupMetrics, logChanged)
+    startMetrics(resourceStates, sendMetrics, logMetrics, backupMetrics, purgeMetrics, purgeDays, logChanged)
 
     restServer = RestServer("power", resources, label="Power")
 

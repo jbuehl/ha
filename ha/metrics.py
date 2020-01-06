@@ -12,7 +12,7 @@ import os
 import socket
 from ha import *
 
-def startMetrics(resourceStates, sendMetrics=False, logMetrics=True, backupMetrics=True, logChanged=True):
+def startMetrics(resourceStates, sendMetrics=False, logMetrics=True, backupMetrics=True, purgeMetrics=False, purgeDays=5, logChanged=True):
 
     def sendMetricsThread():
         debug("debugMetrics", "sendMetrics", "metrics thread started")
@@ -81,6 +81,26 @@ def startMetrics(resourceStates, sendMetrics=False, logMetrics=True, backupMetri
                         debug("debugMetrics", "sendMetrics", "metrics thread ended")
                     backupThread = threading.Thread(target=backupMetricsThread)
                     backupThread.start()
+
+            # purge metrics that have been backed up
+            if purgeMetrics:
+                if today != lastDay:
+                    backupServer = subprocess.check_output("avahi-browse -atp|grep _backup|grep IPv4|cut -d';' -f4", shell=True).decode().split("\n")[0]+".local"
+                    # get list of metrics files that are eligible to be purged
+                    debug("debugPurgeMetrics", "purging metrics for", purgeDays, "days")
+                    for metricsFile in sorted(os.listdir(logDir))[:-purgeDays]:
+                        # only purge past files
+                        debug("debugPurgeMetrics", "checking", metricsFile)
+                        if metricsFile.split(".")[0] < today:
+                            try:
+                                # get sizes of the file and it's backup
+                                fileSize = int(subprocess.check_output("ls -l "+logDir+metricsFile+"|cut -f5 -d' '", shell=True))
+                                backupSize = int(subprocess.check_output("ssh "+backupServer+" ls -l /backups/ha/"+hostname+"/"+metricsFile+"|cut -f5 -d' '", shell=True))
+                                if backupSize == fileSize:
+                                    debug("debugPurgeMetrics", "deleting", metricsFile)
+                                    os.popen("rm "+logDir+metricsFile)
+                            except Exception as ex:
+                                log("exception purging metrics file", metricsFile, str(ex))
 
             if today != lastDay:
                 lastDay = today
