@@ -87,7 +87,7 @@ def startMetrics(resourceStates, sendMetrics=False, logMetrics=True, backupMetri
                 if today != lastDay:
                     backupServer = subprocess.check_output("avahi-browse -atp|grep _backup|grep IPv4|cut -d';' -f4", shell=True).decode().split("\n")[0]+".local"
                     # get list of metrics files that are eligible to be purged
-                    debug("debugPurgeMetrics", "purging metrics for", purgeDays, "days")
+                    debug("debugPurgeMetrics", "purging metrics more than", purgeDays, "days old")
                     for metricsFile in sorted(os.listdir(logDir))[:-purgeDays]:
                         # only purge past files
                         debug("debugPurgeMetrics", "checking", metricsFile)

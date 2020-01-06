@@ -6,7 +6,7 @@ logMetrics = True
 logChanged = False
 backupMetrics = True
 purgeMetrics = True
-purgeDays = 2
+purgeDays = 3
 restWatch = ["carcharger"]
 defaultConfig = {
                 "loads.lights.dailyEnergy": 0.0,
