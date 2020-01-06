@@ -76,7 +76,7 @@ class PowerSensor(Sensor):
 
 # Accumulate the energy of a power measurement over time
 class EnergySensor(Sensor):
-    def __init__(self, name, interface=None, addr=None, powerSensor=None, interval=10, resources=None, persistence=None,
+    def __init__(self, name, interface=None, addr=None, powerSensor=None, interval=60, resources=None, persistence=None,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
