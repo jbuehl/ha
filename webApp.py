@@ -162,6 +162,7 @@ if __name__ == "__main__":
     alertSpa = Control("alertSpa", stateInterface, "alertSpa", group="Alerts", label="Spa is ready")
     alertDoorbell = Control("alertDoorbell", stateInterface, "alertDoorbell", group="Alerts", label="Doorbell")
     alertDoors = Control("alertDoors", stateInterface, "alertDoors", group="Alerts", label="Door opened")
+    alertMotion = Control("alertMotion", stateInterface, "alertMotion", group="Alerts", label="Motion")
     resources.addRes(smsAlerts)
     resources.addRes(appAlerts)
     resources.addRes(iftttAlerts)
@@ -169,6 +170,7 @@ if __name__ == "__main__":
     resources.addRes(alertSpa)
     resources.addRes(alertDoorbell)
     resources.addRes(alertDoors)
+    resources.addRes(alertMotion)
 
     # start the task to transmit resource metrics
     resourceStates = ResourceStateSensor("states", None, resources=resources, event=stateChangeEvent)

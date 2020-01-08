@@ -34,6 +34,9 @@ def notify(resources, notificationType, message):
             elif notificationType == "alertDoors":
                 fromNumber = doorNotifyFrom
                 toNumbers = doorNotifyNumbers
+            elif notificationType == "alertMotion":
+                fromNumber = motionNotifyFrom
+                toNumbers = motionNotifyNumbers
             smsNotify(fromNumber, toNumbers, message)
         if resources.getRes("appAlerts").getState():
             appNotify("", message)

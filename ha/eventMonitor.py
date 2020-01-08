@@ -58,20 +58,22 @@ def watchEvents(resources, notifyNumbers, timeout=60):
                                         else:
                                             camera = ""
                                         debug("debugEventMonitor", "eventMonitor", resource, eventType, eventTime, camera)
-                                        createEvent(eventType, camera, eventTime)
+                                        if camera != "":
+                                            createEvent(eventType, camera, eventTime)
                                         # send a notification if enabled
-                                        if resources["alertDoors"].getState():
-                                            if eventType == "door":
-                                                msg = resources[resource].label+" door is open"
-                                            elif eventType == "motion":
-                                                msg = resources[resource].label.split(" ")[0]+" motion"
-                                            else:
-                                                msg =  resources[resource].label
+                                        msg =  ""
+                                        if (resources["alertDoors"].getState()) and (eventType == "door"):
+                                            msg = resources[resource].label+" door is open"
+                                            notifyType = "alertDoors"
+                                        elif (resources["alertMotion"].getState()) and (eventType == "motion"):
+                                            msg = resources[resource].label.split(" ")[0]+" motion"
+                                            notifyType = "alertMotion"
+                                        if msg != "":
                                             if camera != "":
                                                 msg += " https://shadyglade.thebuehls.com/"
                                                 msg += "image/"+camera+"/"+eventTime[0:8]+"/"
                                                 msg += eventTime+"_"+eventType
-                                            notify(resources, "alertDoors", msg)
+                                            notify(resources, notifyType, msg)
                                         serviceUpTimes[resource] = float("inf")
                                 except KeyError:    # service is down at the start
                                     serviceUpTimes[resource] = float("inf")
