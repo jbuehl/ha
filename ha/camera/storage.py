@@ -77,5 +77,8 @@ def purgeStorage(cameraName, repeat):
         debug('debugEnable', "deleting video older than", videoRetention, "days for camera", cameraName)
         if videoRetention > 0:
             os.popen("/usr/bin/find "+cameraDir+cameraName+"/videos"+" -mtime +"+str(videoRetention)+" -type f -delete")
+            os.popen("/usr/bin/find "+cameraDir+cameraName+"/images"+" -mtime +"+str(videoRetention)+" -type f -delete")
+            os.popen("/usr/bin/find "+cameraDir+cameraName+"/snaps"+" -mtime +"+str(videoRetention)+" -type f -delete")
+            os.popen("/usr/bin/find "+cameraDir+cameraName+"/thumbs"+" -mtime +"+str(videoRetention)+" -type f -delete")
         repeating = repeat
         time.sleep(purgeStorageInterval)
