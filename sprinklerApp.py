@@ -71,8 +71,10 @@ if __name__ == "__main__":
                         weeklySequence, 1, enabled=True, group="Sprinklers", label="Weekly sprinkler task")
     hotTask = Task("hotTask", SchedTime(hour=startHour, minute=00, weekday=[Tue, Thu, Sat, Sun], month=[May, Jun, Jul, Aug, Sep]),
                         hotControl, 1, enabled=True, group="Sprinklers", label="Hot sprinkler task")
+    springTask = Task("springTask", SchedTime(hour=7, minute=00, month=[Jan, Feb, Mar]),
+                        backBedSequence, 1, enabled=True, group="Sprinklers", label="Spring sprinkler task")
 
-    schedule = Schedule("schedule", tasks=[dailyTask, weeklyTask, hotTask,
+    schedule = Schedule("schedule", tasks=[dailyTask, weeklyTask, hotTask, springTask,
                                            ])
 
     # Resources
@@ -82,7 +84,7 @@ if __name__ == "__main__":
                                                    frontLawnSequence, frontBedSequence, gardenSequence,
                                                    backLawnSequence, backBedSequence, sideBedSequence,
                                                    dailySequence, weeklySequence,
-                                                   dailyTask, weeklyTask, hotTask,
+                                                   dailyTask, weeklyTask, hotTask, springTask,
                                                    ])
     restServer = RestServer("sprinklers", resources, event=stateChangeEvent, label="Sprinklers")
 
