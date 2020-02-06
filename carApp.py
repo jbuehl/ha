@@ -306,7 +306,7 @@ if __name__ == "__main__":
     ampmStyle = Style("ampmStyle", timeStyle, fontSize=32, width=60, height=90)
     tzStyle = Style("tzStyle", timeStyle, fontSize=32, width=80, height=90)
     dateStyle = Style("dateStyle", textStyle, fontSize=24, width=210, height=36)
-    tempStyle = Style("tempStyle", textStyle, fontSize=72, width=190, height=90)
+    tempStyle = Style("tempStyle", textStyle, fontSize=72, width=190, height=90, just=1)
     labelStyle = Style("labelStyle", textStyle, fontSize=32, width=180, height=50, fgColor=color("Cyan"))
     valueStyle = Style("valueStyle", textStyle, fontSize=32, width=220, height=50, fgColor=color("LightYellow"))
     diagLabelStyle = Style("diagLabelStyle", textStyle, fontSize=32, width=200, height=50, fgColor=color("Cyan"))
