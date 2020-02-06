@@ -89,8 +89,8 @@ def readImage(imageFileName):
         height = pngImage[1]
         image = png2fb(pngImage)
         # save the fb image for next time
-        with open(imageName+".fb", "w") as imageFile:
-            imageFile.write(struct.pack("!hh", width, height)+image)
+        with open(imageName+".fb", "wb") as imageFile:
+            imageFile.write(bytes(struct.pack("!hh", width, height))+image)
         return (width, height, image)
 
 # convert RGB pixmp to frame buffer
