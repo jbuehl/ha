@@ -8,7 +8,8 @@ diagFileName = dataDir+"diags.json"
 displayDevice = "/dev/fb0"
 inputDevice = "/dev/input/event0"
 wlan = "wlan0"
-uploadServer = "shadyglade.thebuehls.com"
+uploadUser = "user"
+uploadServer = "example.com"
 uploadDir = "/backups/carputer/data/"
 fontName = "FreeSansBold.ttf"
 fontPath = "/root/.fonts/"
@@ -171,7 +172,7 @@ def uploadData(button):
     button.render()
     if wifiEnabled:
         try:
-            cmd = "rsync -av "+dataDir+"* "+uploadServer+":"+uploadDir
+            cmd = "rsync -av "+dataDir+"* "+uploadUser+"@"+uploadServer+":"+uploadDir
             uplog = subprocess.check_output(cmd, shell=True)
         except:
             pass
