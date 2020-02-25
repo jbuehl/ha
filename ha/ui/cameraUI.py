@@ -66,6 +66,7 @@ def snaps(cameraName, date, resource, cameras, templates):
     (startTime, nSnaps, incr) = (resource.split(".")+["0","0"])[0:3]
     debug('debugSnaps', "camera = ", cameraName)
     debug('debugSnaps', "date = ", date)
+    debug('debugSnaps', "daily = ", daily)
     debug('debugSnaps', "startTime = ", startTime)
     debug('debugSnaps', "nSnaps = ", nSnaps)
     debug('debugSnaps', "incr = ", incr)
@@ -76,16 +77,20 @@ def snaps(cameraName, date, resource, cameras, templates):
     # snapList = [("", "")]*int(nSnaps)
     snapList = []
     snapIncr = int(incr[0:2])*3600+int(incr[2:4])*60+int(incr[4:6])
+    debug('debugSnaps', "snapIncr = ", snapIncr)
     snapThreads = []
     [date, hour, minute, second] = splitTime(date+startTime)
     snapTime = startTime
     now = time.strftime("%H%M%S")
     for i in range(int(nSnaps)):
+        debug('debugSnaps', "  snapTime = ", snapTime)
         if int(snapTime) > int(now):
             break
         snapshot = date+snapTime+"_snap.jpg"
         if snapshot not in snapshots:
-            createSnap(cameraName, snapshot, False)
+            # debug('debugSnaps', "  creating ", snapshot)
+            # createSnap(cameraName, snapshot, False)
+            snapshot = ""   # don't try to display it yet
         snapHour = int(snapTime[0:2])
         snapMinute = int(snapTime[2:4])
         # snapTimes = ["%02d"%(minute) for minute in range(snapMinute, snapMinute+5)]
@@ -101,6 +106,8 @@ def snaps(cameraName, date, resource, cameras, templates):
         snapList.append((snapshot, snapHour, snapTimeDisp, snapTime, nextSnap))
         snapTime = addTimes(snapTime, incr)
 
+    debug('debugSnaps', "snapList = ", len(snapList))
+    debug('debugSnaps', "snapHour = ", snapHour)
     if daily:
         # reverse the order and trim future hours
         snapListDisp = []
