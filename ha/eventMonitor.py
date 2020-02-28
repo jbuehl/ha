@@ -45,7 +45,8 @@ def watchEvents(resources, notifyNumbers, timeout=60):
                                     if time.time() - serviceUpTimes[resource] > 1:
                                         eventType = resources[resource].type
                                         eventTime = time.strftime("%Y%m%d%H%M%S")
-                                        if resource == "frontDoor":
+                                        # associate the event with a camera
+                                        if resource in ["frontDoor", "frontPorchMotionSensor"]:
                                             camera = "frontdoor"
                                         elif resource in ["garageDoor", "drivewayMotionSensor"]:
                                             camera = "driveway"
@@ -66,7 +67,7 @@ def watchEvents(resources, notifyNumbers, timeout=60):
                                             msg = resources[resource].label+" door is open"
                                             notifyType = "alertDoors"
                                         elif (resources["alertMotion"].getState()) and (eventType == "motion"):
-                                            msg = resources[resource].label.split(" ")[0]+" motion"
+                                            msg = resources[resource].label
                                             notifyType = "alertMotion"
                                         if msg != "":
                                             if camera != "":
