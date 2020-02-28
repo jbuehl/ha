@@ -57,11 +57,11 @@ if __name__ == "__main__":
     poolLights = ControlGroup("poolLights", [poolLight, spaLight], type="light", group=["Pool", "Lights"], label="Pool and spa")
 
     # Temperature
-    waterTemp = Sensor("waterTemp", analogTempInterface, 0, group=["Pool", "Temperature"], label="Water temp", type="tempF")
+    # waterTemp = Sensor("waterTemp", analogTempInterface, 0, group=["Pool", "Temperature"], label="Water temp", type="tempF")
     spaTemp = Sensor("spaTemp", analogTempInterface, 1, group=["Pool", "Temperature"], label="Spa temp", type="tempF")
 #    spaTemp = Sensor("spaTemp", owfsInterface, "28.556E5F070000", group=["Pool", "Temperature"], label="Spa temp", type="tempF")
     poolTemp = Sensor("poolTemp", owfsInterface, "28.B9CA5F070000", group=["Pool", "Temperature"], label="Pool temp", type="tempF")
-    poolEquipTemp = Sensor("poolEquipTemp", analogTempInterface, 0, group=["Pool", "Temperature", "Weather"], label="Pool equipment temp", type="tempF")
+    # poolEquipTemp = Sensor("poolEquipTemp", analogTempInterface, 0, group=["Pool", "Temperature", "Weather"], label="Pool equipment temp", type="tempF")
 
     # Pump
     poolPump = Control("poolPump", pentairInterface, 0, group="Pool", label="Pump", type="pump")
