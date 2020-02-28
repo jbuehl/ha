@@ -127,7 +127,9 @@
     </div>
 
     <div id="doorPage" style="display:none">
-        {{ groupTemplate.render(templates=templates, widths=[320, [160, 120, 40]], group=["", doorResources], details=False, name=False, link=False, views=views) }}
+        {{ groupTemplate.render(templates=templates, widths=[320, [200, 100, 20]], group=["", doorResources], details=False, name=False, link=False, views=views) }}
+        <hr>
+        {{ groupTemplate.render(templates=templates, widths=[320, [200, 100, 20]], group=["", motionResources], details=False, name=False, link=False, views=views) }}
         <hr>
         <div class="link"><button onclick="return show('dashPage','doorPage');">Back</button></div>
     </div>
