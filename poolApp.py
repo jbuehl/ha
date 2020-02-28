@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
     # Resources
     resources = Collection("resources", [poolLight, spaLight, poolLights,
-                                        waterTemp, poolTemp, spaTemp, poolEquipTemp,
+                                        poolTemp, spaTemp,
                                         poolPump, poolCleaner, poolClean, intakeValve, returnValve,
                                         valveMode, spaFill, spaFlush, spaDrain, poolHeater, spaBlower,
                                         poolPumpSpeed, poolPumpFlow,
