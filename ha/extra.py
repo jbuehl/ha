@@ -390,7 +390,7 @@ class MomentaryControl(Control):
 
     def timeout(self):
         self.timedState = 0
-        debug("debugState", "OneShotControl", self.name, "timeout", self.timedState)
+        debug("debugState", "OneShotControl", self.name, "timeout", self.duration)
         debug("debugState", "OneShotControl", self.name, "setState", self.timedState)
         self.interface.write(self.addr, self.timedState)
         self.notify()
