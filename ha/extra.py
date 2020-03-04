@@ -369,7 +369,7 @@ class DependentControl(Control):
                 log(self.name, "exception eveluating condition", str(ex))
 
 # Control that can be set on but reverts to off after a specified time
-class OneShotControl(Control):
+class MomentaryControl(Control):
     def __init__(self, name, interface, addr=None, duration=1, group="", type="control", location=None, label="", event=None, interrupt=None):
         Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, event=event, interrupt=interrupt)
         self.className = "Control"
@@ -382,6 +382,7 @@ class OneShotControl(Control):
         debug("debugState", "OneShotControl", self.name, "setState", state)
         if not self.timedState:
             self.timedState = state
+            self.interface.write(self.addr, self.timedState)
             self.timer = threading.Timer(self.duration, self.timeout)
             self.timer.start()
             debug("debugState", "OneShotControl", self.name, "timer", self.timedState)
@@ -390,6 +391,8 @@ class OneShotControl(Control):
     def timeout(self):
         self.timedState = 0
         debug("debugState", "OneShotControl", self.name, "timeout", self.timedState)
+        debug("debugState", "OneShotControl", self.name, "setState", self.timedState)
+        self.interface.write(self.addr, self.timedState)
         self.notify()
 
     def getState(self):
