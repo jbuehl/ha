@@ -33,6 +33,21 @@ def doorbellInterrupt(sensor, state):
         doorbellEvent.set()
     doorbellState = state
 
+class GarageDoorControl(Control):
+    def __init__(self, name, interface, doorControl, doorClosedSensor, doorOpenSensor=None, addr=None,
+            group="", type="control", location=None, label="", interrupt=None, event=None):
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+        self.className = "Control"
+        self.doorControl = doorControl
+        self.doorClosedSensor = doorClosedSensor
+        self.doorOpenSensor = doorOpenSensor
+
+    def getState(self):
+        return self.doorClosedSensor.getState()
+
+    def setState(self, value):
+        return self.doorControl.setState(1)
+
 if __name__ == "__main__":
     stateChangeEvent = threading.Event()
 
@@ -54,12 +69,14 @@ if __name__ == "__main__":
     sculptureLights = Control("sculptureLights", led, 1, type="led", group="Lights", label="Sculpture")
 
     # Doors
-    garageDoor = Sensor("garageDoor", gpio1, 0, type="door", group="Doors", label="Garage", event=stateChangeEvent)
+    garageDoorControl = MomentaryControl("garageDoorControl", gpio0, 2, duration=.5, group="Doors", label="Garage door control")
+    garageDoorClosed = Sensor("garageDoorClosed", gpio1, 0, type="door", group="Doors", label="Garage", event=stateChangeEvent)
+    garageDoor = GarageDoorControl("garageDoor", None, garageDoorControl, garageDoorClosed, type="door", group="Doors", label="Garage door", event=stateChangeEvent)
     garageBackDoor = Sensor("garageBackDoor", gpio1, 1, type="door", group="Doors", label="Garage back", event=stateChangeEvent)
     garageHouseDoor = Sensor("garageHouseDoor", gpio1, 2, type="door", group="Doors", label="Garage house", event=stateChangeEvent)
     garageDoors = SensorGroup("garageDoors", [garageDoor, garageBackDoor, garageHouseDoor], type="door", group="Doors", label="Garage doors")
     doorbellButton = Sensor("doorbellButton", gpio1, 3, interrupt=doorbellInterrupt)
-    doorbell = OneShotControl("doorbell", None, duration=10, type="sound", group="Doors", label="Doorbell", event=stateChangeEvent)
+    doorbell = MomentaryControl("doorbell", None, duration=10, type="sound", group="Doors", label="Doorbell", event=stateChangeEvent)
 
     # Tasks
     hotWaterRecirc = Task("hotWaterRecirc", SchedTime(hour=[5], minute=[0]), recircPump, 1, endTime=SchedTime(hour=[23], minute=[0]), group="Water")
@@ -69,7 +86,8 @@ if __name__ == "__main__":
 
     # Resources
     resources = Collection("resources", resources=[recircPump, sculptureLights, doorbell,
-                                                   garageDoor, garageBackDoor, garageHouseDoor, garageDoors,
+                                                   garageDoorControl, garageDoorClosed, garageDoor,
+                                                   garageBackDoor, garageHouseDoor, garageDoors,
                                                    doorbellButton,
                                                    hotWaterRecirc, garageTemp,
                                                    ])
