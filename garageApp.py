@@ -46,7 +46,8 @@ class GarageDoorControl(Control):
         return self.doorClosedSensor.getState()
 
     def setState(self, value):
-        return self.doorControl.setState(1)
+        if value != self.doorClosedSensor.getState():
+            return self.doorControl.setState(1)
 
 if __name__ == "__main__":
     stateChangeEvent = threading.Event()
