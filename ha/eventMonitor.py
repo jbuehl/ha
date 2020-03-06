@@ -50,8 +50,10 @@ def watchEvents(resources, notifyNumbers, timeout=60):
                                             camera = "frontdoor"
                                         elif resource in ["garageDoor", "drivewayMotionSensor"]:
                                             camera = "driveway"
-                                        elif resource == "garageBackDoor":
+                                        elif resource in ["garageBackDoor", "southSideMotionSensor"]:
                                             camera = "southside"
+                                        elif resource in ["northSideMotionSensor"]:
+                                            camera = "northside"
                                         elif resource in ["familyRoomDoor", "masterBedroomDoor", "deckMotionSensor"]:
                                             camera = "deck"
                                         elif resource in ["backHouseDoor", "backHouseMotionSensor"]:
