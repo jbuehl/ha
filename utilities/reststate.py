@@ -26,7 +26,7 @@ if __name__ == "__main__":
     seqDir = {}
     while True:
         (data, addr) = beaconSocket.recvfrom(8192)   # FIXME - need to handle arbitrarily large data
-        state = json.loads(data)
+        state = json.loads(str(data, "utf-8"))
         print(time.asctime(time.localtime()), "addr:", addr, "hostname:", state["hostname"], "port:", state["port"], end=' ')
         try:
             hostname = state["hostname"]
