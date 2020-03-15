@@ -59,7 +59,8 @@ class WindInterface(Interface):
                 elif rps < 54.362:  # 8.2 - 136.0 speed
                     self.speed = 0.0052 * rps**2 + 2.1980 * rps + 1.1091
                 else:               # 136.0 - 181.5 speed
-                    self.speed = 0.1104 * rps**2 + 9.5685 * rps + 329.87
+                    # self.speed = 0.1104 * rps**2 + 9.5685 * rps + 329.87
+                    self.speed = 0.0    # throw out values > 136 mph
             debug("debugWind", self.name, "speedTime:", speedTime, "rps:", rps, "speed:", self.speed)
             return int(self.speed + .5)
         elif addr == "dir":
