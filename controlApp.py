@@ -8,6 +8,7 @@ defaultConfig = {
 from ha import *
 from ha.interfaces.fileInterface import *
 from ha.interfaces.tplinkInterface import *
+from ha.interfaces.samsungInterface import *
 from ha.rest.restServer import *
 from ha.rest.restProxy import *
 
@@ -18,6 +19,7 @@ if __name__ == "__main__":
 
     # Interfaces
     tplinkInterface = TplinkInterface("tplinkInterface", event=stateChangeEvent)
+    samsungInterface = SamsungInterface("samsungInterface", event=stateChangeEvent)
     configData = FileInterface("configData", fileName=stateDir+"control.state", event=stateChangeEvent, initialState=defaultConfig)
 
     # Controls
@@ -25,8 +27,9 @@ if __name__ == "__main__":
     deckLights = Control("deckLights", tplinkInterface, "192.168.1.128", type="light", group=["Lights", "Garage"], label="Deck lights")
     trashLights = Control("trashLights", tplinkInterface, "192.168.1.133", type="light", group=["Lights", "Garage"], label="Trash lights")
     backLights = Control("backLights", tplinkInterface, "192.168.1.148", type="light", group=["Lights", "Garage"], label="Back lights")
-    backHouseMusic = Control("backHouseMusic", tplinkInterface, "192.168.1.117", type="plug", group=["Plugs", "Backhouse"], label="Back house music")
+    backHouseMusic = Control("backHouseMusic", tplinkInterface, "192.168.1.117", type="plug", group=["AV", "BackHouse"], label="Back house music")
     xmasBeamLights = Control("xmasBeamLights", tplinkInterface, "192.168.1.119", type="light", group="Lights", label="Xmas beam lights")
+    tv = Control("tv", samsungInterface, "192.168.1.103", type="tv", group=["AV", "FamilyRoom"], label="Family room TV")
 
     # Wifi signal strengths
     garageLightsRssi = Control("garageLights-rssi", tplinkInterface, "192.168.1.115,rssi", type="dBm", group="Network", label="Garage lights rssi")
@@ -93,7 +96,7 @@ if __name__ == "__main__":
                                        stateList=[[0, 1],
                                                  [60, 66], [80, 75],
                                                  [0, 1], [0, 1], [0, 1]],
-                                       group="Modes", label="Guest")
+                                       group=["Modes", "BackHouse"], label="Guest")
     vacationMode = ControlGroup("vacationMode", ["alertDoors",
                                                  "recircPump",
                                                  "hotWaterRecirc",
@@ -120,7 +123,7 @@ if __name__ == "__main__":
                                                    garageLightsRssi, deckLightsRssi, trashLightsRssi, backLightsRssi,
                                                    xmasBeamLights, xmasBeamLightsRssi,
                                                    porchLights, xmasLights, nightLights, outsideLights,
-                                                   guestMode, vacationMode,
+                                                   guestMode, vacationMode, tv,
                                                    backHouseMusic, backHouseMusicRssi])
 
     # Light tasks
