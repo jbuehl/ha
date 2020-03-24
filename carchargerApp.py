@@ -27,8 +27,8 @@ if __name__ == "__main__":
                                   group=["Car"], label="Max charging current")
 
     # Sensors
-    pilotVoltage = VoltageSensor("pilotVoltage", ads1015Interface, 0, voltageFactor=3, group=["Car"], label="Pilot voltage", type="V", event=stateChangeEvent)
-    chargingCurrent = CurrentSensor("loads.carcharger.current", ads1015Interface, 1, currentFactor=10, threshold=.1,
+    pilotVoltage = VoltageSensor("pilotVoltage", ads1015Interface, 0, voltageFactor=3.045619491964749, group=["Car"], label="Pilot voltage", type="V", event=stateChangeEvent)
+    chargingCurrent = CurrentSensor("loads.carcharger.current", ads1015Interface, 1, currentFactor=10.00667111407605, threshold=.1,
                                 group=["Car", "Power", "Loads"], label="Car charger current", type="A", event=stateChangeEvent)
     chargingPower = PowerSensor("loads.carcharger.power", currentSensor=chargingCurrent, voltage=240,
                                 group=["Car", "Power", "Loads"], label="Car charger", type="KVA", event=stateChangeEvent)
