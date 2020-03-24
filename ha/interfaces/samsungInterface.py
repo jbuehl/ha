@@ -28,7 +28,7 @@ config = {
     "name": "ha",
     "description": "PC",
     "id": "",
-    "host": "192.168.1.103",
+    "host": "",
     "port": 55000,
     "method": "legacy",
     "timeout": 0,
@@ -44,6 +44,7 @@ class SamsungInterface(Interface):
             if value == 0:
                 value = "off"
             keyCmd = keyCmds[value.lower()]
+            config["host"] = addr
             samsungctl.Remote(config).control(keyCmd)
         except KeyError:
             log(self.name, addr, "unknown command", value)
