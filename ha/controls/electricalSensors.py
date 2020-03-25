@@ -74,6 +74,52 @@ class PowerSensor(Sensor):
     def getLastState(self):
         return self.lastPower
 
+# Compute battery percentage using a voltage measurement
+
+socLevels = {
+            "AGM": [10.50, 11.51, 11.66, 11.81, 11.95, 12.05, 12.15, 12.30, 12.50, 12.75]
+}
+class BatterySensor(Sensor):
+    def __init__(self, name, interface=None, addr=None, voltageSensor=None, batteryType="AGM", threshold=0.0, resources=None,
+            group="", type="sensor", location=None, label="", interrupt=None, event=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+        self.className = "Sensor"
+        self.voltageSensor = voltageSensor
+        self.batteryType = batteryType
+        self.threshold = threshold
+        self.resources = resources
+        self.lastLevel = 0.0
+        try:
+            self.chargeLevels = socLevels[self.batteryType]
+        except KeyError:
+            self.chargeLevels = [0.0]*10
+
+    def getState(self):
+        if isinstance(self.voltageSensor, str):
+            if self.resources:
+                try:
+                    voltage = self.resources[self.voltageSensor].getState()
+                except KeyError:
+                    voltage = 0.0
+        else:
+            voltage = self.voltageSensor.getState()
+        level = 100
+        for chargeLevel in self.chargeLevels:
+            if voltage < chargeLevel:
+                level = self.chargeLevels.index(chargeLevel) * 10
+                break
+        if level > self.threshold:
+            if abs(level - self.lastLevel) > self.threshold:
+                self.notify()
+            self.lastLevel = level
+            return level
+        else:
+            self.lastLevel = level
+            return 0.0
+
+    def getLastState(self):
+        return self.lastLevel
+
 # Accumulate the energy of a power measurement over time
 class EnergySensor(Sensor):
     def __init__(self, name, interface=None, addr=None, powerSensor=None, interval=60, resources=None, persistence=None,

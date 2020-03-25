@@ -7,7 +7,7 @@ logChanged = False
 backupMetrics = True
 purgeMetrics = True
 purgeDays = 3
-restWatch = ["carcharger"]
+restWatch = ["carcharger", "backupPowerMonitor"]
 defaultConfig = {
                 "loads.lights.dailyEnergy": 0.0,
                 "loads.plugs.dailyEnergy": 0.0,
@@ -183,6 +183,9 @@ if __name__ == "__main__":
                                                   carchargerEnergy], "sum", resources=cacheResources,
                                   group=["Power", "Loads"], label="Load today", type="KVAh")
 
+    # backup power
+    backupBatteryLevel = BatterySensor("backupBatteryLevel", voltageSensor="backupPowerMonitor.voltage", resources=cacheResources,
+                                group=["Power", "Backup"], label="Backup battery", type="battery")
     # Resources
     resources = Collection("resources", [diskUsage,
                                          lightsCurrent, plugsCurrent, appl1Current, cookingCurrent,
@@ -191,7 +194,7 @@ if __name__ == "__main__":
                                          appl2Power, acPower, backhousePower, poolPower,
                                          lightsEnergy, plugsEnergy, appl1Energy, cookingEnergy,
                                          appl2Energy, acEnergy, backhouseEnergy, poolEnergy, carchargerEnergy,
-                                         load, dailyEnergy,
+                                         load, dailyEnergy, backupBatteryLevel,
                                          ])
 
     # Solar devices

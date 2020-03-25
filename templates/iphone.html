@@ -101,6 +101,8 @@
     <div id="garagePage" style="display:none">
         {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", garageResources], details=False, name=False, link=False, views=views) }}
         <hr>
+        {{ groupTemplate.render(templates=templates, widths=[320, [200, 100, 20]], group=["", garagePowerResources], details=False, name=False, link=False, views=views) }}
+        <hr>
         <div class="link"><button onclick="return show('dashPage','garagePage');">Back</button></div>
     </div>
 

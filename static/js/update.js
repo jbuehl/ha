@@ -24,6 +24,14 @@ $(document).ready(function() {
         return "rgb("+red.toString()+","+green.toString()+","+blue.toString()+")";
         }
 
+    // set color of a battery charge
+    var chargeColor = function(charge, okLevel, cautionLevel){
+        if      (charge > okLevel) {color = "LawnGreen";}
+        else if (charge > cautionLevel) {color = "Gold";}
+        else                 {color = "OrangeRed";}
+        return color;
+        }
+
     // submit a data change
     $(".button").click(function() {
         event.preventDefault();
@@ -49,6 +57,10 @@ $(document).ready(function() {
         else if (val[0] == 'panel') {           // set the color of a solar panel
             $('#'+key).text(val[1]);            // set the value
             $('#'+key+"_panel").css('background', tempColor(parseInt(val[1]), 0, 260));
+            }
+        else if (val[0] == 'battery') {          // set the color of a battery charge
+            $('#'+key).text(val[1]);            // set the value
+            $('#'+key).css('color', chargeColor(parseInt(val[1]), 30, 10));
             }
         else if (val[0] == 'sound') {           // play a sound if one is specified
             if (val[1] == 'On') {

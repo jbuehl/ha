@@ -193,11 +193,12 @@ views = ViewDict(  {"none": View(),
          "int2": View({}, "%02d", intFormat),
          "int3": View({}, "%03d", intFormat),
          "pct": View({}, "%3d %%"),
+         "battery": View({}, "%3d %%"),
          "sequence": View({0:"Stopped", 1:"Running"}, "%s", None, {0:"Stop", 1:"Run"}),
          "task": View({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"})
          })
 
 # by default the UI will create a css class based on the state value
 # these types are the exceptions
-staticTypes = ["time", "ampm", "date", "KVA", "W", "V", "A", "KW", "KW-", "MW", "KWh", "KWh-", "KVAh", "sound", "select"] # types whose class does not depend on their value
+staticTypes = ["time", "ampm", "date", "KVA", "W", "V", "A", "KW", "KW-", "MW", "KWh", "KWh-", "KVAh", "sound", "select", "battery"] # types whose class does not depend on their value
 tempTypes = ["tempF", "tempFControl", "tempC", "spaTemp"]       # temperatures
