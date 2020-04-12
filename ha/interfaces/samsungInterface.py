@@ -8,18 +8,25 @@ keyCmds = {
     "off": "KEY_POWEROFF",
     "sleep": "KEY_POWEROFF",
     "sleeping": "KEY_POWEROFF",
+
     "mute": "KEY_MUTE",
     "dumb": "KEY_MUTE",
     "stun": "KEY_MUTE",
     "unmute": "KEY_MUTE",
     "talkative": "KEY_MUTE",
+
     "antenna": "KEY_TV",                        # antenna
     "broadcast": "KEY_TV",                      # antenna
+
     "roku": "KEY_EXT20",                        # HDMI1
+
     "chromecast": "KEY_AUTO_ARC_PIP_WIDE",      # HDMI2
     "chrome": "KEY_AUTO_ARC_PIP_WIDE",          # HDMI2
-    "hdmi3": "KEY_AUTO_ARC_PIP_RIGHT_BOTTOM",   # HDMI3
+
+    "iphone": "KEY_AUTO_ARC_PIP_RIGHT_BOTTOM",   # HDMI3
+
     "hdmi4": "KEY_AUTO_ARC_AUTOCOLOR_FAIL",     # HDMI4
+
     "component": "KEY_COMPONENT1",              # component
     "pc": "KEY_PCMODE",                         # VGA
 }
