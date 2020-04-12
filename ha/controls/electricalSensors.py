@@ -103,11 +103,20 @@ class BatterySensor(Sensor):
                     voltage = 0.0
         else:
             voltage = self.voltageSensor.getState()
-        level = 100
-        for chargeLevel in self.chargeLevels:
-            if voltage < chargeLevel:
-                level = self.chargeLevels.index(chargeLevel) * 10
-                break
+
+        # level = 100
+        # table lookup
+        # for chargeLevel in self.chargeLevels:
+        #     if voltage < chargeLevel:
+        #         level = self.chargeLevels.index(chargeLevel) * 10
+        #         break
+
+        # calculate https://mycurvefit.com/
+        if voltage > 13.0:
+            level = 100.0
+        else:
+            level = 43940.64 - 11224.35*voltage + 949.6667*voltage**2 - 26.59379*voltage**3
+            
         if level > self.threshold:
             if abs(level - self.lastLevel) > self.threshold:
                 self.notify()
