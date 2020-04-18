@@ -18,6 +18,7 @@ defaultConfig = {
                 "loads.backhouse.dailyEnergy": 0.0,
                 "loads.pool.dailyEnergy": 0.0,
                 "loads.carcharger.dailyEnergy": 0.0,
+                "loads.backupPower.dailyEnergy": 0.0,
                 }
 
 import time
@@ -151,10 +152,12 @@ if __name__ == "__main__":
                                   group=["Power", "Loads"], label="Back house", type="KVA", event=stateChangeEvent)
     poolPower = PowerSensor("loads.pool.power", currentSensor=poolCurrent, voltage=240, threshold=10,
                                   group=["Power", "Loads"], label="Pool equipment", type="KVA", event=stateChangeEvent)
+    backupPower = CalcSensor("loads.backup.power", ["backupPowerMonitor.voltage", "backupPowerMonitor.current"], "*", resources=cacheResources,
+                                  group=["Power", "Loads"], label="Backup", type="KVA")
 
     load = CalcSensor("loads.stats.power", [lightsPower, plugsPower, appl1Power, cookingPower,
                                                   appl2Power,acPower, backhousePower, poolPower,
-                                                  "loads.carcharger.power"], "sum", resources=cacheResources,
+                                                  "loads.carcharger.power", backupPower], "sum", resources=cacheResources,
                                   group=["Power", "Loads"], label="Load", type="KVA")
 
     # Daily energy sensors
@@ -177,10 +180,12 @@ if __name__ == "__main__":
                                   group=["Power", "Loads"], label="Pool equipment daily energy", type="KVAh", event=stateChangeEvent)
     carchargerEnergy = EnergySensor("loads.carcharger.dailyEnergy", powerSensor="loads.carcharger.power", resources=cacheResources, persistence=stateInterface,
                                   group=["Power", "Loads"], label="Car charger daily energy", type="KVAh", event=stateChangeEvent)
+    backupPowerEnergy = EnergySensor("loads.backup.dailyEnergy", powerSensor="backupPowerMonitor.power", resources=cacheResources, persistence=stateInterface,
+                                  group=["Power", "Loads"], label="Backup power daily energy", type="KWh", event=stateChangeEvent)
 
     dailyEnergy = CalcSensor("loads.stats.dailyEnergy", [lightsEnergy, plugsEnergy, appl1Energy, cookingEnergy,
                                                   appl2Energy,acEnergy, backhouseEnergy, poolEnergy,
-                                                  carchargerEnergy], "sum", resources=cacheResources,
+                                                  carchargerEnergy, backupPowerEnergy], "sum", resources=cacheResources,
                                   group=["Power", "Loads"], label="Load today", type="KVAh")
 
     # backup power
@@ -191,9 +196,10 @@ if __name__ == "__main__":
                                          lightsCurrent, plugsCurrent, appl1Current, cookingCurrent,
                                          appl2Current, acCurrent, backhouseCurrent, poolCurrent,
                                          lightsPower, plugsPower, appl1Power, cookingPower,
-                                         appl2Power, acPower, backhousePower, poolPower,
+                                         appl2Power, acPower, backhousePower, poolPower, backupPower,
                                          lightsEnergy, plugsEnergy, appl1Energy, cookingEnergy,
-                                         appl2Energy, acEnergy, backhouseEnergy, poolEnergy, carchargerEnergy,
+                                         appl2Energy, acEnergy, backhouseEnergy, poolEnergy,
+                                         carchargerEnergy, backupPowerEnergy,
                                          load, dailyEnergy, backupBatteryLevel,
                                          ])
 
