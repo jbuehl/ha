@@ -12,6 +12,7 @@ wiredHosts = ["gecko", "minnie", "pluto", "elfo", "oona",
               "solar", "power", "pool", "backhouse", "hvac", "sprinklers",
               "Front door", "Driveway", "South", "North side", "Family room TV",
               "Family room Roku", "Back house Roku", "Darth", "solaredge", "raspberrypi",
+              "W7-PC0F2XYM"
              ]
 hostAliases = {"00:17:EE:02:54:01": "Vonage",
                "28:EF:01:5D:6E:A6": "Bookworm",
