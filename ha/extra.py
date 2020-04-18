@@ -262,7 +262,7 @@ class CalcSensor(Sensor):
 
     def getState(self):
         value = 0
-        if self.function in ["sum", "avg"]:
+        if self.function in ["sum", "avg", "+"]:
             for sensor in self.sensors:
                 if isinstance(sensor, str):
                     if self.resources:
@@ -274,7 +274,17 @@ class CalcSensor(Sensor):
                     value += sensor.getState()
             if self.function == "avg":
                 value /+ len(self.sensors)
-        elif self.function == "diff":
+        elif self.function in ["*"]:
+            for sensor in self.sensors:
+                if isinstance(sensor, str):
+                    if self.resources:
+                        try:
+                            value *= self.resources[sensor].getState()
+                        except KeyError:
+                            pass
+                else:
+                    value *= sensor.getState()
+        elif self.function in ["diff", "-"]:
             value = self.sensors[0].getState() - self.sensors[1].getState()
         return value
 
