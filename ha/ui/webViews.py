@@ -195,10 +195,18 @@ views = ViewDict(  {"none": View(),
          "pct": View({}, "%3d %%"),
          "battery": View({}, "%3d %%"),
          "sequence": View({0:"Stopped", 1:"Running"}, "%s", None, {0:"Stop", 1:"Run"}),
-         "task": View({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"})
-         })
+         "task": View({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"}),
+         # "tv": View({}, "%s", None, OrderedDict([("KEY_POWEROFF", "Off"), ("KEY_MUTE", "Mute"), ("KEY_EXT20", "Roku"),
+         #                                         ("KEY_AUTO_ARC_PIP_WIDE", "Chrome"), ("KEY_AUTO_ARC_PIP_RIGHT_BOTTOM", "iPhone"),
+         #                                         ("KEY_AUTO_ARC_AUTOCOLOR_FAIL", "HDMI4"), ("KEY_TV", "Bcast"),
+         #                                         ("KEY_COMPONENT1", "Comp"), ("KEY_PCMODE", "PC")]))
+         "tv": View({}, "%s", None, OrderedDict([("off", "Off"), ("mute", "Mute"), ("roku", "Roku"),
+                                                 ("chrome", "Chrome"), ("iphone", "iPhone"),
+                                                 ("hdmi4", "HDMI4"), ("broadcast", "Bcast"),
+                                                 ("component", "Comp"), ("pc", "PC")]))
+    })
 
 # by default the UI will create a css class based on the state value
 # these types are the exceptions
-staticTypes = ["time", "ampm", "date", "KVA", "W", "V", "A", "KW", "KW-", "MW", "KWh", "KWh-", "KVAh", "sound", "select", "battery"] # types whose class does not depend on their value
+staticTypes = ["time", "ampm", "date", "KVA", "W", "V", "A", "KW", "KW-", "MW", "KWh", "KWh-", "KVAh", "sound", "select", "battery", "tv"] # types whose class does not depend on their value
 tempTypes = ["tempF", "tempFControl", "tempC", "spaTemp"]       # temperatures

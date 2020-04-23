@@ -53,13 +53,13 @@
     </div>
 
     <div id="shadesPage" style="display:none">
-        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", shadeResources], details=False, name=False, link=False, views=views) }}
+        {{ groupTemplate.render(templates=templates, widths=[320, [120, 72, 128]], group=["", shadeResources], details=False, name=False, link=False, views=views) }}
         <hr>
         <div class="link"><button onclick="return show('dashPage','shadesPage');">Back</button></div>
     </div>
 
     <div id="lightsPage" style="display:none">
-        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", lightResources], details=False, name=False, link=False, views=views) }}
+        {{ groupTemplate.render(templates=templates, widths=[320, [120, 72, 128]], group=["", lightResources], details=False, name=False, link=False, views=views) }}
         <hr>
         <div class="link"><button onclick="return show('dashPage','lightsPage');">Back</button></div>
     </div>
@@ -67,13 +67,13 @@
     <div id="poolPage" style="display:none">
         {{ spaControls }}
         {{ poolControls }}
-        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", poolResources], details=False, name=False, link=False, views=views) }}
+        {{ groupTemplate.render(templates=templates, widths=[320, [120, 72, 128]], group=["", poolResources], details=False, name=False, link=False, views=views) }}
         <hr>
         <div class="link"><button onclick="return show('dashPage','poolPage');">Back</button></div>
     </div>
 
     <div id="sprinklersPage" style="display:none">
-        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", sprinklerResources], details=False, name=False, link=False, views=views) }}
+        {{ groupTemplate.render(templates=templates, widths=[320, [120, 72, 128]], group=["", sprinklerResources], details=False, name=False, link=False, views=views) }}
         <hr>
         <div class="link"><button onclick="return show('dashPage','sprinklersPage');">Back</button></div>
     </div>
@@ -89,17 +89,17 @@
     </div>
 
     <div id="alertPage" style="display:none">
-        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", modeResources], details=False, name=False, link=False, views=views) }}
+        {{ groupTemplate.render(templates=templates, widths=[320, [120, 72, 128]], group=["", modeResources], details=False, name=False, link=False, views=views) }}
         <hr>
-        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", alertResources], details=False, name=False, link=False, views=views) }}
+        {{ groupTemplate.render(templates=templates, widths=[320, [120, 72, 128]], group=["", alertResources], details=False, name=False, link=False, views=views) }}
         <hr>
-        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", sendResources], details=False, name=False, link=False, views=views) }}
+        {{ groupTemplate.render(templates=templates, widths=[320, [120, 72, 128]], group=["", sendResources], details=False, name=False, link=False, views=views) }}
         <hr>
         <div class="link"><button onclick="return show('dashPage','alertPage');">Back</button></div>
     </div>
 
     <div id="garagePage" style="display:none">
-        {{ groupTemplate.render(templates=templates, widths=widths[1], group=["", garageResources], details=False, name=False, link=False, views=views) }}
+        {{ groupTemplate.render(templates=templates, widths=[320, [120, 72, 128]], group=["", garageResources], details=False, name=False, link=False, views=views) }}
         <hr>
         {{ groupTemplate.render(templates=templates, widths=[320, [200, 100, 20]], group=["", garagePowerResources], details=False, name=False, link=False, views=views) }}
         <hr>

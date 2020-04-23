@@ -75,7 +75,7 @@ def iphoneUI(resources, templates, views):
                                                                   "northSideMotionSensor", "southSideMotionSensor"]),
                             garageResources=resources.getResList(["garageDoor", "recircPump", "charger", "loads.carcharger.power"]),
                             garagePowerResources=resources.getResList(["backupChargingMonitor.power", "backupPowerMonitor.power", "backupBatteryLevel"]),
-                            familyRoomResources=resources.getResList(["familyRoomLamp", "fireplace", "fireplaceVideo"]),
+                            familyRoomResources=resources.getResList(["familyRoomLamp", "fireplace", "fireplaceVideo", "tv"]),
                             holidayResources=resources.getResList(["holidayLights", "holiday",
                                                                    # "halloween", "halloweenVideo",
                                                                    "xmasTree", "xmasTreePattern", "xmasWindowLights",
