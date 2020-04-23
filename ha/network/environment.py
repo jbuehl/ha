@@ -5,7 +5,7 @@ host = "elfo"
 interface = "eth0"
 ipAddr = "192.168.1.15"
 router = "zog"
-accessPoints = ["dundermifflin", "piedpiper", "initech", "wernhamhogg", "hooli"]
+accessPoints = ["dundermifflin", "piedpiper", "initech", "wernhamhogg"]
 wiredHosts = ["gecko", "minnie", "pluto", "elfo", "oona",
               "holiday", "weather", "xmastree", "family-room-speakers",
               "piaware", "carcharger", "garage", "lights", "deck", "livingroom",
