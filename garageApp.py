@@ -11,6 +11,7 @@ from ha.interfaces.owfsInterface import *
 from ha.interfaces.tempInterface import *
 from ha.interfaces.ledInterface import *
 from ha.interfaces.fileInterface import *
+from ha.interfaces.modbusInterface import *
 from ha.rest.restServer import *
 from ha.notification.notificationClient import *
 
@@ -49,6 +50,20 @@ class GarageDoorControl(Control):
         if value != self.doorClosedSensor.getState():
             return self.doorControl.setState(1)
 
+class RenologySensor(Sensor):
+    def __init__(self, name, interface, addr, factor=1.0,
+            group="", type="sensor", location=None, label="", interrupt=None, event=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+        self.className = "Sensor"
+        self.factor = factor
+
+    def getState(self):
+        state = self.interface.read(self.addr)
+        if state:
+            return float(state) * self.factor
+        else:
+            return 0.0
+
 if __name__ == "__main__":
     stateChangeEvent = threading.Event()
 
@@ -59,6 +74,7 @@ if __name__ == "__main__":
     gpio1 = MCP23017Interface("gpio1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(MCP23017Interface.IPOL, 0x08)])
     led = LedInterface("led", gpio0)
     fileInterface = FileInterface("fileInterface", fileName=stateDir+"garage.state", event=stateChangeEvent)
+    modbusInterface = ModbusInterface("modbusInterface", device="/dev/ttyUSB0", event=stateChangeEvent)
 
     # Temperature
     garageTemp = Sensor("garageTemp", owfs, "28.556E5F070000", group="Temperature", label="Garage temp", type="tempF", event=stateChangeEvent)
@@ -79,6 +95,18 @@ if __name__ == "__main__":
     doorbellButton = Sensor("doorbellButton", gpio1, 3, interrupt=doorbellInterrupt)
     doorbell = MomentaryControl("doorbell", None, duration=10, type="sound", group="Doors", label="Doorbell", event=stateChangeEvent)
 
+    # backup power
+    backupSolarVoltage = RenologySensor("backup.solar.voltage", modbusInterface, 0x0107, 0.1, type="V", group=["Power", "Backup"], label="Backup solar voltage")
+    backupSolarCurrent = RenologySensor("backup.solar.current", modbusInterface, 0x0108, .01, type="A", group=["Power", "Backup"], label="Backup solar current")
+    backupSolarPower = RenologySensor("backup.solar.power", modbusInterface, 0x0109, 1.0, type="W", group=["Power", "Backup"], label="Backup solar power")
+    backupLoadVoltage = RenologySensor("backup.load.voltage", modbusInterface, 0x0104, 0.1, type="V", group=["Power", "Backup"], label="Backup load voltage")
+    backupLoadCurrent = RenologySensor("backup.load.current", modbusInterface, 0x0105, .01, type="A", group=["Power", "Backup"], label="Backup load current")
+    backupLoadPower = RenologySensor("backup.load.power", modbusInterface, 0x0106, 1.0, type="W", group=["Power", "Backup"], label="Backup load power")
+    backupBatteryVoltage = RenologySensor("backup.battery.voltage", modbusInterface,0x0101, 0.1, type="V", group=["Power", "Backup"], label="Backup battery voltage")
+    backupBatteryPercent = RenologySensor("backup.battery.percent", modbusInterface, 0x0100, 1.0, type="battery", group=["Power", "Backup"], label="Backup battery")
+    backupSolarDailyEnergy = RenologySensor("backup.solar.dailyEnergy", modbusInterface, 0x0113, 1.0, type="KWh", group=["Power", "Backup"], label="Backup solar today")
+    backupLoadDailyEnergy = RenologySensor("backup.load.dailyEnergy", modbusInterface, 0x0114, 1.0, type="KWh", group=["Power", "Backup"], label="Backup load today")
+
     # Tasks
     hotWaterRecirc = Task("hotWaterRecirc", SchedTime(hour=[5], minute=[0]), recircPump, 1, endTime=SchedTime(hour=[23], minute=[0]), group="Water")
 
@@ -91,6 +119,10 @@ if __name__ == "__main__":
                                                    garageBackDoor, garageHouseDoor, garageDoors,
                                                    doorbellButton,
                                                    hotWaterRecirc, garageTemp,
+                                                   backupSolarVoltage, backupSolarCurrent, backupSolarPower,
+                                                   backupLoadVoltage, backupLoadCurrent, backupLoadPower,
+                                                   backupBatteryVoltage, backupBatteryPercent,
+                                                   backupSolarDailyEnergy, backupLoadDailyEnergy,
                                                    ])
     restServer = RestServer("garage", resources, event=stateChangeEvent, label="Garage")
 
@@ -100,5 +132,6 @@ if __name__ == "__main__":
     gpio0.start()
     gpio1.start()
     fileInterface.start()
+    modbusInterface.start()
     schedule.start()
     restServer.start()
