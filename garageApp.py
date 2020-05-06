@@ -103,7 +103,8 @@ if __name__ == "__main__":
     backupLoadCurrent = RenologySensor("backup.load.current", modbusInterface, 0x0105, .01, type="A", group=["Power", "Backup"], label="Backup load current")
     backupLoadPower = RenologySensor("backup.load.power", modbusInterface, 0x0106, 1.0, type="W", group=["Power", "Backup"], label="Backup load power")
     backupBatteryVoltage = RenologySensor("backup.battery.voltage", modbusInterface,0x0101, 0.1, type="V", group=["Power", "Backup"], label="Backup battery voltage")
-    backupBatteryPercent = RenologySensor("backup.battery.percent", modbusInterface, 0x0100, 1.0, type="battery", group=["Power", "Backup"], label="Backup battery")
+    backupBatteryCharge = RenologySensor("backup.battery.charge", modbusInterface, 0x0100, 1.0, type="battery", group=["Power", "Backup"], label="Backup battery charge")
+    backupChargeMode = RenologySensor("backup.chargeMode", modbusInterface, 0x0120, 1.0, type="chargeMode", group=["Power", "Backup"], label="Backup charge mode")
     backupSolarDailyEnergy = RenologySensor("backup.solar.dailyEnergy", modbusInterface, 0x0113, 1.0, type="KWh", group=["Power", "Backup"], label="Backup solar today")
     backupLoadDailyEnergy = RenologySensor("backup.load.dailyEnergy", modbusInterface, 0x0114, 1.0, type="KWh", group=["Power", "Backup"], label="Backup load today")
 
@@ -121,7 +122,7 @@ if __name__ == "__main__":
                                                    hotWaterRecirc, garageTemp,
                                                    backupSolarVoltage, backupSolarCurrent, backupSolarPower,
                                                    backupLoadVoltage, backupLoadCurrent, backupLoadPower,
-                                                   backupBatteryVoltage, backupBatteryPercent,
+                                                   backupBatteryVoltage, backupBatteryCharge, backupChargeMode,
                                                    backupSolarDailyEnergy, backupLoadDailyEnergy,
                                                    ])
     restServer = RestServer("garage", resources, event=stateChangeEvent, label="Garage")

@@ -129,6 +129,9 @@ def hdgFormat(value):
     direction = dirs[int((value+11.25)%360/22.5)]
     return "%03d %s" % (int(value), direction)
 
+def chargeModeFormat(value):
+    return int(value) & 0xff
+
 # view definitions
 views = ViewDict(  {"none": View(),
 #         "tempC": View({}, "%d °", ctofFormat),
@@ -148,7 +151,9 @@ views = ViewDict(  {"none": View(),
          "plug": View({0:"Off", 1:"On"}, "%s", None, {0:"Off", 1:"On"}),
          "nightLight": View({0:"Off", 1:"On", 2:"Sleep", 10:"Sleep", 30:"On", 100:"On"}, "%s", None, OrderedDict([(2,"Sleep"), (1,"On")])),
          "led": View({0:"Off", 1:"On", 2:"Flickr"}, "%s", None, OrderedDict([(0,"Off"), (1,"On"), (2,"Flickr")])),
-         "dimmer": View(OrderedDict([(0,"Off"), (10,"Lo"), (30,"Med"), (60,"Hi"), (100,"On")]), "%s", None, OrderedDict([(0,"Off"), (10,"Lo"), (30,"Med"), (60,"Hi"), (100,"On")])),
+         "dimmer": View(OrderedDict([(0,"Off"), (10,"Lo"), (30,"Med"), (60,"Hi"), (100,"On")]), "%s", None, OrderedDict([(0,"Off"), (10,"Lo"),
+                                                                                                                        (30,"Med"), (60,"Hi"),
+                                                                                                                        (100,"On")])),
          "motion": View({0:"Off", 1:"Motion"}, "%s"),
          "hotwater": View({0:"Off", 1:"On"}, "%s", None, {0:"Off", 1:"On"}),
          "door": View({0:"Closed", 1:"Open"}, "%s", None, {0:"Close", 1:"Open"}),
@@ -194,19 +199,17 @@ views = ViewDict(  {"none": View(),
          "int3": View({}, "%03d", intFormat),
          "pct": View({}, "%3d %%"),
          "battery": View({}, "%3d %%"),
+         "chargeMode": View({0:"Disabled", 1:"Enabled", 2:"MPPT", 3:"Equalization", 4:"Boost", 5:"Float", 6:"Constant"}, "%s", chargeModeFormat),
          "sequence": View({0:"Stopped", 1:"Running"}, "%s", None, {0:"Stop", 1:"Run"}),
          "task": View({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"}),
-         # "tv": View({}, "%s", None, OrderedDict([("KEY_POWEROFF", "Off"), ("KEY_MUTE", "Mute"), ("KEY_EXT20", "Roku"),
-         #                                         ("KEY_AUTO_ARC_PIP_WIDE", "Chrome"), ("KEY_AUTO_ARC_PIP_RIGHT_BOTTOM", "iPhone"),
-         #                                         ("KEY_AUTO_ARC_AUTOCOLOR_FAIL", "HDMI4"), ("KEY_TV", "Bcast"),
-         #                                         ("KEY_COMPONENT1", "Comp"), ("KEY_PCMODE", "PC")]))
          "tv": View({}, "%s", None, OrderedDict([("off", "Off"), ("mute", "Mute"), ("roku", "Roku"),
                                                  ("chrome", "Chrome"), ("iphone", "iPhone"),
                                                  ("hdmi4", "HDMI4"), ("broadcast", "Bcast"),
                                                  ("component", "Comp"), ("pc", "PC")]))
     })
 
-# by default the UI will create a css class based on the state value
-# these types are the exceptions
-staticTypes = ["time", "ampm", "date", "KVA", "W", "V", "A", "KW", "KW-", "MW", "KWh", "KWh-", "KVAh", "sound", "select", "battery", "tv"] # types whose class does not depend on their value
-tempTypes = ["tempF", "tempFControl", "tempC", "spaTemp"]       # temperatures
+# by default the UI will create a css class based on the state value. These types are the exceptions:
+# types whose class does not depend on their value
+staticTypes = ["time", "ampm", "date", "KVA", "W", "V", "A", "KW", "KW-", "MW", "KWh", "KWh-", "KVAh", "sound", "select", "battery", "tv"]
+# temperatures
+tempTypes = ["tempF", "tempFControl", "tempC", "spaTemp"]
