@@ -51,16 +51,18 @@ class GarageDoorControl(Control):
             return self.doorControl.setState(1)
 
 class RenologySensor(Sensor):
-    def __init__(self, name, interface, addr, factor=1.0,
+    def __init__(self, name, interface, addr, factor=1.0, mask=0xffff, shift=0,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
         self.factor = factor
+        self.mask = mask
+        self.shift = shift
 
     def getState(self):
         state = self.interface.read(self.addr)
         if state:
-            return float(state) * self.factor
+            return float((state >> self.shift) & self.mask) * self.factor
         else:
             return 0.0
 
@@ -75,11 +77,11 @@ chargerParams = {
     0xe00C: ("Under-voltage warning level", "deciVolts"),
     0xe00D: ("Over-discharge voltage", "deciVolts"),
     0xe00E: ("Discharging limit voltage", "deciVolts"),
-    0xe010: ("Over-discharge time delay", "sensor"),
-    0xe011: ("Equalizing charging time", "sensor"),
-    0xe012: ("Boost charging time", "sensor"),
-    0xe013: ("Equalizing charging interval", "sensor"),
-    0xe014: ("Temperature compensation factor", "sensor"),
+    0xe010: ("Over-discharge time delay", "int"),
+    0xe011: ("Equalizing charging time", "int"),
+    0xe012: ("Boost charging time", "int"),
+    0xe013: ("Equalizing charging interval", "int"),
+    0xe014: ("Temp compensation factor", "sensor"),
 }
 
 if __name__ == "__main__":
@@ -121,11 +123,14 @@ if __name__ == "__main__":
     backupLoadCurrent = RenologySensor("backup.load.current", modbusInterface, 0x0105, .01, type="A", group=["Power", "Backup"], label="Backup load current")
     backupLoadPower = RenologySensor("backup.load.power", modbusInterface, 0x0106, 1.0, type="W", group=["Power", "Backup"], label="Backup load power")
     backupBatteryVoltage = RenologySensor("backup.battery.voltage", modbusInterface,0x0101, 0.1, type="V", group=["Power", "Backup"], label="Backup battery voltage")
+    backupBatteryCurrent = RenologySensor("backup.battery.current", modbusInterface,0x0102, 0.01, type="A", group=["Power", "Backup"], label="Backup battery current")
     backupBatteryCharge = RenologySensor("backup.battery.charge", modbusInterface, 0x0100, 1.0, type="battery", group=["Power", "Backup"], label="Backup battery charge")
     backupBatteryCapacity = RenologySensor("backup.battery.capacity", modbusInterface, 0xe002, 1.0, type="AH", group=["Backup"], label="Backup battery capacity")
     backupChargeMode = RenologySensor("backup.chargeMode", modbusInterface, 0x0120, 1.0, type="chargeMode", group=["Power", "Backup"], label="Backup charge mode")
     backupSolarDailyEnergy = RenologySensor("backup.solar.dailyEnergy", modbusInterface, 0x0113, 1.0, type="KWh", group=["Power", "Backup"], label="Backup solar today")
     backupLoadDailyEnergy = RenologySensor("backup.load.dailyEnergy", modbusInterface, 0x0114, 1.0, type="KWh", group=["Power", "Backup"], label="Backup load today")
+    backupChargerTemp = RenologySensor("backup.charger.temp", modbusInterface, 0x0103, 1.0, 0xff, 8, type="tempC", group=["Power", "Backup"], label="Backup charger temp")
+    backupBatteryTemp = RenologySensor("backup.battery.temp", modbusInterface, 0x0103, 1.0, 0xff, type="tempC", group=["Power", "Backup"], label="Backup battery temp")
 
     # Tasks
     hotWaterRecirc = Task("hotWaterRecirc", SchedTime(hour=[5], minute=[0]), recircPump, 1, endTime=SchedTime(hour=[23], minute=[0]), group="Water")
@@ -141,9 +146,10 @@ if __name__ == "__main__":
                                                    hotWaterRecirc, garageTemp,
                                                    backupSolarVoltage, backupSolarCurrent, backupSolarPower,
                                                    backupLoadVoltage, backupLoadCurrent, backupLoadPower,
-                                                   backupBatteryVoltage, backupBatteryCharge, backupChargeMode,
+                                                   backupBatteryVoltage, backupBatteryCurrent,
+                                                   backupBatteryCharge, backupChargeMode,
                                                    backupSolarDailyEnergy, backupLoadDailyEnergy,
-                                                   backupBatteryCapacity,
+                                                   backupBatteryCapacity, backupChargerTemp, backupBatteryTemp,
                                                    ])
 
     # Renology charge controller parameters
