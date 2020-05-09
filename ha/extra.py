@@ -253,12 +253,13 @@ class ControlGroup(SensorGroup, Control):
 
 # Calculate a function of a list of sensor states
 class CalcSensor(Sensor):
-    def __init__(self, name, sensors=[], function="", resources=None, interface=None, addr=None, group="", type="sensor", label="", location=None):
+    def __init__(self, name, sensors=[], function="", factor=1.0, resources=None, interface=None, addr=None, group="", type="sensor", label="", location=None):
         Sensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, label=label, location=location)
         self.sensors = sensors
         self.function = function.lower()
         self.resources = resources
         self.className = "Sensor"
+        self.factor = factor
 
     def getState(self):
         value = 0
@@ -286,7 +287,7 @@ class CalcSensor(Sensor):
                     value *= sensor.getState()
         elif self.function in ["diff", "-"]:
             value = self.sensors[0].getState() - self.sensors[1].getState()
-        return value
+        return value * self.factor
 
 # Sensor that contains the states of all sensors in a list of resources
 class ResourceStateSensor(Sensor):
