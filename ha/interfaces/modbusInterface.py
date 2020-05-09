@@ -25,7 +25,7 @@ class ModbusInterface(Interface):
                         log(self.name, "read exception", sensor.name, sensor.addr, str(ex))
                     time.sleep(1)
                 debug("debugModbus", "readStates sleeping")
-                time.sleep(60)
+                time.sleep(60 - len(self.sensors))
         readStateThread = threading.Thread(target=readStates)
         readStateThread.start()
 

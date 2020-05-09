@@ -64,6 +64,24 @@ class RenologySensor(Sensor):
         else:
             return 0.0
 
+chargerParams = {
+    0xe005: ("Over-voltage threshold", "deciVolts"),
+    0xe006: ("Charging voltage limit", "deciVolts"),
+    0xe007: ("Equalizing charging voltage", "deciVolts"),
+    0xe008: ("Boost charging voltage", "deciVolts"),
+    0xe009: ("Floating charging voltage", "deciVolts"),
+    0xe00A: ("Boost charging recovery voltage", "deciVolts"),
+    0xe00B: ("Over-discharge recovery voltage", "deciVolts"),
+    0xe00C: ("Under-voltage warning level", "deciVolts"),
+    0xe00D: ("Over-discharge voltage", "deciVolts"),
+    0xe00E: ("Discharging limit voltage", "deciVolts"),
+    0xe010: ("Over-discharge time delay", "sensor"),
+    0xe011: ("Equalizing charging time", "sensor"),
+    0xe012: ("Boost charging time", "sensor"),
+    0xe013: ("Equalizing charging interval", "sensor"),
+    0xe014: ("Temperature compensation factor", "sensor"),
+}
+
 if __name__ == "__main__":
     stateChangeEvent = threading.Event()
 
@@ -104,6 +122,7 @@ if __name__ == "__main__":
     backupLoadPower = RenologySensor("backup.load.power", modbusInterface, 0x0106, 1.0, type="W", group=["Power", "Backup"], label="Backup load power")
     backupBatteryVoltage = RenologySensor("backup.battery.voltage", modbusInterface,0x0101, 0.1, type="V", group=["Power", "Backup"], label="Backup battery voltage")
     backupBatteryCharge = RenologySensor("backup.battery.charge", modbusInterface, 0x0100, 1.0, type="battery", group=["Power", "Backup"], label="Backup battery charge")
+    backupBatteryCapacity = RenologySensor("backup.battery.capacity", modbusInterface, 0xe002, 1.0, type="AH", group=["Backup"], label="Backup battery capacity")
     backupChargeMode = RenologySensor("backup.chargeMode", modbusInterface, 0x0120, 1.0, type="chargeMode", group=["Power", "Backup"], label="Backup charge mode")
     backupSolarDailyEnergy = RenologySensor("backup.solar.dailyEnergy", modbusInterface, 0x0113, 1.0, type="KWh", group=["Power", "Backup"], label="Backup solar today")
     backupLoadDailyEnergy = RenologySensor("backup.load.dailyEnergy", modbusInterface, 0x0114, 1.0, type="KWh", group=["Power", "Backup"], label="Backup load today")
@@ -124,7 +143,13 @@ if __name__ == "__main__":
                                                    backupLoadVoltage, backupLoadCurrent, backupLoadPower,
                                                    backupBatteryVoltage, backupBatteryCharge, backupChargeMode,
                                                    backupSolarDailyEnergy, backupLoadDailyEnergy,
+                                                   backupBatteryCapacity,
                                                    ])
+
+    # Renology charge controller parameters
+    for param in list(chargerParams.keys()):
+        resources.addRes(RenologySensor("backup.charger."+str(param), modbusInterface, param, 1.0, type=chargerParams[param][1], group=["Backup"], label=chargerParams[param][0]))
+
     restServer = RestServer("garage", resources, event=stateChangeEvent, label="Garage")
 
     # Start interfaces

@@ -132,6 +132,9 @@ def hdgFormat(value):
 def chargeModeFormat(value):
     return int(value) & 0xff
 
+def deciVoltsFormat(value):
+    return value/10.
+
 # view definitions
 views = ViewDict(  {"none": View(),
 #         "tempC": View({}, "%d °", ctofFormat),
@@ -188,6 +191,7 @@ views = ViewDict(  {"none": View(),
          "W": View({}, "%7.1f W"),
          "V": View({}, "%4.1f V"),
          "A": View({}, "%6.3f A"),
+         "AH": View({}, "%d AH"),
          "KW": View({}, "%7.3f KW", kiloFormat),
          "KW-": View({}, "%7.3f KW", kiloFormat),
          "KWh": View({}, "%7.3f KWh", kiloFormat),
@@ -199,7 +203,8 @@ views = ViewDict(  {"none": View(),
          "int3": View({}, "%03d", intFormat),
          "pct": View({}, "%3d %%"),
          "battery": View({}, "%3d %%"),
-         "chargeMode": View({0:"Disabled", 1:"Enabled", 2:"MPPT", 3:"Equalization", 4:"Boost", 5:"Float", 6:"Constant"}, "%s", chargeModeFormat),
+         "deciVolts": View({}, "%4.1f V", deciVoltsFormat),
+         "chargeMode": View({0:"Disabled", 1:"Enabled", 2:"Bulk", 3:"Equalization", 4:"Absorbtion", 5:"Float", 6:"Constant"}, "%s", chargeModeFormat),
          "sequence": View({0:"Stopped", 1:"Running"}, "%s", None, {0:"Stop", 1:"Run"}),
          "task": View({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"}),
          "tv": View({}, "%s", None, OrderedDict([("off", "Off"), ("mute", "Mute"), ("roku", "Roku"),
