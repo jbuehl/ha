@@ -2,6 +2,10 @@
 doorbellState = 0
 doorbellSound = "addamsdoorbell.wav"
 doorbellNotifyMsg = "Doorbell "
+defaultConfig = {
+                "backup.solar.dailyEnergy": 0.0,
+                "backup.load.dailyEnergy": 0.0,
+                }
 
 import time
 from ha import *
@@ -12,6 +16,7 @@ from ha.interfaces.tempInterface import *
 from ha.interfaces.ledInterface import *
 from ha.interfaces.fileInterface import *
 from ha.interfaces.modbusInterface import *
+from ha.controls.electricalSensors import *
 from ha.rest.restServer import *
 from ha.notification.notificationClient import *
 
@@ -93,7 +98,7 @@ if __name__ == "__main__":
     gpio0 = MCP23017Interface("gpio0", i2c1, addr=0x20, bank=0, inOut=0x00)
     gpio1 = MCP23017Interface("gpio1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(MCP23017Interface.IPOL, 0x08)])
     led = LedInterface("led", gpio0)
-    fileInterface = FileInterface("fileInterface", fileName=stateDir+"garage.state", event=stateChangeEvent)
+    stateInterface = FileInterface("stateInterface", fileName=stateDir+"garage.state", initialState=defaultConfig, event=stateChangeEvent)
     modbusInterface = ModbusInterface("modbusInterface", device="/dev/ttyUSB0", event=stateChangeEvent)
 
     # Temperature
@@ -116,6 +121,7 @@ if __name__ == "__main__":
     doorbell = MomentaryControl("doorbell", None, duration=10, type="sound", group="Doors", label="Doorbell", event=stateChangeEvent)
 
     # backup power
+    stateInterface.start()
     backupSolarVoltage = RenologySensor("backup.solar.voltage", modbusInterface, 0x0107, 0.1, type="V", group=["Power", "Backup"], label="Backup solar voltage")
     backupSolarCurrent = RenologySensor("backup.solar.current", modbusInterface, 0x0108, .01, type="A", group=["Power", "Backup"], label="Backup solar current")
     backupSolarPower = RenologySensor("backup.solar.power", modbusInterface, 0x0109, 1.0, type="W", group=["Power", "Backup"], label="Backup solar power")
@@ -127,16 +133,23 @@ if __name__ == "__main__":
     backupBatteryCharge = RenologySensor("backup.battery.charge", modbusInterface, 0x0100, 1.0, type="battery", group=["Power", "Backup"], label="Backup battery charge")
     backupBatteryCapacity = RenologySensor("backup.battery.capacity", modbusInterface, 0xe002, 1.0, type="AH", group=["Backup"], label="Backup battery capacity")
     backupChargeMode = RenologySensor("backup.chargeMode", modbusInterface, 0x0120, 1.0, type="chargeMode", group=["Power", "Backup"], label="Backup charge mode")
-    backupSolarDailyEnergy = RenologySensor("backup.solar.dailyEnergy", modbusInterface, 0x0113, 1.0, type="KWh", group=["Power", "Backup"], label="Backup solar today")
-    backupLoadDailyEnergy = RenologySensor("backup.load.dailyEnergy", modbusInterface, 0x0114, 1.0, type="KWh", group=["Power", "Backup"], label="Backup load today")
     backupChargerTemp = RenologySensor("backup.charger.temp", modbusInterface, 0x0103, 1.0, 0xff, 8, type="tempC", group=["Power", "Backup"], label="Backup charger temp")
     backupBatteryTemp = RenologySensor("backup.battery.temp", modbusInterface, 0x0103, 1.0, 0xff, type="tempC", group=["Power", "Backup"], label="Backup battery temp")
+    # backupSolarDailyEnergy = RenologySensor("backup.solar.dailyEnergy", modbusInterface, 0x0113, 1.0, type="KWh", group=["Power", "Backup"], label="Backup solar today")
+    # backupLoadDailyEnergy = RenologySensor("backup.load.dailyEnergy", modbusInterface, 0x0114, 1.0, type="KWh", group=["Power", "Backup"], label="Backup load today")
+    backupSolarDailyEnergy = EnergySensor("backup.solar.dailyEnergy", powerSensor=backupSolarPower, persistence=stateInterface,
+                                  group=["Power", "Backup"], label="Backup solar today", type="KWh", event=stateChangeEvent)
+    backupLoadDailyEnergy = EnergySensor("backup.load.dailyEnergy", powerSensor=backupLoadPower, persistence=stateInterface,
+                                  group=["Power", "Backup"], label="Backup load today", type="KWh", event=stateChangeEvent)
 
     # Tasks
+    # Tasks
+    energySensors = ControlGroup("energySensors", [backupSolarDailyEnergy, backupLoadDailyEnergy])
+    resetEnergySensors = Task("resetEnergySensors", SchedTime(hour=0, minute=0), energySensors, 0, enabled=True, group=["Power", "Backup"])
     hotWaterRecirc = Task("hotWaterRecirc", SchedTime(hour=[5], minute=[0]), recircPump, 1, endTime=SchedTime(hour=[23], minute=[0]), group="Water")
 
     # Schedule
-    schedule = Schedule("schedule", tasks=[hotWaterRecirc])
+    schedule = Schedule("schedule", tasks=[hotWaterRecirc, resetEnergySensors])
 
     # Resources
     resources = Collection("resources", resources=[recircPump, sculptureLights, doorbell,
@@ -150,6 +163,7 @@ if __name__ == "__main__":
                                                    backupBatteryCharge, backupChargeMode,
                                                    backupSolarDailyEnergy, backupLoadDailyEnergy,
                                                    backupBatteryCapacity, backupChargerTemp, backupBatteryTemp,
+                                                   resetEnergySensors,
                                                    ])
 
     # Renology charge controller parameters
@@ -163,7 +177,6 @@ if __name__ == "__main__":
     doorbellThread.start()
     gpio0.start()
     gpio1.start()
-    fileInterface.start()
     modbusInterface.start()
     schedule.start()
     restServer.start()
