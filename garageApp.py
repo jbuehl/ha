@@ -143,7 +143,6 @@ if __name__ == "__main__":
                                   group=["Power", "Backup"], label="Backup load today", type="KWh", event=stateChangeEvent)
 
     # Tasks
-    # Tasks
     energySensors = ControlGroup("energySensors", [backupSolarDailyEnergy, backupLoadDailyEnergy])
     resetEnergySensors = Task("resetEnergySensors", SchedTime(hour=0, minute=0), energySensors, 0, enabled=True, group=["Power", "Backup"])
     hotWaterRecirc = Task("hotWaterRecirc", SchedTime(hour=[5], minute=[0]), recircPump, 1, endTime=SchedTime(hour=[23], minute=[0]), group="Water")
