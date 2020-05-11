@@ -48,19 +48,23 @@ class CurrentSensor(Sensor):
     def getLastState(self):
         return self.lastCurrent
 
-# Compute power using a current measurement and a known voltage
+# Compute power using a current measurement and a voltage measurement
+# Voltage can either be from a specified sensor or a constant
 class PowerSensor(Sensor):
-    def __init__(self, name, interface=None, addr=None, currentSensor=None, voltage=0.0, powerFactor=1.0, threshold=0.0,
+    def __init__(self, name, interface=None, addr=None, currentSensor=None, voltageSensor=None, voltage=0.0, powerFactor=1.0, threshold=0.0,
             group="", type="sensor", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.className = "Sensor"
         self.currentSensor = currentSensor
+        self.voltageSensor = voltageSensor
         self.voltage = voltage
         self.powerFactor = powerFactor
         self.threshold = threshold
         self.lastPower = 0.0
 
     def getState(self):
+        if self.voltageSensor:
+            self.voltage = self.voltageSensor.getLastState()
         power = self.currentSensor.getLastState() * self.voltage * self.powerFactor
         if power > self.threshold:
             if abs(power - self.lastPower) > self.threshold:
@@ -104,19 +108,19 @@ class BatterySensor(Sensor):
         else:
             voltage = self.voltageSensor.getState()
 
+        # Use table lookup
         # level = 100
-        # table lookup
         # for chargeLevel in self.chargeLevels:
         #     if voltage < chargeLevel:
         #         level = self.chargeLevels.index(chargeLevel) * 10
         #         break
 
-        # calculate https://mycurvefit.com/
+        # Calculate the percentage -  https://mycurvefit.com/
         if voltage > 13.0:
             level = 100.0
         else:
             level = 43940.64 - 11224.35*voltage + 949.6667*voltage**2 - 26.59379*voltage**3
-            
+
         if level > self.threshold:
             if abs(level - self.lastLevel) > self.threshold:
                 self.notify()
