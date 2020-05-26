@@ -2,9 +2,11 @@
 doorbellState = 0
 doorbellSound = "addamsdoorbell.wav"
 doorbellNotifyMsg = "Doorbell "
+restWatch = ["backupPowerMonitor"]
 defaultConfig = {
                 "backup.solar.dailyEnergy": 0.0,
                 "backup.load.dailyEnergy": 0.0,
+                "backup.inverter.dailyEnergy": 0.0,
                 }
 
 import time
@@ -18,6 +20,7 @@ from ha.interfaces.fileInterface import *
 from ha.interfaces.modbusInterface import *
 from ha.controls.electricalSensors import *
 from ha.rest.restServer import *
+from ha.rest.restProxy import *
 from ha.notification.notificationClient import *
 
 doorbellEvent = threading.Event()
@@ -92,6 +95,11 @@ chargerParams = {
 if __name__ == "__main__":
     stateChangeEvent = threading.Event()
 
+    # start the cache to listen for services on other servers
+    cacheResources = Collection("cacheResources")
+    restCache = RestProxy("restProxy", cacheResources, watch=restWatch, event=stateChangeEvent)
+    restCache.start()
+
     # Interfaces
     i2c1 = I2CInterface("i2c1", bus=1)
     owfs = OWFSInterface("owfs", event=stateChangeEvent)
@@ -135,15 +143,15 @@ if __name__ == "__main__":
     backupChargeMode = RenologySensor("backup.chargeMode", modbusInterface, 0x0120, 1.0, type="chargeMode", group=["Power", "Backup"], label="Backup charge mode")
     backupChargerTemp = RenologySensor("backup.charger.temp", modbusInterface, 0x0103, 1.0, 0xff, 8, type="tempC", group=["Power", "Backup"], label="Backup charger temp")
     backupBatteryTemp = RenologySensor("backup.battery.temp", modbusInterface, 0x0103, 1.0, 0xff, type="tempC", group=["Power", "Backup"], label="Backup battery temp")
-    # backupSolarDailyEnergy = RenologySensor("backup.solar.dailyEnergy", modbusInterface, 0x0113, 1.0, type="KWh", group=["Power", "Backup"], label="Backup solar today")
-    # backupLoadDailyEnergy = RenologySensor("backup.load.dailyEnergy", modbusInterface, 0x0114, 1.0, type="KWh", group=["Power", "Backup"], label="Backup load today")
     backupSolarDailyEnergy = EnergySensor("backup.solar.dailyEnergy", powerSensor=backupSolarPower, persistence=stateInterface,
                                   group=["Power", "Backup"], label="Backup solar today", type="KWh", event=stateChangeEvent)
     backupLoadDailyEnergy = EnergySensor("backup.load.dailyEnergy", powerSensor=backupLoadPower, persistence=stateInterface,
                                   group=["Power", "Backup"], label="Backup load today", type="KWh", event=stateChangeEvent)
+    backupInverterDailyEnergy = EnergySensor("backup.inverter.dailyEnergy", powerSensor="backupPowerMonitor.power", resources=cacheResources, persistence=stateInterface,
+                                  group=["Power", "Backup"], label="Backup inverter today", type="KWh", event=stateChangeEvent)
 
     # Tasks
-    energySensors = ControlGroup("energySensors", [backupSolarDailyEnergy, backupLoadDailyEnergy])
+    energySensors = ControlGroup("energySensors", [backupSolarDailyEnergy, backupLoadDailyEnergy, backupInverterDailyEnergy])
     resetEnergySensors = Task("resetEnergySensors", SchedTime(hour=0, minute=0), energySensors, 0, enabled=True, group=["Power", "Backup"])
     hotWaterRecirc = Task("hotWaterRecirc", SchedTime(hour=[5], minute=[0]), recircPump, 1, endTime=SchedTime(hour=[23], minute=[0]), group="Water")
 
@@ -160,7 +168,7 @@ if __name__ == "__main__":
                                                    backupLoadVoltage, backupLoadCurrent, backupLoadPower,
                                                    backupBatteryVoltage, backupBatteryCurrent,
                                                    backupBatteryCharge, backupChargeMode,
-                                                   backupSolarDailyEnergy, backupLoadDailyEnergy,
+                                                   backupSolarDailyEnergy, backupLoadDailyEnergy, backupInverterDailyEnergy,
                                                    backupBatteryCapacity, backupChargerTemp, backupBatteryTemp,
                                                    resetEnergySensors,
                                                    ])
