@@ -155,8 +155,6 @@ if __name__ == "__main__":
                                   group=["Power", "Backup"], label="Backup solar today", type="KWh", event=stateChangeEvent)
     backupLoadDailyEnergy = EnergySensor("backup.load.dailyEnergy", powerSensor=backupTotalLoad, persistence=stateInterface,
                                   group=["Power", "Backup"], label="Backup load today", type="KWh", event=stateChangeEvent)
-    # backupInverterDailyEnergy = EnergySensor("backup.inverter.dailyEnergy", powerSensor="backupPowerMonitor.power", resources=cacheResources, persistence=stateInterface,
-    #                               group=["Power", "Backup"], label="Backup inverter today", type="KWh", event=stateChangeEvent)
     backupNetDailyEnergy = CalcSensor("backup.stats.netDailyEnergy", [backupSolarDailyEnergy, backupLoadDailyEnergy], "diff",
                                   group=["Power", "Backup"], label="Backup net today", type="KWh-")
 
