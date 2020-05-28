@@ -128,14 +128,13 @@ if __name__ == "__main__":
     doorbellButton = Sensor("doorbellButton", gpio1, 3, interrupt=doorbellInterrupt)
     doorbell = MomentaryControl("doorbell", None, duration=10, type="sound", group="Doors", label="Doorbell", event=stateChangeEvent)
 
-    # backup power
+    # backup power system sensors
     stateInterface.start()
+    # backup solar
     backupSolarVoltage = RenologySensor("backup.solar.voltage", modbusInterface, 0x0107, 0.1, type="V", group=["Power", "Backup"], label="Backup solar voltage")
     backupSolarCurrent = RenologySensor("backup.solar.current", modbusInterface, 0x0108, .01, type="A", group=["Power", "Backup"], label="Backup solar current")
     backupSolarPower = RenologySensor("backup.solar.power", modbusInterface, 0x0109, 1.0, type="W", group=["Power", "Backup"], label="Backup solar power")
-    backupLoadVoltage = RenologySensor("backup.load.voltage", modbusInterface, 0x0104, 0.1, type="V", group=["Power", "Backup"], label="Backup load voltage")
-    backupLoadCurrent = RenologySensor("backup.load.current", modbusInterface, 0x0105, .01, type="A", group=["Power", "Backup"], label="Backup load current")
-    backupLoadPower = RenologySensor("backup.load.power", modbusInterface, 0x0106, 1.0, type="W", group=["Power", "Backup"], label="Backup load power")
+    # backup battery
     backupBatteryVoltage = RenologySensor("backup.battery.voltage", modbusInterface,0x0101, 0.1, type="V", group=["Power", "Backup"], label="Backup battery voltage")
     backupBatteryCurrent = RenologySensor("backup.battery.current", modbusInterface,0x0102, 0.01, type="A", group=["Power", "Backup"], label="Backup battery current")
     backupBatteryCharge = RenologySensor("backup.battery.charge", modbusInterface, 0x0100, 1.0, type="battery", group=["Power", "Backup"], label="Backup battery charge")
@@ -143,15 +142,27 @@ if __name__ == "__main__":
     backupChargeMode = RenologySensor("backup.chargeMode", modbusInterface, 0x0120, 1.0, type="chargeMode", group=["Power", "Backup"], label="Backup charge mode")
     backupChargerTemp = RenologySensor("backup.charger.temp", modbusInterface, 0x0103, 1.0, 0xff, 8, type="tempC", group=["Power", "Backup"], label="Backup charger temp")
     backupBatteryTemp = RenologySensor("backup.battery.temp", modbusInterface, 0x0103, 1.0, 0xff, type="tempC", group=["Power", "Backup"], label="Backup battery temp")
+    # backup system loads
+    backupLoadVoltage = RenologySensor("backup.load.voltage", modbusInterface, 0x0104, 0.1, type="V", group=["Power", "Backup"], label="Backup load voltage")
+    backupLoadCurrent = RenologySensor("backup.load.current", modbusInterface, 0x0105, .01, type="A", group=["Power", "Backup"], label="Backup load current")
+    backupLoadPower = RenologySensor("backup.load.power", modbusInterface, 0x0106, 1.0, type="W", group=["Power", "Backup"], label="Backup load power")
+    backupTotalLoad = CalcSensor("backup.stats.totalLoad", [backupLoadPower, "backupPowerMonitor.power"], "sum", resources=cacheResources,
+                                  group=["Power", "Backup"], label="Backup total load", type="KW")
+    backupNetPower = CalcSensor("backup.stats.netPower", [backupSolarPower, backupTotalLoad], "diff",
+                                  group=["Power", "Backup"], label="Backup net power", type="KW-")
+    # backup system energy
     backupSolarDailyEnergy = EnergySensor("backup.solar.dailyEnergy", powerSensor=backupSolarPower, persistence=stateInterface,
                                   group=["Power", "Backup"], label="Backup solar today", type="KWh", event=stateChangeEvent)
-    backupLoadDailyEnergy = EnergySensor("backup.load.dailyEnergy", powerSensor=backupLoadPower, persistence=stateInterface,
+    backupLoadDailyEnergy = EnergySensor("backup.load.dailyEnergy", powerSensor=backupTotalLoad, persistence=stateInterface,
                                   group=["Power", "Backup"], label="Backup load today", type="KWh", event=stateChangeEvent)
-    backupInverterDailyEnergy = EnergySensor("backup.inverter.dailyEnergy", powerSensor="backupPowerMonitor.power", resources=cacheResources, persistence=stateInterface,
-                                  group=["Power", "Backup"], label="Backup inverter today", type="KWh", event=stateChangeEvent)
+    # backupInverterDailyEnergy = EnergySensor("backup.inverter.dailyEnergy", powerSensor="backupPowerMonitor.power", resources=cacheResources, persistence=stateInterface,
+    #                               group=["Power", "Backup"], label="Backup inverter today", type="KWh", event=stateChangeEvent)
+    backupNetDailyEnergy = CalcSensor("backup.stats.netDailyEnergy", [backupSolarDailyEnergy, backupLoadDailyEnergy], "diff",
+                                  group=["Power", "Backup"], label="Backup net today", type="KWh-")
+
 
     # Tasks
-    energySensors = ControlGroup("energySensors", [backupSolarDailyEnergy, backupLoadDailyEnergy, backupInverterDailyEnergy])
+    energySensors = ControlGroup("energySensors", [backupSolarDailyEnergy, backupLoadDailyEnergy])
     resetEnergySensors = Task("resetEnergySensors", SchedTime(hour=0, minute=0), energySensors, 0, enabled=True, group=["Power", "Backup"])
     hotWaterRecirc = Task("hotWaterRecirc", SchedTime(hour=[5], minute=[0]), recircPump, 1, endTime=SchedTime(hour=[23], minute=[0]), group="Water")
 
@@ -166,9 +177,11 @@ if __name__ == "__main__":
                                                    hotWaterRecirc, garageTemp,
                                                    backupSolarVoltage, backupSolarCurrent, backupSolarPower,
                                                    backupLoadVoltage, backupLoadCurrent, backupLoadPower,
+                                                   backupTotalLoad, backupNetPower,
+                                                   backupSolarDailyEnergy, backupLoadDailyEnergy,
+                                                   backupNetDailyEnergy,
                                                    backupBatteryVoltage, backupBatteryCurrent,
                                                    backupBatteryCharge, backupChargeMode,
-                                                   backupSolarDailyEnergy, backupLoadDailyEnergy, backupInverterDailyEnergy,
                                                    backupBatteryCapacity, backupChargerTemp, backupBatteryTemp,
                                                    resetEnergySensors,
                                                    ])
