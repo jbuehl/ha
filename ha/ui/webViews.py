@@ -129,9 +129,6 @@ def hdgFormat(value):
     direction = dirs[int((value+11.25)%360/22.5)]
     return "%03d %s" % (int(value), direction)
 
-def chargeModeFormat(value):
-    return int(value) & 0xff
-
 def deciVoltsFormat(value):
     return value/10.
 
@@ -204,7 +201,7 @@ views = ViewDict(  {"none": View(),
          "pct": View({}, "%3d %%"),
          "battery": View({}, "%3d %%"),
          "deciVolts": View({}, "%4.1f V", deciVoltsFormat),
-         "chargeMode": View({0:"Disabled", 1:"Enabled", 2:"Bulk", 3:"Equalization", 4:"Absorbtion", 5:"Float", 6:"Constant"}, "%s", chargeModeFormat),
+         "chargeMode": View({0:"Disabled", 1:"Enabled", 2:"Bulk", 3:"Equalization", 4:"Absorbtion", 5:"Float", 6:"Constant"}, "%s"),
          "sequence": View({0:"Stopped", 1:"Running"}, "%s", None, {0:"Stop", 1:"Run"}),
          "task": View({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"}),
          "tv": View({}, "%s", None, OrderedDict([("off", "Off"), ("mute", "Mute"), ("roku", "Roku"),

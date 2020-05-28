@@ -70,7 +70,10 @@ class RenologySensor(Sensor):
     def getState(self):
         state = self.interface.read(self.addr)
         if state:
-            return float((state >> self.shift) & self.mask) * self.factor
+            if self.addr == 0x0120:  # charge mode
+                return int(state) & 0xff
+            else:
+                return float((state >> self.shift) & self.mask) * self.factor
         else:
             return 0.0
 
