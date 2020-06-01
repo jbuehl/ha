@@ -10,13 +10,10 @@ import time
 import json
 from ha import *
 from ha.interfaces.serialInterface import *
-from ha.interfaces.mcp23017Interface import *
-from ha.interfaces.i2cInterface import *
+from ha.interfaces.gpioInterface import *
+from ha.interfaces.w1Interface import *
 from ha.interfaces.pentairInterface import *
 from ha.interfaces.powerInterface import *
-from ha.interfaces.owfsInterface import *
-from ha.interfaces.ads1015Interface import *
-from ha.interfaces.analogTempInterface import *
 from ha.interfaces.valveInterface import *
 from ha.interfaces.fileInterface import *
 from ha.interfaces.timeInterface import *
@@ -33,17 +30,12 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
 
     # Interfaces
-    nullInterface = Interface("nullInterface", Interface("None"))
     serialInterface = SerialInterface("serialInterface", device=pentairDevice, config=serialConfig, event=stateChangeEvent)
-    i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
-    gpioInterface0 = MCP23017Interface("gpioInterface0", i2cInterface, addr=0x20, bank=0, inOut=0x00)
-    gpioInterface1 = MCP23017Interface("gpioInterface1", i2cInterface, addr=0x20, bank=1, inOut=0x00)
+    gpioInterface = GPIOInterface("gpioInterface", output=[17,18,27,22,23,24,25])
+    w1Interface = W1Interface("w1Interface")
     pentairInterface = PentairInterface("pentairInterface", serialInterface)
-    powerInterface = PowerInterface("powerInterface", Interface("None"), event=stateChangeEvent)
-    owfsInterface = OWFSInterface("owfsInterface", event=stateChangeEvent)
-    ads1015Interface = ADS1015Interface("ads1015Interface", addr=0x48)
-    analogTempInterface = AnalogTempInterface("analogTempInterface", ads1015Interface)
-    valveInterface = ValveInterface("valveInterface", gpioInterface1)
+    powerInterface = PowerInterface("powerInterface", None, event=stateChangeEvent)
+    valveInterface = ValveInterface("valveInterface", gpioInterface)
     timeInterface = TimeInterface("timeInterface", None, latLong=latLong)
     configInterface = FileInterface("configInterface", fileName=stateDir+"pool.state", event=stateChangeEvent, initialState=defaultConfig)
 
@@ -52,16 +44,14 @@ if __name__ == "__main__":
                                 group="Pool", label="Spa temp set", type="tempFControl")
 
     # Lights
-    poolLight = Control("poolLight", gpioInterface0, 2, type="light", group=["Pool", "Lights"], label="Pool light")
-    spaLight = Control("spaLight", gpioInterface0, 3, type="light", group=["Pool", "Lights"], label="Spa light")
+    poolLight = Control("poolLight", gpioInterface, 27, type="light", group=["Pool", "Lights"], label="Pool light")
+    spaLight = Control("spaLight", gpioInterface, 22, type="light", group=["Pool", "Lights"], label="Spa light")
     poolLights = ControlGroup("poolLights", [poolLight, spaLight], type="light", group=["Pool", "Lights"], label="Pool and spa")
 
     # Temperature
-    # waterTemp = Sensor("waterTemp", analogTempInterface, 0, group=["Pool", "Temperature"], label="Water temp", type="tempF")
-    spaTemp = Sensor("spaTemp", analogTempInterface, 1, group=["Pool", "Temperature"], label="Spa temp", type="tempF")
-#    spaTemp = Sensor("spaTemp", owfsInterface, "28.556E5F070000", group=["Pool", "Temperature"], label="Spa temp", type="tempF")
-    poolTemp = Sensor("poolTemp", owfsInterface, "28.B9CA5F070000", group=["Pool", "Temperature"], label="Pool temp", type="tempF")
-    # poolEquipTemp = Sensor("poolEquipTemp", analogTempInterface, 0, group=["Pool", "Temperature", "Weather"], label="Pool equipment temp", type="tempF")
+    waterTemp = Sensor("waterTemp", w1Interface, "000006dbefc1", group=["Pool", "Temperature"], label="Water temp", type="tempF")
+    spaTemp = Sensor("spaTemp", w1Interface, "01145ee71174", group=["Pool", "Temperature"], label="Spa temp", type="tempF")
+    poolTemp = Sensor("poolTemp", w1Interface, "", group=["Pool", "Temperature"], label="Pool temp", type="tempF")
 
     # Pump
     poolPump = Control("poolPump", pentairInterface, 0, group="Pool", label="Pump", type="pump")
@@ -69,18 +59,18 @@ if __name__ == "__main__":
     poolPumpFlow = Sensor("poolPumpFlow", pentairInterface, 3, group="Pool", label="Pump flow", type="pumpFlow")
 
     # Accessories
-    poolCleaner = Control("poolCleaner", gpioInterface0, 0, group="Pool", label="Polaris", type="cleaner")
-    spaBlower = Control("spaBlower", gpioInterface0, 1, group="Pool", label="Spa blower")
+    poolCleaner = Control("poolCleaner", gpioInterface, 17, group="Pool", label="Polaris", type="cleaner")
+    spaBlower = Control("spaBlower", gpioInterface, 18, group="Pool", label="Spa blower")
 
     # Valves
-    intakeValve = Control("intakeValve", valveInterface, 0, group="Pool", label="Intake valve", type="poolValve")
-    returnValve = Control("returnValve", valveInterface, 1, group="Pool", label="Return valve", type="poolValve")
+    intakeValve = Control("intakeValve", valveInterface, 25, group="Pool", label="Intake valve", type="poolValve")
+    returnValve = Control("returnValve", valveInterface, 24, group="Pool", label="Return valve", type="poolValve")
     valveMode = ControlGroup("valveMode", [intakeValve, returnValve], stateList=[[0, 1, 1, 0], [0, 1, 0, 1]], stateMode=True,
                              type="valveMode", group="Pool", label="Valve mode")
 
     # Heater
-    poolHeater = Control("poolHeater", gpioInterface1, 2, group="Pool", label="Pool heater")
-    heaterControl = TempControl("heaterControl", nullInterface, poolHeater, spaTemp, spaTempTarget, hysteresis=[1, 0], group="Pool", label="Heater control", type="tempControl")
+    poolHeater = Control("poolHeater", gpioInterface, 23, group="Pool", label="Pool heater")
+    heaterControl = TempControl("heaterControl", None, poolHeater, spaTemp, spaTempTarget, hysteresis=[1, 0], group="Pool", label="Heater control", type="tempControl")
 
     # Controls
     spaFill = ControlGroup("spaFill", [valveMode, poolPump], stateList=[[0, 3], [0, 4]], stateMode=True, group="Pool", label="Spa fill")
@@ -91,10 +81,10 @@ if __name__ == "__main__":
     # Spa
     sunUp = Sensor("sunUp", timeInterface, "daylight")
     # spa light control that will only turn on if the sun is down
-    spaLightNight = DependentControl("spaLightNight", nullInterface, spaLight, [(sunUp, "==", 0)])
-    spa = SpaControl("spa", nullInterface, valveMode, poolPump, heaterControl, spaLightNight, spaTemp, spaTempTarget, group="Pool", label="Spa", type="spa")
+    spaLightNight = DependentControl("spaLightNight", None, spaLight, [(sunUp, "==", 0)])
+    spa = SpaControl("spa", None, valveMode, poolPump, heaterControl, spaLightNight, spaTemp, spaTempTarget, group="Pool", label="Spa", type="spa")
     # spa light control that will only turn on if the sun is down and the spa is on
-    spaLightNightSpa = DependentControl("spaLightNightSpa", nullInterface, spaLightNight, [(spa, "==", 1)])
+    spaLightNightSpa = DependentControl("spaLightNightSpa", None, spaLightNight, [(spa, "==", 1)])
 
     filterSequence = Sequence("filterSequence", [Cycle(poolPump, duration=39600, startState=1),  # filter 11 hr
                                               ], group="Pool", label="Filter daily")
@@ -121,7 +111,7 @@ if __name__ == "__main__":
 
     # Resources
     resources = Collection("resources", [poolLight, spaLight, poolLights,
-                                        poolTemp, spaTemp,
+                                        waterTemp, poolTemp, spaTemp,
                                         poolPump, poolCleaner, poolClean, intakeValve, returnValve,
                                         valveMode, spaFill, spaFlush, spaDrain, poolHeater, spaBlower,
                                         poolPumpSpeed, poolPumpFlow,
@@ -134,8 +124,7 @@ if __name__ == "__main__":
 
     # Start interfaces
     configInterface.start()
-    gpioInterface0.start()
-    gpioInterface1.start()
+    gpioInterface.start()
     pentairInterface.start()
     schedule.start()
     restServer.start()
