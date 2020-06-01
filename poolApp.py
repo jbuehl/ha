@@ -51,7 +51,7 @@ if __name__ == "__main__":
     # Temperature
     waterTemp = Sensor("waterTemp", w1Interface, "000006dbefc1", group=["Pool", "Temperature"], label="Water temp", type="tempF")
     spaTemp = Sensor("spaTemp", w1Interface, "01145ee71174", group=["Pool", "Temperature"], label="Spa temp", type="tempF")
-    poolTemp = Sensor("poolTemp", w1Interface, "", group=["Pool", "Temperature"], label="Pool temp", type="tempF")
+    poolTemp = Sensor("poolTemp", w1Interface, "01145f1aa84b", group=["Pool", "Temperature"], label="Pool temp", type="tempF")
 
     # Pump
     poolPump = Control("poolPump", pentairInterface, 0, group="Pool", label="Pump", type="pump")
