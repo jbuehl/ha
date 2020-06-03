@@ -54,10 +54,11 @@ def wall(cameras, templates):
 #     default: 000000.288.0005
 
 def snaps(cameraName, date, resource, cameras, templates):
+    today = time.strftime("%Y%m%d")
     if not camera:
         cameraName = cameras[0].name
     if not date:
-        date = time.strftime("%Y%m%d")
+        date = today
     if not resource:
         resource = "000000.288.000500"
         daily = True
@@ -84,7 +85,8 @@ def snaps(cameraName, date, resource, cameras, templates):
     now = time.strftime("%H%M%S")
     for i in range(int(nSnaps)):
         debug('debugSnaps', "  snapTime = ", snapTime)
-        if int(snapTime) > int(now):
+        # don't try to find snaps in the future
+        if (int(snapTime) > int(now)) and (date == today):
             break
         snapshot = date+snapTime+"_snap.jpg"
         if snapshot not in snapshots:
