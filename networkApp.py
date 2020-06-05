@@ -81,17 +81,12 @@ def getNetwork():
     leaseScript = "/system script run devices"
     clientScript = "/system script run clients"
     while True:
-        # get static IPs from router
-        debug("debugNetwork", "getting static IPs from", router)
         try:
+            # get static IPs from router
+            debug("debugNetwork", "getting static IPs from", router)
             statics = subprocess.check_output("ssh admin@"+router+" "+staticScript, shell=True).decode().split("\r\n")[0:-1]
-        except subprocess.CalledProcessError:
-            log("Router", router, "not responding")
-            break
-
-        # get IP address leases from router
-        debug("debugNetwork", "getting leases from", router)
-        try:
+            # get IP address leases from router
+            debug("debugNetwork", "getting leases from", router)
             leases = subprocess.check_output("ssh admin@"+router+" "+leaseScript, shell=True).decode().split("\r\n")[0:-1]
         except subprocess.CalledProcessError:
             log("Router", router, "not responding")
