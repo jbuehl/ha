@@ -13,3 +13,8 @@ class W1Interface(Interface):
             return float(self.sensors[addr].get_temperature()) * 9 / 5 + 32
         except KeyError:
             return 0
+        except w1thermsensor.errors.SensorNotReadyError:    # sensor isn't responding
+            self.sensors = []
+            for sensor in W1ThermSensor.get_available_sensors():
+                self.sensors[sensor.id] = sensor
+            return 0
