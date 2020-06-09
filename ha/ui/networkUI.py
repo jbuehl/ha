@@ -42,11 +42,15 @@ def networkUI(order, templates, views):
         except Exception as ex:
             log("exception reading network data", str(ex))
             time.sleep(1)
-    # add pin time and signal strength colors
+    # add ping time and signal strength colors
     netLines = [[netStat[0]]+[[pingTime, pingColor(pingTime)] for pingTime in netStat[1:4]]+netStat[4:] for netStat in netStats]
-    deviceLines = [[tuple(int(x) for x in deviceStat[0].split("."))]+deviceStat[1:4]+ \
+    try:
+        deviceLines = [[tuple(int(x) for x in deviceStat[0].split("."))]+deviceStat[1:4]+ \
                     ([[str(deviceStat[4]), signalColor(deviceStat[4])]] if deviceStat[4] else [["", ""]])+ \
                     deviceStat[5:] for deviceStat in deviceStats]
+    except Exception as ex:
+        log("exception processing devices", str(ex), str(deviceStats))
+        deviceLines = []
     netHeads = ["Network", "Router", "Gateway", "Internet", "Download", "Upload"]
     deviceHeads = ["IP address", " ", "MAC address", "Access point", "Sig", "Host name", "Vendor"]
     # determine the sort order for devices
