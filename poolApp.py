@@ -62,6 +62,7 @@ if __name__ == "__main__":
     # Lights
     poolLight = Control("poolLight", gpioInterface, 27, type="light", group=["Pool", "Lights"], label="Pool light")
     spaLight = Control("spaLight", gpioInterface, 22, type="light", group=["Pool", "Lights"], label="Spa light")
+    spaLightColor = LxgControl("spaLightColor", None, spaLight, group=["Pool", "Lights"], label="Spa light color")
     poolLights = ControlGroup("poolLights", [poolLight, spaLight], type="light", group=["Pool", "Lights"], label="Pool and spa")
 
     # Temperature
@@ -126,7 +127,7 @@ if __name__ == "__main__":
     schedule = Schedule("schedule", [sundaySpaOnTask, sundaySpaOffTask, poolFilterTask, poolCleanerTask, flushSpaTask, spaLightOnSunsetTask])
 
     # Resources
-    resources = Collection("resources", [poolLight, spaLight, poolLights,
+    resources = Collection("resources", [poolLight, spaLight, spaLightColor, poolLights,
                                         waterTemp, poolTemp, spaTemp,
                                         poolPump, poolCleaner, poolClean, intakeValve, returnValve,
                                         valveMode, spaFill, spaFlush, spaDrain, poolHeater, spaBlower,
