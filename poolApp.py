@@ -4,6 +4,22 @@ defaultConfig = {
 spaTempTargetMin = 75
 spaTempTargetMax = 102
 
+# GPIO pin assignments
+#
+# BRD - breakout board
+# HDR - Raspberry Pi header
+# BCM - Broadcom chip
+#
+# BRD HDR BCM
+# --- --- ---
+#  P0  11  17 poolCleaner
+#  P1  12  18 spaBlower
+#  P2  13  27 poolLight
+#  P3  15  22 spaLight
+#  P4  16  23 poolHeater
+#  P5  18  24 returnValve
+#  P6  22  25 intakeValve
+#  P7   7   4 1-wire
 
 import threading
 import time
