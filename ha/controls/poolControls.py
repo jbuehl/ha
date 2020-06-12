@@ -1,5 +1,6 @@
 spaNotifyMsg = "Spa is ready"
 
+import time
 from ha import *
 from ha.notification.notificationClient import *
 
@@ -162,3 +163,39 @@ class SpaEventThread(threading.Thread):
                 return
         self.actionFunction(self.actionValue)
         debug('debugThread', self.name, "finished")
+
+# ColorSplash LXG pool light control
+
+lxgColors = {"peruvian paradise": 1,
+		  "super nova": 2,
+		  "northern lights": 3,
+		  "tidal wave": 4,
+		  "patriot dream": 5,
+		  "desert skies": 6,
+		  "nova": 7,
+		  "blue": 8,
+		  "green": 9,
+		  "red": 10,
+		  "white": 11,
+		  "pink": 12,
+		  "save": 13,
+		  "orange": 14,
+		  }
+
+class LxgInterface(Control):
+    def __init__(self, name, interface, lightControl, addr=None, event=None,
+                 group="", type="control", location=None, label="", interrupt=None):
+        Control.__init__(self, name, interface=interface, addr=addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
+        self.lightControl = lightControl
+
+    def setState(self, state):
+        debug('debugLxg', self.name, "setState", state)
+        if self.lightControl.getState():    # light control must be on
+            try:
+    			for i in range(lxgColors[state.lower()]):
+    				time.sleep(.1)
+    				self.lightControl.setState(0)
+    				time.sleep(.1)
+    				self.lightControl.setState(1)
+    		except KeyError:
+                log(self.name, "unknown command", value)
