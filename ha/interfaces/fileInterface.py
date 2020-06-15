@@ -94,10 +94,10 @@ class FileInterface(Interface):
                 self.data = json.loads(jsonData)
         except Exception as ex:
             log(self.name, self.fileName, "readData file read error", str(ex), "jsonData", str(jsonData))
-        debug('debugFile', self.name, "readData", self.data)
+        debug('debugFileData', self.name, "readData", self.data)
 
     def writeData(self):
-        debug('debugFile', self.name, "writeData", self.data)
+        debug('debugFileData', self.name, "writeData", self.data)
         with open(self.fileName, "w") as dataFile:
             with self.lock:
                 json.dump(self.data, dataFile)
