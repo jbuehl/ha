@@ -232,9 +232,9 @@ if __name__ == "__main__":
         wifiOff()
 
     # interfaces
-    gpsInterface = FileInterface("gpsInterface", fileName=gpsFileName, readOnly=True, event=stateChangeEvent, defaultValue=0.0)
+    gpsInterface = FileInterface("gpsInterface", fileName=gpsFileName, readOnly=True, shared=True, event=stateChangeEvent, defaultValue=0.0)
     timeInterface = TimeInterface("timeInterface", gpsInterface, clock="utc")
-    diagInterface = FileInterface("diagInterface", fileName=diagFileName, readOnly=True, event=stateChangeEvent)
+    diagInterface = FileInterface("diagInterface", fileName=diagFileName, readOnly=True, shared=True, event=stateChangeEvent)
     i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
     tc74Interface = TC74Interface("tc74Interface", i2cInterface)
     tempInterface = TempInterface("tempInterface", tc74Interface, sample=1)

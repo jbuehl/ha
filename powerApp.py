@@ -110,7 +110,7 @@ if __name__ == "__main__":
     ads1015Interface0 = ADS1015Interface("ads1015Interface0", addr=0x48, gain=adcGain, sps=adcSps, ic=adcType)
     ads1015Interface1 = ADS1015Interface("ads1015Interface1", addr=0x49, gain=adcGain, sps=adcSps, ic=adcType)
     stateInterface = FileInterface("stateInterface", fileName=stateDir+"power.state", initialState=defaultConfig)
-    solarInterface = FileInterface("solarInterface", fileName=solarFileName, readOnly=True, event=stateChangeEvent)
+    solarInterface = FileInterface("solarInterface", fileName=solarFileName, readOnly=True, shared=True, event=stateChangeEvent)
 
     # system resources
     osInterface = OSInterface("osInterface")

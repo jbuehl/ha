@@ -1,4 +1,5 @@
 filePollInterval = 1
+fileRetryInterval = .1
 
 from ha import *
 import json
@@ -7,31 +8,32 @@ import threading
 import time
 
 class FileInterface(Interface):
-    def __init__(self, name, interface=None, event=None, fileName="", readOnly=False, changeMonitor=True, defaultValue=None, initialState={}):
+    def __init__(self, name, interface=None, event=None, fileName="", readOnly=False, shared=False, changeMonitor=True, defaultValue=None, initialState={}):
         Interface.__init__(self, name, interface=interface, event=event)
         self.fileName = fileName
-        self.readOnly = readOnly
-        self.changeMonitor = changeMonitor
-        self.defaultValue = defaultValue
-        self.initialState = initialState
-        self.data = {}
-        self.mtime = 0
+        self.readOnly = readOnly            # file cannot be written to
+        self.shared = shared                # this file may be written and read by different processes
+        self.changeMonitor = changeMonitor  # watch for changes and update the cache
+        self.defaultValue = defaultValue    # value to use for undefined elements
+        self.initialState = initialState    # values to set if the file doesn't exist
+        self.data = {}                      # cached data
+        self.mtime = 0                      # last time the file was modified
         self.lock = threading.Lock()
 
     def start(self):
         try:
             # if the file exists, cache the data
             debug('debugFile', self.name, "reading", self.fileName)
-            self.readData()
-            self.mtime = os.stat(self.fileName).st_mtime
-        except Exception as ex:
-            log("read exception", str(ex))
+            with open(self.fileName) as dataFile:
+                self.data = json.load(dataFile)
+        except FileNotFoundError:
             # create a new file
             debug('debugFile', self.name, "creating", self.fileName)
             self.data = self.initialState
             self.writeData()
+        self.mtime = os.stat(self.fileName).st_mtime
         if self.changeMonitor:
-            # thread to periodically check for file changes
+            # thread to periodically check for file changes and cache the data
             def readData():
                 debug('debugFileThread', self.name, "readData started")
                 while running:
@@ -44,17 +46,19 @@ class FileInterface(Interface):
             readStatesThread.start()
 
     def read(self, addr):
+        if not self.changeMonitor:   # read the file every time
+            self.readData()
         with self.lock:
             try:
                 value = self.data[addr]
             except KeyError:
                 value = self.defaultValue
-        debug('debugFile', self.name, "read", "addr", addr, "value", value)
+        debug('debugFileData', self.name, "read", "addr", addr, "value", value)
         return value
 
     def write(self, addr, value):
         if not self.readOnly:
-            debug('debugFile', self.name, "write", "addr", addr, "value", value)
+            debug('debugFileData', self.name, "write", "addr", addr, "value", value)
             with self.lock:
                 self.data[addr] = value
             self.notify()
@@ -78,12 +82,16 @@ class FileInterface(Interface):
 
     def readData(self):
         try:
-            jsonData = ""
-            while jsonData == "":
-                with open(self.fileName) as dataFile:
-                    with self.lock:
+            with open(self.fileName) as dataFile:
+                jsonData = dataFile.read()
+                if (jsonData == "") and (self.shared): # wait until there is valid data
+                    debug('debugFile', self.name, "readData", "waiting for data", time.time())
+                    while jsonData == "":
+                        time.sleep(fileRetryInterval)
                         jsonData = dataFile.read()
-            self.data = json.loads(jsonData)
+                    debug('debugFile', self.name, "readData", "data acquired", time.time())
+            with self.lock:
+                self.data = json.loads(jsonData)
         except Exception as ex:
             log(self.name, self.fileName, "readData file read error", str(ex), "jsonData", str(jsonData))
         debug('debugFile', self.name, "readData", self.data)
