@@ -1,5 +1,17 @@
 # Buehltech Home Automation
 
+This project implements a system that allows sensing and control of various devices in a home.
+
+### Overview
+
+### Design goals
+
+- Distributed
+- Connected to the internet
+- Not dependent on the internet for critical functions
+- Secure
+- Not dependent on proprietary systems, interfaces, or devices
+
 ### Terminology
 
 Here is a definition of the terminology used in this project.
@@ -17,7 +29,7 @@ Here is a definition of the terminology used in this project.
 - Control - a representation of a physical control
 - Interface - a representation of a physical interface
 - Collection - an ordered list of resources
-- Task - a specification of a control, a state, and a time 
+- Task - a specification of a control, a state, and a time
 - Schedule - a collection of tasks
 
 ##### DEPLOYMENT
@@ -27,15 +39,15 @@ Here is a definition of the terminology used in this project.
 
 ### Naming
 
-Every resource has a system-wide unique identifier.
+Every resource has a system-wide unique identifier.  The namespace is flat.
 
 ### States
 
-Every resource has an associated state.
+Every resource has an associated state.  A resource state is a single scalar number or string.  If a device has multiple attributes or controls, it should be represented as multiple sensors or controls.
 
 ### Object model
 
-HA uses an object model that is defined by the following base classes:
+Home automation uses an object model that is defined by the following base classes:
 
 	+ class Resource(object):
 	    - class Interface(Resource):
@@ -44,7 +56,7 @@ HA uses an object model that is defined by the following base classes:
 	    + class Collection(Resource, OrderedDict):
 	        + class Schedule(Collection):
 	            - class Task(Control):
-	                
+
 Other classes are inherited from the base classes:
 
     - class Sequence(Control):
@@ -62,7 +74,7 @@ These standalone classes are used by the HA classes
 The base class for most HA objects.
 
     - name
-        
+
 ##### Interface
 Defines the abstract class for interface implementations.
 
@@ -75,7 +87,7 @@ Defines the abstract class for interface implementations.
     - write(addr, value)
     - notify()
     - getStateType(Sensor)
-        
+
 ##### Sensor
 Defines the model for the basic HA sensor.
 
@@ -91,23 +103,23 @@ Defines the model for the basic HA sensor.
     - getState()
     - getStateChange()
     - getStateType()
-        
+
 ##### Control
 Defines the model for a sensor whose state can be changed.
 
     - setState(value)
 
 ##### Cycle, Sequence, SensorGroup, and ControlGroup
-Used to define aggregations of Sensors that 
+Used to define aggregations of Sensors that
 can be managed collectively.
 
 ##### Collection
 Defines an ordered list of Resources.
 
 ##### Schedule, Task, and SchedTime
-Used to manage a list of tasks to be run at 
+Used to manage a list of tasks to be run at
 specified times.
-        
+
 ### Implementation
 
 The HA object model is defined in ha/HAClasses.py.
@@ -118,28 +130,28 @@ Runtime parameters are defined in ha/HAConf.py.
 
 Programs that run on servers are defined in ha*.py.
 The systemd service definitions are defined in ha*.service.
-  
-    - haLights.py	
-    - haShades.py	
+
+    - haLights.py
+    - haShades.py
     - haSprinklers.py
-    - haPool.py	
+    - haPool.py
     - haSolar.py
     - haLoads.py
-    	
-A service that aggregates all the servers and provides a web interface is implemented in 
+
+A service that aggregates all the servers and provides a web interface is implemented in
 haWeb.py.
 
-Services expose their HA objects in a REST interface that is implemented in 
+Services expose their HA objects in a REST interface that is implemented in
 ha.rest.restServer.py.
 
 ### Access
 
 The HA REST interface allows access to HA objects.
 
-##### Resource paths 
-Paths are defined by the organization of collections that the implementing program 
-has  passed to the REST server.  A path consists of one of more Collection names, 
-optionally  followed by a Sensor name, optionally followed by an Sensor 
+##### Resource paths
+Paths are defined by the organization of collections that the implementing program
+has  passed to the REST server.  A path consists of one of more Collection names,
+optionally  followed by a Sensor name, optionally followed by an Sensor
 attribute name.
 
 The Sensor attribute "state" returns the current state of the sensor.  The
@@ -159,46 +171,46 @@ The following verbs are defined:
 - DELETE - not implemented
 
 ##### Data
-Data that is returned from a GET or specified in the body of a PUT is the JSON 
+Data that is returned from a GET or specified in the body of a PUT is the JSON
 representation of the specified resource.
 
 ##### Advertising
-The HA REST server sends a periodic message to port 4242 on the broadcast address of 
-the local network to advertise itself.  The message contains the hostname, port, 
+The HA REST server sends a periodic message to port 4242 on the broadcast address of
+the local network to advertise itself.  The message contains the hostname, port,
 and resource collection that is served.
-    
+
 ##### Examples
     1. Return the list of resources on the specified server.
 
         GET hostname:7378/resources
 
-        {"type": "collection", "class": "Collection", "resources": ["Null", 
-        "frontLawn", "backLawn", "backBeds", "sideBeds", "gardenSequence", 
-        "backLawnSequence", "sideBedSequence", "gardenTask", "backLawnTask", 
-        "sideBedTask", "inverterTemp", "currentPower", "todaysEnergy", "lifetimeEnergy", 
-        "lightsLoad", "plugsLoad", "appl1Load", "appl2Load", "cookingLoad", "acLoad", 
-        "poolLoad", "backLoad", "xmasLights", "frontLights", "backLights", "bbqLights", 
-        "backYardLights", "outsideLights", "recircPump", "Outside lights on sunset", 
-        "Outside lights off midnight", "Outside lights off sunrise", 
-        "Hot water recirc on", "Hot water recirc off", "Outside lights on sunset event", 
-        "Outside lights off sunrise event", "shade1", "shade2", "shade3", "shade4", 
-        "allShades", "Shades down", "Shades up Jun, Jul", "Shades up May, Aug", 
-        "Shades up Sep", "poolLight", "spaLight", "poolLights", "outsideAirTemp", 
-        "poolTemp", "spaTemp", "poolPump", "poolPumpSpeed", "poolPumpFlow", 
-        "poolCleaner", "spa", "spaHeater", "spaBlower", "model", "date", "time", 
-        "cleanMode", "spaWarmup", "spaReady", "spaShutdown", "poolPumpPower", 
-        "poolCleanerPower", "spaBlowerPower", "poolLightPower", "spaLightPower", 
+        {"type": "collection", "class": "Collection", "resources": ["Null",
+        "frontLawn", "backLawn", "backBeds", "sideBeds", "gardenSequence",
+        "backLawnSequence", "sideBedSequence", "gardenTask", "backLawnTask",
+        "sideBedTask", "inverterTemp", "currentPower", "todaysEnergy", "lifetimeEnergy",
+        "lightsLoad", "plugsLoad", "appl1Load", "appl2Load", "cookingLoad", "acLoad",
+        "poolLoad", "backLoad", "xmasLights", "frontLights", "backLights", "bbqLights",
+        "backYardLights", "outsideLights", "recircPump", "Outside lights on sunset",
+        "Outside lights off midnight", "Outside lights off sunrise",
+        "Hot water recirc on", "Hot water recirc off", "Outside lights on sunset event",
+        "Outside lights off sunrise event", "shade1", "shade2", "shade3", "shade4",
+        "allShades", "Shades down", "Shades up Jun, Jul", "Shades up May, Aug",
+        "Shades up Sep", "poolLight", "spaLight", "poolLights", "outsideAirTemp",
+        "poolTemp", "spaTemp", "poolPump", "poolPumpSpeed", "poolPumpFlow",
+        "poolCleaner", "spa", "spaHeater", "spaBlower", "model", "date", "time",
+        "cleanMode", "spaWarmup", "spaReady", "spaShutdown", "poolPumpPower",
+        "poolCleanerPower", "spaBlowerPower", "poolLightPower", "spaLightPower",
         "Pool cleaning"], "name": "resources"}
 
-    2. Return the attributes for the resource "shade1".  Note that the attributes 
+    2. Return the attributes for the resource "shade1".  Note that the attributes
        "state" or "stateChange" are not included.
 
         GET hostname:7378/resources/shade1
 
-        {"addr": "/resources/sensors/shade1/state", "group": "Doors", "name": "shade1", 
-        "location": null, "interface": "rpi04:7378", "type": "shade", "class": 
+        {"addr": "/resources/sensors/shade1/state", "group": "Doors", "name": "shade1",
+        "location": null, "interface": "rpi04:7378", "type": "shade", "class":
         "Control", "label": "Shade 1"}
-     
+
     3. Return the current state of the resource "shade1".
 
         GET hostname:7378/resources/shade1/state
@@ -210,7 +222,7 @@ and resource collection that is served.
         PUT hostname:7378/resources/shade1/state
 
         {"state": 1}
-     
+
     5. Return the state of the resource "lightsLoad" when the state changes.  This will
        block and wait indefinitely until the state changes.
 
@@ -222,16 +234,14 @@ and resource collection that is served.
 
         GET hostname:7378/resources/states/state
 
-        {"state": {"acLoad": 0.0, "cookingLoad": 0.0, "poolLoad": 50.879999999999995, 
-        "backLoad": 985.2, "plugsLoad": 278.4, "appl1Load": 24.0, "lightsLoad": 27.6, 
+        {"state": {"acLoad": 0.0, "cookingLoad": 0.0, "poolLoad": 50.879999999999995,
+        "backLoad": 985.2, "plugsLoad": 278.4, "appl1Load": 24.0, "lightsLoad": 27.6,
         "appl2Load": 20.520000000000003}}
 
-    7. Return the state of the current states of all resources on the specified host 
-       when a state changes.  This will block and wait indefinitely until at least one 
+    7. Return the state of the current states of all resources on the specified host
+       when a state changes.  This will block and wait indefinitely until at least one
        state changes.
 
         GET hostname:7378/resources/states/stateChange
 
         {"stateChange": {"backLoad": 980.8799999999999, "poolLoad": 59.28}}
-
-
