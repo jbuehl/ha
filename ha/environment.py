@@ -13,11 +13,11 @@ dataLogDir = "data/"
 dataLogFileName = ""
 hostname = socket.gethostname()
 
-# Localization - define these in a config file
-latLong = (0.0, 0.0)
-elevation = 0 # elevation in feet
-tempScale = "F"
-metricsServer = "metrics.example.com"
+# Localization - define these in the config file
+    # latLong = (0.0, 0.0)
+    # elevation = 0 # elevation in feet
+    # tempScale = "F"
+    # metricsServer = "metrics.example.com"
 
 # global variables that must be set here
 sysLogging = True
