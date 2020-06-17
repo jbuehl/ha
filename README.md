@@ -185,12 +185,15 @@ if __name__ == "__main__":
 
 	# Sprinkler task
 	gardenTask = Task("gardenTask", SchedTime(hour=18, minute=00, month=[May, Jun, Jul, Aug, Sep, Oct]),
-	                    sequence=Sequence("gardenSequence", cycleList=[Cycle(control=gardenSprinkler, duration=600, startState=1)]), controlState=1,
+	                    sequence=Sequence("gardenSequence",
+								cycleList=[Cycle(control=gardenSprinkler, duration=600, startState=1)]),
+								controlState=1,
 						label="Garden sprinkler task")
 
 	# Resources and schedule
 	schedule = Schedule("schedule", tasks=[gardenTask])
-	restServer = RestServer("garden", Collection("resources", resources=[gardenTemp, gardenSprinkler]), label="Garden")
+	restServer = RestServer("garden", Collection("resources",
+				resources=[gardenTemp, gardenSprinkler]), label="Garden")
 
 	# Start things up
 	schedule.start()
@@ -270,49 +273,33 @@ JSON representation of the state of the resource.
 
         GET hostname:7378/resources
 
-        {"type": "collection", "class": "Collection", "resources": ["Null",
-        "frontLawn", "backLawn", "backBeds", "sideBeds", "gardenSequence",
-        "backLawnSequence", "sideBedSequence", "gardenTask", "backLawnTask",
-        "sideBedTask", "inverterTemp", "currentPower", "todaysEnergy", "lifetimeEnergy",
-        "lightsLoad", "plugsLoad", "appl1Load", "appl2Load", "cookingLoad", "acLoad",
-        "poolLoad", "backLoad", "xmasLights", "frontLights", "backLights", "bbqLights",
-        "backYardLights", "outsideLights", "recircPump", "Outside lights on sunset",
-        "Outside lights off midnight", "Outside lights off sunrise",
-        "Hot water recirc on", "Hot water recirc off", "Outside lights on sunset event",
-        "Outside lights off sunrise event", "shade1", "shade2", "shade3", "shade4",
-        "allShades", "Shades down", "Shades up Jun, Jul", "Shades up May, Aug",
-        "Shades up Sep", "poolLight", "spaLight", "poolLights", "outsideAirTemp",
-        "poolTemp", "spaTemp", "poolPump", "poolPumpSpeed", "poolPumpFlow",
-        "poolCleaner", "spa", "spaHeater", "spaBlower", "model", "date", "time",
-        "cleanMode", "spaWarmup", "spaReady", "spaShutdown", "poolPumpPower",
-        "poolCleanerPower", "spaBlowerPower", "poolLightPower", "spaLightPower",
-        "Pool cleaning"], "name": "resources"}
+        {"type": "collection", "class": "Collection", "resources": ["gardenTemp", "gardenSprinkler"], "name": "resources"}
 
     2. Return the attributes for the resource "shade1".  Note that the attributes
        "state" or "stateChange" are not included.
 
-        GET hostname:7378/resources/shade1
+        GET hostname:7378/resources/gardenSprinkler
 
-        {"addr": "/resources/sensors/shade1/state", "group": "Doors", "name": "shade1",
-        "location": null, "interface": "rpi04:7378", "type": "shade", "class":
-        "Control", "label": "Shade 1"}
+        {"addr": 17, "group": "", "name": "gardenSprinkler",
+        "location": null, "type": "", "class":
+        "Control", "label": "Garden sprinkler"}
 
     3. Return the current state of the resource "shade1".
 
-        GET hostname:7378/resources/shade1/state
+        GET hostname:7378/resources/gardenSprinkler/state
 
         {"state": 0}
 
-    4. Set the state of the resource "shade1" to 1.
+    4. Set the state of the resource "gardenSprinkler" to 1.
 
-        PUT hostname:7378/resources/shade1/state
+        PUT hostname:7378/resources/gardenSprinkler/state
 
         {"state": 1}
 
-    5. Return the state of the resource "lightsLoad" when the state changes.  This will
+    5. Return the state of the resource "gardenTemp" when the state changes.  This will
        block and wait indefinitely until the state changes.
 
-        GET hostname:7378/resources/lightsLoad/stateChange
+        GET hostname:7378/resources/gardenTemp/stateChange
 
         {"stateChange": 27.48}
 
@@ -320,9 +307,7 @@ JSON representation of the state of the resource.
 
         GET hostname:7378/resources/states/state
 
-        {"state": {"acLoad": 0.0, "cookingLoad": 0.0, "poolLoad": 50.879999999999995,
-        "backLoad": 985.2, "plugsLoad": 278.4, "appl1Load": 24.0, "lightsLoad": 27.6,
-        "appl2Load": 20.520000000000003}}
+        {"state": {"gardenTemp": 28.0, "gardenSprinkler": 0}}
 
     7. Return the state of the current states of all resources on the specified host
        when a state changes.  This will block and wait indefinitely until at least one
@@ -330,4 +315,4 @@ JSON representation of the state of the resource.
 
         GET hostname:7378/resources/states/stateChange
 
-        {"stateChange": {"backLoad": 980.8799999999999, "poolLoad": 59.28}}
+        {"stateChange": {"gardenTemp": 28.0, "gardenSprinkler": 1}}
