@@ -175,31 +175,31 @@ from ha.interfaces.gpioInterface import *
 from ha.rest.restServer import *
 
 if __name__ == "__main__":
-    # Interfaces
+	# Interfaces
 	i2cInterface = I2CInterface("i2cInterface")
 	gpioInterface = GPIOInterface("gpioInterface", output=[17])
 
-    # Temp sensor and sprinkler control
+	# Temp sensor and sprinkler control
 	gardenTemp = Sensor("gardenTemp", i2cInterface, 0x4b, label="Garden temperature")
-    gardenSprinkler = Control("gardenSprinkler", gpioInterface, 17, label="Garden sprinkler")
+	gardenSprinkler = Control("gardenSprinkler", gpioInterface, 17, label="Garden sprinkler")
 
 	# Sprinkler task
-    gardenTask = Task("gardenTask", SchedTime(hour=18, minute=00, month=[May, Jun, Jul, Aug, Sep, Oct]),
-                        sequence=Sequence("gardenSequence", cycleList=[Cycle(control=gardenSprinkler, duration=600, startState=1)]), controlState=1,
+	gardenTask = Task("gardenTask", SchedTime(hour=18, minute=00, month=[May, Jun, Jul, Aug, Sep, Oct]),
+	                    sequence=Sequence("gardenSequence", cycleList=[Cycle(control=gardenSprinkler, duration=600, startState=1)]), controlState=1,
 						label="Garden sprinkler task")
 
-    # Resources and schedule
+	# Resources and schedule
 	schedule = Schedule("schedule", tasks=[gardenTask])
-    restServer = RestServer("garden", Collection("resources", resources=[gardenTemp, gardenSprinkler]), label="Garden")
+	restServer = RestServer("garden", Collection("resources", resources=[gardenTemp, gardenSprinkler]), label="Garden")
 
-    # Start things up
+	# Start things up
 	schedule.start()
-    restServer.start()
+	restServer.start()
 ```
 ### Implementation
 
 #### Directory structure
-
+```
 root directory/
 	*App.py - Applications that run on servers
 	ha/
@@ -223,7 +223,7 @@ root directory/
 			webViews.py
 		services/
 			*App.service - The systemd service definitions
-
+```
 ### Access
 Services expose their HA objects in a REST interface that is implemented in
 ha/rest/restServer.py. The RestInterface object allows a client application to access HA objects on other servers.
