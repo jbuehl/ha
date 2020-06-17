@@ -1,8 +1,8 @@
 # Buehltech Home Automation
 
-This project implements a system that enables sensing and control of various devices in a home.
-
 ### Overview
+
+This project implements a system that enables sensing and control of various devices in a home.
 
 Any device in the home that can be controlled electronically can be connected to a system that can manage that device and allow remote access. Examples of devices include such things as light fixtures, sprinkler valves, temperature sensors, door sensors, etc.  This project does not define specific hardware for these devices, but rather defines the software that allows any device to be interfaced to the system.
 
@@ -18,14 +18,14 @@ Another example is a sprinkler valve.  The state of the valve is either open or 
 
 The design of the project targets the following goals.  Not all of them have been strictly met.
 
-- Distributed
-- Devices are discoverable
-- Connected to the network
-- Not dependent on the internet for critical functions
-- Secure
-- Not dependent on proprietary systems, interfaces, or devices
-- Devices are autonomous if possible
-- Not operating system specific
+##### Distributed
+##### Devices are autonomous
+##### Devices are discoverable
+##### Connected to the network
+##### Not dependent on the internet for critical functions
+##### Reasonably secure
+##### Not dependent on proprietary systems, interfaces, or devices
+##### Not operating system specific
 
 ### Terminology
 
@@ -137,14 +137,15 @@ specified times.
 
 ### Implementation
 
-The HA object model is defined in ha/HAClasses.py.
+- ha/basic.py - The basic object model
+- ha/extra.py - Additional useful objects derived from the basic objects
+- ha/config.py - Runtime parameters
 
-Interfaces to specific hardware are implemented in ha/*Interface.py.
+- ha/interfaces/*Interface.py - Interfaces to specific hardware
 
-Runtime parameters are defined in ha/HAConf.py.
 
-Programs that run on servers are defined in ha*.py.
-The systemd service definitions are defined in ha*.service.
+Programs that run on servers are defined in *App.py.
+The systemd service definitions are defined in services/*App.service.
 
     - haLights.py
     - haShades.py
@@ -154,10 +155,10 @@ The systemd service definitions are defined in ha*.service.
     - haLoads.py
 
 A service that aggregates all the servers and provides a web interface is implemented in
-haWeb.py.
+ha/webUi.py.
 
 Services expose their HA objects in a REST interface that is implemented in
-ha.rest.restServer.py.
+ha/rest/restServer.py.
 
 ### Access
 
@@ -183,7 +184,7 @@ The following verbs are defined:
 - GET - return the value of the specified resource
 - PUT - set the specified resource attribute to the specified value
 - POST - not implemented
-- DELETE - not implemented
+- DELETE ##### not implemented
 
 ##### Data
 Data that is returned from a GET or specified in the body of a PUT is the JSON
