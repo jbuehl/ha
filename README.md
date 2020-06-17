@@ -164,7 +164,7 @@ specified times.
 
 The following sample application illustrates how a service may be implemented.  A temperature sensor and a sprinkler valve are configured as described in the earlier example.
 
-First, the I2C and GPIO Interface objects are defined.  The address of the temperature sensor is 0x4b on the I2C bus and the sprinkler valve is connected to GPIO pin 17.  Then the Sensor for the temperature and the Control for the sprinkler valve are defined.  Next, a Task is defined that will run the sprinkler every day at 6PM (18:00) for 10 minutes (600 seconds) every day during the months May through October.
+First, the I2C and GPIO Interface objects are defined.  The address of the temperature sensor is 0x4b on the I2C bus and the sprinkler valve is connected to GPIO pin 17 which is set to output mode.  Then the Sensor for the temperature and the Control for the sprinkler valve are defined.  Next, a Task is defined that will run the sprinkler every day at 6PM (18:00) for 10 minutes (600 seconds) every day during the months May through October.
 
 Finally, the task is added to a Schedule object and the Sensor and Control are added to a Collection object that will be exported by the REST server.  When the Schedule is started it will turn on the sprinkler every day as programmed.  The REST server will export the representations of the two resources and their current states.  It will also allow another server to control the sprinkler valve remotely. It must be started last because it will block the application so it will not exit.
 
@@ -254,7 +254,7 @@ The HTTP following verbs are implemented by restServer.py:
 - DELETE - not implemented
 
 ##### Data
-Data that is returned from a GET or specified in the body of a PUT is the JSON
+If an HTTP request is sent to port 7378 on a host that is running the REST server the data that is returned from a GET or specified in the body of a PUT is the JSON
 representation of the specified resource.
 
 ##### Service advertising
@@ -275,7 +275,7 @@ JSON representation of the state of the resource.
 
         {"type": "collection", "class": "Collection", "resources": ["gardenTemp", "gardenSprinkler"], "name": "resources"}
 
-    2. Return the attributes for the resource "shade1".  Note that the attributes
+    2. Return the attributes for the resource "gardenSprinkler".  Note that the attributes
        "state" or "stateChange" are not included.
 
         GET hostname:7378/resources/gardenSprinkler
@@ -284,7 +284,7 @@ JSON representation of the state of the resource.
         "location": null, "type": "", "class":
         "Control", "label": "Garden sprinkler"}
 
-    3. Return the current state of the resource "shade1".
+    3. Return the current state of the resource "gardenSprinkler".
 
         GET hostname:7378/resources/gardenSprinkler/state
 
