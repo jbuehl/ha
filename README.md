@@ -1,16 +1,31 @@
 # Buehltech Home Automation
 
-This project implements a system that allows sensing and control of various devices in a home.
+This project implements a system that enables sensing and control of various devices in a home.
 
 ### Overview
 
+Any device in the home that can be controlled electronically can be connected to a system that can manage that device and allow remote access. Examples of devices include such things as light fixtures, sprinkler valves, temperature sensors, door sensors, etc.  This project does not define specific hardware for these devices, but rather defines the software that allows any device to be interfaced to the system.
+
+At the lowest level, a template is defined that allows a hardware interface to be abstracted to a common API.  The server on which the software is running may physically connect to the device using any hardware interface such as GPIO pins, a serial port, or a network adapter.  An object model is defined that is implemented with an application running on that server that further abstracts the specific functions of the device.  Network protocols are defined that enable the server to advertise itself on the network and allow access to the devices that it is connected to. Other servers may implement human interfaces such as a web server.
+
+### Example
+
+A very simple example is a temperature sensor that may be in a room, outside the house, or immersed in a swimming pool.  All it does is to report the ambient temperature of the air or water it is in.  Let's consider a digital temperature sensor that uses the I2C hardware interface.  When a read command is sent to the address of the device it returns a byte that represents the temperature in degrees Celsius.  Two software objects defined by this project are required - a Sensor and an Interface.  The Sensor can be just the basic object because all it needs to do is to implement the getState() function that reads the state of the sensor from the interface it is associated with.  The Interface object must be specific to the I2C interface so it is a I2cInterface object that is derived from the basic object.  It can use the Python smbus library that performs all the low level I2C protocol functions to read a byte and implement the read() function.
+
+Another example is a sprinkler valve.  The state of the valve is either open or closed, and it is operated remotely from the network.  The voltage to the valve  is switched using a relay or semiconductor that is controlled by a GPIO pin on the controller.
+
 ### Design goals
 
+The design of the project targets the following goals.  Not all of them have been strictly met.
+
 - Distributed
-- Connected to the internet
+- Devices are discoverable
+- Connected to the network
 - Not dependent on the internet for critical functions
 - Secure
 - Not dependent on proprietary systems, interfaces, or devices
+- Devices are autonomous if possible
+- Not operating system specific
 
 ### Terminology
 
