@@ -10,7 +10,7 @@ At the lowest level, a template is defined that allows a hardware interface to b
 
 ### Example
 
-A simple example is a temperature sensor that may be in a room, outside the house, or immersed in a swimming pool.  All it does is to report the ambient temperature of the air or water it is in.  Let's consider a digital temperature sensor that uses the I2C hardware interface.  When a read command is sent to the address of the device it returns a byte that represents the temperature in degrees Celsius.  Two software objects defined by this project are required: a Sensor and an Interface.  The Sensor can be just the basic object because all it needs to do is to implement the getState() function that reads the state of the sensor from the interface it is associated with.  The Interface object must be specific to the I2C interface so it is a I2cInterface object that is derived from the basic object.  It can use the Python SMBus library that performs all the low level I2C protocol functions to read a byte and implement the read() function.
+A simple example is a temperature sensor that may be in a room, outside the house, or immersed in a swimming pool.  All it does is to report the ambient temperature of the air or water it is in.  Let's consider a digital temperature sensor that uses the I<sup>2</sup>C hardware interface.  When a read command is sent to the address of the device it returns a byte that represents the temperature in degrees Celsius.  Two software objects defined by this project are required: a Sensor and an Interface.  The Sensor can be just the basic object because all it needs to do is to implement the getState() function that reads the state of the sensor from the interface it is associated with.  The Interface object must be specific to the I<sup>2</sup>C interface so it is a I2CInterface object that is derived from the basic object.  It can use the Python SMBus library that performs all the low level I<sup>2</sup>C protocol functions to read a byte and implement the read() function.
 
 Another example is a sprinkler valve.  The state of the valve is either open or closed, and it is operated remotely from the network.  The voltage to the valve is switched using a relay or semiconductor that is controlled by a GPIO pin on the controller.  A Control object and an Interface object are needed to implement this.  The Control object inherits the getState() function from the Sensor object, but it also defines a setState() function that changes the state of the device.  The GPIOInterface object implements the read() and write() functions that get and set a GPIO pin.
 
@@ -164,13 +164,13 @@ specified times.
 
 The following sample application illustrates how a service may be implemented.  A temperature sensor and a sprinkler valve are configured as described in the earlier example.
 
-First, the I2C and GPIO Interface objects are defined.  The address of the temperature sensor is 0x4b on the I2C bus and the sprinkler valve is connected to GPIO pin 17 which is set to output mode.  Then the Sensor for the temperature and the Control for the sprinkler valve are defined.  Next, a Task is defined that will run the sprinkler every day at 6PM (18:00) for 10 minutes (600 seconds) every day during the months May through October.
+First, the I<sup>2</sup>C and GPIO Interface objects are defined.  The address of the temperature sensor is 0x4b on the I<sup>2</sup>C bus and the sprinkler valve is connected to GPIO pin 17 which is set to output mode.  Then the Sensor object for the temperature sensor and the Control object for the sprinkler valve are defined.  Next, a Task is defined that will run the sprinkler every day at 6PM (18:00) for 10 minutes (600 seconds) every day during the months May through October.
 
 Finally, the task is added to a Schedule object and the Sensor and Control are added to a Collection object that will be exported by the REST server.  When the Schedule is started it will turn on the sprinkler every day as programmed.  The REST server will export the representations of the two resources and their current states.  It will also allow another server to control the sprinkler valve remotely. It must be started last because it will block the application so it will not exit.
 
 ```
 from ha import *
-from ha.interfaces.i2cInterface import *
+from ha.interfaces.I2CInterface import *
 from ha.interfaces.gpioInterface import *
 from ha.rest.restServer import *
 
