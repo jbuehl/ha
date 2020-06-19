@@ -29,7 +29,6 @@ from jinja2 import Environment, FileSystemLoader
 from ha import *
 from ha.metrics import *
 from ha.eventMonitor import *
-from ha.interfaces.restInterface import *
 from ha.interfaces.timeInterface import *
 from ha.interfaces.fileInterface import *
 from ha.interfaces.osInterface import *
