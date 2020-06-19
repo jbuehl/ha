@@ -3,7 +3,7 @@
 
 from __future__ import print_function
 import sys
-from ha.interfaces.restInterface import *
+from ha.rest.restInterface import *
 
 # print out the resources in a branch of the tree
 def resBranch(path, level):
