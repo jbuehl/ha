@@ -224,8 +224,14 @@ root directory/
 		ui/
 			webUi.py - A human interface that aggregates all the servers and provides a web interface
 			webViews.py
-		services/
-			*App.service - The systemd service definitions
+	templates/
+		HTML templates
+	static/
+		css/
+		json/
+		images/
+	services/
+		*App.service - The systemd service definitions
 ```
 ### Access
 Services expose their HA objects in a REST interface that is implemented in
