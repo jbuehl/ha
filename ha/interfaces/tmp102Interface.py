@@ -3,7 +3,6 @@ from ha import *
 # TMP102 temp sensor
 
 class TMP102Interface(Interface):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface):
         Interface.__init__(self, name, interface)
 

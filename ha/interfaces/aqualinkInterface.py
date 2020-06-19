@@ -12,7 +12,6 @@ from functools import reduce
 # state of the pool and equipment
 ########################################################################################################
 class AqualinkInterface(Interface):
-    objectArgs = ["interface", "event"]
     # constructor
     def __init__(self, name, interface=None, event=None):
         Interface.__init__(self, name, interface=interface, event=event)

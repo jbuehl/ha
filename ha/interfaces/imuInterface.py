@@ -3,7 +3,6 @@ import math
 from ha import *
 
 class ImuInterface(Interface):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None):
         Interface.__init__(self, name, interface=interface, event=event)
 

@@ -23,7 +23,6 @@ def interruptCallback(pin, value=1):
 
 # Interface to GPIO via MCP23017 I2C I/O expander
 class MCP23017Interface(Interface):
-    objectArgs = ["interface", "event"]
     # MCP23017 I2C I/O expander
     IODIR = 0x00        # I/O direction
     IPOL = 0x02         # input polarity

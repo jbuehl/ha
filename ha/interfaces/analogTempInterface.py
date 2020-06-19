@@ -4,7 +4,6 @@ import threading
 # analog temp sensor
 
 class AnalogTempInterface(Interface):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface):
         Interface.__init__(self, name, interface)
         self.lock = threading.Lock()

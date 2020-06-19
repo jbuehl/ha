@@ -6,7 +6,6 @@ import subprocess
 from ha import *
 
 class AudioInterface(Interface):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, event=None):
         Interface.__init__(self, name, interface=interface, event=event)
 

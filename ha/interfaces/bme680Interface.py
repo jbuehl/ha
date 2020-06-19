@@ -10,7 +10,6 @@ from ha import *
 # BME-680 temperature, humidity, pressure, VOC sensor
 
 class BME680Interface(Interface):
-    objectArgs = ["interface", "event"]
     def __init__(self, name, interface=None, addr=0x77, event=None):
         Interface.__init__(self, name, interface, event=event)
         self.addr = addr
