@@ -8,6 +8,35 @@ Any device in the home that can be sensed or controlled electronically can be co
 
 At the lowest level, a template is defined that allows a hardware interface to be abstracted to a common API.  The server on which the software is running may physically connect to the device using any hardware interface such as GPIO pins, a serial port, or a network adapter.  An object model is defined that is implemented with an application running on that server that further abstracts the specific functions of the device.  Network protocols are defined that enable the server to advertise itself on the network and allow access to the devices that it is connected to. Other servers may implement human interfaces such as a web server.
 
+### Terminology
+
+First, let's define the terminology used in this project.
+
+##### HARDWARE
+These describe the physical hardware that the system is built from.
+
+- sensor - a device that has a state that can be read
+- control - a device whose state can be read and also changed
+- server - a device that may be connected to one or more sensors and communicates with one or more clients
+- client - a device that communicates with one or more servers
+- interface - the connection over which two devices communicate
+
+##### OBJECT MODEL
+These are the fundamental Python objects that are used to abstract the hardware the system.
+
+- Resource - the fundamental object
+- Sensor - a representation of a physical sensor
+- Control - a representation of a physical control
+- Interface - a representation of a physical interface
+- Collection - an ordered list of resources
+
+##### IMPLEMENTATION
+These terms describe the roles played by the software components in the system.
+
+- application - the implementation of a collection of resources and interfaces that runs on a server
+- service - an application that implements the server side of an interface to a client device or server device
+- client - an application that implements the client side of an interface to a server device
+
 ### Example
 
 A simple example is a temperature sensor that may be in a room, outside the house, or immersed in a swimming pool.  All it does is to report the ambient temperature of the air or water it is in.  Let's consider a digital temperature sensor that uses the I<sup>2</sup>C hardware interface.  When a read command is sent to the address of the device it returns a byte that represents the temperature in degrees Celsius.  Two software objects defined by this project are required: a Sensor and an Interface.  The Sensor can be just the basic object because all it needs to do is to implement the get state function that reads the state of the sensor from the interface it is associated with.  The Interface object must be specific to the I<sup>2</sup>C interface so it is a I2CInterface object that is derived from the basic object.  It can use the Python SMBus library that performs all the low level I<sup>2</sup>C protocol functions to read a byte and implement the read function.
@@ -44,31 +73,6 @@ There is no dependence on any operating system specific features.
 
 ##### Open source
 All code is open source.
-
-### Terminology
-
-Here is a definition of the terminology used in this project.
-
-##### PHYSICAL
-- sensor - a device that has a state that can be read
-- control - a device whose state can be read and also changed
-- server - a device that may be connected to one or more sensors and communicates with one or more clients
-- client - a device that communicates with one or more servers
-- interface - the connection over which two devices communicate
-
-##### OBJECT MODEL
-- Resource - the fundamental object
-- Sensor - a representation of a physical sensor
-- Control - a representation of a physical control
-- Interface - a representation of a physical interface
-- Collection - an ordered list of resources
-- Task - a specification of a control, a state, and a time
-- Schedule - a collection of tasks
-
-##### DEPLOYMENT
-- application - the implementation of a collection of resources and interfaces that runs on a server
-- service - an application that implements the server side of an interface to a client device or server device
-- client - an application that implements the client side of an interface to a server device
 
 ### Naming
 
