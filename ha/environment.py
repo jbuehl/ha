@@ -4,7 +4,7 @@ import os
 import socket
 
 # directory structure
-rootDir = os.path.dirname(os.path.realpath(__file__))+"/../../"
+rootDir = os.path.expanduser("~")+"/"
 configDir = rootDir+"conf/"
 keyDir = rootDir+"keys/"
 stateDir = rootDir+"state/"
@@ -17,7 +17,6 @@ hostname = socket.gethostname()
     # latLong = (0.0, 0.0)
     # elevation = 0 # elevation in feet
     # tempScale = "F"
-    # metricsServer = "metrics.example.com"
 
 # global variables that must be set here
 sysLogging = True
