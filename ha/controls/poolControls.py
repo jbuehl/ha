@@ -192,6 +192,9 @@ class LxgControl(MultiControl):
                  group=group, type=type, location=location, label=label, interrupt=interrupt)
         self.lightControl = lightControl
 
+    def getState(self):
+        return ""
+        
     def setState(self, state):
         debug('debugLxg', self.name, "setState", state)
         if self.lightControl.getState():    # light control must be on

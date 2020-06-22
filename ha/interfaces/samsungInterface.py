@@ -45,6 +45,9 @@ class SamsungInterface(Interface):
     def __init__(self, name, interface=None, event=None):
         Interface.__init__(self, name, interface=interface, event=event)
 
+    def read(self, addr):
+        return ""
+        
     def write(self, addr, value):
         debug('debugSamsung', self.name, "write", addr, value)
         try:
