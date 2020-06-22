@@ -21,7 +21,10 @@ spaStopping = 5     # pump reduced speed, heater off
 # valve positions
 valvePool = 0
 valveSpa = 1
+valveOff = 2
 valveMoving = 4
+
+poolValveTravelTime = 36
 
 class SpaControl(Control):
     def __init__(self, name, interface, valveControl, pumpControl, heaterControl, lightApp, tempSensor, tempTargetControl, addr=None,
@@ -200,3 +203,56 @@ class LxgControl(MultiControl):
                     self.lightControl.setState(1)
             except KeyError:
                 log(self.name, "unknown command", value)
+
+class ValveControl(Control):
+    def __init__(self, name, interface, valveControl, powerControl=None, addr=None, event=None,
+                    group="", type="control", location=None, label="", interrupt=None):
+        Control.__init__(self, name, interface=interface, addr=addr, event=event,
+                    group=group, type=type, location=location, label=label, interrupt=interrupt)
+        self.className = "Control"
+        self.valveControl = valveControl
+        self.powerControl = powerControl
+        self.currentState = valvePool
+        self.timer = None
+        self.lock = threading.Lock()
+
+    def getState(self):
+        return self.currentState
+
+    def setState(self, value):
+        debug('debugValves', self.name, "set", value)
+        travelTime = poolValveTravelTime
+        if value == self.currentState:
+            return                              # nothing to do
+        elif value == valveOff:
+            if self.currentState != valveMoving:
+                value = 1 - self.currentState           # move the opposite direction
+                travelTime = poolValveTravelTime / 2    # off position is halfway
+            else:
+                return                          # ignore this case
+        self.currentState = valveMoving
+        self.notify()
+        # cancel the timer if it is running
+        if self.timer:
+            self.timer.cancel()
+        with self.lock:
+            # start the motion
+            debug('debugValves', self.name, "motion", value)
+            self.valveControl.setState(value)
+            # enable power
+            if self.powerControl:
+                debug('debugValves', self.name, "power on")
+                self.powerControl.setState(1)
+        # clean up and set the final state when motion is finished
+        def doneMoving():
+            with self.lock:
+                # disable power
+                if self.powerControl:
+                    debug('debugValves', self.name, "power off")
+                    self.powerControl.setState(0)
+                self.currentState = value # done moving
+                self.notify()
+                debug('debugValves', self.name, "done", value)
+        debug('debugValves', self.name, "starting", travelTime)
+        self.timer = threading.Timer(travelTime, doneMoving)
+        self.timer.start()

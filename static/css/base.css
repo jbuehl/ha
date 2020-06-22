@@ -408,6 +408,10 @@ td {
     color: Lime;
     }
 
+.valveMode_Clean {
+    color: Yellow;
+    }
+
 .valveMode_Moving {
     color: Orange;
     }
