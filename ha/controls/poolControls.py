@@ -185,6 +185,8 @@ lxgColors = {"peruvian paradise": 1,
 		     "orange": 14,
 		     }
 
+lxgControlPeriod = .1
+
 class LxgControl(MultiControl):
     def __init__(self, name, interface, lightControl, addr=None, event=None,
                  group="", type="control", location=None, label="", interrupt=None):
@@ -194,15 +196,15 @@ class LxgControl(MultiControl):
 
     def getState(self):
         return ""
-        
+
     def setState(self, state):
         debug('debugLxg', self.name, "setState", state)
         if self.lightControl.getState():    # light control must be on
             try:
                 for i in range(lxgColors[state.lower()]):
-                    time.sleep(.1)
+                    time.sleep(lxgControlPeriod)
                     self.lightControl.setState(0)
-                    time.sleep(.1)
+                    time.sleep(lxgControlPeriod)
                     self.lightControl.setState(1)
             except KeyError:
                 log(self.name, "unknown command", value)
