@@ -24,7 +24,8 @@ valveSpa = 1
 valveOff = 2
 valveMoving = 4
 
-poolValveTravelTime = 36
+lxgControlPeriod = .1
+poolValveTravelTime = 34
 
 class SpaControl(Control):
     def __init__(self, name, interface, valveControl, pumpControl, heaterControl, lightApp, tempSensor, tempTargetControl, addr=None,
@@ -184,8 +185,6 @@ lxgColors = {"peruvian paradise": 1,
 		     "save": 13,
 		     "orange": 14,
 		     }
-
-lxgControlPeriod = .1
 
 class LxgControl(MultiControl):
     def __init__(self, name, interface, lightControl, addr=None, event=None,
