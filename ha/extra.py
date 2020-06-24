@@ -42,24 +42,33 @@ class SensorGroup(Sensor):
         return attrs
 
     def __str__(self):
-        msg = ""
-        for sensor in self.sensorList:
-            msg += sensor.__str__()+"\n"
-        return msg.rstrip("\n")
+        # msg = ""
+        # for sensor in self.sensorList:
+        #     msg += sensor.__str__()+"\n"
+        return "\n".join([sensor.__str__() for sensor in self.sensorList])
 
 # A set of Controls whose state can be changed together
 class ControlGroup(SensorGroup, Control):
-    def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False, interface=None, addr=None,
+    def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False, interface=None, addr=None, event=None,
                  group="", type="controlGroup", label="", location=None):
         SensorGroup.__init__(self, name, controlList, resources, interface, addr, group=group, type=type, label=label, location=location)
-        Control.__init__(self, name, interface, addr, group=group, type=type, label=label, location=location)
+        Control.__init__(self, name, interface, addr, group=group, event=event, type=type, label=label, location=location)
         self.stateMode = stateMode  # which state to return: False = SensorGroup, True = groupState
         self.groupState = 0
         if stateList == []:
             self.stateList = [[0,1]]*(len(self.sensorList))
         else:
             self.stateList = stateList
-        # self.className = "Control"
+
+    def getState(self):
+        if self.interface.name != "None":
+            # This is a cached resource
+            return Sensor.getState(self)
+        else:
+            if self.stateMode:
+                return self.groupState
+            else:
+                return SensorGroup.getState(self)
 
     def setState(self, state, wait=False):
         if self.interface.name != "None":
@@ -91,27 +100,46 @@ class ControlGroup(SensorGroup, Control):
             self.sceneThread.start()
             return True
 
-    def getState(self):
-        if self.interface.name != "None":
-            # This is a cached resource
-            return Sensor.getState(self)
-        else:
-            if self.stateMode:
-                return self.groupState
-            else:
-                return SensorGroup.getState(self)
-
     # dictionary of pertinent attributes
     def dict(self):
         attrs = Control.dict(self)
         attrs.update({"controlList": [sensor.__str__() for sensor in self.sensorList]})
         return attrs
 
-    def __str__(self):
-        msg = ""
+# A Control whose state depends on the states of a group of Sensors
+class SensorGroupControl(SensorGroup, Control):
+    def __init__(self, name, sensorList, control, resources=None, interface=None, addr=None, event=None,
+                 group="", type="sensorGroupControl", label="", location=None):
+        Control.__init__(self, name, interface, addr, event=event, group=group, type=type, label=label, location=location)
+        SensorGroup.__init__(self, name, sensorList, resources, interface, addr, group=group, type=type, label=label, location=location)
+        self.control = control
+
+    def getState(self):
+        if self.interface.name != "None":
+            # This is a cached resource
+            return Sensor.getState(self)
+        else:
+            return self.control.getState()
+
+    def setState(self, state):
+        # set the control on if any of the sensors is on
+        # set the control off only if all the sensors are off
+        controlState = state
         for sensor in self.sensorList:
-            msg += sensor.__str__()+"\n"
-        return msg.rstrip("\n")
+            controlState = controlState or sensor.getState()
+        if self.interface.name != "None":
+            # This is a cached resource
+            return Control.setState(self, controlState)
+        else:
+            debug("debugSensorGroupControl", self.name, "control:", self.control.name, "state:", state, "controlState:", controlState)
+            self.control.setState(controlState)
+
+    # dictionary of pertinent attributes
+    def dict(self):
+        attrs = Control.dict(self)
+        attrs.update({"sensorList": [sensor.__str__() for sensor in self.sensorList],
+                      "control": self.control.__str__()})
+        return attrs
 
 # Calculate a function of a list of sensor states
 class CalcSensor(Sensor):

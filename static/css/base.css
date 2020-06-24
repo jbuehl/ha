@@ -160,6 +160,14 @@ td {
 	color: Lime;
     }
 
+.sensorGroupControl_Off {
+	color: SlateGray;
+    }
+
+.sensorGroupControl_On {
+	color: Lime;
+    }
+
 .shade_Down {
 	color: SlateGray;
     }

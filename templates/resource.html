@@ -24,7 +24,7 @@
         </td>
         <!-- controls-->
         <td>
-            {% if resource.className in ["Control", "ControlGroup", "Task", "Sequence"] %}
+            {% if resource.className in ["Control", "ControlGroup", "SensorGroupControl", "Task", "Sequence"] %}
             <div class="control {% if dimmed %} dimmed {% endif %}" >
                 <form name='control' action='' method='get'>
                     <input type='hidden' name='resource' value='{{ resource.name }}' />
@@ -59,7 +59,7 @@
             {% if resource.className == "Task" %}
                 <div class=task>{{ resource.__str__().replace(",", "<br>") }}</div>
             {% endif %}
-            {% if resource.className in ["Sequence", "SensorGroup", "ControlGroup"] %}
+            {% if resource.className in ["Sequence", "SensorGroup", "ControlGroup", "SensorGroupControl"] %}
                 <div class=sequence>{{ resource.__str__().replace("\n", "<br>") }}</div>
             {% endif %}
             {% endif %}
