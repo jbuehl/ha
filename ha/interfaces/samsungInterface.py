@@ -23,9 +23,9 @@ keyCmds = {
     "chromecast": "KEY_AUTO_ARC_PIP_WIDE",      # HDMI2
     "chrome": "KEY_AUTO_ARC_PIP_WIDE",          # HDMI2
 
-    "iphone": "KEY_AUTO_ARC_PIP_RIGHT_BOTTOM",   # HDMI3
+    "iphone": "KEY_AUTO_ARC_PIP_RIGHT_BOTTOM",  # HDMI3
 
-    "hdmi4": "KEY_AUTO_ARC_AUTOCOLOR_FAIL",     # HDMI4
+    "hdmi": "KEY_AUTO_ARC_AUTOCOLOR_FAIL",      # HDMI4
 
     "component": "KEY_COMPONENT1",              # component
     "pc": "KEY_PCMODE",                         # VGA
@@ -47,7 +47,7 @@ class SamsungInterface(Interface):
 
     def read(self, addr):
         return ""
-        
+
     def write(self, addr, value):
         debug('debugSamsung', self.name, "write", addr, value)
         try:
