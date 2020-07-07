@@ -26,23 +26,39 @@ stateLock = filelock.FileLock(stateDir+stateFileName)
 """
 /system script
 add name=devices owner=admin policy=\
-    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":foreach lease in=[/i\
-    p dhcp-server lease find] do={:put \"\$[/ip dhcp-server lease get \$lease address] \$[/ip dhcp\
-    -server lease get \$lease mac-address] \$[/ip dhcp-server lease get \$lease host-name]\"}"
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
+    source=":foreach lease in=[/ip dhcp-server lease find] do={:put \"\
+        \$[/ip dhcp-server lease get \$lease address] \
+        \$[/ip dhcp-server lease get \$lease mac-address] \
+        \$[/ip dhcp-server lease get \$lease host-name]\
+    \"}"
 add name=static owner=admin policy=\
-    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":foreach static in=[/\
-    ip dns static find] do={:put \"\$[/ip dns static get \$static address] \$[/ip dns static get \
-    \$static name]\"}"
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
+    source=":foreach static in=[/ip dns static find] do={:put \"\
+        \$[/ip dns static get \$static address] \
+        \$[/ip dns static get \$static name]\
+    \"}"
     """
 
-# this script must be stored in each access point
+# these scripts must be stored in each access point
 """
 /system script
+add name=wlans owner=admin policy=\
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
+    source=":foreach wlan in=[/interface wireless find] do={:put \"\
+        \$[/interface wireless get \$wlan name]|\
+        \$[/interface wireless get \$wlan band]|\
+        \$[/interface wireless get \$wlan frequency]|\
+        \$[/interface wireless get \$wlan master-interface]|\
+        \$[/interface wireless get \$wlan ssid]\
+    \"}"
+/system script
 add name=clients owner=admin policy=\
-    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":foreach client in=[/\
-    interface wireless registration-table find] do={:put \"\$[/interface wireless registration-tab\
-    le get \$client mac-address] \$[/interface wireless registration-tab\
-    le get \$client signal-strength]\"}"
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
+    source=":foreach client in=[/interface wireless registration-table find] do={:put \"\
+        \$[/interface wireless registration-table get \$client mac-address] \
+        \$[/interface wireless registration-table get \$client signal-strength]\
+    \"}"
     """
 
 # convert bytes to GB
