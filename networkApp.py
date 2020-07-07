@@ -60,6 +60,7 @@ add name=clients owner=admin policy=\
         \$[/interface wireless registration-table get \$client signal-strength]\
     \"}"
     """
+#        \$[/interface wireless registration-table get \$client interface]\
 
 # convert bytes to GB
 def bytes2GB(bytes):
