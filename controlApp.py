@@ -1,5 +1,6 @@
 
-restWatch = []
+restWatch = ["garage", "holiday", "hvac", "backhouse", "pool",
+            "frontLights", "backLights", "garageBackDoorLight", "familyRoomLamp", "bedroomLight", "bathroomLight"]
 restIgnore = ["house", "power"]
 defaultConfig = {
 
@@ -43,6 +44,14 @@ if __name__ == "__main__":
     cacheResources = Collection("cacheResources")
     restCache = RestProxy("restProxy", cacheResources, watch=restWatch, ignore=restIgnore, event=stateChangeEvent)
     restCache.start()
+
+    # add local resources to cache resource list
+    cacheResources.addRes(garageLights)
+    cacheResources.addRes(deckLights)
+    cacheResources.addRes(trashLights)
+    cacheResources.addRes(backLights)
+    cacheResources.addRes(backHouseMusic)
+    cacheResources.addRes(xmasBeamLights)
 
     # light groups
     porchLights = ControlGroup("porchLights", ["frontLights",
