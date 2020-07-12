@@ -116,7 +116,7 @@ def getNetwork():
             try:
                 clients = subprocess.check_output("ssh admin@"+ap+" "+clientScript, shell=True).decode().split("\r\n")[0:-1]
                 for client in clients:
-                    (mac, signal) = client.split(" ")
+                    (mac, signal, interface) = client.split(" ")
                     clientAps[mac] = ap
                     clientSignals[mac] = signal[0:3]
             except subprocess.CalledProcessError:
@@ -183,7 +183,7 @@ def getNetwork():
                     mac = arps[ip].upper()
                     vendor = getVendor(mac)
                     deviceStats.append([ip, "S", mac, "--wired--", None, hostName, vendor])
-                except KeyError:    # ignore hosts that aren't on the network
+                except (KeyError, AttributeError):    # ignore hosts that aren't on the network
                     pass
 
         # DHCP hosts
