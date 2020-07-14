@@ -10,16 +10,17 @@ spaTempTargetMax = 102
 # HDR - Raspberry Pi header
 # BCM - Broadcom chip
 #
-# BRD HDR BCM
-# --- --- ---
-#  P0  11  17 poolCleaner
-#  P1  12  18 spaBlower
-#  P2  13  27 poolLight
-#  P3  15  22 spaLight
-#  P4  16  23 poolHeater
-#  P5  18  24 returnValve
-#  P6  22  25 intakeValve
-#  P7   7   4 1-wire
+#  BRD HDR BCM
+#  --- --- ---
+#   P0  11  17 poolCleaner
+#   P1  12  18 spaBlower
+#   P2  13  27 poolLight
+#   P3  15  22 spaLight
+#   P4  16  23 poolHeater
+#   P5  18  24 returnValve
+#   P6  22  25 intakeValve
+#   P7   7   4 lightPowerRelay
+# SCLK  23  11 1-wire
 
 import threading
 import time
@@ -47,7 +48,7 @@ if __name__ == "__main__":
 
     # Interfaces
     serialInterface = SerialInterface("serialInterface", device=pentairDevice, config=serialConfig, event=stateChangeEvent)
-    gpioInterface = GPIOInterface("gpioInterface", output=[17,18,27,22,23,24,25])
+    gpioInterface = GPIOInterface("gpioInterface", output=[4,17,18,22,23,24,25,27])
     w1Interface = W1Interface("w1Interface")
     pentairInterface = PentairInterface("pentairInterface", serialInterface)
     powerInterface = PowerInterface("powerInterface", None, event=stateChangeEvent)
@@ -60,13 +61,20 @@ if __name__ == "__main__":
                                 group="Pool", label="Spa temp set", type="tempFControl")
 
     # Lights
-    poolLight = Control("poolLight", gpioInterface, 27, type="light", group=["Pool", "Lights"], label="Pool light")
-    spaLight = Control("spaLight", gpioInterface, 22, type="light", group=["Pool", "Lights"], label="Spa light")
-    spaLightColor = LxgControl("spaLightColor", None, spaLight, group=["Pool", "Lights"], label="Spa light color")
+    lightPowerRelay = Control("lightPowerRelay", gpioInterface, 4, type="light", group=["Pool", "Lights"], label="Light power relay")
+    poolLightRelay = Control("poolLightRelay", gpioInterface, 27, type="light", group=["Pool", "Lights"], label="Pool light relay")
+    spaLightRelay = Control("spaLightRelay", gpioInterface, 22, type="light", group=["Pool", "Lights"], label="Spa light relay")
+    spaLightColor = LxgControl("spaLightColor", None, spaLightRelay, group=["Pool", "Lights"], label="Spa light color")
+    lightPower = SensorGroupControl("lightPower", [poolLightRelay, spaLightRelay], lightPowerRelay, event=stateChangeEvent,
+                                            group=["Pool", "Lights"], label="Pool light power")
+    poolLight = ControlGroup("poolLight", [poolLightRelay, lightPower], stateMode=True, event=stateChangeEvent,
+                                            group=["Pool", "Lights"], label="Pool light")
+    spaLight = ControlGroup("spaLight", [spaLightRelay, lightPower], stateMode=True, event=stateChangeEvent,
+                                            group=["Pool", "Lights"], label="Spa light")
     poolLights = ControlGroup("poolLights", [poolLight, spaLight], type="light", group=["Pool", "Lights"], label="Pool and spa")
 
     # Temperature
-    waterTemp = Sensor("waterTemp", w1Interface, "000006dbefc1", group=["Pool", "Temperature"], label="Water temp", type="tempF")
+    intakeTemp = Sensor("intakeTemp", w1Interface, "000006dbefc1", group=["Pool", "Temperature"], label="Intake temp", type="tempF")
     spaTemp = Sensor("spaTemp", w1Interface, "01145ee71174", group=["Pool", "Temperature"], label="Spa temp", type="tempF")
     poolTemp = Sensor("poolTemp", w1Interface, "01145f1aa84b", group=["Pool", "Temperature"], label="Pool temp", type="tempF")
 
@@ -86,8 +94,8 @@ if __name__ == "__main__":
                              type="valveMode", group="Pool", label="Valve mode")
 
     # Heater
-    poolHeater = Control("poolHeater", gpioInterface, 23, group="Pool", label="Pool heater")
-    heaterControl = TempControl("heaterControl", None, poolHeater, spaTemp, spaTempTarget, hysteresis=[1, 0], group="Pool", label="Heater control", type="tempControl")
+    poolHeaterRelay = Control("poolHeaterRelay", gpioInterface, 23, group="Pool", label="Pool heater relay")
+    poolHeater = TempControl("poolHeater", None, poolHeaterRelay, spaTemp, spaTempTarget, hysteresis=[1, 0], group="Pool", label="Pool heater", type="tempControl")
 
     # Controls
     spaFill = ControlGroup("spaFill", [valveMode, poolPump], stateList=[[0, 3], [0, 4]], stateMode=True, group="Pool", label="Spa fill")
@@ -99,7 +107,7 @@ if __name__ == "__main__":
     sunUp = Sensor("sunUp", timeInterface, "daylight")
     # spa light control that will only turn on if the sun is down
     spaLightNight = DependentControl("spaLightNight", None, spaLight, [(sunUp, "==", 0)])
-    spa = SpaControl("spa", None, valveMode, poolPump, heaterControl, spaLightNight, spaTemp, spaTempTarget, group="Pool", label="Spa", type="spa")
+    spa = SpaControl("spa", None, valveMode, poolPump, poolHeater, spaLightNight, spaTemp, spaTempTarget, group="Pool", label="Spa", type="spa")
     # spa light control that will only turn on if the sun is down and the spa is on
     spaLightNightSpa = DependentControl("spaLightNightSpa", None, spaLightNight, [(spa, "==", 1)])
 
@@ -127,16 +135,17 @@ if __name__ == "__main__":
     schedule = Schedule("schedule", [sundaySpaOnTask, sundaySpaOffTask, poolFilterTask, poolCleanerTask, flushSpaTask, spaLightOnSunsetTask])
 
     # Resources
-    resources = Collection("resources", [poolLight, spaLight, spaLightColor, poolLights,
-                                        waterTemp, poolTemp, spaTemp,
-                                        poolPump, poolCleaner, poolClean, intakeValve, returnValve,
-                                        valveMode, spaFill, spaFlush, spaDrain, poolHeater, spaBlower,
-                                        poolPumpSpeed, poolPumpFlow,
-                                        spa, spaTempTarget, heaterControl,
-                                        poolPumpPower, poolCleanerPower, spaBlowerPower, poolLightPower, spaLightPower,
-                                        filterSequence, cleanSequence, flushSequence,
-                                        poolFilterTask, poolCleanerTask, flushSpaTask,
-                                        ])
+    resources = Collection("resources", [poolLightRelay, spaLightRelay, spaLightColor, poolLights,lightPowerRelay,
+                                         poolLight, spaLight, lightPower,
+                                         intakeTemp, poolTemp, spaTemp,
+                                         poolPump, poolCleaner, poolClean, intakeValve, returnValve,
+                                         valveMode, spaFill, spaFlush, spaDrain, poolHeaterRelay, spaBlower,
+                                         poolPumpSpeed, poolPumpFlow,
+                                         spa, spaTempTarget, poolHeater,
+                                         poolPumpPower, poolCleanerPower, spaBlowerPower, poolLightPower, spaLightPower,
+                                         filterSequence, cleanSequence, flushSequence,
+                                         poolFilterTask, poolCleanerTask, flushSpaTask,
+                                         ])
     restServer = RestServer("pool", resources, event=stateChangeEvent, label="Pool")
 
     # Start interfaces
