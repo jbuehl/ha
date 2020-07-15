@@ -61,16 +61,16 @@ if __name__ == "__main__":
                                 group="Pool", label="Spa temp set", type="tempFControl")
 
     # Lights
-    lightPowerRelay = Control("lightPowerRelay", gpioInterface, 4, type="light", group=["Pool", "Lights"], label="Light power relay")
-    poolLightRelay = Control("poolLightRelay", gpioInterface, 27, type="light", group=["Pool", "Lights"], label="Pool light relay")
-    spaLightRelay = Control("spaLightRelay", gpioInterface, 22, type="light", group=["Pool", "Lights"], label="Spa light relay")
+    lightPowerRelay = Control("lightPowerRelay", gpioInterface, 4, group=["Pool", "Lights"], label="Light power relay")
+    poolLightRelay = Control("poolLightRelay", gpioInterface, 27, group=["Pool", "Lights"], label="Pool light relay")
+    spaLightRelay = Control("spaLightRelay", gpioInterface, 22, group=["Pool", "Lights"], label="Spa light relay")
     spaLightColor = LxgControl("spaLightColor", None, spaLightRelay, group=["Pool", "Lights"], label="Spa light color")
     lightPower = SensorGroupControl("lightPower", [poolLightRelay, spaLightRelay], lightPowerRelay, event=stateChangeEvent,
                                             group=["Pool", "Lights"], label="Pool light power")
     poolLight = ControlGroup("poolLight", [poolLightRelay, lightPower], stateMode=True, event=stateChangeEvent,
-                                            group=["Pool", "Lights"], label="Pool light")
+                                            type="light", group=["Pool", "Lights"], label="Pool light")
     spaLight = ControlGroup("spaLight", [spaLightRelay, lightPower], stateMode=True, event=stateChangeEvent,
-                                            group=["Pool", "Lights"], label="Spa light")
+                                            type="light", group=["Pool", "Lights"], label="Spa light")
     poolLights = ControlGroup("poolLights", [poolLight, spaLight], type="light", group=["Pool", "Lights"], label="Pool and spa")
 
     # Temperature
