@@ -47,28 +47,21 @@ def validatePassword(realm, username, password):
 
 voiceCommands = {
                 "bedroom cooling": "northCoolTempTarget",
-                "the bedroom cooling": "northCoolTempTarget",
                 "bedroom ac": "northCoolTempTarget",
-                "the bedroom ac": "northCoolTempTarget",
                 "bedroom heat": "northHeatTempTarget",
-                "the bedroom heat": "northHeatTempTarget",
                 "family room cooling": "southCoolTempTarget",
-                "the family room cooling": "southCoolTempTarget",
                 "family room ac": "southCoolTempTarget",
-                "the family room ac": "southCoolTempTarget",
                 "family room heat": "southHeatTempTarget",
-                "the family room heat": "southHeatTempTarget",
                 "back house cooling": "backCoolTempTarget",
-                "the back house cooling": "backCoolTempTarget",
                 "back house ac": "backCoolTempTarget",
-                "the back house ac": "backCoolTempTarget",
                 "back house heat": "backHeatTempTarget",
-                "the back house heat": "backHeatTempTarget",
+                "spa temperature": "spaTempTarget",
+                "hot tub temperature": "spaTempTarget",
                 }
 
 def translateVoice(phrase):
     try:
-        return voiceCommands[phrase.lower()]
+        return voiceCommands[phrase.lower().lstrip("the ")]
     except KeyError:
         return phrase
 
