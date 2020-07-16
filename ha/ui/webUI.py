@@ -45,6 +45,33 @@ def validatePassword(realm, username, password):
     debug('debugWebAuth', "validatePassword", "rejected")
     return False
 
+voiceCommands = {
+                "bedroom cooling": "northCoolTempTarget",
+                "the bedroom cooling": "northCoolTempTarget",
+                "bedroom ac": "northCoolTempTarget",
+                "the bedroom ac": "northCoolTempTarget",
+                "bedroom heat": "northHeatTempTarget",
+                "the bedroom heat": "northHeatTempTarget",
+                "family room cooling": "southCoolTempTarget",
+                "the family room cooling": "southCoolTempTarget",
+                "family room ac": "southCoolTempTarget",
+                "the family room ac": "southCoolTempTarget",
+                "family room heat": "southHeatTempTarget",
+                "the family room heat": "southHeatTempTarget",
+                "back house cooling": "backCoolTempTarget",
+                "the back house cooling": "backCoolTempTarget",
+                "back house ac": "backCoolTempTarget",
+                "the back house ac": "backCoolTempTarget",
+                "back house heat": "backHeatTempTarget",
+                "the back house heat": "backHeatTempTarget",
+                }
+
+def translateVoice(phrase):
+    try:
+        return voiceCommands[phrase.lower()]
+    except KeyError:
+        return phrase
+
 class WebRoot(object):
     def __init__(self, resources, cache, stateChangeEvent, pathDict):
         self.resources = resources
@@ -139,7 +166,7 @@ class WebRoot(object):
                 return reply
             else:
                 if state:
-                    views.setViewState(self.resources.getRes(resource), state.strip().capitalize())
+                    views.setViewState(self.resources.getRes(translateVoice(resource)), state.strip().capitalize())
                     time.sleep(1)   # hack
                 return json.dumps({"state": views.getViewState(self.resources.getRes(resource))})
         except:
