@@ -171,7 +171,7 @@ class SpaEventThread(threading.Thread):
 # ColorSplash LXG pool light control
 
 lxgColors = {"Peruvian paradise": 1,
-	         "Super nova": 2,
+	         "Supernova": 2,
 		     "Northern lights": 3,
 		     "Tidal wave": 4,
 		     "Patriot dream": 5,
