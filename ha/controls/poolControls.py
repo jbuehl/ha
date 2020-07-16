@@ -170,20 +170,20 @@ class SpaEventThread(threading.Thread):
 
 # ColorSplash LXG pool light control
 
-lxgColors = {"peruvian paradise": 1,
-	         "super nova": 2,
-		     "northern lights": 3,
-		     "tidal wave": 4,
-		     "patriot dream": 5,
-		     "desert skies": 6,
-		     "nova": 7,
-		     "blue": 8,
-		     "green": 9,
-		     "red": 10,
-		     "white": 11,
-		     "pink": 12,
-		     "save": 13,
-		     "orange": 14,
+lxgColors = {"Peruvian paradise": 1,
+	         "Super nova": 2,
+		     "Northern lights": 3,
+		     "Tidal wave": 4,
+		     "Patriot dream": 5,
+		     "Desert skies": 6,
+		     "Nova": 7,
+		     "Blue": 8,
+		     "Green": 9,
+		     "Red": 10,
+		     "White": 11,
+		     "Pink": 12,
+		     "Save": 13,
+		     "Orange": 14,
 		     }
 
 class LxgControl(MultiControl):
