@@ -200,13 +200,13 @@ class LxgControl(MultiControl):
         debug('debugLxg', self.name, "setState", state)
         if self.lightControl.getState():    # light control must be on
             try:
-                for i in range(lxgColors[state.lower()]):
+                for i in range(lxgColors[state]):
                     time.sleep(lxgControlPeriod)
                     self.lightControl.setState(0)
                     time.sleep(lxgControlPeriod)
                     self.lightControl.setState(1)
             except KeyError:
-                log(self.name, "unknown command", value)
+                log(self.name, "unknown command", state)
 
 class ValveControl(Control):
     def __init__(self, name, interface, valveControl, powerControl=None, addr=None, event=None,
