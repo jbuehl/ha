@@ -48,8 +48,9 @@ The /service/ resource contains attributes of the HA service.
 {"name": <service name>,
  "label": <service display name>}
 ```
-The /resources/ REST resource contains a JSON representation of the HA resource collection that
-the service is exposing.  It contains a list of the HA resource names in the collection.
+The /resources/ REST resource contains a JSON representation of the HA resource that
+the service is exposing.  It may be a single HA Resource but typically this is a
+HA Collection resource that contains a list of HA resource names.
 ```
 {"class": "Collection",
  "attrs": {"name": <resource collection name>,
@@ -110,7 +111,7 @@ name and the current state of the HA resources published by that service.
 
 	   Request:     GET sprinklers.local:7378/service
 
-	   Response:    {"name": "sprinklerservice",
+	   Response:    {"name": "sprinklerService",
                      "label": "Sprinklers"}
 
 3. Return the list of HA resources on the host sprinklers.local.
