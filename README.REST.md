@@ -54,7 +54,9 @@ REST resource paths are defined as follows:
 The /service/ resource contains attributes of the HA service.
 ```
 {"name": <service name>,
- "label": <service display name>}
+ "label": <service display name>,
+ "timestamp": <last update time of the resource states>,
+ "seq": <sequence number of the state update>}
 ```
 The /resources/ REST resource contains a JSON representation of the HA resource that
 the service is exposing.  It may be a single HA Resource but typically this is a
@@ -121,7 +123,9 @@ name and the current state of the HA resources published by that service.
 	   Request:     GET sprinklers.local:7378/service
 
 	   Response:    {"name": "sprinklerService",
-                     "label": "Sprinklers"}
+                     "label": "Sprinklers",
+                     "timestamp": 1595529166,
+                     "seq": 666}
 
 3. Return the list of HA resources on the host sprinklers.local.
 
@@ -178,5 +182,8 @@ name and the current state of the HA resources published by that service.
 	   that shows the current states of all resources in the service sprinklerService.
 
        Message:     {"service": {"name": "sprinklerService"},
+                                 "label": "Sprinklers",
+                                 "timestamp": 1595529456,
+                                 "seq": 667}
                      "states": {"gardenTemp": 28.0,
                                 "gardenSprinkler": 0}}
