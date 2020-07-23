@@ -79,38 +79,38 @@ name and the current state of the HA resources published by that service.
 ```
 
 ### Examples
-* Return the list of resources on the server sprinklers.local.
+* Return the list of resources on the host sprinklers.local.
 
-	   Request:		GET sprinklers.local:7378
+	   Request:     GET sprinklers.local:7378
 
-	   Response:	["service",
-	    			 "resources",
-					 "states"]
+	   Response:    ["service",
+                     "resources",
+                     "states"]
 
 * Return the attributes of the HA service on the host sprinklers.local.
 
-	   Request:		GET sprinklers.local:7378/service
+	   Request:     GET sprinklers.local:7378/service
 
-	   Response:	{"name": "sprinklerservice",
-	    			 "label": "Sprinklers"}
+	   Response:    {"name": "sprinklerservice",
+                     "label": "Sprinklers"}
 
-	3. Return the list of HA resources on the host sprinklers.local.
+* Return the list of HA resources on the host sprinklers.local.
 
-       Request:		GET sprinklers.local:7378/resources
+       Request:     GET sprinklers.local:7378/resources
 
-       Response:	{"class": "Collection",
-					 "attrs": {"name": "resources",
+       Response:    {"class": "Collection",
+                     "attrs": {"name": "resources",
 							   "type": "collection",
 							   "resources": ["gardenTemp",
 							                 "gardenSprinkler"]}}
 
-    4. Return the attributes for the resource "gardenSprinkler".  Note that the attributes
+* Return the attributes for the resource "gardenSprinkler".  Note that the attributes
        "state" is not included.
 
-       Request:		GET sprinklers.local:7378/resources/gardenSprinkler
+       Request:     GET sprinklers.local:7378/resources/gardenSprinkler
 
-	   Response:	{"class": "Control",
-					 "attrs": {"name": "gardenSprinkler",
+	   Response:    {"class": "Control",
+                     "attrs": {"name": "gardenSprinkler",
 					 		   "interface": "sprinklerInterface"
 					           "addr": 17,
 			        		   "location": null,
@@ -118,36 +118,36 @@ name and the current state of the HA resources published by that service.
 							   "group": "Sprinklers",
 							   "label": "Garden sprinkler"}}
 
-    5. Return the value of the attribute "addr" of the resource "gardenSprinkler".
+* Return the value of the attribute "addr" of the resource "gardenSprinkler".
 
-	   Request:		GET sprinklers.local:7378/resources/gardenSprinkler/addr
+	   Request:     GET sprinklers.local:7378/resources/gardenSprinkler/addr
 
-	   Response:	{"addr": 17}
+	   Response:    {"addr": 17}
 
-    6. Return the current state of the resource "gardenSprinkler".
+* Return the current state of the resource "gardenSprinkler".
 
-       Request:		GET sprinklers.local:7378/resources/gardenSprinkler/state
+       Request:     GET sprinklers.local:7378/resources/gardenSprinkler/state
 
-       Response:	{"state": 0}
+       Response:    {"state": 0}
 
-    7. Set the state of the resource "gardenSprinkler" to 1.  The request body contains
+* Set the state of the resource "gardenSprinkler" to 1.  The request body contains
 	   the requested state.  The response body returns the resulting state.
 
-       Request:		PUT sprinklers.local:7378/resources/gardenSprinkler/state
+       Request:     PUT sprinklers.local:7378/resources/gardenSprinkler/state
 	   				{"state": 1}
 
-       Response:	{"state": 1}
+       Response:    {"state": 1}
 
-    8. Return the current states of all resources on the specified host.
+* Return the current states of all resources on the specified host.
 
-       Request:		GET sprinklers.local:7378/states
+       Request:     GET sprinklers.local:7378/states
 
-       Response:	{"state": {"gardenTemp": 28.0,
+       Response:    {"state": {"gardenTemp": 28.0,
 				     		   "gardenSprinkler": 0}}
 
-	9. Unsolicited message that is broadcast periodically and whenever one of the states changes
+* Unsolicited message that is broadcast periodically and whenever one of the states changes
 	   that shows the current states of all resources in the service sprinklerService.
 
-       Message:		{"name": "sprinklerService",
-	   				 "state": {"gardenTemp": 28.0,
+       Message:     {"name": "sprinklerService",
+                     "state": {"gardenTemp": 28.0,
  				     		   "gardenSprinkler": 0}}
