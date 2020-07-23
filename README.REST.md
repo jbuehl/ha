@@ -48,18 +48,16 @@ The /service/ resource contains attributes of the HA service.
 {"name": <service name>,
  "label": <service display name>}
 ```
-The /resources/ REST resource contains a list of HA resources and their attributes.
-Every HA Sensor resource has an implied attribute "state" returns the current state of the sensor. It
-is not included in the list of attributes returned for the resource, however it may be queried
-in the same way as any other resource attribute.
+The /resources/ REST resource contains a JSON representation of the HA resource collection that
+the service is exposing.  It contains a list of the HA resource names in the collection.
 ```
 {"class": "Collection",
  "attrs": {"name": <resource collection name>,
            "type": "collection",
            "resources": [<resource 0 name>,
-		                 <resource 1 name>,
-						 ...,
-						 <resource N name>]}}
+                         <resource 1 name>,
+                         ...,
+                         <resource N name>]}}
 ```
 
 The /states/ resource contains a list of all the names and current states of the HA Sensor
@@ -74,6 +72,9 @@ resources in the service.
 ### Resource attributes
 If an HTTP request is sent to port 7378 on a host that is running the REST server the data that is
 returned from a GET is the JSON representation of the specified HA resource.
+Every HA Sensor resource has an implied attribute "state" that returns the current state of the sensor. It
+is not included in the list of attributes returned for the resource, however it may be queried
+in the same way as any other resource attribute.
 ```
 {"class": <class name>,
  "attrs": {<attr 0>: <value 0>,
