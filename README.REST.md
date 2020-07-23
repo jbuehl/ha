@@ -73,9 +73,9 @@ name and the current state of the HA resources published by that service.
 ```
 {"service": {"name": <service name>},
  "states": {<resource 0 name>: <resource 0 state>,
-           <resource 1 name>: <resource 1 state>,
-           ...,
-           <resource N name>: <resource N state>}}
+            <resource 1 name>: <resource 1 state>,
+            ...,
+            <resource N name>: <resource N state>}}
 ```
 
 ### Examples
@@ -134,7 +134,7 @@ name and the current state of the HA resources published by that service.
 	   the requested state.  The response body returns the resulting state.
 
        Request:     PUT sprinklers.local:7378/resources/gardenSprinkler/state
-	   				{"state": 1}
+                    {"state": 1}
 
        Response:    {"state": 1}
 
@@ -142,12 +142,12 @@ name and the current state of the HA resources published by that service.
 
        Request:     GET sprinklers.local:7378/states
 
-       Response:    {"state": {"gardenTemp": 28.0,
-                               "gardenSprinkler": 0}}
+       Response:    {"states": {"gardenTemp": 28.0,
+                                "gardenSprinkler": 0}}
 
 * Unsolicited message that is broadcast periodically and whenever one of the states changes
 	   that shows the current states of all resources in the service sprinklerService.
 
-       Message:     {"name": "sprinklerService",
-                     "state": {"gardenTemp": 28.0,
-                               "gardenSprinkler": 0}}
+       Message:     {"service": {"name": "sprinklerService"},
+                     "states": {"gardenTemp": 28.0,
+                                "gardenSprinkler": 0}}
