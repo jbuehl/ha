@@ -59,9 +59,9 @@ returned from a GET is the JSON representation of the specified HA resource.
 ```
 {"class": <class name>,
  "attrs": {<attr 0>: <value 0>,
-	       <attr 1>: <value 1>,
-	       ...,
-	       <attr N>: <value N>}}
+           <attr 1>: <value 1>,
+           ...,
+           <attr N>: <value N>}}
 ```
 
 ### State notifications
@@ -73,9 +73,9 @@ name and the current state of the HA resources published by that service.
 ```
 {"service": {"name": <service name>},
  "states": {<resource 0 name>: <resource 0 state>,
-	       <resource 1 name>: <resource 1 state>,
-	       ...,
-	       <resource N name>: <resource N state>}}
+           <resource 1 name>: <resource 1 state>,
+           ...,
+           <resource N name>: <resource N state>}}
 ```
 
 ### Examples
@@ -100,9 +100,9 @@ name and the current state of the HA resources published by that service.
 
        Response:    {"class": "Collection",
                      "attrs": {"name": "resources",
-							   "type": "collection",
-							   "resources": ["gardenTemp",
-							                 "gardenSprinkler"]}}
+                               "type": "collection",
+                               "resources": ["gardenTemp",
+                                             "gardenSprinkler"]}}
 
 * Return the attributes for the resource "gardenSprinkler".  Note that the attributes
        "state" is not included.
@@ -111,12 +111,12 @@ name and the current state of the HA resources published by that service.
 
 	   Response:    {"class": "Control",
                      "attrs": {"name": "gardenSprinkler",
-					 		   "interface": "sprinklerInterface"
-					           "addr": 17,
-			        		   "location": null,
-							   "type": "sprinkler",
-							   "group": "Sprinklers",
-							   "label": "Garden sprinkler"}}
+                               "interface": "sprinklerInterface"
+                               "addr": 17,
+                               "location": null,
+                               "type": "sprinkler",
+                               "group": "Sprinklers",
+                               "label": "Garden sprinkler"}}
 
 * Return the value of the attribute "addr" of the resource "gardenSprinkler".
 
@@ -143,11 +143,11 @@ name and the current state of the HA resources published by that service.
        Request:     GET sprinklers.local:7378/states
 
        Response:    {"state": {"gardenTemp": 28.0,
-				     		   "gardenSprinkler": 0}}
+                               "gardenSprinkler": 0}}
 
 * Unsolicited message that is broadcast periodically and whenever one of the states changes
 	   that shows the current states of all resources in the service sprinklerService.
 
        Message:     {"name": "sprinklerService",
                      "state": {"gardenTemp": 28.0,
- 				     		   "gardenSprinkler": 0}}
+                               "gardenSprinkler": 0}}
