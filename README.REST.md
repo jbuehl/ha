@@ -63,6 +63,7 @@ returned from a GET is the JSON representation of the specified HA resource.
 		   ...
 		   <attr N>: <value N>}}
 ```
+
 ### State notifications
 In addition to implementing the REST interface for client queries,
 the HA REST server sends a periodic message to port 4243 on either the IPV4 broadcast address of
@@ -76,6 +77,7 @@ name and the current state of the HA resources published by that service.
 		   ...
 		   <resource N name>: <resource N state>}}
 ```
+
 ### Examples
 	1. Return the list of resources on the server sprinklers.local.
 ```
@@ -85,6 +87,7 @@ name and the current state of the HA resources published by that service.
 	    			 "resources",
 					 "states"]
 ```
+
     2. Return the attributes of the HA service on the host sprinklers.local.
 
 	   Request:		GET sprinklers.local:7378/service
