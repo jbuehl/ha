@@ -94,7 +94,7 @@ name and the current state of the HA resources published by that service.
 	   Response:    {"name": "sprinklerservice",
                      "label": "Sprinklers"}
 
-* Return the list of HA resources on the host sprinklers.local.
+3. Return the list of HA resources on the host sprinklers.local.
 
        Request:     GET sprinklers.local:7378/resources
 
@@ -104,7 +104,7 @@ name and the current state of the HA resources published by that service.
                                "resources": ["gardenTemp",
                                              "gardenSprinkler"]}}
 
-* Return the attributes for the resource "gardenSprinkler".  Note that the attributes
+4. Return the attributes for the resource "gardenSprinkler".  Note that the attributes
        "state" is not included.
 
        Request:     GET sprinklers.local:7378/resources/gardenSprinkler
@@ -118,19 +118,19 @@ name and the current state of the HA resources published by that service.
                                "group": "Sprinklers",
                                "label": "Garden sprinkler"}}
 
-* Return the value of the attribute "addr" of the resource "gardenSprinkler".
+5. Return the value of the attribute "addr" of the resource "gardenSprinkler".
 
 	   Request:     GET sprinklers.local:7378/resources/gardenSprinkler/addr
 
 	   Response:    {"addr": 17}
 
-* Return the current state of the resource "gardenSprinkler".
+6. Return the current state of the resource "gardenSprinkler".
 
        Request:     GET sprinklers.local:7378/resources/gardenSprinkler/state
 
        Response:    {"state": 0}
 
-* Set the state of the resource "gardenSprinkler" to 1.  The request body contains
+7. Set the state of the resource "gardenSprinkler" to 1.  The request body contains
 	   the requested state.  The response body returns the resulting state.
 
        Request:     PUT sprinklers.local:7378/resources/gardenSprinkler/state
@@ -138,14 +138,14 @@ name and the current state of the HA resources published by that service.
 
        Response:    {"state": 1}
 
-* Return the current states of all resources on the specified host.
+8. Return the current states of all resources on the specified host.
 
        Request:     GET sprinklers.local:7378/states
 
        Response:    {"states": {"gardenTemp": 28.0,
                                 "gardenSprinkler": 0}}
 
-* Unsolicited message that is broadcast periodically and whenever one of the states changes
+9. Unsolicited message that is broadcast periodically and whenever one of the states changes
 	   that shows the current states of all resources in the service sprinklerService.
 
        Message:     {"service": {"name": "sprinklerService"},
