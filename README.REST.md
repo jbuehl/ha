@@ -79,7 +79,7 @@ name and the current state of the HA resources published by that service.
 ```
 
 ### Examples
-\1. Return the list of resources on the host sprinklers.local.
+1. Return the list of resources on the host sprinklers.local.
 
 	   Request:     GET sprinklers.local:7378
 
@@ -87,7 +87,7 @@ name and the current state of the HA resources published by that service.
                      "resources",
                      "states"]
 
-\2. Return the attributes of the HA service on the host sprinklers.local.
+2. Return the attributes of the HA service on the host sprinklers.local.
 
 	   Request:     GET sprinklers.local:7378/service
 
