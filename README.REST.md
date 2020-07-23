@@ -1,9 +1,17 @@
-# Buehltech Home Automation
+# Buehltech Home Automation REST interface
 
 ### Overview
 HA applications can expose their HA resources in a REST interface that is implemented in
 ha/rest/restServer.py in the RestServer object. This allows a client application to access
 HA objects on other servers.
+
+### Terminology
+
+* server - hardware that is running one or more HA applications
+* hostname - the unique name for a server on the local network
+* HA service - the implementation of the HA REST interface on a server
+* HA resource - a HA object implemented within a HA application
+* REST resource - an identifier in a the HTTP path that corresponds to a HA resource
 
 ### Service advertising
 The HA REST server uses Zeroconf to advertise itself on the local network.  The message contains the service type, port,
@@ -86,9 +94,10 @@ in the same way as any other resource attribute.
 
 ### State notifications
 In addition to implementing the REST interface for client queries,
-the HA REST server sends a periodic message to port 4243 on either the IPV4 broadcast address of
+an HA REST server may send an unsolicited message to port 4243 on either the IPV4 broadcast address of
 the local network or a multicast group to advertise the current state of its HA resources.  This is usually sent
-when the state of a resource changes.  The message contains the JSON representation of the service
+when the state of a resource changes and may be sent periodically to indicate that the service is active.  
+The message contains the JSON representation of the service
 name and the current state of the HA resources published by that service.
 ```
 {"service": {"name": <service name>},
