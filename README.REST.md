@@ -44,14 +44,32 @@ REST resource paths are defined as follows:
 		resource n state/
 ```
 The /service/ resource contains attributes of the HA service.
-
+```
+{"name": <service name>,
+ "label": <service display name>}
+```
 The /resources/ REST resource contains a list of HA resources and their attributes.
 Every HA Sensor resource has an implied attribute "state" returns the current state of the sensor. It
 is not included in the list of attributes returned for the resource, however it may be queried
 in the same way as any other resource attribute.
+```
+{"class": "Collection",
+ "attrs": {"name": <resource collection name>,
+           "type": "collection",
+           "resources": [<resource 0 name>,
+		                 <resource 1 name>,
+						 ...,
+						 <resource N name>]}}
+```
 
 The /states/ resource contains a list of all the names and current states of the HA Sensor
 resources in the service.
+```
+{"states": {<resource 0 name>: <resource 0 state>,
+            <resource 1 name>: <resource 1 state>,
+            ...,
+            <resource N name>: <resource N state>}}
+```
 
 ### Resource attributes
 If an HTTP request is sent to port 7378 on a host that is running the REST server the data that is
@@ -104,7 +122,7 @@ name and the current state of the HA resources published by that service.
                                "resources": ["gardenTemp",
                                              "gardenSprinkler"]}}
 
-4. Return the attributes for the resource "gardenSprinkler".  Note that the attributes
+4. Return the attributes for the resource "gardenSprinkler".  Note that the attribute
        "state" is not included.
 
        Request:     GET sprinklers.local:7378/resources/gardenSprinkler
