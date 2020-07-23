@@ -69,22 +69,22 @@ the HA REST server sends a periodic message to port 4243 on either the IPV4 broa
 the local network or a multicast group to advertise the current state of its HA resources.  This is usually sent
 when the state of a resource changes.  The message contains the JSON representation of the service
 name and the current state of the HA resources published by that service.
-
+```
 {"service": {"name": <service name>},
  "states": {<resource 0 name>: <resource 0 state>,
 	       <resource 1 name>: <resource 1 state>,
 		   ...
 		   <resource N name>: <resource N state>}}
-
+```
 ### Examples
 	1. Return the list of resources on the server sprinklers.local.
-
+```
 	   Request:		GET sprinklers.local:7378
 
 	   Response:	["service",
 	    			 "resources",
 					 "states"]
-
+```
     2. Return the attributes of the HA service on the host sprinklers.local.
 
 	   Request:		GET sprinklers.local:7378/service
