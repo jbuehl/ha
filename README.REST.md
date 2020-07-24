@@ -1,12 +1,18 @@
 # Buehltech Home Automation REST interface
 
 ### Overview
-HA applications can expose their HA resources in a REST interface that is implemented in
-ha/rest/restServer.py in the RestServer object. This allows a client application to access
+HA applications can expose their HA resources via an interface that is implemented in
+ha/rest/restServer.py. This allows a client application to access
 HA objects on other servers.
 
-### Terminology
+### Requirements
+* enables distributability
+* client-server model
+* autodiscovery of LAN services
+* stateless servers
+* transport level security
 
+### Terminology
 * server - hardware that is running one or more HA applications
 * hostname - the unique name for a server on the local network
 * HA service - the implementation of the HA REST interface on a server
@@ -28,8 +34,8 @@ same host they will use different ports.
 The HTTP following verbs are implemented by restServer.py:
 - GET - return the value of the specified HA resource
 - PUT - set the specified HA resource attribute to the specified value
-- POST - not implemented
-- DELETE - not implemented
+- POST - create a new HA resource (not implemented)
+- DELETE - delete the specified HA resource (not implemented)
 
 ### Resource paths
 REST resource paths are defined as follows:
@@ -110,6 +116,10 @@ name and the current state of the HA resources published by that service.
 ```
 
 ### Examples
+Examples 1-5 show messages that are used for discovery of the configuration of resources.  Examples 6-7 show
+messages that get the current state of resources.  Example 8 shows changing the state of a resource.  Example 9
+shows the notification of state changes of resources.
+
 1. Return the list of resources on the host sprinklers.local.
 
 	   Request:     GET sprinklers.local:7378
@@ -163,7 +173,14 @@ name and the current state of the HA resources published by that service.
 
        Response:    {"state": 0}
 
-7. Set the state of the resource "gardenSprinkler" to 1.  The request body contains
+7. Return the current states of all resources on the host sprinklers.local.
+
+       Request:     GET sprinklers.local:7378/states
+
+       Response:    {"states": {"gardenTemp": 28.0,
+                                "gardenSprinkler": 0}}
+
+8. Set the state of the resource "gardenSprinkler" to 1.  The request body contains
 	   the requested state.  The response body returns the resulting state.
 
        Request:     PUT sprinklers.local:7378/resources/gardenSprinkler/state
@@ -171,19 +188,12 @@ name and the current state of the HA resources published by that service.
 
        Response:    {"state": 1}
 
-8. Return the current states of all resources on the specified host.
-
-       Request:     GET sprinklers.local:7378/states
-
-       Response:    {"states": {"gardenTemp": 28.0,
-                                "gardenSprinkler": 0}}
-
 9. Unsolicited message that is broadcast periodically and whenever one of the states changes
 	   that shows the current states of all resources in the service sprinklerService.
 
-       Message:     {"service": {"name": "sprinklerService"},
+       Message:     {"service": {"name": "sprinklerService",
                                  "label": "Sprinklers",
                                  "timestamp": 1595529456,
-                                 "seq": 667}
+                                 "seq": 667},
                      "states": {"gardenTemp": 28.0,
                                 "gardenSprinkler": 0}}
