@@ -46,7 +46,7 @@ def loadResource(jsonStr, localDict={}):
 
 # Base class for Resources
 class Resource(object):
-    def __init__(self, name, persistence=None, defaultAttrs={}):
+    def __init__(self, name):
         try:
             if self.name:   # init has already been called for this object
                 return
@@ -54,14 +54,6 @@ class Resource(object):
             self.name = name
             debug('debugObject', self.__class__.__name__, self.name, "created")
             self.className = self.__class__.__name__    # hack for web templates - FIXME
-        # optional state persistence interface
-        if persistence:
-            self.persistence = persistence
-            self.defaultAttrs = defaultAttrs
-            try:
-                self.__dict__.update(defaultAttrs.update(self.persistence.read(self.name)))
-            except:
-                pass
 
     def __str__(self):
         return self.name
