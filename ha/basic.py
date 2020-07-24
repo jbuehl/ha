@@ -36,6 +36,14 @@ def normalState(value):
     elif value == False: return Off
     else: return value
 
+# create a Resource from a JSON serialization
+def loadResource(jsonStr, localDict={}):
+    classDict = json.loads(jsonStr)
+    del(classDict["args"]["class"])
+    classDict["args"]["interface"] = None
+    exec("resource = "+classDict["class"]+"("+", ".join('%s=%r' % x for x in classDict["args"].items())+")", globals(), localDict)
+    return localDict["resource"]
+
 # Base class for Resources
 class Resource(object):
     def __init__(self, name, persistence=None, defaultAttrs={}):
@@ -57,6 +65,10 @@ class Resource(object):
 
     def __str__(self):
         return self.name
+
+    def dump(self):
+        return json.dumps({"class": self.__class__.__name__,
+                           "args": self.dict()})
 
 # Base class for Interfaces
 class Interface(Resource):
