@@ -37,7 +37,7 @@ def todaysDate():
 # A Cycle describes the process of setting a Control to a specified state, waiting a specified length of time,
 # and setting the Control to another state.  This may be preceded by an optional delay.
 # If the duration is zero, then the end state is not set and the Control is left in the start state.
-class Cycle(object):
+class Cycle(Object):
     def __init__(self, control=None, duration=0, delay=0, startState=1, endState=0, name=None):
         self.control = control
         self.duration = duration
@@ -52,6 +52,11 @@ class Cycle(object):
                 "delay": self.delay,
                 "startState": self.startState,
                 "endState": self.endState}
+
+    # # dump the resource attributes to a serializable dictionary
+    # def dump(self):
+    #     return {"class": self.__class__.__name__,
+    #             "args": self.dict()}
 
     def __str__(self):
         return self.control.__str__()+","+self.duration.__str__()+","+self.delay.__str__()+","+self.startState.__str__()+","+self.endState.__str__()
@@ -81,13 +86,13 @@ class Sequence(Control):
         return cycleList
 
     def getState(self):
-        if self.interface.name == "None":
+        if not self.interface:
             return normalState(self.running)
         else:
             return Control.getState(self)
 
     def setState(self, state, wait=False):
-        if self.interface.name == "None":
+        if not self.interface:
             debug('debugState', self.name, "setState ", state, wait)
             if state and not(self.running):
                 self.runCycles(wait)
@@ -163,7 +168,7 @@ class Sequence(Control):
     # dictionary of pertinent attributes
     def dict(self):
         attrs = Sensor.dict(self)
-        attrs.update({"cycleList": [cycle.dict() for cycle in self.cycleList]})
+        attrs.update({"cycleList": [cycle.dump() for cycle in self.cycleList]})
         return attrs
 
     def __str__(self):
@@ -308,13 +313,13 @@ class Task(Control):
         self.enabled = normalState(enabled)
 
     def getState(self):
-        if self.interface.name == "None":
+        if not self.interface:
             return self.enabled
         else:
             return Control.getState(self)
 
     def setState(self, theValue):
-        if self.interface.name == "None":
+        if not self.interface:
             self.enabled = theValue
             return True
         else:
@@ -344,10 +349,10 @@ class Task(Control):
         attrs = Control.dict(self)
         attrs.update({"control": controlName,
                       "controlState": self.controlState,
-                      "schedTime": self.schedTime.dict()})
+                      "schedTime": self.schedTime.dump()})
         if self.endTime:
             attrs.update({"endState": self.endState,
-                          "endTime": self.endTime.dict()})
+                          "endTime": self.endTime.dump()})
         return attrs
 
     def __str__(self, views=None):
@@ -374,7 +379,7 @@ class Task(Control):
 # Relative dates of "today" or "tomorrow" and events of "sunrise" or "sunset" may also be specified.
 # If an event and a time (hours, minutes) are specified, the time is considered to be a delta from the event
 # and may contain negative values.
-class SchedTime(object):
+class SchedTime(Object):
     def __init__(self, year=[], month=[], day=[], hour=[], minute=[], weekday=[], date="", event="", name=""):
         self.year = listize(year)
         self.month = listize(month)
@@ -447,6 +452,11 @@ class SchedTime(object):
                 "minute":self.minute,
                 "weekday":self.weekday,
                 "event":self.event}
+
+    # # dump the resource attributes to a serializable dictionary
+    # def dump(self):
+    #     return {"class": self.__class__.__name__,
+    #             "args": self.dict()}
 
     # return string version of weekdays
     def weekdays(self):

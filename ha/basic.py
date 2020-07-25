@@ -36,16 +36,39 @@ def normalState(value):
     elif value == False: return Off
     else: return value
 
-# create a Resource from a JSON serialization
-def loadResource(jsonStr, localDict={}):
-    classDict = json.loads(jsonStr)
-    del(classDict["args"]["class"])
-    classDict["args"]["interface"] = None
-    exec("resource = "+classDict["class"]+"("+", ".join('%s=%r' % x for x in classDict["args"].items())+")", globals(), localDict)
+# create a Resource from a serialized string
+def loadResource(classDict, localDict={}):
+    # classDict = json.loads(jsonStr)
+    # del(classDict["args"]["class"])
+    # classDict["args"]["interface"] = None
+    def parseClass(jsonStr):
+        classDict = json.loads(jsonStr)
+        args = classDict["args"]
+        argStr = ""
+        for arg in list(args.keys()):
+            print("- "+arg)
+            argStr += arg+"="
+            if isinstance(args[arg], dict):     # argument is a class
+                argStr += parseClass(args[arg])+", "
+            elif isinstance(args[arg], str):  # arg is a string
+                argStr += "'"+args[arg]+"', "
+            else:                                   # arg is numeric or other
+                argStr += str(args[arg])+", "
+            print(argStr)
+        return classDict["class"]+"("+argStr[:-2]+")"
+
+    exec("resource = "+parseClass(classDict), globals(), localDict)
     return localDict["resource"]
 
+# Base class for everything
+class Object(object):
+    # dump the resource attributes to a serialized string
+    def dump(self):
+        return json.dumps({"class": self.__class__.__name__,
+                "args": self.dict()})
+
 # Base class for Resources
-class Resource(object):
+class Resource(Object):
     def __init__(self, name):
         try:
             if self.name:   # init has already been called for this object
@@ -57,10 +80,6 @@ class Resource(object):
 
     def __str__(self):
         return self.name
-
-    def dump(self):
-        return json.dumps({"class": self.__class__.__name__,
-                           "args": self.dict()})
 
 # Base class for Interfaces
 class Interface(Resource):
@@ -89,8 +108,11 @@ class Interface(Resource):
     def read(self, addr):
         return None
 
-    def write(self, addr, theValue):
+    def write(self, addr, value):
         return True
+
+    def dump(self):
+        return None
 
     def addSensor(self, sensor):
         debug('debugObject', self.__class__.__name__, self.name, "addSensor", sensor.name)
@@ -142,7 +164,7 @@ class Collection(Resource, OrderedDict):
             return self.__getitem__(name)
         except KeyError:
             if dummy:
-                return Sensor(name, Interface("None"))
+                return Sensor(name) #, Interface("None"))
             else:
                 raise
 
@@ -168,7 +190,7 @@ class Collection(Resource, OrderedDict):
 
     # dictionary of pertinent attributes
     def dict(self):
-        return {"class":self.__class__.__name__,
+        return { #"class":self.__class__.__name__,
                 "name":self.name,
                 "type": self.type,
                 "resources":list(self.keys())}
@@ -177,25 +199,26 @@ class Collection(Resource, OrderedDict):
 # The state is associated with a unique address on an interface.
 # Sensors can also optionally be associated with a group and a physical location.
 class Sensor(Resource):
-    def __init__(self, name, interface=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None, event=None):
+    def __init__(self, name, interface=None, addr=None, group="", type="sensor", location=None, label=None, interrupt=None, event=None):
         Resource.__init__(self, name)
         try:
             if self.type:   # init has already been called for this object
                 return
         except AttributeError:
             self.type = type
-            if interface == None:
-                self.interface = Interface("None", event=event)
-            else:
-                self.interface = interface
+            # if interface == None:
+            #     self.interface = Interface("None", event=event)
+            # else:
+            #     self.interface = interface
+            self.interface = interface
             self.addr = addr
-            if self.addr == None:
-                self.addr = self.name
+            # if self.addr == None:
+            #     self.addr = self.name
             self.group = group
-            if label == "":
-                self.label = self.name
-            else:
+            if label:
                 self.label = label
+            else:
+                self.label = self.name.capitalize()
             self.location = location
             if self.interface:
                 self.interface.addSensor(self)
@@ -257,18 +280,18 @@ class Sensor(Resource):
 
     # dictionary of pertinent attributes
     def dict(self):
-        return {"class":self.className, # FIXME __class__.__name__,
+        return {#"class":self.className, # FIXME __class__.__name__,
                 "name":self.name,
                 "type":self.type,
                 "label":self.label,
-                "interface":self.interface.name,
-                "addr":self.addr.__str__(),
+                "interface":(self.interface.name if self.interface else None),
+                "addr":self.addr, #.__str__(),
                 "group":self.group,
                 "location":self.location}
 
 # A Control is a Sensor whose state can be set
 class Control(Sensor):
-    def __init__(self, name, interface, addr=None, group="", type="control", location=None, label="", interrupt=None, event=None):
+    def __init__(self, name, interface=None, addr=None, group="", type="control", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.running = False
 

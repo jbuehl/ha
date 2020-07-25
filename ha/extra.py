@@ -11,7 +11,7 @@ class SensorGroup(Sensor):
         # self.className = "Sensor"
 
     def getState(self):
-        if self.interface.name != "None":
+        if self.interface:
             # This is a cached resource
             return Sensor.getState(self)
         else:
@@ -38,7 +38,8 @@ class SensorGroup(Sensor):
     # dictionary of pertinent attributes
     def dict(self):
         attrs = Sensor.dict(self)
-        attrs.update({"sensorList": [sensor.name for sensor in self.sensorList]})
+        # attrs.update({"sensorList": [sensor.name for sensor in self.sensorList]})
+        attrs.update({"sensorList": [sensor.__str__() for sensor in self.sensorList]})
         return attrs
 
     def __str__(self):
@@ -58,7 +59,7 @@ class ControlGroup(SensorGroup, Control):
             self.stateList = stateList
 
     def getState(self):
-        if self.interface.name != "None":
+        if self.interface:
             # This is a cached resource
             return Sensor.getState(self)
         else:
@@ -68,7 +69,7 @@ class ControlGroup(SensorGroup, Control):
                 return SensorGroup.getState(self)
 
     def setState(self, state, wait=False):
-        if self.interface.name != "None":
+        if self.interface:
             # This is a cached resource
             return Control.setState(self, state)
         else:
@@ -100,7 +101,8 @@ class ControlGroup(SensorGroup, Control):
     # dictionary of pertinent attributes
     def dict(self):
         attrs = Control.dict(self)
-        attrs.update({"controlList": [sensor.name for sensor in self.sensorList]})
+        # attrs.update({"controlList": [sensor.name for sensor in self.sensorList]})
+        attrs.update({"controlList": [sensor.__str__() for sensor in self.sensorList]})
         return attrs
 
 # A Control whose state depends on the states of a group of Sensors
@@ -112,7 +114,7 @@ class SensorGroupControl(SensorGroup, Control):
         self.control = control
 
     def getState(self):
-        if self.interface.name != "None":
+        if self.interface:
             # This is a cached resource
             return Sensor.getState(self)
         else:
@@ -124,7 +126,7 @@ class SensorGroupControl(SensorGroup, Control):
         controlState = state
         for sensor in self.sensorList:
             controlState = controlState or sensor.getState()
-        if self.interface.name != "None":
+        if self.interface:
             # This is a cached resource
             return Control.setState(self, controlState)
         else:
@@ -134,8 +136,10 @@ class SensorGroupControl(SensorGroup, Control):
     # dictionary of pertinent attributes
     def dict(self):
         attrs = Control.dict(self)
-        attrs.update({"sensorList": [sensor.name for sensor in self.sensorList],
-                      "control": self.control.name})
+        # attrs.update({"sensorList": [sensor.name for sensor in self.sensorList],
+        #               "control": self.control.name})
+        attrs.update({"sensorList": [sensor.__str__() for sensor in self.sensorList],
+                      "control": self.control.__str__()})
         return attrs
 
 # Calculate a function of a list of sensor states
