@@ -206,7 +206,7 @@ views = ViewDict(  {"none": View(),
          "task": View({0:"Disabled", 1:"Enabled"}, "%s", None, {0:"Dis", 1:"Ena"}),
          "tv": View({}, "%s", None, OrderedDict([("off", "Off"), ("mute", "Mute"), ("roku", "Roku"),
                                                  ("chrome", "Chrome"), ("iphone", "iPhone"),
-                                                 ("hdmi4", "HDMI4"), ("broadcast", "Bcast"),
+                                                 ("hdmi", "HDMI"), ("broadcast", "Bcast"),
                                                  ("component", "Comp"), ("pc", "PC")]))
     })
 
