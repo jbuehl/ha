@@ -13,19 +13,22 @@ import ssl
 import time
 import struct
 
-def openBroadcastSocket():
-    broadcastSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    broadcastSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    broadcastSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    return broadcastSocket
+def openSocket():
+    theSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    theSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    if multicast:
+        theSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
+                struct.pack("4sl", socket.inet_aton(multicastGroup), socket.INADDR_ANY))
+    else:
+        theSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    return theSocket
 
 # RESTful web services server interface
 class RestServer(object):
-    def __init__(self, name, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label="", stateChange=True):
+    def __init__(self, name, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label="", stateChange=False):
         debug('debugRestServer', name, "creating RestServer")
         self.name = name
         self.resources = resources
-        self.event = event
         self.hostname = socket.gethostname()
         self.port = port
         self.beacon = beacon
@@ -43,19 +46,14 @@ class RestServer(object):
         else:
             self.restAddr = "<broadcast>"
         self.beaconSocket = None
-        self.heartbeatSocket = None
+        self.stateSocket = None
+        self.stateSequence = 0
+        self.stateResource = None
 
     def start(self):
         debug('debugRestServer', self.name, "starting RestServer")
         # start the beacon to advertise this service
         if self.beacon:
-            self.beaconSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            self.beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            if multicast:
-                self.beaconSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
-                        struct.pack("4sl", socket.inet_aton(multicastGroup), socket.INADDR_ANY))
-            else:
-                self.beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
             self.timeStamp = time.time()
             def beacon():
                 debug('debugRestServer', self.name, "REST beacon started")
@@ -63,7 +61,7 @@ class RestServer(object):
                 while True:
                     debug('debugRestBeacon', self.name, "REST beacon")
                     if not self.beaconSocket:
-                        self.beaconSocket = openBroadcastSocket()
+                        self.beaconSocket = openSocket()
                     try:
                         self.beaconSocket.sendto(bytes(json.dumps({"hostname": self.hostname,
                                                              "port": self.port,
@@ -82,49 +80,58 @@ class RestServer(object):
             beaconThread = threading.Thread(target=beacon)
             beaconThread.start()
 
-        # start the heartbeat to periodically send the state of all resources
+        # locate the state resource
+        try:
+            self.stateResource = self.resources.getRes("states", dummy=False)
+        except:
+            debug('debugRestHeartbeat', self.name, "created resource state sensor")
+            self.stateResource = ResourceStateSensor("states", None, resources=self.resources, event=self.event)
+            self.resources.addRes(self.stateResource)
+
+        # start the thread to send the state of all resources when one changes
+        if self.event:
+            def stateNotify():
+                debug('debugRestServer', self.name, "REST state started")
+                while True:
+                    debug('debugRestState', self.name, "REST state")
+                    self.sendStateMessage()
+                    self.event.wait()
+                    self.event.clear()
+            stateNotifyThread = threading.Thread(target=stateNotify)
+            stateNotifyThread.start()
+
+        # start the heartbeat thread to periodically send the state of all resources
         if self.heartbeat:
-            debug('debugRestServer', self.name, "REST heartbeat started")
-            # thread to periodically send states as keepalive message
-            self.heartbeatSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            self.heartbeatSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            if multicast:
-                self.heartbeatSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
-                        struct.pack("4sl", socket.inet_aton(multicastGroup), socket.INADDR_ANY))
-            else:
-                self.heartbeatSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-            try:
-                stateResource = self.resources.getRes("states", dummy=False)
-            except:
-                debug('debugRestHeartbeat', self.name, "created resource state sensor")
-                stateResource = ResourceStateSensor("states", None, resources=self.resources, event=self.event)
-                self.resources.addRes(stateResource)
             def heartbeat():
-                stateSequence = 0
+                debug('debugRestServer', self.name, "REST heartbeat started")
                 while True:
                     debug('debugRestHeartbeat', self.name, "REST heartbeat")
-                    if not self.heartbeatSocket:
-                        self.heartbeatSocket = openBroadcastSocket()
-                    try:
-                        self.heartbeatSocket.sendto(bytes(json.dumps({"state": stateResource.states,
-                                                                "hostname": self.hostname,
-                                                                "port": self.port,
-                                                                "seq": stateSequence}), "utf-8"),
-                                                            (self.restAddr, restStatePort))
-                        if self.event:
-                            # set the state event so the stateChange request returns
-                            debug('debugInterrupt', self.name, "heartbeat", "set", self.event)
-                            self.event.set()
-                    except socket.error as exception:
-                        log("socket error", str(exception))
-                        self.heartbeatSocket = None
-                    stateSequence += 1
+                    self.sendStateMessage()
                     time.sleep(restHeartbeatInterval)
             heartbeatThread = threading.Thread(target=heartbeat)
             heartbeatThread.start()
 
         # start the HTTP server
         self.server.serve_forever()
+
+    def sendStateMessage(self):
+        if not self.stateSocket:
+            self.stateSocket = openSocket()
+        try:
+            self.stateSocket.sendto(bytes(json.dumps({"state": self.stateResource.states,
+                                                    "hostname": self.hostname,
+                                                    "port": self.port,
+                                                    "seq": self.stateSequence}), "utf-8"),
+                                                (self.restAddr, restStatePort))
+            if (self.event) and (self.stateChange):
+                # set the state event so the stateChange request returns
+                debug('debugInterrupt', self.name, "heartbeat", "set", self.event)
+                self.event.set()
+        except socket.error as exception:
+            log("socket error", str(exception))
+            self.stateSocket = None
+        self.stateSequence += 1
+
 
 class RestHTTPServer(ThreadingMixIn, HTTPServer):
     def __init__(self, server_address, RequestHandlerClass, resources):
