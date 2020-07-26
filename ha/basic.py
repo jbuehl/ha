@@ -135,7 +135,7 @@ class Interface(Resource):
 # - delete collection
 
 class Collection(Resource, OrderedDict):
-    def __init__(self, name, resources=[], aliases={}):
+    def __init__(self, name, resources=[], aliases={}, type=None):
         Resource.__init__(self, name)
         OrderedDict.__init__(self)
         self.type = "collection"
@@ -147,7 +147,7 @@ class Collection(Resource, OrderedDict):
 
     # Add a resource to the table
     def addRes(self, resource):
-        self.__setitem__(resource.name, resource)
+        self.__setitem__(str(resource), resource)
 
     # Delete a resource from the table
     def delRes(self, name):

@@ -105,13 +105,11 @@ class RestServiceProxy(Sensor):
         node = interface.readRest(path)
         self.loadResource(resources, interface, node, path)
         try:
-            if "resources" in list(node["args"].keys()):
-                # the node is a collection
+            if "resources" in list(node["args"].keys()):    # the node is a collection
                 for resource in node["args"]["resources"]:
                     self.loadPath(resources, interface, path+"/"+resource)
-        except KeyError:
-            if "resources" in list(node.keys()):
-                # the node is a collection
+        except KeyError:    # old resource dict
+            if "resources" in list(node.keys()):    # the node is a collection
                 for resource in node["resources"]:
                     self.loadPath(resources, interface, path+"/"+resource)
 
