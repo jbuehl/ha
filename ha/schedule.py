@@ -58,7 +58,7 @@ class Cycle(Object):
     #     return {"class": self.__class__.__name__,
     #             "args": self.dict()}
 
-    def __str__(self):
+    def __repr__(self):
         return self.control.__str__()+","+self.duration.__str__()+","+self.delay.__str__()+","+self.startState.__str__()+","+self.endState.__str__()
 
 # a Sequence is a Control that consists of a list of Cycles or Sequences that are run in the specified order
@@ -171,7 +171,7 @@ class Sequence(Control):
         attrs.update({"cycleList": [cycle.dump() for cycle in self.cycleList]})
         return attrs
 
-    def __str__(self):
+    def __repr__(self):
         msg = ""
         for cycle in self.cycleList:
             msg += cycle.__str__()+"\n"
@@ -355,7 +355,7 @@ class Task(Control):
                           "endTime": self.endTime.dump()})
         return attrs
 
-    def __str__(self, views=None):
+    def __repr__(self, views=None):
         try:
             if self.resources:      # control is resource name - FIXME - test list element type
                 control = self.resources[self.control]
@@ -498,7 +498,7 @@ class SchedTime(Object):
                     newEvents += [event+delim+format%elem]
         return newEvents
 
-    def __str__(self):
+    def __repr__(self):
         events = self.enumTimes()
         msg = ""
         for event in events:

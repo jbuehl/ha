@@ -42,7 +42,7 @@ class SensorGroup(Sensor):
         attrs.update({"sensorList": [sensor.__str__() for sensor in self.sensorList]})
         return attrs
 
-    def __str__(self):
+    def __repr__(self):
         return "\n".join([sensor.__str__() for sensor in self.sensorList])
 
 # A set of Controls whose state can be changed together

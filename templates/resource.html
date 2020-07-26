@@ -57,10 +57,10 @@
             {% endif %}
             {% if details %}
             {% if resource.className == "Task" %}
-                <div class=task>{{ resource.__str__().replace(",", "<br>") }}</div>
+                <div class=task>{{ resource.__repr__().replace(",", "<br>") }}</div>
             {% endif %}
             {% if resource.className in ["Sequence", "SensorGroup", "ControlGroup", "SensorGroupControl"] %}
-                <div class=sequence>{{ resource.__str__().replace("\n", "<br>") }}</div>
+                <div class=sequence>{{ resource.__repr__().replace("\n", "<br>") }}</div>
             {% endif %}
             {% endif %}
         </td>
