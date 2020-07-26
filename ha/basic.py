@@ -36,36 +36,32 @@ def normalState(value):
     elif value == False: return Off
     else: return value
 
-# create a Resource from a serialized string
-def loadResource(classDict, localDict={}):
-    # classDict = json.loads(jsonStr)
-    # del(classDict["args"]["class"])
-    # classDict["args"]["interface"] = None
-    def parseClass(jsonStr):
-        classDict = json.loads(jsonStr)
+# create a Resource from a serialized dict
+def loadResource(classDict, globalDict):
+    def parseClass(classDict):
         args = classDict["args"]
         argStr = ""
         for arg in list(args.keys()):
-            print("- "+arg)
             argStr += arg+"="
             if isinstance(args[arg], dict):     # argument is a class
                 argStr += parseClass(args[arg])+", "
-            elif isinstance(args[arg], str):  # arg is a string
+            elif isinstance(args[arg], str):    # arg is a string
                 argStr += "'"+args[arg]+"', "
-            else:                                   # arg is numeric or other
+            elif not arg:                       # arg is None
+                argStr += "None"
+            else:                               # arg is numeric or other
                 argStr += str(args[arg])+", "
-            print(argStr)
         return classDict["class"]+"("+argStr[:-2]+")"
-
-    exec("resource = "+parseClass(classDict), globals(), localDict)
+    localDict = {}
+    exec("resource = "+parseClass(classDict), globalDict, localDict)
     return localDict["resource"]
 
 # Base class for everything
 class Object(object):
-    # dump the resource attributes to a serialized string
+    # dump the resource attributes to a serialized dict
     def dump(self):
-        return json.dumps({"class": self.__class__.__name__,
-                "args": self.dict()})
+        return {"class": self.__class__.__name__,
+                "args": self.dict()}
 
 # Base class for Resources
 class Resource(Object):
@@ -232,7 +228,7 @@ class Sensor(Resource):
 
     # Return the state of the sensor by reading the value from the address on the interface.
     def getState(self):
-        return normalState(self.interface.read(self.addr))
+        return (normalState(self.interface.read(self.addr)) if self.interface else None)
 
     # Return the last state of the sensor that was read from the address on the interface.
     def getLastState(self):
@@ -240,7 +236,7 @@ class Sensor(Resource):
 
     # return the data type of the state
     def getStateType(self):
-        return self.interface.getStateType(self)
+        return (self.interface.getStateType(self) if self.interface else None)
 
     # Wait for the state of the sensor to change if an interrupt routine was specified
     def getStateChange(self):

@@ -104,10 +104,16 @@ class RestServiceProxy(Sensor):
         debug('debugLoadResources', self.name, "loadPath", "path:", path)
         node = interface.readRest(path)
         self.loadResource(resources, interface, node, path)
-        if "resources" in list(node.keys()):
-            # the node is a collection
-            for resource in node["resources"]:
-                self.loadPath(resources, interface, path+"/"+resource)
+        try:
+            if "resources" in list(node["args"].keys()):
+                # the node is a collection
+                for resource in node["args"]["resources"]:
+                    self.loadPath(resources, interface, path+"/"+resource)
+        except KeyError:
+            if "resources" in list(node.keys()):
+                # the node is a collection
+                for resource in node["resources"]:
+                    self.loadPath(resources, interface, path+"/"+resource)
 
     # instantiate the resource from the specified node
     def loadResource(self, resources, interface, node, path):
@@ -115,42 +121,50 @@ class RestServiceProxy(Sensor):
         try:
             # ignore certain resource types
             if node["class"] not in ["Collection", "HACollection", "Schedule", "ResourceStateSensor", "RestServiceProxy"]:
-                # override attributes with alias attributes if specified for the resource
                 try:
-                    aliasAttrs = resources.aliases[node["name"]]
-                    debug('debugLoadResources', self.name, "loadResource", node["name"], "found alias")
-                    for attr in list(aliasAttrs.keys()):
-                        node[attr] = aliasAttrs[attr]
-                        debug('debugLoadResources', self.name, "loadResource", node["name"], "attr:", attr, "value:", aliasAttrs[attr])
-                except KeyError:
-                    debug('debugLoadResources', self.name, "loadResource", node["name"], "no alias")
-                    pass
-                # assemble the argument string
-                argStr = ""
-                for arg in list(node.keys()):
-                    if arg == "class":
-                        className = node[arg]
-                    elif arg == "interface":                # use the REST interface
-                        argStr += "interface=interface, "
-                    elif arg == "addr":                     # addr is REST path
-                        argStr += "addr='"+path+"/state', "
-                    elif arg in ["schedTime", "endTime"]:                # FIXME - need to generalize this for any class
-                        argStr += arg+"=SchedTime(**"+str(node[arg])+"), "
-                    elif arg == "cycleList":                # FIXME - need to generalize this for any class
-                        argStr += "cycleList=["
-                        for cycle in node["cycleList"]:
-                            argStr += "Cycle(**"+str(cycle)+"), "
-                        argStr += "], "
-                    elif isinstance(node[arg], str) or isinstance(node[arg], str):  # arg is a string
-                        argStr += arg+"='"+node[arg]+"', "
-                    else:                                   # arg is numeric or other
-                        argStr += arg+"="+str(node[arg])+", "
-                debug("debugLoadResources", "creating", className+"("+argStr[:-2]+")")
-                localDict = {"interface": interface}
-                # log("resource = "+className+"("+argStr[:-2]+")")
-                exec("resource = "+className+"("+argStr[:-2]+")", globals(), localDict)
-                resources.addRes(localDict["resource"])
+                    node["args"]["interface"] = None
+                    resource = loadResource(node, globals())
+                    resource.interface = interface
+                    resource.interface.addSensor(resource)
+                    resource.addr = path+"/state"
+                    resources.addRes(resource)
+                except KeyError:    # old resource dict
+                    # override attributes with alias attributes if specified for the resource
+                    try:
+                        aliasAttrs = resources.aliases[node["name"]]
+                        debug('debugLoadResources', self.name, "loadResource", node["name"], "found alias")
+                        for attr in list(aliasAttrs.keys()):
+                            node[attr] = aliasAttrs[attr]
+                            debug('debugLoadResources', self.name, "loadResource", node["name"], "attr:", attr, "value:", aliasAttrs[attr])
+                    except KeyError:
+                        debug('debugLoadResources', self.name, "loadResource", node["name"], "no alias")
+                        pass
+                    # assemble the argument string
+                    argStr = ""
+                    for arg in list(node.keys()):
+                        if arg == "class":
+                            className = node[arg]
+                        elif arg == "interface":                # use the REST interface
+                            argStr += "interface=interface, "
+                        elif arg == "addr":                     # addr is REST path
+                            argStr += "addr='"+path+"/state', "
+                        elif arg in ["schedTime", "endTime"]:                # FIXME - need to generalize this for any class
+                            argStr += arg+"=SchedTime(**"+str(node[arg])+"), "
+                        elif arg == "cycleList":                # FIXME - need to generalize this for any class
+                            argStr += "cycleList=["
+                            for cycle in node["cycleList"]:
+                                argStr += "Cycle(**"+str(cycle)+"), "
+                            argStr += "], "
+                        elif isinstance(node[arg], str) or isinstance(node[arg], str):  # arg is a string
+                            argStr += arg+"='"+node[arg]+"', "
+                        else:                                   # arg is numeric or other
+                            argStr += arg+"="+str(node[arg])+", "
+                    debug("debugLoadResources", "creating", className+"("+argStr[:-2]+")")
+                    localDict = {"interface": interface}
+                    exec("resource = "+className+"("+argStr[:-2]+")", globals(), localDict)
+                    resources.addRes(localDict["resource"])
         except Exception as exception:
+            raise
             log(self.name, "loadResource", interface.name, "exception", str(node), path, str(exception))
             try:
                 if debugExceptions:

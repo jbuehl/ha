@@ -160,13 +160,14 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                 else:
                     contentType = "application/json"
                     try:
-                        data = json.dumps(resource.dict())
+                        data = json.dumps(resource.dump())
                     except Exception as exception:
                         debug('debugRestException', "restServer", self.path, str(exception))
                         data = "{}"
                         self.send_error(500)
                 self.send_header("Content-type", contentType)
                 self.end_headers()
+                debug('debugRestGet', "data:", data)
                 self.wfile.write(bytes(data, "utf-8"))
             else:
                 self.send_error(404)     # resource not found
