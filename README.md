@@ -22,9 +22,10 @@ These describe the physical hardware that the system is built from.
 - interface - the connection over which two devices communicate
 
 ##### OBJECT MODEL
-These are the fundamental Python objects that are used to abstract the hardware the system.
+These are the core Python classes that are used to describe the system.
 
-- Resource - the fundamental object
+- Object - the base class for everything
+- Resource - base class for resources
 - Sensor - a representation of a physical sensor
 - Control - a representation of a physical control
 - Interface - a representation of a physical interface
@@ -84,15 +85,16 @@ Every resource has an associated state.  A resource state is a single scalar num
 
 ### Object model
 
-The object model is defined by the following basic classes:
+The object model is defined by the following core classes:
 
-	+ class Resource(object):
-	    - class Interface(Resource):
-	    + class Sensor(Resource):
-	        - class Control(Sensor):
-	    + class Collection(Resource, OrderedDict):
+	+ class Object(object):
+		+ class Resource(Object):
+		    - class Interface(Resource):
+		    + class Sensor(Resource):
+		        - class Control(Sensor):
+		    + class Collection(Resource, OrderedDict):
 
-Other generally useful classes are inherited from the basic classes:
+Other generally useful classes are inherited from the core classes:
 
 	+ class SensorGroup(Sensor):
 		- class ControlGroup(SensorGroup, Control):
@@ -107,16 +109,16 @@ Other generally useful classes are inherited from the basic classes:
 	- class AccumSensor(Sensor):
 	- class AttributeSensor(Sensor):
 
-These classes are inherited from the basic classes and implement time based functions:
+These classes are inherited from the core classes and implement time based functions:
 
 	- class Schedule(Collection):
-    - class Cycle(object):
+    - class Cycle(Object):
 	- class Sequence(Control):
 	- class Task(Control):
-    - class SchedTime(object):
+    - class SchedTime(Object):
 
 ##### Resource
-The base class for most HA objects.
+The base class for HA resources.
 
     - name
 
@@ -237,92 +239,3 @@ root directory/
 	services/
 		*App.service - The systemd service definitions
 ```
-### Access
-Services expose their HA objects in a REST interface that is implemented in
-ha/rest/restServer.py. The RestInterface object allows a client application to access HA objects on other servers.
-
-##### Resource paths
-Paths are defined by the organization of collections that the implementing program
-has  passed to the REST server.  A path consists of one of more Collection names,
-optionally  followed by a Sensor name, optionally followed by an Sensor
-attribute name.
-
-The Sensor attribute "state" returns the current state of the sensor.  The
-attribute "stateChange" waits and returns the state of a sensor when the state
-changes.
-
-Each REST service resource collection includes an extra resource named "states" whose "state" attribute
-consists of a dictionary of all the current states of the Sensors in the collection.  It
-also has an attribute called "stateChange" that waits for at least one of the resource
-states to change and returns the states of all the resources.
-
-##### Verbs
-The HTTP following verbs are implemented by restServer.py:
-- GET - return the value of the specified resource
-- PUT - set the specified resource attribute to the specified value
-- POST - not implemented
-- DELETE - not implemented
-
-##### Data
-If an HTTP request is sent to port 7378 on a host that is running the REST server the data that is returned from a GET or specified in the body of a PUT is the JSON
-representation of the specified resource.
-
-##### Service advertising
-The HA REST server sends a periodic message to port 4242 on either the IPV4 broadcast address of
-the local network or a multicast group to advertise itself.  The message contains the hostname, port,
-and resource collection that is served.
-
-##### State notifications
-The HA REST server sends a periodic message to port 4243 on either the IPV4 broadcast address of
-the local network or a multicast group to advertise the current state of its resources.  This is usually sent
-when the state of the resource changes.  The message contains the
-JSON representation of the state of the resource.
-
-##### Examples
-    1. Return the list of resources on the specified server.
-
-        GET hostname:7378/resources
-
-        {"type": "collection", "class": "Collection", "resources": ["gardenTemp", "gardenSprinkler"], "name": "resources"}
-
-    2. Return the attributes for the resource "gardenSprinkler".  Note that the attributes
-       "state" or "stateChange" are not included.
-
-        GET hostname:7378/resources/gardenSprinkler
-
-        {"addr": 17, "group": "", "name": "gardenSprinkler",
-        "location": null, "type": "", "class":
-        "Control", "label": "Garden sprinkler"}
-
-    3. Return the current state of the resource "gardenSprinkler".
-
-        GET hostname:7378/resources/gardenSprinkler/state
-
-        {"state": 0}
-
-    4. Set the state of the resource "gardenSprinkler" to 1.
-
-        PUT hostname:7378/resources/gardenSprinkler/state
-
-        {"state": 1}
-
-    5. Return the state of the resource "gardenTemp" when the state changes.  This will
-       block and wait indefinitely until the state changes.
-
-        GET hostname:7378/resources/gardenTemp/stateChange
-
-        {"stateChange": 27.48}
-
-    6. Return the current states of all resources on the specified host.
-
-        GET hostname:7378/resources/states/state
-
-        {"state": {"gardenTemp": 28.0, "gardenSprinkler": 0}}
-
-    7. Return the state of the current states of all resources on the specified host
-       when a state changes.  This will block and wait indefinitely until at least one
-       state changes.
-
-        GET hostname:7378/resources/states/stateChange
-
-        {"stateChange": {"gardenTemp": 28.0, "gardenSprinkler": 1}}
