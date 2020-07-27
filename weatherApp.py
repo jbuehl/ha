@@ -30,7 +30,7 @@ if __name__ == "__main__":
     i2c1 = I2CInterface("i2c1", bus=1)
     gpio1 = GPIOInterface("gpio1", input=[windSpeedAddr, windDirAddr, rainGaugeAddr])
     stateInterface = FileInterface("fileInterface", fileName=stateDir+"weather.state", event=stateChangeEvent, initialState=defaultConfig)
-    weatherInterface = BME680Interface("weatherInterface")
+    weatherInterface = BME680Interface("weatherInterface", event=stateChangeEvent)
     # weatherCache = TempInterface("weatherCache", weatherInterface, sample=10)
 
     # Sensors
@@ -45,12 +45,12 @@ if __name__ == "__main__":
 
     anemometer = Sensor("anemometer", gpio1, addr=windSpeedAddr)
     windVane = Sensor("windVane", gpio1, addr=windDirAddr)
-    windInterface = WindInterface("windInterface", None, anemometer=anemometer, windVane=windVane)
+    windInterface = WindInterface("windInterface", None, anemometer=anemometer, windVane=windVane, event=stateChangeEvent)
     windSpeed = Sensor("windSpeed", windInterface, addr="speed", type="MPH", group="Weather", label="Wind speed")
     windDir = Sensor("windDir", windInterface, addr="dir", type="Deg", group="Weather", label="Wind direction")
 
     rainGauge = Sensor("rainGauge", gpio1, addr=rainGaugeAddr)
-    rainInterface = RainInterface("rainInterface", stateInterface, rainGauge=rainGauge)
+    rainInterface = RainInterface("rainInterface", stateInterface, rainGauge=rainGauge, event=stateChangeEvent)
     rainMinute = Sensor("rainMinute", rainInterface, "minute", type="in", group="Weather", label="Rain per minute")
     rainHour = Sensor("rainHour", rainInterface, "hour", type="in", group="Weather", label="Rain last hour")
     rainDay = Sensor("rainDay", rainInterface, "today", type="in", group="Weather", label="Rain today")
@@ -70,7 +70,7 @@ if __name__ == "__main__":
                                                    minTemp, maxTemp,
                                                    rainResetTask, resetMinTempTask, resetMaxTempTask,
                                                    ])
-    restServer = RestServer("weather", resources, label="Weather")
+    restServer = RestServer("weather", resources, label="Weather", event=stateChangeEvent)
 
     # report to Weather Underground
     if wunderground:
