@@ -54,4 +54,4 @@ class BME680Interface(Interface):
             else:
                 value = 0
         debug('debugBME680', self.name, addr, value)
-        return value
+        return round(value, 2)
