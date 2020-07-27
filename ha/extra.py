@@ -356,14 +356,15 @@ class MinSensor(Sensor):
             self.minState = 999
 
     def getState(self):
-        if self.interface:
+        if self.interface and (self.interface.__class__.__name__ == "RestInterface"):
             self.minState = self.interface.read(self.addr)
-        sensorState = self.sensor.getState()
-        if sensorState < self.minState:
-            if sensorState != 0:    # FIXME
-                self.minState = sensorState
-                if self.interface:
-                    self.interface.write(self.addr, self.minState)
+        else:
+            sensorState = self.sensor.getState()
+            if sensorState < self.minState:
+                if sensorState != 0:    # FIXME
+                    self.minState = sensorState
+                    if self.interface:
+                        self.interface.write(self.addr, self.minState)
         return self.minState
 
     # reset the min value
@@ -371,6 +372,12 @@ class MinSensor(Sensor):
         self.minState = value
         if self.interface:
             self.interface.write(self.addr, self.minState)
+
+    # dictionary of pertinent attributes
+    def dict(self):
+        attrs = Control.dict(self)
+        attrs.update({"sensor": str(self.sensor)})
+        return attrs
 
 # Sensor that captures the maximum state value of the specified sensor
 class MaxSensor(Sensor):
@@ -384,13 +391,14 @@ class MaxSensor(Sensor):
             self.maxState = 0
 
     def getState(self):
-        if self.interface:
+        if self.interface and (self.interface.__class__.__name__ == "RestInterface"):
             self.maxState = self.interface.read(self.addr)
-        sensorState = self.sensor.getState()
-        if sensorState > self.maxState:
-            self.maxState = sensorState
-            if self.interface:
-                self.interface.write(self.addr, self.maxState)
+        else:
+            sensorState = self.sensor.getState()
+            if sensorState > self.maxState:
+                self.maxState = sensorState
+                if self.interface:
+                    self.interface.write(self.addr, self.maxState)
         return self.maxState
 
     # reset the max value
@@ -398,6 +406,12 @@ class MaxSensor(Sensor):
         self.maxState = value
         if self.interface:
             self.interface.write(self.addr, self.maxState)
+
+    # dictionary of pertinent attributes
+    def dict(self):
+        attrs = Control.dict(self)
+        attrs.update({"sensor": str(self.sensor)})
+        return attrs
 
 # Sensor that captures the accumulated state values of the specified sensor
 class AccumSensor(Sensor):
