@@ -356,15 +356,17 @@ class MinSensor(Sensor):
             self.minState = 999
 
     def getState(self):
-        if self.interface and (self.interface.__class__.__name__ == "RestInterface"):
-            self.minState = self.interface.read(self.addr)
-        else:
-            sensorState = self.sensor.getState()
-            if sensorState < self.minState:
-                if sensorState != 0:    # FIXME
-                    self.minState = sensorState
-                    if self.interface:
-                        self.interface.write(self.addr, self.minState)
+        if self.interface:
+            if self.interface.__class__.__name__ == "RestInterface":
+                return self.interface.read(self.addr)
+            else:
+                self.minState = self.interface.read(self.addr)
+        sensorState = self.sensor.getState()
+        if sensorState < self.minState:
+            if sensorState != 0:    # FIXME
+                self.minState = sensorState
+                if self.interface:
+                    self.interface.write(self.addr, self.minState)
         return self.minState
 
     # reset the min value
@@ -391,14 +393,16 @@ class MaxSensor(Sensor):
             self.maxState = 0
 
     def getState(self):
-        if self.interface and (self.interface.__class__.__name__ == "RestInterface"):
-            self.maxState = self.interface.read(self.addr)
-        else:
-            sensorState = self.sensor.getState()
-            if sensorState > self.maxState:
-                self.maxState = sensorState
-                if self.interface:
-                    self.interface.write(self.addr, self.maxState)
+        if self.interface:
+            if self.interface.__class__.__name__ == "RestInterface":
+                return self.interface.read(self.addr)
+            else:
+                self.maxState = self.interface.read(self.addr)
+        sensorState = self.sensor.getState()
+        if sensorState > self.maxState:
+            self.maxState = sensorState
+            if self.interface:
+                self.interface.write(self.addr, self.maxState)
         return self.maxState
 
     # reset the max value
