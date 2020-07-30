@@ -224,9 +224,9 @@ class Sensor(Resource):
         except AttributeError:
             Resource.__init__(self, name, type)
             self.interface = interface
+            self.addr = addr
             if self.interface:
                 self.interface.addSensor(self)
-            self.addr = addr
             self.group = group
             if label:
                 self.label = label
