@@ -130,13 +130,14 @@ class Interface(Resource):
 
 # Resource collection
 class Collection(Resource, OrderedDict):
-    def __init__(self, name, resources=[], aliases={}, type="collection"):
+    def __init__(self, name, resources=[], aliases={}, type="collection", event=None):
         Resource.__init__(self, name, type)
         OrderedDict.__init__(self)
         self.lock = threading.Lock()
         for resource in resources:
             self.addRes(resource)
         self.aliases = aliases
+        self.event = event
         debug('debugCollection', self.name, "aliases:", self.aliases)
 
     # Add a resource to the table
@@ -179,17 +180,19 @@ class Collection(Resource, OrderedDict):
         return resourceList
 
     # return the current state of all sensors in the collection
-    def getState(self):
-        self.getStates()
+    def getState(self, wait=False):
+        self.getStates(wait)
         return self.states
 
     # return the current state and type of all sensors in the collection
-    def getStateTypes(self):
-        self.getStates()
+    def getStateTypes(self, wait=False):
+        self.getStates(wait)
         return self.stateTypes
 
     # update the current state and type of all sensors in the resource collection
-    def getStates(self):
+    def getStates(self, wait=False):
+        if self.event and wait:
+            self.event.wait()
         with self.lock:
             try:
                 self.states = {}    # current sensor states
