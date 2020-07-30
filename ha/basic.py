@@ -184,6 +184,34 @@ class Collection(Resource, OrderedDict):
                 resourceList.append(resource)
         return resourceList
 
+    # return the current state of all sensors in the collection
+    def getState(self):
+        self.getStates()
+        return self.states
+
+    # return the current state and type of all sensors in the collection
+    def getStateTypes(self):
+        self.getStates()
+        return self.stateTypes
+
+    # update the current state and type of all sensors in the resource collection
+    def getStates(self):
+        self.states = {}    # current sensor states
+        self.stateTypes = {}
+        for sensor in list(self.values()):
+            if sensor != self:
+                sensorName = sensor.name
+                sensorType = sensor.type
+                if sensorType in ["schedule", "collection"]:   # recurse into schedules and collections
+                    self.getStates(sensor)
+                else:
+                    if sensor.getStateType() != dict:     # sensor has a scalar state
+                        sensorState = sensor.getState()
+                    else:                                   # sensor has a complex state
+                        sensorState = sensor.getState()["contentType"]
+                    self.states[sensorName] = sensorState
+                    self.stateTypes[sensorName] = (sensorState, sensorType)
+
     # dictionary of pertinent attributes
     def dict(self):
         return { #"class":self.__class__.__name__,
