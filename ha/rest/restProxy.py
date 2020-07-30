@@ -1,6 +1,6 @@
 from ha import *
 from ha.rest.restConfig import *
-from ha.rest.restServiceProxy import *
+from ha.rest.restService import *
 from ha.rest.restInterface import *
 import json
 import threading
