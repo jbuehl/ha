@@ -3,10 +3,10 @@ from ha.rest.restConfig import *
 import threading
 
 # proxy for a REST service
-class RestServiceProxy(Sensor):
+class RestService(Sensor):
     def __init__(self, name, interface, addr, timeStamp=-1, group="", type="service", location=None, label="", interrupt=None, event=None):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
-        debug('debugRestServiceProxy', "RestServiceProxy", name, "created")
+        debug('debugRestService', "RestService", name, "created")
         self.timeStamp = timeStamp      # the last time this service was updated
         self.resourceNames = []         # resource names on this service
 #        self.className = "Sensor" # so the web UI doesn't think it's a control
@@ -34,12 +34,12 @@ class RestServiceProxy(Sensor):
         return True
 
     def enable(self):
-        debug('debugRestServiceProxy', "RestServiceProxy", self.name, "enabled")
+        debug('debugRestService', "RestService", self.name, "enabled")
         self.interface.start()
         self.enabled = True
 
     def disable(self):
-        debug('debugRestServiceProxy', "RestServiceProxy", self.name, "disabled")
+        debug('debugRestService', "RestService", self.name, "disabled")
         self.interface.stop()
         self.beaconTimer = None
         self.enabled = False
@@ -54,7 +54,7 @@ class RestServiceProxy(Sensor):
             self.resources = None
 
     def logSeq(self, seq):
-        debug('debugRestSeq', "RestServiceProxy", self.name, seq, self.lastSeq, self.missedSeq, self.missedSeqPct)
+        debug('debugRestSeq', "RestService", self.name, seq, self.lastSeq, self.missedSeq, self.missedSeqPct)
         if seq == 0:
             self.lastSeq = 0    # reset when the service starts
             self.missedSeqPct = 0.0
@@ -118,7 +118,7 @@ class RestServiceProxy(Sensor):
         debug('debugLoadResources', self.name, "loadResource", "node:", node)
         try:
             # ignore certain resource types
-            if node["class"] not in ["Collection", "HACollection", "Schedule", "ResourceStateSensor", "RestServiceProxy"]:
+            if node["class"] not in ["Collection", "HACollection", "Schedule", "ResourceStateSensor", "RestService"]:
                 try:
                     node["args"]["interface"] = None
                     resource = loadResource(node, globals())
@@ -162,7 +162,6 @@ class RestServiceProxy(Sensor):
                     exec("resource = "+className+"("+argStr[:-2]+")", globals(), localDict)
                     resources.addRes(localDict["resource"])
         except Exception as exception:
-            raise
             log(self.name, "loadResource", interface.name, "exception", str(node), path, str(exception))
             try:
                 if debugExceptions:

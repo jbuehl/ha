@@ -101,7 +101,7 @@ class RestProxy(threading.Thread):
                 if serviceName not in list(self.services.keys()):
                     # create a new service proxy
                     debug('debugRestProxyAdd', self.name, "adding", serviceName, serviceAddr, serviceTimeStamp, serviceStateChange)
-                    self.services[serviceName] = RestServiceProxy(serviceName,
+                    self.services[serviceName] = RestService(serviceName,
                                                                     RestInterface(serviceName+"Interface",
                                                                                     serviceAddr=serviceAddr,
                                                                                     event=self.event, cache=self.cache,
