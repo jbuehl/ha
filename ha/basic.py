@@ -65,12 +65,13 @@ class Object(object):
 
 # Base class for Resources
 class Resource(Object):
-    def __init__(self, name):
+    def __init__(self, name, type):
         try:
-            if self.name:   # init has already been called for this object
+            if self.name:   # init has already been called for this object - FIXME
                 return
         except AttributeError:
             self.name = name
+            self.type = type
             debug('debugObject', self.__class__.__name__, self.name, "created")
             self.className = self.__class__.__name__    # hack for web templates - FIXME
 
@@ -79,8 +80,8 @@ class Resource(Object):
 
 # Base class for Interfaces
 class Interface(Resource):
-    def __init__(self, name, interface=None, event=None):
-        Resource.__init__(self, name)
+    def __init__(self, name, interface=None, type="interface", event=None):
+        Resource.__init__(self, name, type)
         self.interface = interface
         # sensor state change event
         if event != None:                   # use the specified one
@@ -128,17 +129,10 @@ class Interface(Resource):
             debug('debugInterrupt', self.name, "set", self.event)
 
 # Resource collection
-
-# todo
-# - load tree
-# - gets traverse tree
-# - delete collection
-
 class Collection(Resource, OrderedDict):
-    def __init__(self, name, resources=[], aliases={}, type=None):
-        Resource.__init__(self, name)
+    def __init__(self, name, resources=[], aliases={}, type="collection"):
+        Resource.__init__(self, name, type)
         OrderedDict.__init__(self)
-        self.type = "collection"
         self.lock = threading.Lock()
         for resource in resources:
             self.addRes(resource)
@@ -224,28 +218,21 @@ class Collection(Resource, OrderedDict):
 # Sensors can also optionally be associated with a group and a physical location.
 class Sensor(Resource):
     def __init__(self, name, interface=None, addr=None, group="", type="sensor", location=None, label=None, interrupt=None, event=None):
-        Resource.__init__(self, name)
         try:
-            if self.type:   # init has already been called for this object
+            if self.type:   # init has already been called for this object - FIXME
                 return
         except AttributeError:
-            self.type = type
-            # if interface == None:
-            #     self.interface = Interface("None", event=event)
-            # else:
-            #     self.interface = interface
+            Resource.__init__(self, name, type)
             self.interface = interface
+            if self.interface:
+                self.interface.addSensor(self)
             self.addr = addr
-            # if self.addr == None:
-            #     self.addr = self.name
             self.group = group
             if label:
                 self.label = label
             else:
                 self.label = self.name.capitalize()
             self.location = location
-            if self.interface:
-                self.interface.addSensor(self)
             self.interrupt = interrupt
             if event:
                 self.event = event
