@@ -77,6 +77,7 @@ class RestServer(object):
                         self.beaconSocket = None
                     beaconSequence += 1
                     time.sleep(restBeaconInterval)
+                debug('debugRestServer', self.name, "REST beacon ended")
             beaconThread = threading.Thread(target=beacon)
             beaconThread.start()
 
@@ -89,27 +90,25 @@ class RestServer(object):
             self.resources.addRes(self.stateResource)
 
         # start the thread to send the state of all resources when one changes
-        if self.event:
+        if True: #self.event:
             def stateNotify():
                 debug('debugRestServer', self.name, "REST state started")
+                lastStates = self.stateResource.getState()
                 while True:
                     debug('debugRestState', self.name, "REST state")
+                    states = self.stateResource.getState()
+                    for sensor in list(lastStates.keys()):
+                        try:
+                            if states[sensor] != lastStates[sensor]:
+                                debug('debugRestState', self.name, sensor, lastStates[sensor], "-->", states[sensor])
+                        except KeyError:
+                            pass
                     self.sendStateMessage()
-                    self.event.wait()
-                    self.event.clear()
+                    lastStates = states
+                    time.sleep(10)
+                debug('debugRestServer', self.name, "REST state ended")
             stateNotifyThread = threading.Thread(target=stateNotify)
             stateNotifyThread.start()
-
-        # start the heartbeat thread to periodically send the state of all resources
-        if self.heartbeat:
-            def heartbeat():
-                debug('debugRestServer', self.name, "REST heartbeat started")
-                while True:
-                    debug('debugRestHeartbeat', self.name, "REST heartbeat")
-                    self.sendStateMessage()
-                    time.sleep(restHeartbeatInterval)
-            heartbeatThread = threading.Thread(target=heartbeat)
-            heartbeatThread.start()
 
         # start the HTTP server
         self.server.serve_forever()
