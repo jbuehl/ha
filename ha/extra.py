@@ -1,6 +1,6 @@
 # Extra class definitions derived from basic classes
 
-from .basic import *
+from .core import *
 
 # A collection of sensors whose state is on if any one of them is on
 class SensorGroup(Sensor):

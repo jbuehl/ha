@@ -1,4 +1,4 @@
-# Basic class definitions
+# Core class definitions
 
 stateChangeInterval = 10
 running = True  # FIXME - get rid of this

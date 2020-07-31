@@ -1,6 +1,6 @@
 # Classes related to schedules
 
-from .basic import *
+from .core import *
 from .sunriseset import *
 
 # day of week identifiers
