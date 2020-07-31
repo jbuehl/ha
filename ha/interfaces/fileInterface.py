@@ -36,7 +36,7 @@ class FileInterface(Interface):
             # thread to periodically check for file changes and cache the data
             def readData():
                 debug('debugFileThread', self.name, "readData started")
-                while running:
+                while True:
                     debug('debugFileThread', self.name, "waiting", filePollInterval)
                     time.sleep(filePollInterval)
                     if self.modified():

@@ -172,9 +172,7 @@ class PentairMsgThread(threading.Thread):
         loopCount = 0
         refreshInterval = 25
         # wake up every second
-        while running:
-            # loop until the program state changes to not running
-            if not running: break
+        while True:
             # set the speed if there was a request to change it
             if self.interface.reqSpeed >= 0:
                 debug('debugPentairThread', self.name, "setting speed to", self.interface.reqSpeed)

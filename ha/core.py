@@ -1,8 +1,5 @@
 # Core class definitions
 
-stateChangeInterval = 10
-running = True  # FIXME - get rid of this
-
 import time
 import threading
 import copy

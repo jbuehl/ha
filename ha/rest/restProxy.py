@@ -81,7 +81,7 @@ class RestProxy(threading.Thread):
 
     def restProxyThread(self):
         debug('debugThread', self.name, "started")
-        while running:
+        while True:
             # wait for a beacon message from a service
             (data, addr) = self.socket.recvfrom(32768)   # FIXME - need to handle arbitrarily large data
             debug('debugRestBeacon', self.name, "beacon data", data)

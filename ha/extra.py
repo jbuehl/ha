@@ -181,6 +181,7 @@ class CalcSensor(Sensor):
         return value * self.factor
 
 # Sensor that contains the states of all sensors in a list of resources
+stateChangeInterval = 10
 class ResourceStateSensor(Sensor):
     def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None):
         Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label, interrupt=interrupt)
