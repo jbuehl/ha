@@ -12,6 +12,7 @@ import socket
 import ssl
 import time
 import struct
+import copy
 
 def openSocket():
     theSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -93,10 +94,12 @@ class RestServer(object):
         if True: #self.event:
             def stateNotify():
                 debug('debugRestServer', self.name, "REST state started")
-                lastStates = self.resources.getState()
+                lastStates = copy.copy(self.resources.getState())
                 while True:
                     debug('debugRestState', self.name, "REST state")
-                    states = self.resources.getState()
+                    states = copy.copy(self.resources.getState())
+                    debug('debugRestState', self.name, "lastStates", str(lastStates))
+                    debug('debugRestState', self.name, "states    ", str(states))
                     somethingChanged = False
                     for sensor in list(lastStates.keys()):
                         try:
@@ -107,7 +110,7 @@ class RestServer(object):
                             pass
                     if somethingChanged:
                         self.sendStateMessage()
-                        lastStates = states
+                        lastStates = copy.copy(states)
                     time.sleep(10)
                 debug('debugRestServer', self.name, "REST state ended")
             stateNotifyThread = threading.Thread(target=stateNotify)

@@ -131,6 +131,8 @@ class Collection(Resource, OrderedDict):
             self.addRes(resource)
         self.aliases = aliases
         self.event = event
+        self.states = {}    # current sensor states
+        self.stateTypes = {}
         debug('debugCollection', self.name, "aliases:", self.aliases)
 
     # Add a resource to the table
@@ -186,10 +188,9 @@ class Collection(Resource, OrderedDict):
     def getStates(self, wait=False):
         if self.event and wait:
             self.event.wait()
+            self.event.clear()
         with self.lock:
             try:
-                self.states = {}    # current sensor states
-                self.stateTypes = {}
                 for sensor in list(self.values()):
                     if sensor != self:
                         sensorName = sensor.name
