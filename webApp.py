@@ -180,7 +180,7 @@ if __name__ == "__main__":
     restCache.start()
 
     # monitor service states
-    watchEvents(resources, serviceMonitorNotifyNumbers)
+    # watchEvents(resources, serviceMonitorNotifyNumbers)
 
     # get the camera attributes
     if runCameras:
