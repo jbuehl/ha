@@ -96,13 +96,13 @@ class RestInterface(Interface):
         if not self.enabled:
             return None
         # read the state from the interface unless it is in the cache
-        # or None is a valid value for this type of sensor
-        if (not self.cache) or ((self.states[addr] == None) and (self.sensorAddrs[addr].getStateType() != None)):
-            # return the value from the cache if it is there
-            try:
-                self.states[addr] = self.readRest(addr)["state"]
-            except KeyError:
-                self.states[addr] = None
+        # or None is a valid value for this type of sensor - FIXME
+        try:
+            if (not self.cache) or ((self.states[addr] == None) and (self.sensorAddrs[addr].getStateType() != None)):
+                # return the value from the cache if it is there
+                    self.states[addr] = self.readRest(addr)["state"]
+        except KeyError:
+            self.states[addr] = None
         return self.states[addr]
 
     # get state values of all sensors on this interface
