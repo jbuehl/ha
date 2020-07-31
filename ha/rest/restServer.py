@@ -81,30 +81,33 @@ class RestServer(object):
             beaconThread = threading.Thread(target=beacon)
             beaconThread.start()
 
-        # locate the state resource
-        try:
-            self.stateResource = self.resources.getRes("states", dummy=False)
-        except:
-            debug('debugRestHeartbeat', self.name, "created resource state sensor")
-            self.stateResource = ResourceStateSensor("states", None, resources=self.resources, event=self.event)
-            self.resources.addRes(self.stateResource)
+        # # locate the state resource
+        # try:
+        #     self.stateResource = self.resources.getRes("states", dummy=False)
+        # except:
+        #     debug('debugRestHeartbeat', self.name, "created resource state sensor")
+        #     self.stateResource = ResourceStateSensor("states", None, resources=self.resources, event=self.event)
+        #     self.resources.addRes(self.stateResource)
 
         # start the thread to send the state of all resources when one changes
         if True: #self.event:
             def stateNotify():
                 debug('debugRestServer', self.name, "REST state started")
-                lastStates = self.stateResource.getState()
+                lastStates = self.resources.getState()
                 while True:
                     debug('debugRestState', self.name, "REST state")
-                    states = self.stateResource.getState()
+                    states = self.resources.getState()
+                    somethingChanged = False
                     for sensor in list(lastStates.keys()):
                         try:
                             if states[sensor] != lastStates[sensor]:
                                 debug('debugRestState', self.name, sensor, lastStates[sensor], "-->", states[sensor])
+                                somethingChanged = True
                         except KeyError:
                             pass
-                    self.sendStateMessage()
-                    lastStates = states
+                    if somethingChanged:
+                        self.sendStateMessage()
+                        lastStates = states
                     time.sleep(10)
                 debug('debugRestServer', self.name, "REST state ended")
             stateNotifyThread = threading.Thread(target=stateNotify)
@@ -117,7 +120,7 @@ class RestServer(object):
         if not self.stateSocket:
             self.stateSocket = openSocket()
         try:
-            self.stateSocket.sendto(bytes(json.dumps({"state": self.stateResource.states,
+            self.stateSocket.sendto(bytes(json.dumps({"state": self.resources.states,
                                                     "hostname": self.hostname,
                                                     "port": self.port,
                                                     "seq": self.stateSequence}), "utf-8"),
