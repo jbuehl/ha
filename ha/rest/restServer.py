@@ -98,8 +98,6 @@ class RestServer(object):
                 while True:
                     debug('debugRestState', self.name, "REST state")
                     states = copy.copy(self.resources.getState())
-                    debug('debugRestState', self.name, "lastStates", str(lastStates))
-                    debug('debugRestState', self.name, "states    ", str(states))
                     somethingChanged = False
                     for sensor in list(lastStates.keys()):
                         try:
