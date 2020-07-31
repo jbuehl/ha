@@ -115,10 +115,6 @@ class Interface(Resource):
         self.states[sensor.addr] = None
         sensor.event = self.event
 
-    # return the data type of the state of the specified sensor
-    def getStateType(self, sensor):
-        return int
-
     # Trigger the sending of a state change notification
     def notify(self):
         if self.event:
@@ -201,10 +197,7 @@ class Collection(Resource, OrderedDict):
                         if sensorType in ["schedule", "collection"]:   # recurse into schedules and collections
                             self.getStates(sensor)
                         else:
-                            if sensor.getStateType() != dict:     # sensor has a scalar state
-                                sensorState = sensor.getState()
-                            else:                                   # sensor has a complex state
-                                sensorState = sensor.getState()["contentType"]
+                            sensorState = sensor.getState()
                             self.states[sensorName] = sensorState
                             self.stateTypes[sensorName] = (sensorState, sensorType)
             except Exception as ex:
@@ -252,10 +245,6 @@ class Sensor(Resource):
     # Return the last state of the sensor that was read from the address on the interface.
     def getLastState(self):
         return self.getState()
-
-    # return the data type of the state
-    def getStateType(self):
-        return (self.interface.getStateType(self) if self.interface else None)
 
     # Wait for the state of the sensor to change if an interrupt routine was specified
     def getStateChange(self):

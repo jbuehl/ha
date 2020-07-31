@@ -133,7 +133,6 @@ Defines the abstract class for interface implementations.
     - read(addr)
     - write(addr, value)
     - notify()
-    - getStateType(Sensor)
 
 ##### Sensor
 Defines the model for the base HA sensor.
@@ -148,7 +147,6 @@ Defines the model for the base HA sensor.
     - notify()
     - getState()
     - getStateChange()
-    - getStateType()
 
 ##### Control
 Defines the model for a sensor whose state can be changed.

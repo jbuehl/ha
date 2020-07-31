@@ -210,10 +210,7 @@ class ResourceStateSensor(Sensor):
                 if sensorType in ["schedule", "collection"]:   # recurse into schedules and collections
                     self.getStates(sensor)
                 else:
-                    if sensor.getStateType() != dict:     # sensor has a scalar state
-                        sensorState = sensor.getState()
-                    else:                                   # sensor has a complex state
-                        sensorState = sensor.getState()["contentType"]
+                    sensorState = sensor.getState()
                     self.states[sensorName] = sensorState
                     self.stateTypes[sensorName] = (sensorState, sensorType)
 
