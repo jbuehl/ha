@@ -33,8 +33,7 @@ class GPIOInterface(Interface):
         self.input = input
         self.output = output
         self.invert = invert
-
-    def start(self):
+        # initialize everything
         gpio.setwarnings(False)
         gpio.setmode(gpio.BCM)
         # set I/O direction of pins
