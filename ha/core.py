@@ -187,8 +187,10 @@ class Collection(Resource, OrderedDict):
     # update the current state and type of all sensors in the resource collection
     def getStates(self, wait=False):
         if self.event and wait:
-            self.event.wait()
+            debug('debugInterrupt', self.name, "getStates", "clear", self.event)
             self.event.clear()
+            debug('debugInterrupt', self.name, "getStates", "wait", self.event)
+            self.event.wait()
         with self.lock:
             try:
                 for sensor in list(self.values()):
