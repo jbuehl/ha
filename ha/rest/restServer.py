@@ -1,4 +1,3 @@
-multicast = False
 
 from ha import *
 from ha.rest.restConfig import *
@@ -26,7 +25,7 @@ def openSocket():
 
 # RESTful web services server interface
 class RestServer(object):
-    def __init__(self, name, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label="", stateChange=False):
+    def __init__(self, name, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label="", stateChange=False, multicast=False):
         debug('debugRestServer', name, "creating RestServer")
         self.name = name
         self.resources = resources
@@ -34,7 +33,11 @@ class RestServer(object):
         self.port = port
         self.beacon = beacon
         self.heartbeat = heartbeat
-        self.event = event
+        if event:
+            self.event = event
+        else:
+            self.event = self.resources.event
+        self.multicast = multicast
         if label == "":
             self.label = self.hostname+":"+str(self.port)
         else:
@@ -42,19 +45,18 @@ class RestServer(object):
         self.stateChange = stateChange
         debug('debugInterrupt', self.label, "event", self.event)
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
-        if multicast:
+        if self.multicast:
             self.restAddr = multicastGroup
         else:
             self.restAddr = "<broadcast>"
         self.beaconSocket = None
         self.stateSocket = None
         self.stateSequence = 0
-        self.stateResource = None
 
     def start(self):
         debug('debugRestServer', self.name, "starting RestServer")
         # start the beacon to advertise this service
-        if self.beacon:
+        if self.beacon and not self.multicast:
             self.timeStamp = time.time()
             def beacon():
                 debug('debugRestServer', self.name, "REST beacon started")
@@ -82,49 +84,73 @@ class RestServer(object):
             beaconThread = threading.Thread(target=beacon)
             beaconThread.start()
 
-        # # locate the state resource
-        # try:
-        #     self.stateResource = self.resources.getRes("states", dummy=False)
-        # except:
-        #     debug('debugRestHeartbeat', self.name, "created resource state sensor")
-        #     self.stateResource = ResourceStateSensor("states", None, resources=self.resources, event=self.event)
-        #     self.resources.addRes(self.stateResource)
-
-        # start the thread to send the state of all resources when one changes
-        if True: #self.event:
+        # start the thread to send the resource states periodically and when one changes
+        if True:
             def stateNotify():
                 debug('debugRestServer', self.name, "REST state started")
                 lastStates = copy.copy(self.resources.getState())
                 while True:
-                    debug('debugRestState', self.name, "REST state")
-                    states = copy.copy(self.resources.getState())
+                    # wait for either the resources event or the periodic trigger
+                    states = copy.copy(self.resources.getState(wait=True))
+                    # debug('debugRestState', self.name, "REST state")
                     somethingChanged = False
+                    # compare the current states to the previous states
                     for sensor in list(lastStates.keys()):
                         try:
                             if states[sensor] != lastStates[sensor]:
                                 debug('debugRestState', self.name, sensor, lastStates[sensor], "-->", states[sensor])
                                 somethingChanged = True
+                                break
                         except KeyError:
-                            pass
+                            # a resource was either added or removed
+                            somethingChanged = True
+                            break
                     if somethingChanged:
-                        self.sendStateMessage()
+                        # include the resource states if at least one of them is different
+                        self.sendStateMessage(states)
                         lastStates = copy.copy(states)
-                    time.sleep(10)
+                    else:
+                        # just send the keepalive message
+                        self.sendStateMessage()
                 debug('debugRestServer', self.name, "REST state ended")
             stateNotifyThread = threading.Thread(target=stateNotify)
             stateNotifyThread.start()
 
+        # start the thread to trigger the keepalive message periodically
+        if True:
+            def stateTrigger():
+                debug('debugRestServer', self.name, "REST state trigger started", restBeaconInterval)
+                while True:
+                    debug('debugInterrupt', self.name, "trigger", "set", self.event)
+                    self.event.set()
+                    time.sleep(restBeaconInterval)
+                debug('debugRestServer', self.name, "REST state trigger ended")
+            stateTriggerThread = threading.Thread(target=stateTrigger)
+            stateTriggerThread.start()
+
         # start the HTTP server
         self.server.serve_forever()
 
-    def sendStateMessage(self):
+    def sendStateMessage(self, states=None):
+        if self.multicast:
+            stateMsg = {"service":{"name": self.name,
+                                   "hostname": self.hostname,
+                                   "port": self.port,
+                                   "label": self.label,
+                                   "timestamp": time.time(),
+                                   "seq": self.stateSequence}}
+            if states:
+                stateMsg["states"] = states
+        else:
+            stateMsg = {"state": self.resources.states,
+                        "hostname": self.hostname,
+                        "port": self.port,
+                        "seq": self.stateSequence}
         if not self.stateSocket:
             self.stateSocket = openSocket()
         try:
-            self.stateSocket.sendto(bytes(json.dumps({"state": self.resources.states,
-                                                    "hostname": self.hostname,
-                                                    "port": self.port,
-                                                    "seq": self.stateSequence}), "utf-8"),
+            debug('debugRestState', self.name, str(stateMsg))
+            self.stateSocket.sendto(bytes(json.dumps(stateMsg), "utf-8"),
                                                 (self.restAddr, restStatePort))
             if (self.event) and (self.stateChange):
                 # set the state event so the stateChange request returns
