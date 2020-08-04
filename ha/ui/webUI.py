@@ -68,7 +68,7 @@ def translateVoice(phrase):
 class WebRoot(object):
     def __init__(self, resources, cache, stateChangeEvent, pathDict):
         self.resources = resources
-        self.resourceStateSensor = self.resources.getRes("states")
+        # self.resourceStateSensor = self.resources.getRes("states")
         self.cache = cache
         self.resourceStateChangeEvent = stateChangeEvent
         self.updateStateChangeEvent = threading.Event()
@@ -84,7 +84,7 @@ class WebRoot(object):
             debug('debugWebState', "updateStates", "event clear")
             self.updateStateChangeEvent.clear()
             # wait for sensor states to change
-            resourceStateTypes = self.resourceStateSensor.getStateChangeTypes()
+            resourceStateTypes = self.resources.getStateTypes(wait=True)
             if self.cache:
                 cacheTime = self.cache.cacheTime
             else:
