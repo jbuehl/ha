@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 multicast = False
-multicastGroup = "224.0.0.1"
+multicastAddr = "224.0.0.1"
 restStatePort = 4243
 
 import socket
@@ -14,7 +14,7 @@ import struct
 
 if __name__ == "__main__":
     if multicast:
-        restAddr = multicastGroup
+        restAddr = multicastAddr
     else:
         restAddr = ""
     beaconSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     beaconSocket.bind((restAddr, restStatePort))
     if multicast:
         beaconSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
-                struct.pack("4sl", socket.inet_aton(multicastGroup), socket.INADDR_ANY))
+                struct.pack("4sl", socket.inet_aton(multicastAddr), socket.INADDR_ANY))
     seqDir = {}
     while True:
         (data, addr) = beaconSocket.recvfrom(8192)   # FIXME - need to handle arbitrarily large data

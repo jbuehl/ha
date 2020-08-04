@@ -18,7 +18,7 @@ def openSocket():
     theSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     if multicast:
         theSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
-                struct.pack("4sl", socket.inet_aton(multicastGroup), socket.INADDR_ANY))
+                struct.pack("4sl", socket.inet_aton(multicastAddr), socket.INADDR_ANY))
     else:
         theSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     return theSocket
@@ -46,7 +46,7 @@ class RestServer(object):
         debug('debugInterrupt', self.label, "event", self.event)
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
         if self.multicast:
-            self.restAddr = multicastGroup
+            self.restAddr = multicastAddr
         else:
             self.restAddr = "<broadcast>"
         self.beaconSocket = None

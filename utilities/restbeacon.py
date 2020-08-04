@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 multicast = False
-multicastGroup = "224.0.0.1"
+multicastAddr = "224.0.0.1"
 restBeaconPort = 4242
 
 import socket
@@ -16,9 +16,9 @@ if __name__ == "__main__":
     beaconSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     beaconSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     if multicast:
-        restAddr = multicastGroup
+        restAddr = multicastAddr
         beaconSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
-                struct.pack("4sl", socket.inet_aton(multicastGroup), socket.INADDR_ANY))
+                struct.pack("4sl", socket.inet_aton(multicastAddr), socket.INADDR_ANY))
     else:
         restAddr = ""
     beaconSocket.bind((restAddr, restBeaconPort))
