@@ -89,6 +89,7 @@ class RestServer(object):
             def stateNotify():
                 debug('debugRestServer', self.name, "REST state started")
                 lastStates = copy.copy(self.resources.getState())
+                self.timeStamp = time.time()
                 while True:
                     # wait for either the resources event or the periodic trigger
                     states = copy.copy(self.resources.getState(wait=True))
@@ -100,10 +101,12 @@ class RestServer(object):
                             if states[sensor] != lastStates[sensor]:
                                 debug('debugRestState', self.name, sensor, lastStates[sensor], "-->", states[sensor])
                                 somethingChanged = True
+                                self.timeStamp = int(time.time())
                                 break
                         except KeyError:
                             # a resource was either added or removed
                             somethingChanged = True
+                            self.timeStamp = int(time.time())
                             break
                     if somethingChanged:
                         # include the resource states if at least one of them is different
@@ -137,7 +140,7 @@ class RestServer(object):
                                    "hostname": self.hostname,
                                    "port": self.port,
                                    "label": self.label,
-                                   "timestamp": time.time(),
+                                   "timestamp": self.timeStamp,
                                    "seq": self.stateSequence}}
             if states:
                 stateMsg["states"] = states
@@ -262,4 +265,6 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                     if sep == "":   # no more elements left in path
                         if name in dir(resource):
                             return (resource, name) # path matches resource and attr
+        elif name in ["states", "resources"]:
+            return (resource, name)
         return (None, None)         # no match

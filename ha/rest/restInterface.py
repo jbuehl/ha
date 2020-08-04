@@ -8,14 +8,16 @@ from ha import *
 from ha.rest.restConfig import *
 
 class RestInterface(Interface):
-    def __init__(self, name, interface=None, event=None, serviceAddr="", secure=False, cache=True, writeThrough=True, stateChange=False):
+    def __init__(self, name, interface=None, event=None, serviceAddr="", secure=False, cache=True, writeThrough=True, stateChange=False, multicast=False):
         Interface.__init__(self, name, interface=interface, event=event)
         self.serviceAddr = serviceAddr      # address of the REST service to target (ipAddr:port)
         self.secure = secure                # use SSL
         self.cache = cache                  # cache the states
         self.writeThrough = writeThrough    # cache is write through
         self.stateChange = stateChange      # server supports getStateChange
+        self.multicast = multicast
         self.hostName = socket.gethostname()
+        self.socket = None
         self.enabled = False
         debug('debugRest', self.name, "created", self.hostName, self.serviceAddr) #, self.secure, self.cache, self.enabled)
         if self.secure:
@@ -32,8 +34,9 @@ class RestInterface(Interface):
             if self.stateChange:
                 readStateChangeThread = threading.Thread(target=self.readStateChange)
                 readStateChangeThread.start()
-            readStateNotifyThread = threading.Thread(target=self.readStateNotify)
-            readStateNotifyThread.start()
+            if not self.multicast:
+                readStateNotifyThread = threading.Thread(target=self.readStateNotify)
+                readStateNotifyThread.start()
 
     # thread to update the cache when the stateChange request returns
     def readStateChange(self):
@@ -87,7 +90,8 @@ class RestInterface(Interface):
             for state in list(self.states.keys()):
                 self.states[state] = None
             debug('debugRest', self.name, "closing socket")
-            self.socket.close()
+            if self.socket:
+                self.socket.close()
 
     # return the state value for the specified sensor address
     # addr is the REST path to the specified resource
@@ -106,7 +110,12 @@ class RestInterface(Interface):
         return self.states[addr]
 
     # get state values of all sensors on this interface
-    def readStates(self, path="/resources/states/state"):
+    def readStates(self, path=""):
+        if path == "":
+            if self.multicast:
+                path = "/states"
+            else:
+                path = "/resources/states/state"
         debug('debugRestStates', self.name, "readStates", "path", path)
         # type of state resource: "state", "stateChange"
         stateType = path.split("/")[-1]
