@@ -55,6 +55,9 @@ def loadResource(classDict, globalDict):
 
 # Base class for everything
 class Object(object):
+    def __init__(self):
+        self.className = self.__class__.__name__    # Used to optionally override the real class name in dump()
+
     # dump the resource attributes to a serialized dict
     def dump(self):
         return {"class": self.className,
@@ -63,6 +66,7 @@ class Object(object):
 # Base class for Resources
 class Resource(Object):
     def __init__(self, name, type):
+        Object.__init__(self)
         try:
             if self.name:   # init has already been called for this object - FIXME
                 return
@@ -70,7 +74,6 @@ class Resource(Object):
             self.name = name
             self.type = type
             debug('debugObject', self.__class__.__name__, self.name, "created")
-            self.className = self.__class__.__name__    # hack for web templates - FIXME
 
     def __str__(self):
         return self.name

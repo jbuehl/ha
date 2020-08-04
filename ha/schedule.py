@@ -39,6 +39,7 @@ def todaysDate():
 # If the duration is zero, then the end state is not set and the Control is left in the start state.
 class Cycle(Object):
     def __init__(self, control=None, duration=0, delay=0, startState=1, endState=0, name=None):
+        Object.__init__(self)
         self.control = control
         self.duration = duration
         self.delay = delay
@@ -381,6 +382,7 @@ class Task(Control):
 # and may contain negative values.
 class SchedTime(Object):
     def __init__(self, year=[], month=[], day=[], hour=[], minute=[], weekday=[], date="", event="", name=""):
+        Object.__init__(self)
         self.year = listize(year)
         self.month = listize(month)
         self.day = listize(day)
