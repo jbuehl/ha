@@ -30,7 +30,7 @@ from ha.interfaces.serialInterface import *
 from ha.interfaces.gpioInterface import *
 from ha.interfaces.w1Interface import *
 from ha.interfaces.pentairInterface import *
-from ha.interfaces.powerInterface import *
+# from ha.interfaces.powerInterface import *
 from ha.interfaces.valveInterface import *
 from ha.interfaces.fileInterface import *
 from ha.interfaces.timeInterface import *
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     gpioInterface = GPIOInterface("gpioInterface", output=[4,17,18,22,23,24,25,27])
     w1Interface = W1Interface("w1Interface")
     pentairInterface = PentairInterface("pentairInterface", serialInterface)
-    powerInterface = PowerInterface("powerInterface", None, event=stateChangeEvent)
+    # powerInterface = PowerInterface("powerInterface", None, event=stateChangeEvent)
     valveInterface = ValveInterface("valveInterface", gpioInterface)
     timeInterface = TimeInterface("timeInterface", None, latLong=latLong)
     configInterface = FileInterface("configInterface", fileName=stateDir+"pool.state", event=stateChangeEvent, initialState=defaultConfig)
@@ -119,11 +119,11 @@ if __name__ == "__main__":
                                               ], group="Pool", label="Flush spa 15 min")
 
     # Power
-    poolPumpPower = Sensor("poolPumpPower", pentairInterface, 2, type="power", group=["Pool", "Power", "Loads"], label="Pool pump")
-    poolCleanerPower = Sensor("poolCleanerPower", powerInterface, poolCleaner, type="power", group=["Pool", "Power", "Loads"], label="Pool cleaner")
-    spaBlowerPower = Sensor("spaBlowerPower", powerInterface, spaBlower, type="power", group=["Pool", "Power", "Loads"], label="Spa blower")
-    poolLightPower = Sensor("poolLightPower", powerInterface, poolLight, type="power", group=["Pool", "Power", "Loads"], label="Pool light")
-    spaLightPower = Sensor("spaLightPower", powerInterface, spaLight, type="power", group=["Pool", "Power", "Loads"], label="Spa light")
+    # poolPumpPower = Sensor("poolPumpPower", pentairInterface, 2, type="power", group=["Pool", "Power", "Loads"], label="Pool pump")
+    # poolCleanerPower = Sensor("poolCleanerPower", powerInterface, poolCleaner, type="power", group=["Pool", "Power", "Loads"], label="Pool cleaner")
+    # spaBlowerPower = Sensor("spaBlowerPower", powerInterface, spaBlower, type="power", group=["Pool", "Power", "Loads"], label="Spa blower")
+    # poolLightPower = Sensor("poolLightPower", powerInterface, poolLight, type="power", group=["Pool", "Power", "Loads"], label="Pool light")
+    # spaLightPower = Sensor("spaLightPower", powerInterface, spaLight, type="power", group=["Pool", "Power", "Loads"], label="Spa light")
 
     # Schedules
     sundaySpaOnTask = Task("sundaySpaOnTask", SchedTime(year=[2016], month=[8], day=[14], hour=[16], minute=[30]), spa, 1)
@@ -142,7 +142,7 @@ if __name__ == "__main__":
                                          valveMode, spaFill, spaFlush, spaDrain, poolHeaterRelay, spaBlower,
                                          poolPumpSpeed, poolPumpFlow,
                                          spa, spaTempTarget, poolHeater,
-                                         poolPumpPower, poolCleanerPower, spaBlowerPower, poolLightPower, spaLightPower,
+                                         # poolPumpPower, poolCleanerPower, spaBlowerPower, poolLightPower, spaLightPower,
                                          filterSequence, cleanSequence, flushSequence,
                                          poolFilterTask, poolCleanerTask, flushSpaTask,
                                          ])
