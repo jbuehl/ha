@@ -83,7 +83,7 @@ def parseServiceData(data, addr):
 # Remove resources on services that don't respond
 
 class RestProxy(threading.Thread):
-    def __init__(self, name, resources, watch=[], ignore=[], event=None, cache=True, multicast=False):
+    def __init__(self, name, resources, watch=[], ignore=[], event=None, cache=True, multicast=True):
         debug('debugRestProxy', name, "starting", name)
         threading.Thread.__init__(self, target=self.restProxyThread)
         self.name = name
@@ -101,7 +101,7 @@ class RestProxy(threading.Thread):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         if self.multicast:
-            self.socket.bind((multicastAddr, restStatePort))
+            self.socket.bind((multicastAddr, restNotifyPort))
         else:
             self.socket.bind(("", restBeaconPort))
 

@@ -58,7 +58,10 @@ class RestInterface(Interface):
         debug('debugRest', self.name, "opening socket")
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.bind(("", restStatePort))
+        if self.multicast:
+            self.socket.bind((multicastAddr, restNotifyPort))
+        else:
+            self.socket.bind(("", restStatePort))
         while self.enabled:
             try:
                 # wait to receive a state change notification message
@@ -77,7 +80,7 @@ class RestInterface(Interface):
                    debug('debugRestStates', self.name, "ignoring state notification from", addr[0]+":"+str(msg["port"]))
             except Exception as exception:
                 # log and ignore exceptions
-                log(self.name, "state notification exception", str(exception))
+                log(self.name, "state notification exception", str(exception), data)
         # interface is no longer enabled
         self.stop()
         debug('debugRestStates', self.name, "readStateNotify terminated")

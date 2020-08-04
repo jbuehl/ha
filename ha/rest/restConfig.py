@@ -3,6 +3,7 @@
 restServicePort = 7378
 restBeaconPort = 4242
 restStatePort = 4243
+restNotifyPort = 4244
 ipv4MulticastAddr = "224.0.0.1"
 ipv6MulticastAddr = "ff02::1"
 multicastAddr = ipv4MulticastAddr

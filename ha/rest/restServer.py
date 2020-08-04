@@ -13,19 +13,9 @@ import time
 import struct
 import copy
 
-def openSocket():
-    theSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    theSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    if multicast:
-        theSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
-                struct.pack("4sl", socket.inet_aton(multicastAddr), socket.INADDR_ANY))
-    else:
-        theSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    return theSocket
-
 # RESTful web services server interface
 class RestServer(object):
-    def __init__(self, name, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label="", stateChange=False, multicast=False):
+    def __init__(self, name, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label="", stateChange=False, multicast=True):
         debug('debugRestServer', name, "creating RestServer")
         self.name = name
         self.resources = resources
@@ -64,7 +54,7 @@ class RestServer(object):
                 while True:
                     debug('debugRestBeacon', self.name, "REST beacon")
                     if not self.beaconSocket:
-                        self.beaconSocket = openSocket()
+                        self.beaconSocket = self.openSocket()
                     try:
                         self.beaconSocket.sendto(bytes(json.dumps({"hostname": self.hostname,
                                                              "port": self.port,
@@ -134,6 +124,16 @@ class RestServer(object):
         # start the HTTP server
         self.server.serve_forever()
 
+    def openSocket(self):
+        theSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        theSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.multicast:
+            theSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
+                    struct.pack("4sl", socket.inet_aton(multicastAddr), socket.INADDR_ANY))
+        else:
+            theSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        return theSocket
+
     def sendStateMessage(self, states=None):
         if self.multicast:
             stateMsg = {"service":{"name": self.name,
@@ -150,11 +150,11 @@ class RestServer(object):
                         "port": self.port,
                         "seq": self.stateSequence}
         if not self.stateSocket:
-            self.stateSocket = openSocket()
+            self.stateSocket = self.openSocket()
         try:
             debug('debugRestState', self.name, str(stateMsg))
             self.stateSocket.sendto(bytes(json.dumps(stateMsg), "utf-8"),
-                                                (self.restAddr, restStatePort))
+                                                (self.restAddr, restNotifyPort))
             if (self.event) and (self.stateChange):
                 # set the state event so the stateChange request returns
                 debug('debugInterrupt', self.name, "heartbeat", "set", self.event)
