@@ -88,11 +88,11 @@ class RestServer(object):
         if True:
             def stateNotify():
                 debug('debugRestServer', self.name, "REST state started")
-                lastStates = copy.copy(self.resources.getState())
+                lastStates = self.resources.getState()
                 self.timeStamp = time.time()
                 while True:
                     # wait for either the resources event or the periodic trigger
-                    states = copy.copy(self.resources.getState(wait=True))
+                    states = self.resources.getState(wait=True)
                     # debug('debugRestState', self.name, "REST state")
                     somethingChanged = False
                     # compare the current states to the previous states
@@ -111,7 +111,7 @@ class RestServer(object):
                     if somethingChanged:
                         # include the resource states if at least one of them is different
                         self.sendStateMessage(states)
-                        lastStates = copy.copy(states)
+                        lastStates = states
                     else:
                         # just send the keepalive message
                         self.sendStateMessage()
