@@ -107,7 +107,7 @@ if __name__ == "__main__":
                                                    familyRoomDoor,
                                                    northHeatTempUpMorning, northHeatTempDownMorning, northHeatTempDownEvening,
                                                    southHeatTempUpMorning, southHeatTempDownMorning, southHeatTempDownEvening
-                                                   ])
+                                                   ], event=stateChangeEvent)
     restServer = RestServer("hvac", resources, event=stateChangeEvent, label="Hvac")
 
     # Start interfaces
