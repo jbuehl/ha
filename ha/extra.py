@@ -180,62 +180,6 @@ class CalcSensor(Sensor):
             value = self.sensors[0].getState() - self.sensors[1].getState()
         return value * self.factor
 
-# Sensor that contains the states of all sensors in a list of resources
-stateChangeInterval = 10
-class ResourceStateSensor(Sensor):
-    def __init__(self, name, interface, resources, event=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None):
-        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label, interrupt=interrupt)
-        self.resources = resources
-        self.states = {}        # dictionary of current sensor states
-        self.stateTypes = {}    # dictionary of (state, type)
-
-    # return the current state of all sensors in the collection
-    def getState(self):
-        self.getStates()
-        return self.states
-
-    # return the current state and type of all sensors in the collection
-    def getStateTypes(self):
-        self.getStates()
-        return self.stateTypes
-
-    # update the current state and type of all sensors in the resource collection
-    def getStates(self):
-        self.states = {}    # current sensor states
-        self.stateTypes = {}
-        for sensor in list(self.resources.values()):
-            if sensor != self:
-                sensorName = sensor.name
-                sensorType = sensor.type
-                if sensorType in ["schedule", "collection"]:   # recurse into schedules and collections
-                    self.getStates(sensor)
-                else:
-                    sensorState = sensor.getState()
-                    self.states[sensorName] = sensorState
-                    self.stateTypes[sensorName] = (sensorState, sensorType)
-
-    # wait for a sensor state to change
-    def waitStateChange(self):
-        if self.event:
-            debug('debugInterrupt', self.name, "wait", self.event)
-            self.event.wait()
-            debug('debugInterrupt', self.name, "clear", self.event)
-            self.event.clear()
-        else:               # no event specified, return periodically
-            time.sleep(stateChangeInterval)
-
-    # return the current state of all sensors when at least one of them changes
-    def getStateChange(self):
-        debug('debugInterrupt', self.name, "getStateChange")
-        self.waitStateChange()
-        return self.getState()
-
-    # return the current state and type of all sensors when at least one of them changes
-    def getStateChangeTypes(self):
-        debug('debugInterrupt', self.name, "getStateChange")
-        self.waitStateChange()
-        return self.getStateTypes()
-
 # Control that can only be turned on if all the specified resources are in the specified states
 class DependentControl(Control):
     def __init__(self, name, interface, control, conditions, resources=None, addr=None, group="", type="control", location=None, label="", interrupt=None):

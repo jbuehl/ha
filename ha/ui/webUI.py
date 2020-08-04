@@ -398,14 +398,6 @@ def webInit(resources, restCache, stateChangeEvent, httpPort=80, ssl=False, http
                'tools.auth_basic.checkpassword': validatePassword
             }})
 
-    # create a resource state sensor if there isn't one
-    try:
-        stateResource = self.resources.getRes("states", dummy=False)
-    except:
-        debug('debugWeb', "created resource state sensor")
-        stateResource = ResourceStateSensor("states", Interface("None"), resources=resources, event=stateChangeEvent)
-        resources.addRes(stateResource)
-
     root = WebRoot(resources, restCache, stateChangeEvent, pathDict)
     cherrypy.tree.mount(root, "/", appConfig)
     cherrypy.server.unsubscribe()

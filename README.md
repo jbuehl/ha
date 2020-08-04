@@ -99,7 +99,6 @@ Other generally useful classes are inherited from the core classes:
 	+ class SensorGroup(Sensor):
 		- class ControlGroup(SensorGroup, Control):
 	- class CalcSensor(Sensor):
-	- class ResourceStateSensor(Sensor):
 	- class DependentControl(Control):
 	- class MomentaryControl(Control):
 	- class MultiControl(Control):
