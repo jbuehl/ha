@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     anemometer = Sensor("anemometer", gpio1, addr=windSpeedAddr)
     windVane = Sensor("windVane", gpio1, addr=windDirAddr)
-    windInterface = WindInterface("windInterface", None, anemometer=anemometer, windVane=windVane, event=stateChangeEvent)
+    windInterface = WindInterface("windInterface", None, anemometer=anemometer, windVane=windVane) #, event=stateChangeEvent)
     windSpeed = Sensor("windSpeed", windInterface, addr="speed", type="MPH", group="Weather", label="Wind speed")
     windDir = Sensor("windDir", windInterface, addr="dir", type="Deg", group="Weather", label="Wind direction")
 
