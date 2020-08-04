@@ -448,3 +448,10 @@ class AttributeSensor(Sensor):
 
     def getState(self):
         return getattr(self.sensor, self.attr)
+
+    # dictionary of pertinent attributes
+    def dict(self):
+        attrs = Sensor.dict(self)
+        attrs.update({"sensor": str(self.sensor),
+                      "attr": self.attr})
+        return attrs
