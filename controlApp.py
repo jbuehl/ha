@@ -1,7 +1,6 @@
 
 restWatch = ["garage", "holiday", "hvac", "backhouse", "pool",
-            "frontLights", "backLights", "garageBackDoorLight", "familyRoomLamp", "bedroomLight", "bathroomLight",
-            "frontPorchMotionSensor", "drivewayMotionSensor", "southSideMotionSensor", "deckMotionSensor", "backHouseMotionSensor", "northSideMotionSensor"]
+            "frontLights", "backLights", "garageBackDoorLight", "familyRoomLamp", "bedroomLight", "bathroomLight"]
 restIgnore = ["house", "power"]
 defaultConfig = {
 
@@ -43,7 +42,7 @@ if __name__ == "__main__":
 
     # start the cache to listen for services on other servers
     cacheResources = Collection("cacheResources", event=stateChangeEvent)
-    restCache = RestProxy("restProxy", cacheResources, watch=restWatch, ignore=restIgnore, event=stateChangeEvent)
+    restCache = RestProxy("restProxy", cacheResources, watch=restWatch, ignore=restIgnore, event=stateChangeEvent, multicast=False)
     restCache.start()
 
     # add local resources to cache resource list
@@ -147,20 +146,6 @@ if __name__ == "__main__":
     resources.addRes(Task("xmasLightsOffSunrise", SchedTime(event="sunrise"), "xmasLights", 0, resources=resources, group="Lights"))
     resources.addRes(Task("fireplaceOffMidnight", SchedTime(hour=[23,0], minute=[00]), "fireplace", 0, resources=resources, group="Lights"))
     #        resources.addRes(Task("xmasTreeOnXmas", SchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1, resources=resources))
-
-    # ESP servers being proxied
-    resources.addRes(cacheResources["frontLights"])
-    resources.addRes(cacheResources["backLights"])
-    resources.addRes(cacheResources["garageBackDoorLight"])
-    resources.addRes(cacheResources["familyRoomLamp"])
-    resources.addRes(cacheResources["bedroomLight"])
-    resources.addRes(cacheResources["bathroomLight"])
-    resources.addRes(cacheResources["frontPorchMotionSensor"])
-    resources.addRes(cacheResources["drivewayMotionSensor"])
-    resources.addRes(cacheResources["southSideMotionSensor"])
-    resources.addRes(cacheResources["deckMotionSensor"])
-    resources.addRes(cacheResources["backHouseMotionSensor"])
-    resources.addRes(cacheResources["northSideMotionSensor"])
 
     # Schedule
     schedule = Schedule("schedule")

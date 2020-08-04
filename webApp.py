@@ -128,7 +128,7 @@ if __name__ == "__main__":
             aliases = json.load(aliasFile)
     except:
         aliases = {}
-    resources = Collection("resources", aliases=aliases)
+    resources = Collection("resources", aliases=aliases, event=stateChangeEvent)
 
     # add local resources
     timeInterface = TimeInterface("timeInterface", None, latLong=latLong)
@@ -176,8 +176,27 @@ if __name__ == "__main__":
     startMetrics(resourceStates, sendMetrics, logMetrics, backupMetrics)
 
     # start the cache to listen for services on other servers
-    restCache = RestProxy("restProxy", resources, watch=restWatch, ignore=restIgnore, event=stateChangeEvent)
+    restCache = RestProxy("restCache", resources, watch=restWatch, ignore=restIgnore+["house"], event=stateChangeEvent)
     restCache.start()
+
+    # start the cache to listen for legacy services on ESP devices
+    espResources = Collection("espResources", event=stateChangeEvent)
+    espRestCache = RestProxy("espRestCache", espResources, event=stateChangeEvent, multicast=False)
+    espRestCache.start()
+
+    # ESP servers being proxied
+    # resources.addRes(cacheResources["frontLights"])
+    # resources.addRes(cacheResources["backLights"])
+    # resources.addRes(cacheResources["garageBackDoorLight"])
+    # resources.addRes(cacheResources["familyRoomLamp"])
+    # resources.addRes(cacheResources["bedroomLight"])
+    # resources.addRes(cacheResources["bathroomLight"])
+    # resources.addRes(cacheResources["frontPorchMotionSensor"])
+    # resources.addRes(cacheResources["drivewayMotionSensor"])
+    # resources.addRes(cacheResources["southSideMotionSensor"])
+    # resources.addRes(cacheResources["deckMotionSensor"])
+    # resources.addRes(cacheResources["backHouseMotionSensor"])
+    # resources.addRes(cacheResources["northSideMotionSensor"])
 
     # monitor service states
     # watchEvents(resources, serviceMonitorNotifyNumbers)
