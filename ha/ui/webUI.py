@@ -110,7 +110,7 @@ class WebRoot(object):
                             updates[jqueryName] = (resType, resState)
                     else:                           # class is specific to the type and value
                         updates[jqueryName] = (resType+"_"+resState, resState)
-                    if (resource in blinkers) and (state > 0):
+                    if (resource in blinkers) and state:
                         debug('debugWebBlink', "/updateStates", resource, resType, resState, state)
                         blinkerList.append(jqueryName)
                 except:
