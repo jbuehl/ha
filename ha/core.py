@@ -182,7 +182,7 @@ class Collection(Resource, OrderedDict):
     # return the current state and type of all sensors in the collection
     def getStateTypes(self, wait=False):
         self.getStates(wait)
-        return self.stateTypes
+        return copy.copy(self.stateTypes)
 
     # update the current state and type of all sensors in the resource collection
     def getStates(self, wait=False):
