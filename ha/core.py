@@ -57,7 +57,7 @@ def loadResource(classDict, globalDict):
 class Object(object):
     # dump the resource attributes to a serialized dict
     def dump(self):
-        return {"class": self.__class__.__name__,
+        return {"class": self.className,
                 "args": self.dict()}
 
 # Base class for Resources
