@@ -1,4 +1,3 @@
-serviceMonitorInterval = .1
 
 import threading
 import time
@@ -6,81 +5,85 @@ from ha import *
 from ha.notification.notificationServer import *
 from ha.camera.events import *
 
-def watchEvents(resources, notifyNumbers, timeout=60):
+def watchEvents(resources, timeout=60):
     serviceUpTimes = {}
+    resourceGroups = {}
     def serviceWatch():
         debug("debugEventMonitor", "eventMonitor", "starting")
         while True:
-            with resources.lock:
-                monitoredGroups = ["Services", "Doors"]
-                for resource in resources:
-                    if isinstance(resources[resource].group, list):
-                        group = resources[resource].group[0]
+            # wait for a state change
+            resourceStates = resources.getState(wait=True)
+
+            # check for services that have gone down
+            groupResources = resources.getGroup("Services")
+            for resource in groupResources:
+                if resourceStates[resource.name] == 1:  # service is up
+                    serviceUpTimes[resource.name] = time.time()
+                else:
+                    try:        # send notification if service was previously up
+                        now = time.time()
+                        if now - serviceUpTimes[resource] > timeout:
+                            log("eventMonitor", "service down", resources[resource].label, serviceUpTimes[resource.name])
+                            # send a notification if enabled
+                            if resourceStates["alertServices"]:
+                                msg = "service "+resources[resource].label+" is down"
+                                debug("debugEventMonitor", "eventMonitor", resources.label, now, serviceUpTimes[resource.name])
+                                notify(resources, "alertServices", msg)
+                            serviceUpTimes[resource.name] = float("inf")
+                    except KeyError:    # service is down at the start
+                        log("eventMonitor", "adding service", resource.label)
+                        serviceUpTimes[resource.name] = float("inf")
+
+            # check for opened doors and motion events
+            groupResources = resources.getGroup("Doors")
+            for resource in groupResources:
+                if (resource.name[-5:] != "Doors") and (resource.name != "doorbell"):
+                    try:
+                        resourceState = resourceStates[resource.name]
+                    except KeyError:    # states haven't been updated yet
+                        break
+                    if resourceState == 0:  # door is closed
+                        serviceUpTimes[resource.name] = time.time()
                     else:
-                        group = resources[resource].group
-                    if group in monitoredGroups:
-                        # debug("debugEventMonitor", "eventMonitor", resource, group, resources[resource].state)
-                        if group == "Services":
-                            if resources[resource].state == 1:  # service is up
-                                serviceUpTimes[resource] = time.time()
-                            else:
-                                try:        # send notification if service was previously up
-                                    now = time.time()
-                                    if now - serviceUpTimes[resource] > timeout:
-                                        log("eventMonitor", "service down", resources[resource].label, serviceUpTimes[resource])
-                                        # send a notification if enabled
-                                        if resources["alertServices"].getState():
-                                            msg = "service "+resources[resource].label+" is down"
-                                            debug("debugEventMonitor", "eventMonitor", resources[resource].label, now, serviceUpTimes[resource])
-                                            notify(resources, "alertServices", msg)
-                                        serviceUpTimes[resource] = float("inf")
-                                except KeyError:    # service is down at the start
-                                    log("eventMonitor", "adding service", resources[resource].label)
-                                    serviceUpTimes[resource] = float("inf")
-                        elif (group == "Doors") and (resource[-5:] != "Doors") and (resource != "doorbell"):
-                            if resources[resource].state == 0:  # door is closed
-                                serviceUpTimes[resource] = time.time()
-                            else:
-                                try:        # create event if door was previously closed
-                                    if time.time() - serviceUpTimes[resource] > 1:
-                                        eventType = resources[resource].type
-                                        eventTime = time.strftime("%Y%m%d%H%M%S")
-                                        # associate the event with a camera
-                                        if resource in ["frontDoor", "frontPorchMotionSensor"]:
-                                            camera = "frontdoor"
-                                        elif resource in ["garageDoor", "drivewayMotionSensor"]:
-                                            camera = "driveway"
-                                        elif resource in ["garageBackDoor", "southSideMotionSensor"]:
-                                            camera = "southside"
-                                        elif resource in ["northSideMotionSensor"]:
-                                            camera = "northside"
-                                        elif resource in ["familyRoomDoor", "masterBedroomDoor", "deckMotionSensor"]:
-                                            camera = "deck"
-                                        elif resource in ["backHouseDoor", "backHouseMotionSensor"]:
-                                            camera = "backhouse"
-                                        else:
-                                            camera = ""
-                                        debug("debugEventMonitor", "eventMonitor", resource, eventType, eventTime, camera)
-                                        if camera != "":
-                                            createEvent(eventType, camera, eventTime)
-                                        # send a notification if enabled
-                                        msg =  ""
-                                        if (resources["alertDoors"].getState()) and (eventType == "door"):
-                                            msg = resources[resource].label+" door is open"
-                                            notifyType = "alertDoors"
-                                        elif (resources["alertMotion"].getState()) and (eventType == "motion"):
-                                            msg = resources[resource].label
-                                            notifyType = "alertMotion"
-                                        if msg != "":
-                                            if camera != "":
-                                                msg += " https://shadyglade.thebuehls.com/"
-                                                msg += "image/"+camera+"/"+eventTime[0:8]+"/"
-                                                msg += eventTime+"_"+eventType
-                                            notify(resources, notifyType, msg)
-                                        serviceUpTimes[resource] = float("inf")
-                                except KeyError:    # service is down at the start
-                                    serviceUpTimes[resource] = float("inf")
-            time.sleep(serviceMonitorInterval)
+                        try:        # create event if door was previously closed
+                            if time.time() - serviceUpTimes[resource.name] > 1:
+                                eventType = resource.type
+                                eventTime = time.strftime("%Y%m%d%H%M%S")
+                                # associate the event with a camera
+                                if resource.name in ["frontDoor", "frontPorchMotionSensor"]:
+                                    camera = "frontdoor"
+                                elif resource.name in ["garageDoor", "drivewayMotionSensor"]:
+                                    camera = "driveway"
+                                elif resource.name in ["garageBackDoor", "southSideMotionSensor"]:
+                                    camera = "southside"
+                                elif resource.name in ["northSideMotionSensor"]:
+                                    camera = "northside"
+                                elif resource.name in ["familyRoomDoor", "masterBedroomDoor", "deckMotionSensor"]:
+                                    camera = "deck"
+                                elif resource.name in ["backHouseDoor", "backHouseMotionSensor"]:
+                                    camera = "backhouse"
+                                else:
+                                    camera = ""
+                                debug("debugEventMonitor", "eventMonitor", resource.name, eventType, eventTime, camera)
+                                # if camera != "":
+                                #     createEvent(eventType, camera, eventTime)
+                                # send a notification if enabled
+                                msg =  ""
+                                if (resourceStates["alertDoors"]) and (eventType == "door"):
+                                    msg = resource.label+" door is open"
+                                    notifyType = "alertDoors"
+                                elif (resourceStates["alertMotion"]) and (eventType == "motion"):
+                                    msg = resource.label
+                                    notifyType = "alertMotion"
+                                if msg != "":
+                                    if camera != "":
+                                        msg += " https://shadyglade.thebuehls.com/"
+                                        msg += "image/"+camera+"/"+eventTime[0:8]+"/"
+                                        msg += eventTime+"_"+eventType
+                                    notify(resources, notifyType, msg)
+                                serviceUpTimes[resource.name] = float("inf")
+                        except KeyError:    # service is down at the start
+                            serviceUpTimes[resource.name] = float("inf")
 
     serviceWatchThread = threading.Thread(target=serviceWatch)
     serviceWatchThread.start()

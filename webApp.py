@@ -183,7 +183,7 @@ if __name__ == "__main__":
     espRestCache.start()
 
     # monitor service states
-    # watchEvents(resources, serviceMonitorNotifyNumbers)
+    watchEvents(resources)
 
     # get the camera attributes
     if runCameras:
