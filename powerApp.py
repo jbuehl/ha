@@ -243,8 +243,7 @@ if __name__ == "__main__":
     schedule = Schedule("schedule", tasks=[resetEnergySensorsTask])
 
     # start the task to transmit resource metrics
-    resourceStates = ResourceStateSensor("states", None, resources=resources, event=stateChangeEvent)
-    startMetrics(resourceStates, sendMetrics, logMetrics, backupMetrics, purgeMetrics, purgeDays, logChanged)
+    startMetrics(resources, sendMetrics, logMetrics, backupMetrics, purgeMetrics, purgeDays, logChanged)
 
     restServer = RestServer("power", resources, label="Power", event=stateChangeEvent)
 

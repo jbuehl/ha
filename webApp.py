@@ -172,8 +172,7 @@ if __name__ == "__main__":
     resources.addRes(alertMotion)
 
     # start the task to transmit resource metrics
-    resourceStates = ResourceStateSensor("states", None, resources=resources, event=stateChangeEvent)
-    startMetrics(resourceStates, sendMetrics, logMetrics, backupMetrics)
+    startMetrics(resources, sendMetrics, logMetrics, backupMetrics)
 
     # start the cache to listen for services on other servers
     restCache = RestProxy("restCache", resources, watch=restWatch, ignore=restIgnore+["house"], event=stateChangeEvent)

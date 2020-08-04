@@ -12,7 +12,7 @@ import os
 import socket
 from ha import *
 
-def startMetrics(resourceStates, sendMetrics=False, logMetrics=True, backupMetrics=True, purgeMetrics=False, purgeDays=5, logChanged=True):
+def startMetrics(resources, sendMetrics=False, logMetrics=True, backupMetrics=True, purgeMetrics=False, purgeDays=5, logChanged=True):
 
     def sendMetricsThread():
         debug("debugMetrics", "sendMetrics", "metrics thread started")
@@ -21,7 +21,7 @@ def startMetrics(resourceStates, sendMetrics=False, logMetrics=True, backupMetri
         changedStates = {}
         while True:
             # wait for a new set of states
-            metrics = resourceStates.getStateChange()
+            metrics = resources.getState(wait=True)
             today = time.strftime("%Y%m%d")
 
             # log state deltas to a file
