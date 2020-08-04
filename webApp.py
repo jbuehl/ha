@@ -179,8 +179,7 @@ if __name__ == "__main__":
     restCache.start()
 
     # start the cache to listen for legacy services on ESP devices
-    espResources = Collection("espResources", event=stateChangeEvent)
-    espRestCache = RestProxy("espRestCache", espResources, event=stateChangeEvent, multicast=False)
+    espRestCache = RestProxy("espRestCache", resources, event=stateChangeEvent, multicast=False)
     espRestCache.start()
 
     # ESP servers being proxied

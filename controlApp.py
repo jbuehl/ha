@@ -1,9 +1,7 @@
 
-restWatch = ["garage", "holiday", "hvac", "backhouse", "pool",
-            "frontLights", "backLights", "garageBackDoorLight", "familyRoomLamp", "bedroomLight", "bathroomLight"]
-restIgnore = ["house", "power"]
+restWatch = ["garage", "holiday", "hvac", "backhouse", "pool"]
+espRestWatch = ["frontLights", "backLights", "garageBackDoorLight", "familyRoomLamp", "bedroomLight", "bathroomLight"]
 defaultConfig = {
-
 }
 
 from ha import *
@@ -42,8 +40,11 @@ if __name__ == "__main__":
 
     # start the cache to listen for services on other servers
     cacheResources = Collection("cacheResources", event=stateChangeEvent)
-    restCache = RestProxy("restProxy", cacheResources, watch=restWatch, ignore=restIgnore, event=stateChangeEvent, multicast=False)
+    restCache = RestProxy("restProxy", cacheResources, watch=restWatch, event=stateChangeEvent)
     restCache.start()
+    # start the cache to listen for legacy services on ESP devices
+    espRestCache = RestProxy("espRestCache", cacheResources, watch=espRestWatch, event=stateChangeEvent, multicast=False)
+    espRestCache.start()
 
     # add local resources to cache resource list
     cacheResources.addRes(garageLights)

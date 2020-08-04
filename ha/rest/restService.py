@@ -118,7 +118,7 @@ class RestService(Sensor):
         debug('debugLoadResources', self.name, "loadResource", "node:", node)
         try:
             # ignore certain resource types
-            if node["class"] not in ["Collection", "Schedule", "RestService"]:
+            if node["class"] not in ["Collection", "Schedule", "ResourceStateSensor", "RestService"]:
                 try:
                     node["args"]["interface"] = None
                     resource = loadResource(node, globals())
