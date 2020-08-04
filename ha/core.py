@@ -133,7 +133,10 @@ class Collection(Resource, OrderedDict):
         for resource in resources:
             self.addRes(resource)
         self.aliases = aliases
-        self.event = event
+        if event:
+            self.event = event
+        else:
+            self.event = threading.Event()
         self.states = {}    # current sensor states
         self.stateTypes = {}
         debug('debugCollection', self.name, "aliases:", self.aliases)
