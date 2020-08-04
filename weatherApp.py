@@ -69,7 +69,7 @@ if __name__ == "__main__":
                                                    windSpeed, windDir, rainMinute, rainHour, rainDay,
                                                    minTemp, maxTemp,
                                                    rainResetTask, resetMinTempTask, resetMaxTempTask,
-                                                   ])
+                                                   ], event=stateChangeEvent)
     restServer = RestServer("weather", resources, label="Weather", event=stateChangeEvent)
 
     # report to Weather Underground

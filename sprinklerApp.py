@@ -20,7 +20,7 @@ from ha.rest.restProxy import *
 
 if __name__ == "__main__":
     stateChangeEvent = threading.Event()
-    cacheResources = Collection("cacheResources")
+    cacheResources = Collection("cacheResources", event=stateChangeEvent)
     restCache = RestProxy("restProxy", cacheResources, watch=weatherService, event=stateChangeEvent)
     restCache.start()
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
                                                    backLawnSequence, backBedSequence, sideBedSequence,
                                                    dailySequence, weeklySequence,
                                                    dailyTask, weeklyTask, hotTask, springTask,
-                                                   ])
+                                                   ], event=stateChangeEvent)
     restServer = RestServer("sprinklers", resources, event=stateChangeEvent, label="Sprinklers")
 
     # Start interfaces

@@ -44,7 +44,7 @@ if __name__ == "__main__":
     # Resources
     resources = Collection("resources", [pilotVoltage, chargingCurrent, chargingPower, charger, maxChargingCurrent,
                                          carChargerEnabledTask, carChargerDisabledTask,
-                                        ])
+                                        ], event=stateChangeEvent)
     restServer = RestServer("carcharger", resources, event=stateChangeEvent, label="Car charger")
 
     # Start interfaces

@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     # Resources
     resources = Collection("resources", resources=[halloween, halloweenVideo,
-                                                   ])
+                                                   ], event=stateChangeEvent)
     restServer = RestServer("halloween", resources, event=stateChangeEvent, label="Halloween")
 
     # Start interfaces

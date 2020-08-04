@@ -69,7 +69,7 @@ if __name__ == "__main__":
                                                    backHeatControl, backCoolControl, backThermostat, backThermostatUnitSensor,
                                                    backHouseDoor,
                                                    backHeatTempUpMorning, backHeatTempDownMorning, backHeatTempDownEvening,
-                                                   ])
+                                                   ], event=stateChangeEvent)
     restServer = RestServer("backhouse", resources, event=stateChangeEvent, label="Back house")
 
     # Start interfaces

@@ -101,7 +101,7 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
 
     # start the cache to listen for services on other servers
-    cacheResources = Collection("cacheResources")
+    cacheResources = Collection("cacheResources", event=stateChangeEvent)
     restCache = RestProxy("restProxy", cacheResources, watch=restWatch, event=stateChangeEvent)
     restCache.start()
 
@@ -193,7 +193,7 @@ if __name__ == "__main__":
                                          appl2Energy, acEnergy, backhouseEnergy, poolEnergy,
                                          carchargerEnergy,
                                          load, dailyEnergy,
-                                         ])
+                                         ], event=stateChangeEvent)
 
     # Solar devices
     for inverter in list(inverters.keys()):
@@ -246,7 +246,7 @@ if __name__ == "__main__":
     resourceStates = ResourceStateSensor("states", None, resources=resources, event=stateChangeEvent)
     startMetrics(resourceStates, sendMetrics, logMetrics, backupMetrics, purgeMetrics, purgeDays, logChanged)
 
-    restServer = RestServer("power", resources, label="Power")
+    restServer = RestServer("power", resources, label="Power", event=stateChangeEvent)
 
     # Start interfaces
     solarInterface.start()

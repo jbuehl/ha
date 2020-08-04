@@ -99,7 +99,7 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
 
     # start the cache to listen for services on other servers
-    cacheResources = Collection("cacheResources")
+    cacheResources = Collection("cacheResources", event=stateChangeEvent)
     restCache = RestProxy("restProxy", cacheResources, watch=restWatch, event=stateChangeEvent)
     restCache.start()
 
@@ -185,7 +185,7 @@ if __name__ == "__main__":
                                                    backupBatteryCharge, backupChargeMode,
                                                    backupBatteryCapacity, backupChargerTemp, backupBatteryTemp,
                                                    resetEnergySensors,
-                                                   ])
+                                                   ], event=stateChangeEvent)
 
     # Renology charge controller parameters
     for param in list(chargerParams.keys()):

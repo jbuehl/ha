@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     # Resources
     resources = Collection("resources", resources=[fireplace, fireplaceVideo,
-                                                   ])
+                                                   ], event=stateChangeEvent)
     restServer = RestServer("fireplace", resources, event=stateChangeEvent, label="Fireplace")
 
     # Start interfaces

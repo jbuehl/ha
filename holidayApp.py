@@ -140,7 +140,7 @@ if __name__ == "__main__":
     schedule = Schedule("schedule", tasks=holidayTasks)
 
     # Resources
-    resources = Collection("resources", resources=[holidayLights, holiday])
+    resources = Collection("resources", resources=[holidayLights, holiday], event=stateChangeEvent)
     restServer = RestServer("holiday", resources, event=stateChangeEvent, label="Holiday lights")
 
     # Start interfaces
