@@ -374,10 +374,10 @@ class MinSensor(Sensor):
             self.interface.write(self.addr, self.minState)
 
     # dictionary of pertinent attributes
-    def dict(self):
-        attrs = Control.dict(self)
-        attrs.update({"sensor": str(self.sensor)})
-        return attrs
+    # def dict(self):
+    #     attrs = Control.dict(self)
+    #     attrs.update({"sensor": str(self.sensor)})
+    #     return attrs
 
 # Sensor that captures the maximum state value of the specified sensor
 class MaxSensor(Sensor):
@@ -410,10 +410,10 @@ class MaxSensor(Sensor):
             self.interface.write(self.addr, self.maxState)
 
     # dictionary of pertinent attributes
-    def dict(self):
-        attrs = Control.dict(self)
-        attrs.update({"sensor": str(self.sensor)})
-        return attrs
+    # def dict(self):
+    #     attrs = Control.dict(self)
+    #     attrs.update({"sensor": str(self.sensor)})
+    #     return attrs
 
 # Sensor that captures the accumulated state values of the specified sensor
 class AccumSensor(Sensor):
