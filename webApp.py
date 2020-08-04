@@ -182,20 +182,6 @@ if __name__ == "__main__":
     espRestCache = RestProxy("espRestCache", resources, event=stateChangeEvent, multicast=False)
     espRestCache.start()
 
-    # ESP servers being proxied
-    # resources.addRes(cacheResources["frontLights"])
-    # resources.addRes(cacheResources["backLights"])
-    # resources.addRes(cacheResources["garageBackDoorLight"])
-    # resources.addRes(cacheResources["familyRoomLamp"])
-    # resources.addRes(cacheResources["bedroomLight"])
-    # resources.addRes(cacheResources["bathroomLight"])
-    # resources.addRes(cacheResources["frontPorchMotionSensor"])
-    # resources.addRes(cacheResources["drivewayMotionSensor"])
-    # resources.addRes(cacheResources["southSideMotionSensor"])
-    # resources.addRes(cacheResources["deckMotionSensor"])
-    # resources.addRes(cacheResources["backHouseMotionSensor"])
-    # resources.addRes(cacheResources["northSideMotionSensor"])
-
     # monitor service states
     # watchEvents(resources, serviceMonitorNotifyNumbers)
 
