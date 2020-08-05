@@ -130,8 +130,6 @@ class RestProxy(threading.Thread):
                                                                     group="Services")
                     service = self.services[serviceName]
                     service.enable()
-                    if self.multicast:
-                        serviceResources = ["resources"]
                     self.getResources(service, serviceResources, serviceTimeStamp)
                     service.interface.setStates(serviceStates)
                 else:   # service is already in the cache
@@ -166,6 +164,8 @@ class RestProxy(threading.Thread):
     # get all the resources on the specified service and add to the cache
     def getResources(self, service, serviceResources, serviceTimeStamp):
         debug('debugRestProxy', self.name, "getting", service.name, "resources:", str(serviceResources))
+        if self.multicast:
+            serviceResources = ["resources"]
         # load resources in a separate thread
         loadResourcesThread = threading.Thread(target=service.loadResources, args=(self, serviceResources, serviceTimeStamp,))
         loadResourcesThread.start()
