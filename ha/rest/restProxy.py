@@ -21,7 +21,7 @@ def setServicePorts(serviceList):
 def parseServiceData(data, addr):
     serviceData = json.loads(data)
     debug('debugRestProxyData', "data", serviceData)
-    (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceStateChange, serviceSeq) = ("", "", [], 0, "", False, 0)
+    (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceSeq) = ("", "", [], 0, "", 0)
     # data is in list format
     if isinstance(serviceData, list):
         # service name
@@ -38,11 +38,6 @@ def parseServiceData(data, addr):
         except IndexError:
             serviceTimeStamp = 0
             serviceLabel = serviceName
-        # does service support getStateChange
-        try:
-            serviceStateChange = serviceData[6]
-        except IndexError:
-            serviceStateChange = False
     # data is in dictionary format
     elif isinstance(serviceData, dict):
         try:        # old format
@@ -52,10 +47,6 @@ def parseServiceData(data, addr):
             serviceTimeStamp = serviceData["timestamp"]
             serviceLabel = serviceData["label"]
             serviceSeq = serviceData["seq"]
-            try:
-                serviceStateChange = serviceData["statechange"]
-            except KeyError:
-                serviceStateChange = False
             serviceStates = {}
         except KeyError:    # new format
             try:
@@ -73,10 +64,9 @@ def parseServiceData(data, addr):
                 serviceTimeStamp = serviceData["timestamp"]
                 serviceLabel = serviceData["label"]
                 serviceSeq = serviceData["seq"]
-                serviceStateChange = False
             except Exception as ex:
                 log("parseServiceData", str(ex), str(serviceData))
-    return (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceStateChange, serviceSeq, serviceStates)
+    return (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceSeq, serviceStates)
 
 # Autodiscover services and resources
 # Detect changes in resource configuration on each service
@@ -112,7 +102,7 @@ class RestProxy(threading.Thread):
             (data, addr) = self.socket.recvfrom(32768)   # FIXME - need to handle arbitrarily large data
             debug('debugRestBeacon', self.name, "beacon data", data)
             # parse the message
-            (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceStateChange, serviceSeq, serviceStates) = \
+            (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceSeq, serviceStates) = \
                 parseServiceData(data.decode("utf-8"), addr)
             # rename it if there is an alias
             if serviceName in list(self.resources.aliases.keys()):
@@ -127,7 +117,7 @@ class RestProxy(threading.Thread):
                 debug('debugRestProxy', self.name, "processing", serviceName, serviceAddr, serviceTimeStamp)
                 if serviceName not in list(self.services.keys()):
                     # create a new service proxy
-                    debug('debugRestProxyAdd', self.name, "adding", serviceName, serviceAddr, serviceTimeStamp, serviceStateChange)
+                    debug('debugRestProxyAdd', self.name, "adding", serviceName, serviceAddr, serviceTimeStamp)
                     self.services[serviceName] = RestService(serviceName,
                                                                     RestInterface(serviceName+"Interface",
                                                                                     serviceAddr=serviceAddr,
