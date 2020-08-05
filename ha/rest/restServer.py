@@ -45,78 +45,77 @@ class RestServer(object):
     def start(self):
         debug('debugRestServer', self.name, "starting RestServer")
         # start the thread to send the resource states periodically and when one changes
-        if True:
-            def stateNotify():
-                debug('debugRestServer', self.name, "REST state started")
-                lastStates = self.resources.getState()
-                self.timeStamp = time.time()
-                while True:
-                    # wait for either the resources event or the periodic trigger
-                    states = self.resources.getState(wait=True)
-                    # debug('debugRestState', self.name, "REST state")
-                    somethingChanged = False
-                    # compare the current states to the previous states
-                    for sensor in list(lastStates.keys()):
-                        try:
-                            if states[sensor] != lastStates[sensor]:
-                                debug('debugRestState', self.name, sensor, lastStates[sensor], "-->", states[sensor])
-                                somethingChanged = True
-                                self.timeStamp = int(time.time())
-                                break
-                        except KeyError:
-                            # a resource was either added or removed
-                            somethingChanged = True
+        def stateNotify():
+            debug('debugRestServer', self.name, "REST state started")
+            resources = list(self.resources.keys())
+            states = self.resources.getState()
+            lastStates = states
+            self.timeStamp = int(time.time())
+            while True:
+                self.sendStateMessage(resources, states)
+                resources = None
+                states = None
+                # wait for either a state to change or the periodic trigger
+                currentStates = self.resources.getState(wait=True)
+                # compare the current states to the previous states
+                for sensor in list(lastStates.keys()):
+                    try:
+                        if currentStates[sensor] != lastStates[sensor]:
+                            # a state changed
+                            debug('debugRestState', self.name, sensor, lastStates[sensor], "-->", currentStates[sensor])
+                            states = currentStates
                             self.timeStamp = int(time.time())
                             break
-                    if somethingChanged:
-                        # include the resource states if at least one of them is different
-                        self.sendStateMessage(states)
-                        lastStates = states
-                    else:
-                        # just send the keepalive message
-                        self.sendStateMessage()
-                debug('debugRestServer', self.name, "REST state ended")
-            stateNotifyThread = threading.Thread(target=stateNotify)
-            stateNotifyThread.start()
+                    except KeyError:
+                        # a resource was either added or removed
+                        resources = list(self.resources.keys())
+                        states = currentStates
+                        self.timeStamp = int(time.time())
+                        break
+                lastStates = currentStates
+            debug('debugRestServer', self.name, "REST state ended")
+        stateNotifyThread = threading.Thread(target=stateNotify)
+        stateNotifyThread.start()
 
         # start the thread to trigger the keepalive message periodically
-        if True:
-            def stateTrigger():
-                debug('debugRestServer', self.name, "REST state trigger started", restBeaconInterval)
-                while True:
-                    debug('debugInterrupt', self.name, "trigger", "set", self.event)
-                    self.event.set()
-                    time.sleep(restBeaconInterval)
-                debug('debugRestServer', self.name, "REST state trigger ended")
-            stateTriggerThread = threading.Thread(target=stateTrigger)
-            stateTriggerThread.start()
+        def stateTrigger():
+            debug('debugRestServer', self.name, "REST state trigger started", restBeaconInterval)
+            while True:
+                debug('debugInterrupt', self.name, "trigger", "set", self.event)
+                self.event.set()
+                time.sleep(restBeaconInterval)
+            debug('debugRestServer', self.name, "REST state trigger ended")
+        stateTriggerThread = threading.Thread(target=stateTrigger)
+        stateTriggerThread.start()
 
         # start the HTTP server
         self.server.serve_forever()
 
     def openSocket(self):
-        theSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        theSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        msgSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        msgSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         if self.multicast:
-            theSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
+            msgSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
                     struct.pack("4sl", socket.inet_aton(multicastAddr), socket.INADDR_ANY))
         else:
-            theSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        return theSocket
+            msgSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        return msgSocket
 
-    def sendStateMessage(self, states=None):
+    def sendStateMessage(self, resources=None, states=None):
         stateMsg = {"service":{"name": self.name,
                                "hostname": self.hostname,
                                "port": self.port,
                                "label": self.label,
                                "timestamp": self.timeStamp,
                                "seq": self.stateSequence}}
+        if resources:
+            stateMsg["resources"] = resources
         if states:
             stateMsg["states"] = states
         if not self.stateSocket:
             self.stateSocket = self.openSocket()
         try:
-            debug('debugRestState', self.name, str(stateMsg))
+            debug('debugRestState', self.name, str(list(stateMsg.keys())))
             self.stateSocket.sendto(bytes(json.dumps(stateMsg), "utf-8"),
                                                 (self.restAddr, restNotifyPort))
         except socket.error as exception:
