@@ -45,35 +45,6 @@ class RestServer(object):
 
     def start(self):
         debug('debugRestServer', self.name, "starting RestServer")
-        # start the beacon to advertise this service
-        if self.beacon and not self.multicast:
-            self.timeStamp = time.time()
-            def beacon():
-                debug('debugRestServer', self.name, "REST beacon started")
-                beaconSequence = 0
-                while True:
-                    debug('debugRestBeacon', self.name, "REST beacon")
-                    if not self.beaconSocket:
-                        self.beaconSocket = self.openSocket()
-                    try:
-                        self.beaconSocket.sendto(bytes(json.dumps({"hostname": self.hostname,
-                                                             "port": self.port,
-                                                             "resources": [self.server.resources.name],
-                                                             "timestamp": self.timeStamp,
-                                                             "label": self.label,
-                                                             "name": self.name,
-                                                             "statechange": self.stateChange,
-                                                             "seq": beaconSequence}), "utf-8"),
-                                                        (self.restAddr, restBeaconPort))
-                    except socket.error as exception:
-                        log("socket error", str(exception))
-                        self.beaconSocket = None
-                    beaconSequence += 1
-                    time.sleep(restBeaconInterval)
-                debug('debugRestServer', self.name, "REST beacon ended")
-            beaconThread = threading.Thread(target=beacon)
-            beaconThread.start()
-
         # start the thread to send the resource states periodically and when one changes
         if True:
             def stateNotify():
@@ -135,20 +106,14 @@ class RestServer(object):
         return theSocket
 
     def sendStateMessage(self, states=None):
-        if self.multicast:
-            stateMsg = {"service":{"name": self.name,
-                                   "hostname": self.hostname,
-                                   "port": self.port,
-                                   "label": self.label,
-                                   "timestamp": self.timeStamp,
-                                   "seq": self.stateSequence}}
-            if states:
-                stateMsg["states"] = states
-        else:
-            stateMsg = {"state": self.resources.states,
-                        "hostname": self.hostname,
-                        "port": self.port,
-                        "seq": self.stateSequence}
+        stateMsg = {"service":{"name": self.name,
+                               "hostname": self.hostname,
+                               "port": self.port,
+                               "label": self.label,
+                               "timestamp": self.timeStamp,
+                               "seq": self.stateSequence}}
+        if states:
+            stateMsg["states"] = states
         if not self.stateSocket:
             self.stateSocket = self.openSocket()
         try:
