@@ -132,7 +132,7 @@ class RestProxy(threading.Thread):
                                                                     RestInterface(serviceName+"Interface",
                                                                                     serviceAddr=serviceAddr,
                                                                                     event=self.event, cache=self.cache,
-                                                                                    secure=False, stateChange=serviceStateChange,
+                                                                                    secure=False,
                                                                                     multicast=self.multicast),
                                                                     addr=0,
                                                                     timeStamp=serviceTimeStamp,

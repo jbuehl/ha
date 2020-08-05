@@ -244,7 +244,6 @@ class Sensor(Resource):
                 self.event = event
                 debug('debugInterrupt', self.name, "sensor event", self.event)
             self.__dict__["state"] = None   # dummy class variable so hasattr() returns True
-            self.__dict__["stateChange"] = None   # dummy class variable so hasattr() returns True
             # FIXME - use @property
 
     # Return the state of the sensor by reading the value from the address on the interface.

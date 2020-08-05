@@ -8,13 +8,12 @@ from ha import *
 from ha.rest.restConfig import *
 
 class RestInterface(Interface):
-    def __init__(self, name, interface=None, event=None, serviceAddr="", secure=False, cache=True, writeThrough=True, stateChange=False, multicast=False):
+    def __init__(self, name, interface=None, event=None, serviceAddr="", secure=False, cache=True, writeThrough=True, multicast=False):
         Interface.__init__(self, name, interface=interface, event=event)
         self.serviceAddr = serviceAddr      # address of the REST service to target (ipAddr:port)
         self.secure = secure                # use SSL
         self.cache = cache                  # cache the states
         self.writeThrough = writeThrough    # cache is write through
-        self.stateChange = stateChange      # server supports getStateChange
         self.multicast = multicast
         self.hostName = socket.gethostname()
         self.socket = None
@@ -31,25 +30,9 @@ class RestInterface(Interface):
         debug('debugRest', self.name, "starting")
         self.enabled = True
         if self.cache:
-            if self.stateChange:
-                readStateChangeThread = threading.Thread(target=self.readStateChange)
-                readStateChangeThread.start()
             if not self.multicast:
                 readStateNotifyThread = threading.Thread(target=self.readStateNotify)
                 readStateNotifyThread.start()
-
-    # thread to update the cache when the stateChange request returns
-    def readStateChange(self):
-        debug('debugRestStates', self.name, "readStateChange started")
-        while self.enabled:
-            states = self.readStates("/resources/states/stateChange")
-            if states == {}:    # retry if there is an error
-                debug('debugRestStates', self.name, "readStateChange error")
-                time.sleep(restRetryInterval)
-                debug('debugRestStates', self.name, "readStateChange retrying")
-            else:
-                self.notify()
-        debug('debugRestStates', self.name, "readStateChange terminated")
 
     # thread to update the cache when a state notification message is received
     def readStateNotify(self):
@@ -120,10 +103,8 @@ class RestInterface(Interface):
             else:
                 path = "/resources/states/state"
         debug('debugRestStates', self.name, "readStates", "path", path)
-        # type of state resource: "state", "stateChange"
-        stateType = path.split("/")[-1]
         try:
-            states = self.readRest(path)[stateType]
+            states = self.readRest(path)[path.split("/")[-1]]
         except KeyError:
             states = {}
         debug('debugRestStates', self.name, "readStates", "states", states)

@@ -15,7 +15,7 @@ import copy
 
 # RESTful web services server interface
 class RestServer(object):
-    def __init__(self, name, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label="", stateChange=False, multicast=True):
+    def __init__(self, name, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label="", multicast=True):
         debug('debugRestServer', name, "creating RestServer")
         self.name = name
         self.resources = resources
@@ -32,7 +32,6 @@ class RestServer(object):
             self.label = self.hostname+":"+str(self.port)
         else:
             self.label = label
-        self.stateChange = stateChange
         debug('debugInterrupt', self.label, "event", self.event)
         self.server = RestHTTPServer(('', self.port), RestRequestHandler, self.resources)
         if self.multicast:
@@ -120,10 +119,6 @@ class RestServer(object):
             debug('debugRestState', self.name, str(stateMsg))
             self.stateSocket.sendto(bytes(json.dumps(stateMsg), "utf-8"),
                                                 (self.restAddr, restNotifyPort))
-            if (self.event) and (self.stateChange):
-                # set the state event so the stateChange request returns
-                debug('debugInterrupt', self.name, "heartbeat", "set", self.event)
-                self.event.set()
         except socket.error as exception:
             log("socket error", str(exception))
             self.stateSocket = None
