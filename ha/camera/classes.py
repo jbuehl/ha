@@ -2,6 +2,7 @@
 cameraBase = "/cameras/"
 
 import json
+import os
 from ha import *
 
 cameraDir = cameraBase+"cameras/"
@@ -111,3 +112,11 @@ def subTimes(time1, time2):
     mm = int(((t1 - t2) % 3600) / 60)
     ss = int(((t1 - t2) % 3600) % 60)
     return "%02d%02d%02d"%(hh, mm, ss)
+
+# create a directory and any parent directories necessary
+# don't raise an exception if the directory already exists
+def makeDir(path):
+    try:
+        os.makedirs(path)
+    except FileExistsError:
+        pass
