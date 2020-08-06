@@ -8,6 +8,7 @@ from ha import *
 
 cameraDir = cameraBase+"cameras/"
 archiveDir = cameraBase+"archive/"
+subDirs = ["videos", "images", "thumbs"]
 
 # directory structure:
     # <cameraBase>/
@@ -31,7 +32,7 @@ archiveDir = cameraBase+"archive/"
     #                             <YYYYMMDDHHMMSS>_motion.jpg     # motion event image
     #                             <YYYYMMDDHHMMSS>_door.jpg       # door event image
     #                             <YYYYMMDDHHMMSS>_doorbell.jpg   # doorbell event image
-    #            snaps/
+    #            thumbs/
     #                <YYYY>/
     #                    <MM>/
     #                        <DD>/
@@ -61,6 +62,7 @@ class Camera(object):
 
 # get the camera attributes
 def getCameras():
+    today = time.strftime("%Y%m%d")
     cameraList = None
     while not cameraList:
         try:
@@ -74,6 +76,7 @@ def getCameras():
         try:
             cameras[camera].load(cameraDir+camera+"/conf.json")
             debug("debugCamera", "camera:", str(camera))
+            makeAllDirs(cameraDir+camera+"/", today)
         except IOError:
             log("error reading config for camera", camera)
             del(cameras[camera])
@@ -113,6 +116,11 @@ def subTimes(time1, time2):
     mm = int(((t1 - t2) % 3600) / 60)
     ss = int(((t1 - t2) % 3600) % 60)
     return "%02d%02d%02d"%(hh, mm, ss)
+
+# create all the subdirectories for a camera
+def makeAllDirs(cameraDir, date):
+    for subDir in subDirs:
+        makeDir(cameraDir+subDir+"/"+dateDir(date))
 
 # create a directory and any parent directories necessary
 # don't raise an exception if the directory already exists
