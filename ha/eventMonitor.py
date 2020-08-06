@@ -65,8 +65,8 @@ def watchEvents(resources, timeout=60):
                                 else:
                                     camera = ""
                                 debug("debugEventMonitor", "eventMonitor", resource.name, eventType, eventTime, camera)
-                                # if camera != "":
-                                #     createEvent(eventType, camera, eventTime)
+                                if camera != "":
+                                    createEvent(eventType, camera, eventTime)
                                 # send a notification if enabled
                                 msg =  ""
                                 if (resourceStates["alertDoors"]) and (eventType == "door"):

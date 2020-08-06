@@ -21,8 +21,8 @@ class VideoInterface(Interface):
             log("pid", self.pid)
         else:
             if self.pid:
-                os.popen("kill "+str(self.pid))
+                pid = subprocess.Popen("kill "+str(self.pid), shell=True)
             time.sleep(1)
-            os.popen("dd if=/dev/zero of=/dev/fb0")
-            os.popen("setterm -cursor off > /dev/tty1")
+            pid = subprocess.Popen("dd if=/dev/zero of=/dev/fb0", shell=True)
+            pid = subprocess.Popen("setterm -cursor off > /dev/tty1", shell=True)
         self.state = value

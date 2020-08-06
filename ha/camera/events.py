@@ -23,8 +23,8 @@ def createEvent(eventType, cameraName, eventTime):
     [date, hour, minute, second] = splitTime(eventTime)
     videoDir = cameraDir+cameraName+"/videos/"+dateDir(date)
     imageDir = cameraDir+cameraName+"/images/"+dateDir(date)
-    os.popen("mkdir -p "+imageDir)
-    os.popen("chown -R "+ftpUsername+"."+ftpUsername+" "+cameraDir+cameraName+"/images/")
+    makeDir(imageDir)
+    # osCommand("chown -R "+ftpUsername+"."+ftpUsername+" "+cameraDir+cameraName+"/images/")
     try:
         (tsFiles, firstFile) = findChunk(videoDir, eventTime)
         # wait for the fragment to finish recording
@@ -34,7 +34,7 @@ def createEvent(eventType, cameraName, eventTime):
             debug("debugThumb", "creating", eventType, "event for camera", cameraName, "at", hour+minute+second, "from", tsFiles[firstFile], "offset", offset)
             cmd = "/usr/bin/ffmpeg -ss 0:%02d"%(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -nostats -loglevel error -y "+ \
                   imageDir+date+hour+minute+second+"_"+eventType+".jpg"
-            os.popen(cmd)
+            osCommand(cmd)
     except (OSError, IndexError) as ex: # directory doesn't exist yet
         log("createEvent", "exception", str(ex))
 
@@ -43,7 +43,7 @@ def createSnap(cameraName, eventTime, wait=True):
     # debug("debugSnaps", "createSnap", cameraName, date, hour, minute, second, wait)
     videoDir = cameraDir+cameraName+"/videos/"+dateDir(date)
     thumbDir = cameraDir+cameraName+"/thumbs/"+dateDir(date)
-    os.popen("mkdir -p "+thumbDir)
+    makeDir(thumbDir)
     try:
         (tsFiles, firstFile) = findChunk(videoDir, eventTime)
         # debug("debugSnaps", "createSnap", cameraName, firstFile, tsFiles[firstFile])
@@ -56,7 +56,7 @@ def createSnap(cameraName, eventTime, wait=True):
             cmd = "/usr/bin/ffmpeg -ss 0:%02d"%(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -s "+str(snapWidth)+"x"+str(snapHeight)+ \
                   " -nostats -loglevel error -y "+ \
                   thumbDir+date+hour+minute+second+"_snap.jpg"
-            os.popen(cmd)
+            osCommand(cmd)
     except (OSError, IndexError) as ex: # directory or video file doesn't exist yet
         log("createSnap", "exception", str(ex))
 
@@ -87,9 +87,9 @@ def motionEvents(imageBase, camera, date, force=False, repeat=0):
     videoDir = imageBase+camera.name+"/videos/"+dateDir(date)
     imageDir = imageBase+camera.name+"/images/"+dateDir(date)
     thumbDir = imageBase+camera.name+"/thumbs/"+dateDir(date)
-    os.popen("mkdir -p "+imageDir)
-    os.popen("chown -R "+ftpUsername+"."+ftpUsername+" "+cameraDir+camera.name+"/images/")
-    os.popen("mkdir -p "+thumbDir)
+    makeDir(imageDir)
+    # osCommand("chown -R "+ftpUsername+"."+ftpUsername+" "+cameraDir+camera.name+"/images/")
+    makeDir(thumbDir)
     eventClipCount = eventClipInterval
     repeating = 1
     while repeating:
@@ -106,7 +106,7 @@ def motionEvents(imageBase, camera, date, force=False, repeat=0):
                     if imageNameParts[-1].isdigit():
                         newImageFile = imageNameParts[-1]+"_motion.jpg"
                         debug("debugThumb", "renaming ", imageDir+imageFile, "to", imageDir+newImageFile)
-                        os.popen("mv "+imageDir+imageFile.replace(" ", "\ ")+" "+imageDir+newImageFile)
+                        os.rename(imageDir+imageFile.replace(" ", "\ "), imageDir+newImageFile)
             except OSError: # directory doesn't exist yet
                 pass
         else:

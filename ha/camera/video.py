@@ -77,7 +77,7 @@ def recordVideo(cameraDir, camera, date):
     cameraUsername = getValue(cameraKey, "cameraUsername")
     cameraPassword = getValue(cameraKey, "cameraPassword")
     debug("debugVideo", "videoDir:", videoDir)
-    os.popen("mkdir -p "+videoDir)
+    makeDir(videoDir)
     while True:
         try:
             cmd  = "/usr/bin/ffmpeg -i rtsp://"+cameraUsername+":"+cameraPassword+"@"+camera.ipAddr+":"+str(camera.port)+"/"+camera.resource

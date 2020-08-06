@@ -357,11 +357,11 @@ class WebRoot(object):
         if archive == "true":
             debug('debugClip', "archiving", clipFileName)
             archiveDir = cameraBase+"archive/"+camera+"/videos/"+dateDir(date)
-            os.popen("mkdir -p "+archiveDir)
-            os.popen("mv "+videoDir+clipFileName+" "+archiveDir)
+            makeDir(archiveDir)
+            os.rename(videoDir+clipFileName, archiveDir+clipFileName)
         else:
             debug('debugClip', "deleting", clipFileName)
-            os.popen("rm "+videoDir+clipFileName)
+            os.remove(videoDir+clipFileName)
         cherrypy.response.headers['Content-Length'] = len(videoClip)
         cherrypy.response.headers['Content-Type'] = "application/octet-stream"
         cherrypy.response.headers['Content-Disposition'] = 'attachment; filename="'+camera+'-'+clipFileName+'"'

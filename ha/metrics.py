@@ -75,7 +75,7 @@ def startMetrics(resources, sendMetrics=False, logMetrics=True, backupMetrics=Tr
                         try:
                             backupServer = subprocess.check_output("avahi-browse -atp|grep _backup|grep IPv4|cut -d';' -f4", shell=True).decode().split("\n")[0]+".local"
                             debug("debugMetrics", "backupMetrics", "backing up "+logDir+" to", backupServer)
-                            os.popen("rsync -a "+logDir+"* "+backupServer+":/backups/ha/"+hostname+"/")
+                            pid = subprocess.Popen("rsync -a "+logDir+"* "+backupServer+":/backups/ha/"+hostname+"/", shell=True)
                         except Exception as ex:
                             log("metrics", "exception backing up metrics", str(ex))
                         debug("debugMetrics", "sendMetrics", "metrics thread ended")
@@ -98,7 +98,7 @@ def startMetrics(resources, sendMetrics=False, logMetrics=True, backupMetrics=Tr
                                 backupSize = int(subprocess.check_output("ssh "+backupServer+" ls -l /backups/ha/"+hostname+"/"+metricsFile+"|cut -f5 -d' '", shell=True))
                                 if backupSize == fileSize:
                                     debug("debugPurgeMetrics", "deleting", metricsFile)
-                                    os.popen("rm "+logDir+metricsFile)
+                                    os.remove(logDir+metricsFile)
                             except Exception as ex:
                                 log("exception purging metrics file", metricsFile, str(ex))
 

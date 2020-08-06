@@ -33,7 +33,7 @@ def getStorageStats(cameraDir, cameras, repeat):
                 updateStorageStats(cameraName, time.strftime("%Y%m%d", dayDatetime.timetuple()), cameraDir, eventStorage)
                 dayDatetime += datetime.timedelta(days=1)
         debug('debugStorage', "eventStorage", eventStorage)
-        os.popen("mkdir -p "+stateDir)
+        makeDir(stateDir)
         json.dump(eventStorage, open(stateDir+"storage.json", "w"))
         debug('debugStorage', "saved storage stats")
         repeating = repeat
@@ -76,9 +76,9 @@ def purgeStorage(cameraName, repeat):
     while repeating:
         debug('debugEnable', "deleting video older than", videoRetention, "days for camera", cameraName)
         if videoRetention > 0:
-            os.popen("/usr/bin/find "+cameraDir+cameraName+"/videos"+" -mtime +"+str(videoRetention)+" -type f -delete")
-            os.popen("/usr/bin/find "+cameraDir+cameraName+"/images"+" -mtime +"+str(videoRetention)+" -type f -delete")
-            os.popen("/usr/bin/find "+cameraDir+cameraName+"/snaps"+" -mtime +"+str(videoRetention)+" -type f -delete")
-            os.popen("/usr/bin/find "+cameraDir+cameraName+"/thumbs"+" -mtime +"+str(videoRetention)+" -type f -delete")
+            osCommand("/usr/bin/find "+cameraDir+cameraName+"/videos"+" -mtime +"+str(videoRetention)+" -type f -delete")
+            osCommand("/usr/bin/find "+cameraDir+cameraName+"/images"+" -mtime +"+str(videoRetention)+" -type f -delete")
+            osCommand("/usr/bin/find "+cameraDir+cameraName+"/snaps"+" -mtime +"+str(videoRetention)+" -type f -delete")
+            osCommand("/usr/bin/find "+cameraDir+cameraName+"/thumbs"+" -mtime +"+str(videoRetention)+" -type f -delete")
         repeating = repeat
         time.sleep(purgeStorageInterval)
