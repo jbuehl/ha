@@ -31,6 +31,10 @@ class FileInterface(Interface):
             debug('debugFile', self.name, "creating", self.fileName)
             self.data = self.initialState
             self.writeData()
+        except Exception as ex:
+            log(self.name, "start exception opening", self.fileName, str(ex))
+            self.data = self.initialState
+            self.writeData()
         self.mtime = os.stat(self.fileName).st_mtime
         if self.changeMonitor:
             # thread to periodically check for file changes and cache the data
