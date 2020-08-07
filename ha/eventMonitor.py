@@ -17,24 +17,22 @@ def watchEvents(resources, timeout=60):
             # check for services that have gone down
             groupResources = resources.getGroup("Services")
             for resource in groupResources:
-                if resourceStates[resource.name] == 1:  # service is up
+                if resourceStates[resource.name] == 1:          # service is up
                     serviceUpTimes[resource.name] = time.time()
                 else:
-                    try:        # send notification if service was previously up
+                    try:        # check if the service is down and was previously up
                         now = time.time()
-                        if now - serviceUpTimes[resource] > timeout:
-                            log("eventMonitor", "service down", resources[resource].label, serviceUpTimes[resource.name])
-                            # send a notification if enabled
+                        if now - serviceUpTimes[resource.name] > timeout:   # service has been down for timeout
+                            debug("debugEventMonitor", "service down", resource.label, serviceUpTimes[resource.name])
+                            # send a notification if this alert is enabled
                             if resourceStates["alertServices"]:
-                                msg = "service "+resources[resource].label+" is down"
-                                debug("debugEventMonitor", "eventMonitor", resources.label, now, serviceUpTimes[resource.name])
+                                msg = "service "+resource.label+" is down"
                                 notify(resources, "alertServices", msg)
-                            serviceUpTimes[resource.name] = float("inf")
+                            serviceUpTimes[resource.name] = float("inf")    # prevent the message from repeating
                     except KeyError:    # service is down at the start
-                        log("eventMonitor", "adding service", resource.label)
                         serviceUpTimes[resource.name] = float("inf")
 
-            # check for opened doors and motion events
+            # check for door and motion events
             groupResources = resources.getGroup("Doors")
             for resource in groupResources:
                 if (resource.name[-5:] != "Doors") and (resource.name != "doorbell"):
