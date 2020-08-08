@@ -3,7 +3,7 @@ cameraBase = "/cameras/"
 
 import json
 import os
-import subprocess
+import executor
 from ha import *
 
 cameraDir = cameraBase+"cameras/"
@@ -130,13 +130,7 @@ def makeDir(path):
     except FileExistsError:
         pass
 
-# execute an OS command, send the output to /dev/null
-# optionally run it in a separate thread
-def osCommand(cmd, wait=False):
-    def runCmd(cmd):
-        pid = subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    if wait:
-        runCmd(cmd)
-    else:
-        runCmdThread = threading.Thread(target=runCmd, args=(cmd, ))
-        runCmdThread.start()
+# execute an external OS command
+def osCommand(cmd):
+    debug("debugOsCmd", "cmd:", cmd)
+    executor.execute(cmd)

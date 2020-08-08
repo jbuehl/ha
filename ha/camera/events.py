@@ -19,46 +19,40 @@ def findOffset(tsFile, hour, minute, second):
     debug("debugThumb", "tsTime", tsTime, hour+minute+second, "offset", offset)
     return offset
 
-def createEvent(eventType, cameraName, eventTime):
+# routine to be run in a separate thread to create an image
+def createAnImage(cameraName, targetDir, imageType, eventTime, params, wait):
     [date, hour, minute, second] = splitTime(eventTime)
     videoDir = cameraDir+cameraName+"/videos/"+dateDir(date)
-    imageDir = cameraDir+cameraName+"/images/"+dateDir(date)
+    imageDir = cameraDir+cameraName+"/"+targetDir+"/"+dateDir(date)
     makeDir(imageDir)
     # osCommand("chown -R "+ftpUsername+"."+ftpUsername+" "+cameraDir+cameraName+"/images/")
-    try:
-        (tsFiles, firstFile) = findChunk(videoDir, eventTime)
+    if wait:
         # wait for the fragment to finish recording
         time.sleep(10)
-        offset = 0 # findOffset(tsFiles[firstFile], hour, minute, second)
-        if offset >= 0:
-            debug("debugThumb", "creating", eventType, "event for camera", cameraName, "at", hour+minute+second, "from", tsFiles[firstFile], "offset", offset)
-            cmd = "/usr/bin/ffmpeg -ss 0:%02d"%(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -nostats -loglevel error -y "+ \
-                  imageDir+date+hour+minute+second+"_"+eventType+".jpg"
-            osCommand(cmd)
-    except (OSError, IndexError) as ex: # directory doesn't exist yet
-        log("createEvent", "exception", str(ex))
-
-def createSnap(cameraName, eventTime, wait=True):
-    [date, hour, minute, second] = splitTime(eventTime)
-    # debug("debugSnaps", "createSnap", cameraName, date, hour, minute, second, wait)
-    videoDir = cameraDir+cameraName+"/videos/"+dateDir(date)
-    thumbDir = cameraDir+cameraName+"/thumbs/"+dateDir(date)
-    makeDir(thumbDir)
     try:
         (tsFiles, firstFile) = findChunk(videoDir, eventTime)
-        # debug("debugSnaps", "createSnap", cameraName, firstFile, tsFiles[firstFile])
-        if wait:
-            # wait for the fragment to finish recording
-            time.sleep(10)
-        offset = 1 # findOffset(tsFiles[firstFile], hour, minute, second)
+        offset = 0 # findOffset(tsFiles[firstFile], hour, minute, second)
         if offset >= 0:
-            debug("debugSnaps", "creating snapshot for camera", cameraName, "at", hour+minute+second, "from", tsFiles[firstFile], "offset", offset)
-            cmd = "/usr/bin/ffmpeg -ss 0:%02d"%(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -s "+str(snapWidth)+"x"+str(snapHeight)+ \
-                  " -nostats -loglevel error -y "+ \
-                  thumbDir+date+hour+minute+second+"_snap.jpg"
+            debug("debugImage", "creating", imageType, "image for camera", cameraName, "at", hour+minute+second, "from", tsFiles[firstFile], "offset", offset)
+            cmd = "/usr/bin/ffmpeg -ss 0:%02d"%(offset)+" -i "+videoDir+tsFiles[firstFile]+" -vframes 1 -nostats -loglevel error -y "+params+" "+ \
+                  imageDir+date+hour+minute+second+"_"+imageType+".jpg"
             osCommand(cmd)
-    except (OSError, IndexError) as ex: # directory or video file doesn't exist yet
-        log("createSnap", "exception", str(ex))
+    except (OSError, IndexError) as ex: # directory doesn't exist yet
+        log("createImage", "exception", str(ex))
+
+# create a still image from a video frame at a specified time
+def createImage(cameraName, targetDir, imageType, eventTime, params="", wait=True):
+    debug("debugImage", "createImage", "imageType:", imageType, "camera:", cameraName, "eventTime:", eventTime)
+    imageCreateThread = threading.Thread(target=createAnImage, args=(cameraName, targetDir, imageType, eventTime, params, wait, ))
+    imageCreateThread.start()
+
+# create an image at the time of an event
+def createEvent(eventType, cameraName, eventTime, wait=True):
+    createImage(cameraName, "images", eventType, eventTime, wait=wait)
+
+# create a periodic snapshot image
+def createSnap(cameraName, eventTime, wait=True):
+    createImage(cameraName, "thumbs", "snap", eventTime, params="-s "+str(snapWidth)+"x"+str(snapHeight), wait=wait)
 
 # create thumbnail images for periodic snapshots
 def snapshots(imageBase, camera, date, force=False, repeat=0, delay=0):
