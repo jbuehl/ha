@@ -240,8 +240,8 @@ class Sensor(Resource):
                 self.label = self.name.capitalize()
             self.location = location
             self.interrupt = interrupt
-            if event:
-                self.event = event
+            self.event = event
+            if self.event:
                 debug('debugInterrupt', self.name, "sensor event", self.event)
             self.__dict__["state"] = None   # dummy class variable so hasattr() returns True
             # FIXME - use @property
