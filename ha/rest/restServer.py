@@ -145,20 +145,24 @@ class RestRequestHandler(BaseHTTPRequestHandler):
         else:                   # find the specified resource or attribute
             (resource, attr, query) = self.getResFromPath(self.server.resources, urllib.parse.unquote(self.path).lstrip("/").rstrip("/"))
             debug('debugRestGet', "resource:", resource, "attr:", attr, "query:", query)
-            if resource:
+            if resource:        # a valid resource was found
                 self.send_response(200)     # success
-                if attr:    # determine the content type of the attribute of the resource
+                if attr:        # a resource attribute was specified
                     data = resource.__getattribute__(attr)
-                    try:                    # see if the content type is specified
+                    try:        # see if a content type is specified in the request
                         contentType = data["contentType"]
                         data = data["data"]
-                    except:                 # return a jsonised dictionary
+                    except:     # return a jsonised dictionary
                         contentType = "application/json"
                         data = json.dumps({attr:data})
-                else:
+                else:           # return the resource
                     contentType = "application/json"
                     try:
-                        data = json.dumps(resource.dump())
+                        expand = False
+                        if query:   # expand resources contained in this resource
+                            if (query[0][0].lower() == "expand") and (query[0][1].lower() == "true"):
+                                expand = True
+                        data = json.dumps(resource.dump(expand))
                     except Exception as exception:
                         debug('debugRestException', "restServer", self.path, str(exception))
                         data = "{}"

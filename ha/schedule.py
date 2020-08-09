@@ -47,17 +47,12 @@ class Cycle(Object):
         self.endState = normalState(endState)
 
     # dictionary of pertinent attributes
-    def dict(self):
+    def dict(self, expand=False):
         return {"control": self.control.name,
                 "duration": self.duration.getState() if isinstance(self.duration, Sensor) else self.duration,
                 "delay": self.delay,
                 "startState": self.startState,
                 "endState": self.endState}
-
-    # # dump the resource attributes to a serializable dictionary
-    # def dump(self):
-    #     return {"class": self.__class__.__name__,
-    #             "args": self.dict()}
 
     def __repr__(self):
         return self.control.__str__()+","+self.duration.__str__()+","+self.delay.__str__()+","+self.startState.__str__()+","+self.endState.__str__()
@@ -167,7 +162,7 @@ class Sequence(Control):
             time.sleep(1)
 
     # dictionary of pertinent attributes
-    def dict(self):
+    def dict(self, expand=False):
         attrs = Sensor.dict(self)
         attrs.update({"cycleList": [cycle.dump() for cycle in self.cycleList]})
         return attrs
@@ -335,7 +330,7 @@ class Task(Control):
         return Task(self.name+"Event", schedTime, self.control, self.controlState, resources=self.resources, parent=self)
 
     # dictionary of pertinent attributes
-    def dict(self):
+    def dict(self, expand=False):
         if self.resources:      # control is resource name - FIXME - test list element type
             try:
                 control = self.resources[self.control]
@@ -446,7 +441,7 @@ class SchedTime(Object):
         self.minute = [eventTime.minute]
 
     # dictionary of pertinent attributes
-    def dict(self):
+    def dict(self, expand=False):
         return {"year":self.year,
                 "month":self.month,
                 "day":self.day,
@@ -454,11 +449,6 @@ class SchedTime(Object):
                 "minute":self.minute,
                 "weekday":self.weekday,
                 "event":self.event}
-
-    # # dump the resource attributes to a serializable dictionary
-    # def dump(self):
-    #     return {"class": self.__class__.__name__,
-    #             "args": self.dict()}
 
     # return string version of weekdays
     def weekdays(self):

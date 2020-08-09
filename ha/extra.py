@@ -36,9 +36,8 @@ class SensorGroup(Sensor):
             return groupState
 
     # dictionary of pertinent attributes
-    def dict(self):
+    def dict(self, expand=False):
         attrs = Sensor.dict(self)
-        # attrs.update({"sensorList": [sensor.name for sensor in self.sensorList]})
         attrs.update({"sensorList": [sensor.__str__() for sensor in self.sensorList]})
         return attrs
 
@@ -99,9 +98,8 @@ class ControlGroup(SensorGroup, Control):
             return True
 
     # dictionary of pertinent attributes
-    def dict(self):
+    def dict(self, expand=False):
         attrs = Control.dict(self)
-        # attrs.update({"controlList": [sensor.name for sensor in self.sensorList]})
         attrs.update({"controlList": [sensor.__str__() for sensor in self.sensorList]})
         return attrs
 
@@ -134,10 +132,8 @@ class SensorGroupControl(SensorGroup, Control):
             self.control.setState(controlState)
 
     # dictionary of pertinent attributes
-    def dict(self):
+    def dict(self, expand=False):
         attrs = Control.dict(self)
-        # attrs.update({"sensorList": [sensor.name for sensor in self.sensorList],
-        #               "control": self.control.name})
         attrs.update({"sensorList": [sensor.__str__() for sensor in self.sensorList],
                       "control": self.control.__str__()})
         return attrs
@@ -259,7 +255,7 @@ class MultiControl(Control):
             return False
 
     # dictionary of pertinent attributes
-    def dict(self):
+    def dict(self, expand=False):
         attrs = Control.dict(self)
         attrs.update({"values": self.values})
         return attrs
@@ -318,7 +314,7 @@ class MinSensor(Sensor):
             self.interface.write(self.addr, self.minState)
 
     # dictionary of pertinent attributes
-    # def dict(self):
+    # def dict(self, expand=False):
     #     attrs = Control.dict(self)
     #     attrs.update({"sensor": str(self.sensor)})
     #     return attrs
@@ -354,7 +350,7 @@ class MaxSensor(Sensor):
             self.interface.write(self.addr, self.maxState)
 
     # dictionary of pertinent attributes
-    # def dict(self):
+    # def dict(self, expand=False):
     #     attrs = Control.dict(self)
     #     attrs.update({"sensor": str(self.sensor)})
     #     return attrs
@@ -394,7 +390,7 @@ class AttributeSensor(Sensor):
         return getattr(self.sensor, self.attr)
 
     # dictionary of pertinent attributes
-    def dict(self):
+    def dict(self, expand=False):
         attrs = Sensor.dict(self)
         attrs.update({"sensor": str(self.sensor),
                       "attr": self.attr})

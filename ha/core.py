@@ -59,9 +59,9 @@ class Object(object):
         self.className = self.__class__.__name__    # Used to optionally override the real class name in dump()
 
     # dump the resource attributes to a serialized dict
-    def dump(self):
+    def dump(self, expand=False):
         return {"class": self.className,
-                "args": self.dict()}
+                "args": self.dict(expand)}
 
 # Base class for Resources
 class Resource(Object):
@@ -213,11 +213,10 @@ class Collection(Resource, OrderedDict):
                 log(self.name, "getStates", "Exception", str(ex))
 
     # dictionary of pertinent attributes
-    def dict(self):
-        return { #"class":self.__class__.__name__,
-                "name":self.name,
+    def dict(self, expand=False):
+        return {"name":self.name,
                 "type": self.type,
-                "resources":list(self.keys())}
+                "resources":([attr.dict(expand) for attr in list(self.values())] if expand else list(self.keys()))}
 
 # A Sensor represents a device that has a state that is represented by a scalar value.
 # The state is associated with a unique address on an interface.
@@ -291,13 +290,12 @@ class Sensor(Resource):
             Resource.__setattr__(self, attr, value)
 
     # dictionary of pertinent attributes
-    def dict(self):
-        return {#"class":self.className, # FIXME __class__.__name__,
-                "name":self.name,
+    def dict(self, expand=False):
+        return {"name":self.name,
                 "type":self.type,
                 "label":self.label,
                 "interface":(self.interface.name if self.interface else None),
-                "addr":self.addr, #.__str__(),
+                "addr":self.addr,
                 "group":self.group,
                 "location":self.location}
 
