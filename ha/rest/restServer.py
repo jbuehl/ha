@@ -220,7 +220,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                     return (resource, None, query) # path matches collection
                 else:
                     for res in list(resource.values()):
-                        (matchRes, attr) = self.getResFromPath(res, path)
+                        (matchRes, attr, query) = self.getResFromPath(res, path)
                         if matchRes:
                             return (matchRes, attr, query) # there was a match at a lower level
             else:
