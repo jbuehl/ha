@@ -14,5 +14,5 @@ if __name__ == "__main__":
     resources.addRes(Sensor("system."+hostname+".uptime", osInterface, "uptime", group="System", label=hostname+" Uptime"))
     resources.addRes(Sensor("system."+hostname+".ipAddr", osInterface, "ipAddr eth0", group="System", label=hostname+" IP address"))
 
-    restServer = RestServer("house", resources, label=hostname, event=stateChangeEvent)
+    restServer = RestServer(hostname, resources, label=hostname, event=stateChangeEvent)
     restServer.start()
