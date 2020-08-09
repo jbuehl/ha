@@ -143,8 +143,8 @@ class RestRequestHandler(BaseHTTPRequestHandler):
 #            self.wfile.write(json.dumps({"resources": self.server.resources.name}))
             self.wfile.write(bytes(json.dumps([self.server.resources.name]), "utf-8"))
         else:                   # find the specified resource or attribute
-            (resource, attr) = self.getResFromPath(self.server.resources, urllib.parse.unquote(self.path).lstrip("/").rstrip("/"))
-            debug('debugRestGet', "resource:", resource, "attr:", attr)
+            (resource, attr, query) = self.getResFromPath(self.server.resources, urllib.parse.unquote(self.path).lstrip("/").rstrip("/"))
+            debug('debugRestGet', "resource:", resource, "attr:", attr, "query:", query)
             if resource:
                 self.send_response(200)     # success
                 if attr:    # determine the content type of the attribute of the resource
@@ -174,8 +174,8 @@ class RestRequestHandler(BaseHTTPRequestHandler):
     def do_PUT(self):
         debug('debugRestPut', "path:", self.path)
         debug('debugRestPut', "headers:", self.headers.__str__())
-        (resource, attr) = self.getResFromPath(self.server.resources, urllib.parse.unquote(self.path).lstrip("/"))
-        debug('debugRestPut', "resource:", resource.name, "attr:", attr)
+        (resource, attr, query) = self.getResFromPath(self.server.resources, urllib.parse.unquote(self.path).lstrip("/"))
+        debug('debugRestPut', "resource:", resource.name, "attr:", attr, "query:", query)
         if resource:
             try:
                 data = self.rfile.read(int(self.headers['Content-Length'])).decode("utf-8")
@@ -206,24 +206,31 @@ class RestRequestHandler(BaseHTTPRequestHandler):
 
     # Locate the resource or attribute specified by the path
     def getResFromPath(self, resource, path):
+        pathItems = path.split("?")
+        path = pathItems[0]
+        if len(pathItems) > 1:
+            queryItems = pathItems[1].split("&")
+            query = [queryItem.split("=") for queryItem in queryItems]
+        else:
+            query = None
         (name, sep, path) = path.partition("/")
         if name == resource.name:   # the path element matches the resource name so far
             if isinstance(resource, Collection):
                 if sep == "":       # no more elements left in path
-                    return (resource, None) # path matches collection
+                    return (resource, None, query) # path matches collection
                 else:
                     for res in list(resource.values()):
                         (matchRes, attr) = self.getResFromPath(res, path)
                         if matchRes:
-                            return (matchRes, attr) # there was a match at a lower level
+                            return (matchRes, attr, query) # there was a match at a lower level
             else:
                 if sep == "":       # no more elements left in path
-                    return (resource, None) # path matches resource
+                    return (resource, None, query) # path matches resource
                 else:
                     (name, sep, path) = path.partition("/")
                     if sep == "":   # no more elements left in path
                         if name in dir(resource):
-                            return (resource, name) # path matches resource and attr
+                            return (resource, name, query) # path matches resource and attr
         elif name in ["states", "resources"]:
-            return (resource, name)
-        return (None, None)         # no match
+            return (resource, name, query)
+        return (None, None, query)         # no match
