@@ -88,7 +88,7 @@ class SpaControl(Control):
                 debug('debugState', self.name, "unknown state", state, self.currentState)
         elif state == spaStandby:
             if self.currentState == spaOff:
-                self.stateTransition(spaStarting, spaOn)
+                self.stateTransition(spaStarting, spaStandby)
             elif (self.currentState == spaOn):
                 self.stateTransition(spaStandby)
             elif (self.currentState == spaStarting) or (self.currentState == spaStopping) or (self.currentState == spaStandby) or (self.currentState == spaWarming):
