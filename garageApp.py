@@ -27,9 +27,9 @@ doorbellEvent = threading.Event()
 def doorbellHandler(doorbellControl):
     debug('debugDoorbell', "starting doorbellHandler using control", doorbellControl.name)
     while True:
-        doorbellEvent.wait()
         doorbellEvent.clear()
-        doorbellControl.setState(1)
+        doorbellEvent.wait()
+        # doorbellControl.setState(1)
         debug('debugDoorbell', "sending notification")
         notify("alertDoorbell", doorbellNotifyMsg)
         debug('debugDoorbell', "playing", soundDir+doorbellSound)
