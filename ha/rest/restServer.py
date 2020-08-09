@@ -205,8 +205,8 @@ class RestRequestHandler(BaseHTTPRequestHandler):
         return
 
     # Locate the resource or attribute specified by the path
-    def getResFromPath(self, resource, path):
-        pathItems = path.split("?")
+    def getResFromPath(self, resource, pathStr):
+        pathItems = pathStr.split("?")
         path = pathItems[0]
         if len(pathItems) > 1:
             queryItems = pathItems[1].split("&")
