@@ -41,8 +41,8 @@ class RestServer(object):
 
     def start(self):
         debug('debugRestServer', self.name, "starting RestServer")
-        # start the thread to send the resource states periodically and when one changes
         if self.notify:
+            # start the thread to send the resource states periodically and also when one changes
             def stateNotify():
                 debug('debugRestServer', self.name, "REST state started")
                 resources = list(self.resources.keys())
@@ -75,16 +75,16 @@ class RestServer(object):
             stateNotifyThread = threading.Thread(target=stateNotify)
             stateNotifyThread.start()
 
-        # start the thread to trigger the keepalive message periodically
-        def stateTrigger():
-            debug('debugRestServer', self.name, "REST state trigger started", restBeaconInterval)
-            while True:
-                debug('debugInterrupt', self.name, "trigger", "set", self.event)
-                self.event.set()
-                time.sleep(restBeaconInterval)
-            debug('debugRestServer', self.name, "REST state trigger ended")
-        stateTriggerThread = threading.Thread(target=stateTrigger)
-        stateTriggerThread.start()
+            # start the thread to trigger the keepalive message periodically
+            def stateTrigger():
+                debug('debugRestServer', self.name, "REST state trigger started", restBeaconInterval)
+                while True:
+                    debug('debugInterrupt', self.name, "trigger", "set", self.event)
+                    self.event.set()
+                    time.sleep(restBeaconInterval)
+                debug('debugRestServer', self.name, "REST state trigger ended")
+            stateTriggerThread = threading.Thread(target=stateTrigger)
+            stateTriggerThread.start()
 
         # start the HTTP server
         self.server.serve_forever()
