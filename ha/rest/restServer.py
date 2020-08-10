@@ -5,24 +5,22 @@ from socketserver import ThreadingMixIn
 from http.server import HTTPServer
 from http.server import BaseHTTPRequestHandler
 import json
-import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 import threading
 import socket
-import ssl
 import time
 import struct
 import copy
 
 # RESTful web services server interface
 class RestServer(object):
-    def __init__(self, name, resources=None, port=restServicePort, beacon=True, heartbeat=True, event=None, label="", multicast=True):
+    def __init__(self, name, resources=None, port=restServicePort, notify=True, event=None, label="", multicast=True):
         debug('debugRestServer', name, "creating RestServer")
         self.name = name
         self.resources = resources
         self.hostname = socket.gethostname()
         self.port = port
-        self.beacon = beacon
-        self.heartbeat = heartbeat
+        self.notify = notify
         if event:
             self.event = event
         else:
@@ -38,44 +36,44 @@ class RestServer(object):
             self.restAddr = multicastAddr
         else:
             self.restAddr = "<broadcast>"
-        self.beaconSocket = None
         self.stateSocket = None
         self.stateSequence = 0
 
     def start(self):
         debug('debugRestServer', self.name, "starting RestServer")
         # start the thread to send the resource states periodically and when one changes
-        def stateNotify():
-            debug('debugRestServer', self.name, "REST state started")
-            resources = list(self.resources.keys())
-            states = self.resources.getState()
-            lastStates = states
-            self.timeStamp = int(time.time())
-            while True:
-                self.sendStateMessage(resources, states)
-                resources = None
-                states = None
-                # wait for either a state to change or the periodic trigger
-                currentStates = self.resources.getState(wait=True)
-                # compare the current states to the previous states
-                for sensor in list(lastStates.keys()):
-                    try:
-                        if currentStates[sensor] != lastStates[sensor]:
-                            # a state changed
-                            debug('debugRestState', self.name, sensor, lastStates[sensor], "-->", currentStates[sensor])
+        if self.notify:
+            def stateNotify():
+                debug('debugRestServer', self.name, "REST state started")
+                resources = list(self.resources.keys())
+                states = self.resources.getState()
+                lastStates = states
+                self.timeStamp = int(time.time())
+                while True:
+                    self.sendStateMessage(resources, states)
+                    resources = None
+                    states = None
+                    # wait for either a state to change or the periodic trigger
+                    currentStates = self.resources.getState(wait=True)
+                    # compare the current states to the previous states
+                    for sensor in list(lastStates.keys()):
+                        try:
+                            if currentStates[sensor] != lastStates[sensor]:
+                                # a state changed
+                                debug('debugRestState', self.name, sensor, lastStates[sensor], "-->", currentStates[sensor])
+                                states = currentStates
+                                self.timeStamp = int(time.time())
+                                break
+                        except KeyError:
+                            # a resource was either added or removed
+                            resources = list(self.resources.keys())
                             states = currentStates
                             self.timeStamp = int(time.time())
                             break
-                    except KeyError:
-                        # a resource was either added or removed
-                        resources = list(self.resources.keys())
-                        states = currentStates
-                        self.timeStamp = int(time.time())
-                        break
-                lastStates = currentStates
-            debug('debugRestServer', self.name, "REST state ended")
-        stateNotifyThread = threading.Thread(target=stateNotify)
-        stateNotifyThread.start()
+                    lastStates = currentStates
+                debug('debugRestServer', self.name, "REST state ended")
+            stateNotifyThread = threading.Thread(target=stateNotify)
+            stateNotifyThread.start()
 
         # start the thread to trigger the keepalive message periodically
         def stateTrigger():
