@@ -12,7 +12,7 @@ def watchEvents(resources, timeout=60):
         debug("debugEventMonitor", "eventMonitor", "starting")
         while True:
             # wait for a state change
-            resourceStates = resources.getState(wait=True)
+            resourceStates = resources.getStates(wait=True)
 
             # check for services that have gone down
             groupResources = resources.getGroup("Services")

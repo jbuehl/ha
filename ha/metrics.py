@@ -21,7 +21,7 @@ def startMetrics(resources, sendMetrics=False, logMetrics=True, backupMetrics=Tr
         changedStates = {}
         while True:
             # wait for a new set of states
-            metrics = resources.getState(wait=True)
+            metrics = resources.getStates(wait=True)
             today = time.strftime("%Y%m%d")
 
             # log state deltas to a file

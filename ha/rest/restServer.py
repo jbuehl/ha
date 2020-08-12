@@ -46,7 +46,7 @@ class RestServer(object):
             def stateNotify():
                 debug('debugRestServer', self.name, "REST state started")
                 resources = list(self.resources.keys())
-                states = self.resources.getState()
+                states = self.resources.getStates()
                 lastStates = states
                 self.timeStamp = int(time.time())
                 while True:
@@ -54,7 +54,7 @@ class RestServer(object):
                     resources = None
                     states = None
                     # wait for either a state to change or the periodic trigger
-                    currentStates = self.resources.getState(wait=True)
+                    currentStates = self.resources.getStates(wait=True)
                     # compare the current states to the previous states
                     for sensor in list(lastStates.keys()):
                         try:

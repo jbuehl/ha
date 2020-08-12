@@ -80,28 +80,33 @@ class WebRoot(object):
 
     # thread to update the states of the sensors in the resource collection
     def updateStates(self):
+        resourceTypes = {}  # cache for resource types
         while True:
             debug('debugWebState', "updateStates", "event clear")
             self.updateStateChangeEvent.clear()
             # wait for sensor states to change
-            resourceStateTypes = self.resources.getStateTypes(wait=True)
+            resourceStates = self.resources.getStates(wait=True)
             if self.cache:
                 cacheTime = self.cache.cacheTime
             else:
                 cacheTime = 0
             updates = {"cacheTime": cacheTime}
             blinkerList = []
-            for resource in list(resourceStateTypes.keys()):
+            for resourceName in list(resourceStates.keys()):
                 try:
-                    state = resourceStateTypes[resource][0] # self.resources.getRes(resource).getState()
-                    resType = resourceStateTypes[resource][1] # self.resources.getRes(resource).type
-                    resState = views.getViewState(None, resType, state) # views.getViewState(self.resources.getRes(resource))
-                    jqueryName = resource.replace(".", "_") # jquery doesn't like periods in names
-                    debug('debugWebUpdate', "/updateStates", resource, resType, resState, state)
+                    state = resourceStates[resourceName]
+                    try:
+                        resType = resourceTypes[resourceName]
+                    except KeyError:
+                        resType = self.resources.getRes(resourceName).type
+                        resourceTypes[resourceName] = resType
+                    resState = views.getViewState(None, resType, state)
+                    jqueryName = resourceName.replace(".", "_") # jquery doesn't like periods in names
+                    debug('debugWebUpdate', "/updateStates", resourceName, resType, resState, state)
                     # determine the HTML class for the resource
                     if resType in tempTypes:         # temperature
                         updates[jqueryName] = ("temp", resState)
-                    elif (resource[0:16] == "solar.optimizers") and (resource[-5:] == "power"):
+                    elif (resourceName[0:16] == "solar.optimizers") and (resourceName[-5:] == "power"):
                         updates[jqueryName] = ("panel", resState)
                     elif resType in staticTypes:
                         if resType[-1] == "-":      # + or - value
@@ -110,8 +115,8 @@ class WebRoot(object):
                             updates[jqueryName] = (resType, resState)
                     else:                           # class is specific to the type and value
                         updates[jqueryName] = (resType+"_"+resState, resState)
-                    if (resource in blinkers) and state:
-                        debug('debugWebBlink', "/updateStates", resource, resType, resState, state)
+                    if (resourceName in blinkers) and state:
+                        debug('debugWebBlink', "/updateStates", resourceName, resType, resState, state)
                         blinkerList.append(jqueryName)
                 except:
                     raise
