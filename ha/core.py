@@ -180,17 +180,7 @@ class Collection(Resource, OrderedDict):
                 resourceList.append(resource)
         return resourceList
 
-    # # return the current state of all sensors in the collection
-    # def getState(self, wait=False):
-    #     self.getStates(wait)
-    #     return copy.copy(self.states)
-    #
-    # # return the current state and type of all sensors in the collection
-    # def getStateTypes(self, wait=False):
-    #     self.getStates(wait)
-    #     return copy.copy(self.stateTypes)
-    #
-    # update the current state and type of all sensors in the resource collection
+    # get the current state of all sensors in the resource collection
     def getStates(self, wait=False):
         if self.event and wait:
             debug('debugInterrupt', self.name, "getStates", "clear", self.event)
