@@ -56,20 +56,13 @@ class RestServer(object):
                     # wait for either a state to change or the periodic trigger
                     currentStates = self.resources.getStates(wait=True)
                     # compare the current states to the previous states
-                    for sensor in list(lastStates.keys()):
-                        try:
-                            if currentStates[sensor] != lastStates[sensor]:
-                                # a state changed
-                                debug('debugRestState', self.name, sensor, lastStates[sensor], "-->", currentStates[sensor])
-                                states = currentStates
-                                self.timeStamp = int(time.time())
-                                break
-                        except KeyError:
+                    if diffStates(lastStates, currentStates) != {}:
+                        # a state changed
+                        states = currentStates
+                        self.timeStamp = int(time.time())
+                        if sorted(list(currentStates.keys())) != sorted(list(lastStates.keys())):
                             # a resource was either added or removed
                             resources = list(self.resources.keys())
-                            states = currentStates
-                            self.timeStamp = int(time.time())
-                            break
                     lastStates = currentStates
                 debug('debugRestServer', self.name, "REST state ended")
             stateNotifyThread = threading.Thread(target=stateNotify)

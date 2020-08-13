@@ -18,32 +18,22 @@ def startMetrics(resources, sendMetrics=False, logMetrics=True, backupMetrics=Tr
         debug("debugMetrics", "sendMetrics", "metrics thread started")
         hostname = socket.gethostname()
         lastDay = ""
-        changedStates = {}
         while True:
             # wait for a new set of states
-            metrics = resources.getStates(wait=True)
+            states = resources.getStates(wait=True)
             today = time.strftime("%Y%m%d")
 
-            # log state deltas to a file
+            # log states to a file
             if logMetrics:
-                if today != lastDay:
-                    lastStates = {}
-                logFileName = logDir+today+".json"
-                if logChanged:
-                    changedStates = {}
-                for metric in list(metrics.keys()):
-                    try:
-                        # log the metric unless logChanged is True and if it has not changed from the last time
-                        if (not logChanged) or (metrics[metric] != lastStates[metric]):
-                            changedStates[metric] = metrics[metric]
-                    except KeyError:
-                        # this is the first time the metric has appeared
-                        changedStates[metric] = metrics[metric]
+                if today != lastDay:    # start with a new baseline every day
+                    lastStates = states
+                changedStates = diffStates(lastStates, states, deleted=False)
                 if changedStates != {}:
-                    lastStates.update(changedStates)
+                    logFileName = logDir+today+".json"
                     debug("debugMetrics", "sendMetrics", "writing states to", logFileName)
                     with open(logFileName, "a") as logFile:
-                        logFile.write(json.dumps([time.time(), changedStates])+"\n")
+                        logFile.write(json.dumps([time.time(), (changedStates if logChanged else lastStates)])+"\n")
+                lastStates = states
 
             # send states to the metrics server
             if sendMetrics:
@@ -51,16 +41,15 @@ def startMetrics(resources, sendMetrics=False, logMetrics=True, backupMetrics=Tr
                 try:
                     metricsSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     metricsSocket.connect((metricsHost, metricsPort))
-                    debug("debugMetrics", "sendMetrics", "sending", len(metrics), "metrics")
-                    for metric in list(metrics.keys()):
-                        if metric != "states":
-                            if metric.split(".")[0] in ["loads", "solar"]:
-                                metricsGroup = "."
-                            else:
-                                metricsGroup = ".ha."
-                            msg = metricsPrefix+metricsGroup+metric.replace(" ", "_")+" "+str(metrics[metric])+" "+str(int(time.time()))
-                            debug("debugMetricsMsg", "sendMetrics", msg)
-                            metricsSocket.send(bytes(msg+"\n", "utf-8"))
+                    debug("debugMetrics", "sendMetrics", "sending", len(states), "metrics")
+                    for state in list(states.keys()):
+                        if state.split(".")[0] in ["loads", "solar"]:
+                            metricsGroup = "."
+                        else:
+                            metricsGroup = ".ha."
+                        msg = metricsPrefix+metricsGroup+state.replace(" ", "_")+" "+str(states[state])+" "+str(int(time.time()))
+                        debug("debugMetricsMsg", "sendMetrics", msg)
+                        metricsSocket.send(bytes(msg+"\n", "utf-8"))
                 except socket.error as exception:
                     log("sendMetrics", "socket error", str(exception))
                 if metricsSocket:

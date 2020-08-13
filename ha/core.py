@@ -33,6 +33,20 @@ def normalState(value):
     elif value == False: return Off
     else: return value
 
+# Compare two state dictionaries and return a dictionary containing the items
+# whose values don't match or aren't in the old dict.
+# If an item is in the old but not in the new, optionally include the item with value None.
+def diffStates(old, new, deleted=True):
+    diff = copy.copy(new)
+    for key in list(old.keys()):
+        try:
+            if new[key] == old[key]:
+                del diff[key]   # values match
+        except KeyError:        # item is missing from the new dict
+            if deleted:
+                diff[key] = None
+    return diff
+
 # create a Resource from a serialized dict
 def loadResource(classDict, globalDict):
     def parseClass(classDict):
