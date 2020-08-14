@@ -113,7 +113,6 @@ class Interface(Resource):
             self.event = interface.event    # otherwise inherit event from this interface's interface
         else:
             self.event = None
-        debug('debugInterrupt', self.name, "interface event", self.event)
         self.sensors = {}       # sensors using this instance of the interface by name
         self.sensorAddrs = {}   # sensors using this instance of the interface by addr
         self.states = {}        # sensor state cache
@@ -146,7 +145,6 @@ class Interface(Resource):
     def notify(self):
         if self.event:
             self.event.set()
-            debug('debugInterrupt', self.name, "set", self.event)
 
 # Resource collection
 class Collection(Resource, OrderedDict):
@@ -248,15 +246,23 @@ class Collection(Resource, OrderedDict):
     # get the current state of all sensors in the resource collection
     def getStates(self, wait=False):
         if self.event and wait:
-            debug('debugInterrupt', self.name, "getStates", "clear", self.event)
             self.event.clear()
-            debug('debugInterrupt', self.name, "getStates", "wait", self.event)
             self.event.wait()
         return copy.copy(self.states)
 
     # set the state of the specified sensor in the cache
     def setState(self, sensor, state):
         self.states[sensor.name] = state
+
+    # set state values of all sensors into the cache
+    def setStates(self, states):
+        for sensor in list(states.keys()):
+            self.states[sensor] = states[sensor]
+
+    # Trigger the sending of a state change notification
+    def notify(self):
+        if self.event:
+            self.event.set()
 
     # dictionary of pertinent attributes
     def dict(self, expand=False):
@@ -284,8 +290,10 @@ class Sensor(Resource):
             self.pollInterval = pollInterval
             if event:
                 self.event = event
-            else:       # inherit the event from the interface if not specified
+            elif self.interface:       # inherit the event from the interface if not specified
                 self.event = self.interface.event
+            else:
+                self.event = None
             self.persistence = persistence
             self.location = location
             self.group = listize(group)
