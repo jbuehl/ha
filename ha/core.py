@@ -43,7 +43,7 @@ def diffStates(old, new, deleted=True):
             if new[key] == old[key]:
                 del diff[key]   # values match
         except KeyError:        # item is missing from the new dict
-            if deleted:
+            if deleted:         # include deleted item in output
                 diff[key] = None
     return diff
 
@@ -87,7 +87,16 @@ class Resource(Object):
         except AttributeError:
             self.name = name
             self.type = type
+            self.collections = {}   # list of collections that include this resource
             debug('debugObject', self.__class__.__name__, self.name, "created")
+
+    # add this resource to the specified collection
+    def addCollection(self, collection):
+        self.collections[collection.name] = collection
+
+    # remove this resource from the specified collection
+    def delCollection(self, collection):
+        del self.collections[collection.name]
 
     def __str__(self):
         return self.name
@@ -105,9 +114,9 @@ class Interface(Resource):
         else:
             self.event = None
         debug('debugInterrupt', self.name, "interface event", self.event)
-        self.sensors = {}   # sensors using this instance of the interface by name
+        self.sensors = {}       # sensors using this instance of the interface by name
         self.sensorAddrs = {}   # sensors using this instance of the interface by addr
-        self.states = {}    # state cache
+        self.states = {}        # sensor state cache
         self.enabled = True
 
     def start(self):
@@ -125,6 +134,7 @@ class Interface(Resource):
     def dump(self):
         return None
 
+    # add a sensor to this interface
     def addSensor(self, sensor):
         debug('debugObject', self.__class__.__name__, self.name, "addSensor", sensor.name)
         self.sensors[sensor.name] = sensor
@@ -144,6 +154,7 @@ class Collection(Resource, OrderedDict):
         Resource.__init__(self, name, type)
         OrderedDict.__init__(self)
         self.lock = threading.Lock()
+        self.states = {}    # cache of current sensor states
         for resource in resources:
             self.addRes(resource)
         self.aliases = aliases
@@ -151,26 +162,66 @@ class Collection(Resource, OrderedDict):
             self.event = event
         else:
             self.event = threading.Event()
-        self.states = {}    # current sensor states
-        self.stateTypes = {}
         debug('debugCollection', self.name, "aliases:", self.aliases)
 
-    # Add a resource to the table
+    def start(self):
+        # thread to periodically poll the state of the resources in the collection
+        def pollStates():
+            debug('debugCollection', self.name, "starting resource polling")
+            sensorPollCounts = {sensor.name: sensor.pollInterval for sensor in list(self.values())}
+            while True:
+                stateChanged = False
+                with self.lock:
+                    for sensor in list(self.values()):
+                        try:
+                            if not sensor.event:    # don't poll sensors with events
+                                if sensor.type not in ["schedule", "collection"]:   # skip resources that don't have a state
+                                    if sensorPollCounts[sensor.name] == 0:          # count has decremented to zero
+                                        sensorState = sensor.getState()
+                                        debug('debugCollection', self.name, sensor.name, self.states[sensor.name], sensorState)
+                                        if sensorState != self.states[sensor.name]: # save the state if it has changed
+                                            self.states[sensor.name] = sensorState
+                                            stateChanged = True
+                                        sensorPollCounts[sensor.name] = sensor.pollInterval
+                                    else:   # decrement the count
+                                        sensorPollCounts[sensor.name] -= 1
+                        except Exception as ex:
+                            log(self.name, "pollStates", "Exception", str(ex))
+                if stateChanged:    # at least one sensor state changed
+                    self.event.set()
+                    stateChanged = False
+                time.sleep(1)
+            debug('debugCollection', self.name, "ending resource polling")
+        pollStatesThread = threading.Thread(target=pollStates)
+        pollStatesThread.start()
+
+    # Add a resource to this collection
     def addRes(self, resource):
-        self.__setitem__(str(resource), resource)
+        with self.lock:
+            self.__setitem__(str(resource), resource)
+            resource.addCollection(self)
+            self.states[resource.name] = None
+            if resource.type not in ["schedule", "collection"]:   # skip resources that don't have a state
+                try:
+                    self.states[resource.name] = resource.getState()    # load the initial state
+                except Exception as ex:
+                    log(self.name, "addRes", "Exception", str(ex))
 
-    # Delete a resource from the table
+    # Delete a resource from this collection
     def delRes(self, name):
-        self.__delitem__(name)
+        with self.lock:
+            del self.states[name]
+            resource.delCollection(self)
+            self.__delitem__(name)
 
-    # Get a resource from the table
+    # Get a resource from the collectino
     # Return dummy sensor if not found
     def getRes(self, name, dummy=True):
         try:
             return self.__getitem__(name)
         except KeyError:
             if dummy:
-                return Sensor(name) #, Interface("None"))
+                return Sensor(name)
             else:
                 raise
 
@@ -201,21 +252,11 @@ class Collection(Resource, OrderedDict):
             self.event.clear()
             debug('debugInterrupt', self.name, "getStates", "wait", self.event)
             self.event.wait()
-        with self.lock:
-            try:
-                for sensor in list(self.values()):
-                    if sensor != self:
-                        sensorName = sensor.name
-                        sensorType = sensor.type
-                        if sensorType in ["schedule", "collection"]:   # recurse into schedules and collections
-                            self.getStates(sensor)
-                        else:
-                            sensorState = sensor.getState()
-                            self.states[sensorName] = sensorState
-                            self.stateTypes[sensorName] = (sensorState, sensorType)
-            except Exception as ex:
-                log(self.name, "getStates", "Exception", str(ex))
         return copy.copy(self.states)
+
+    # set the state of the specified sensor in the cache
+    def setState(self, sensor, state):
+        self.states[sensor.name] = state
 
     # dictionary of pertinent attributes
     def dict(self, expand=False):
@@ -227,7 +268,9 @@ class Collection(Resource, OrderedDict):
 # The state is associated with a unique address on an interface.
 # Sensors can also optionally be associated with a group and a physical location.
 class Sensor(Resource):
-    def __init__(self, name, interface=None, addr=None, group="", type="sensor", location=None, label=None, interrupt=None, event=None):
+    def __init__(self, name, interface=None, addr=None, type="sensor",
+                 resolution=0, pollInterval=1, event=None, persistence=None,
+                 location=None, group="", label=None):
         try:
             if self.type:   # init has already been called for this object - FIXME
                 return
@@ -237,53 +280,52 @@ class Sensor(Resource):
             self.addr = addr
             if self.interface:
                 self.interface.addSensor(self)
-            self.group = group
+            self.resolution = resolution
+            self.pollInterval = pollInterval
+            if event:
+                self.event = event
+            else:       # inherit the event from the interface if not specified
+                self.event = self.interface.event
+            self.persistence = persistence
+            self.location = location
+            self.group = listize(group)
             if label:
                 self.label = label
             else:
                 self.label = self.name.capitalize()
-            self.location = location
-            self.interrupt = interrupt
-            self.event = event
-            if self.event:
-                debug('debugInterrupt', self.name, "sensor event", self.event)
             self.__dict__["state"] = None   # dummy class variable so hasattr() returns True
             # FIXME - use @property
 
     # Return the state of the sensor by reading the value from the address on the interface.
     def getState(self):
-        return (normalState(self.interface.read(self.addr)) if self.interface else None)
+        state = (normalState(self.interface.read(self.addr)) if self.interface else None)
+        try:
+            return round(state, self.resolution)
+        except TypeError:
+            return state
 
     # Return the last state of the sensor that was read from the address on the interface.
-    def getLastState(self):
-        return self.getState()
-
-    # Wait for the state of the sensor to change if an interrupt routine was specified
-    def getStateChange(self):
-        if self.event:
-            # the routine that changes state must call notify() after the state is changed
-            self.event.clear()
-            debug('debugInterrupt', self.name, "clear", self.event)
-            self.event.wait()
-            debug('debugInterrupt', self.name, "wait", self.event)
-        return self.getState()
+    # def getLastState(self):
+    #     return self.getState()
 
     # Trigger the sending of a state change notification
-    def notify(self):
+    def notify(self, state=None):
+        log("notify", self.name, self.state)
+        if not state:
+            state = self.getState()
+        for collection in list(self.collections.keys()):
+            self.collections[collection].setState(self, state)
         if self.event:
             self.event.set()
-            debug('debugInterrupt', self.name, "set", self.event)
 
     # Define this function for sensors even though it does nothing
     def setState(self, state, wait=False):
         return False
 
-    # override to handle special cases of state and stateChange
+    # override to handle special cases of state
     def __getattribute__(self, attr):
         if attr == "state":
             return self.getState()
-        elif attr == "stateChange":
-            return self.getStateChange()
         else:
             return Resource.__getattribute__(self, attr)
 
@@ -297,22 +339,28 @@ class Sensor(Resource):
     # dictionary of pertinent attributes
     def dict(self, expand=False):
         return {"name":self.name,
-                "type":self.type,
-                "label":self.label,
                 "interface":(self.interface.name if self.interface else None),
                 "addr":self.addr,
+                "type":self.type,
+                "resolution": self.resolution,
+                "pollInterval": self.pollInterval,
+                "persistence": (self.persistence.name if self.persistence else None),
+                "location":self.location,
                 "group":self.group,
-                "location":self.location}
+                "label":self.label}
 
 # A Control is a Sensor whose state can be set
 class Control(Sensor):
-    def __init__(self, name, interface=None, addr=None, group="", type="control", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
-        self.running = False
+    def __init__(self, name, interface=None, addr=None, type="control",
+                 resolution=0, pollInterval=1, event=None, persistence=None,
+                 location=None, group="", label=None):
+        Sensor.__init__(self, name, interface=interface, addr=addr, type=type,
+                        resolution=resolution, pollInterval=pollInterval, event=event, persistence=persistence,
+                        location=location, group=group, label=label)
 
     # Set the state of the control by writing the value to the address on the interface.
     def setState(self, state, wait=False):
         debug('debugState', "Control", self.name, "setState ", state)
         self.interface.write(self.addr, state)
-        self.notify()
+        self.notify(state)
         return True
