@@ -8,7 +8,9 @@ import threading
 import time
 
 class FileInterface(Interface):
-    def __init__(self, name, interface=None, event=None, fileName="", readOnly=False, shared=False, changeMonitor=True, defaultValue=None, initialState={}):
+    def __init__(self, name, interface=None, event=None, start=False,
+                 fileName="", readOnly=False, shared=False, changeMonitor=True,
+                 defaultValue=None, initialState={}):
         Interface.__init__(self, name, interface=interface, event=event)
         self.fileName = fileName
         self.readOnly = readOnly            # file cannot be written to
@@ -19,6 +21,8 @@ class FileInterface(Interface):
         self.data = {}                      # cached data
         self.mtime = 0                      # last time the file was modified
         self.lock = threading.Lock()
+        if start:                           # immediately start the interface
+            self.start()
 
     def start(self):
         try:
@@ -43,9 +47,10 @@ class FileInterface(Interface):
                 while True:
                     debug('debugFileThread', self.name, "waiting", filePollInterval)
                     time.sleep(filePollInterval)
-                    if self.modified():
-                        self.readData()
-                        self.notify()
+                    if self.modified():     # file has changed
+                        self.readData()     # read new data
+                        for sensor in list(self.sensors.keys()): # notify all sensors
+                            self.sensors[sensor].notify(self.data[sensor])
             readStatesThread = threading.Thread(target=readData)
             readStatesThread.start()
 
