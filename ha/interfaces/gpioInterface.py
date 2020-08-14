@@ -17,10 +17,6 @@ def interruptCallback(pin):
         sensor = gpioInterface.sensorAddrs[pin]
         debug('debugGPIO', gpioInterface.name, "notifying", sensor.name)
         sensor.notify(gpio.input(pin))
-        # if sensor.interrupt:
-        #     state = gpio.input(pin)
-        #     debug('debugGPIO', gpioInterface.name, "calling", sensor.name, state)
-        #     sensor.interrupt(sensor, state)
     except KeyError:
         debug('debugGPIO', gpioInterface.name, "no sensor for interrupt on pin", pin)
 
