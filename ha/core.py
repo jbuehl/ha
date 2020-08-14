@@ -166,30 +166,37 @@ class Collection(Resource, OrderedDict):
         # thread to periodically poll the state of the resources in the collection
         def pollStates():
             debug('debugCollection', self.name, "starting resource polling")
-            sensorPollCounts = {sensor.name: sensor.pollInterval for sensor in list(self.values())}
+            resourcePollCounts = {resource.name: resource.pollInterval for resource in list(self.values())}
             while True:
                 stateChanged = False
                 with self.lock:
-                    for sensor in list(self.values()):
+                    for resource in list(self.values()):
                         try:
-                            if not sensor.event:    # don't poll sensors with events
-                                if sensor.type not in ["schedule", "collection"]:   # skip resources that don't have a state
-                                    if sensorPollCounts[sensor.name] == 0:          # count has decremented to zero
-                                        sensorState = sensor.getState()
-                                        debug('debugCollection', self.name, sensor.name, self.states[sensor.name], sensorState)
-                                        if sensorState != self.states[sensor.name]: # save the state if it has changed
-                                            self.states[sensor.name] = sensorState
+                            if not resource.event:    # don't poll resources with events
+                                if resource.type not in ["schedule", "collection"]:   # skip resources that don't have a state
+                                    if resourcePollCounts[resource.name] == 0:          # count has decremented to zero
+                                        resourceState = resource.getState()
+                                        debug('debugCollection', self.name, resource.name, self.states[resource.name], resourceState)
+                                        if resourceState != self.states[resource.name]: # save the state if it has changed
+                                            self.states[resource.name] = resourceState
                                             stateChanged = True
-                                        sensorPollCounts[sensor.name] = sensor.pollInterval
+                                        resourcePollCounts[resource.name] = resource.pollInterval
                                     else:   # decrement the count
-                                        sensorPollCounts[sensor.name] -= 1
+                                        resourcePollCounts[resource.name] -= 1
                         except Exception as ex:
                             log(self.name, "pollStates", "Exception", str(ex))
-                if stateChanged:    # at least one sensor state changed
+                if stateChanged:    # at least one resource state changed
                     self.event.set()
                     stateChanged = False
                 time.sleep(1)
             debug('debugCollection', self.name, "ending resource polling")
+        # initialize the resource state cache
+        for resource in list(self.values()):
+            if resource.type not in ["schedule", "collection"]:   # skip resources that don't have a state
+                try:
+                    self.states[resource.name] = resource.getState()    # load the initial state
+                except Exception as ex:
+                    log(self.name, "start", "Exception", str(ex))
         pollStatesThread = threading.Thread(target=pollStates)
         pollStatesThread.start()
 
@@ -199,11 +206,6 @@ class Collection(Resource, OrderedDict):
             self.__setitem__(str(resource), resource)
             resource.addCollection(self)
             self.states[resource.name] = None
-            if resource.type not in ["schedule", "collection"]:   # skip resources that don't have a state
-                try:
-                    self.states[resource.name] = resource.getState()    # load the initial state
-                except Exception as ex:
-                    log(self.name, "addRes", "Exception", str(ex))
 
     # Delete a resource from this collection
     def delRes(self, name):
@@ -212,7 +214,7 @@ class Collection(Resource, OrderedDict):
             resource.delCollection(self)
             self.__delitem__(name)
 
-    # Get a resource from the collectino
+    # Get a resource from the collection
     # Return dummy sensor if not found
     def getRes(self, name, dummy=True):
         try:
@@ -268,7 +270,7 @@ class Collection(Resource, OrderedDict):
     def dict(self, expand=False):
         return {"name":self.name,
                 "type": self.type,
-                "resources":([attr.dict(expand) for attr in list(self.values())] if expand else list(self.keys()))}
+                "resources":([attr.dump(expand) for attr in list(self.values())] if expand else list(self.keys()))}
 
 # A Sensor represents a device that has a state that is represented by a scalar value.
 # The state is associated with a unique address on an interface.
