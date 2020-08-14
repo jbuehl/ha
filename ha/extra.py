@@ -178,8 +178,8 @@ class CalcSensor(Sensor):
 
 # Control that can only be turned on if all the specified resources are in the specified states
 class DependentControl(Control):
-    def __init__(self, name, interface, control, conditions, resources=None, addr=None, group="", type="control", location=None, label="", interrupt=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
+    def __init__(self, name, interface, control, conditions, resources=None, addr=None, group="", type="control", location=None, label=""):
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label)
         self.className = "Control"
         self.control = control
         self.conditions = conditions
@@ -212,8 +212,8 @@ class DependentControl(Control):
 
 # Control that can be set on but reverts to off after a specified time
 class MomentaryControl(Control):
-    def __init__(self, name, interface, addr=None, duration=1, group="", type="control", location=None, label="", event=None, interrupt=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, event=event, interrupt=interrupt)
+    def __init__(self, name, interface, addr=None, duration=1, group="", type="control", location=None, label="", event=None):
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, event=event)
         self.className = "Control"
         self.duration = duration
         self.timedState = 0
@@ -242,8 +242,8 @@ class MomentaryControl(Control):
 
 # Control that has a specified list of values it can be set to
 class MultiControl(Control):
-    def __init__(self, name, interface, addr=None, values=[], group="", type="control", location=None, label="", interrupt=None):
-        Control.__init__(self, name, interface, addr, group=group, type="select", location=location, label=label, interrupt=interrupt)
+    def __init__(self, name, interface, addr=None, values=[], group="", type="control", location=None, label=""):
+        Control.__init__(self, name, interface, addr, group=group, type="select", location=location, label=label)
         self.className = "MultiControl"
         self.values = values
 
@@ -262,8 +262,8 @@ class MultiControl(Control):
 
 # Control that has specified numeric limits on the values it can be set to
 class MinMaxControl(Control):
-    def __init__(self, name, interface, addr=None, minValue=0, maxValue=1, group="", type="control", location=None, label="", interrupt=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
+    def __init__(self, name, interface, addr=None, minValue=0, maxValue=1, group="", type="control", location=None, label=""):
+        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label)
         self.className = "Control"
         self.setMinMax(minValue, maxValue)
 
@@ -284,8 +284,8 @@ class MinMaxControl(Control):
 
 # Sensor that captures the minimum state value of the specified sensor
 class MinSensor(Sensor):
-    def __init__(self, name, interface, addr, sensor, event=None, group="", type="sensor", location=None, label="", interrupt=None):
-        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label, interrupt=interrupt)
+    def __init__(self, name, interface, addr, sensor, event=None, group="", type="sensor", location=None, label=""):
+        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label)
         self.className = "Sensor"
         self.sensor = sensor
         try:
@@ -321,8 +321,8 @@ class MinSensor(Sensor):
 
 # Sensor that captures the maximum state value of the specified sensor
 class MaxSensor(Sensor):
-    def __init__(self, name, interface, addr, sensor, event=None, group="", type="sensor", location=None, label="", interrupt=None):
-        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label, interrupt=interrupt)
+    def __init__(self, name, interface, addr, sensor, event=None, group="", type="sensor", location=None, label=""):
+        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label)
         self.className = "Sensor"
         self.sensor = sensor
         try:
@@ -357,8 +357,8 @@ class MaxSensor(Sensor):
 
 # Sensor that captures the accumulated state values of the specified sensor
 class AccumSensor(Sensor):
-    def __init__(self, name, interface, sensor, multiplier=1, event=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None):
-        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label, interrupt=interrupt)
+    def __init__(self, name, interface, sensor, multiplier=1, event=None, addr=None, group="", type="sensor", location=None, label=""):
+        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label)
         self.className = "Sensor"
         self.sensor = sensor
         self.multiplier = multiplier
@@ -381,8 +381,8 @@ class AccumSensor(Sensor):
 
 # sensor that returns the value of an attribute of a specified sensor
 class AttributeSensor(Sensor):
-    def __init__(self, name, interface, addr, sensor, attr, group="", type="sensor", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+    def __init__(self, name, interface, addr, sensor, attr, group="", type="sensor", location=None, label="", event=None):
+        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, event=event)
         self.sensor = sensor
         self.attr = attr
 
