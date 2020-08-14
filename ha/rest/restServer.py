@@ -41,6 +41,10 @@ class RestServer(object):
 
     def start(self):
         debug('debugRestServer', self.name, "starting RestServer")
+
+        # start polling the resource states
+        self.resources.start()
+
         if self.notify:
             # start the thread to send the resource states periodically and also when one changes
             def stateNotify():
