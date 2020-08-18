@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     # start the cache to listen for services on other servers
     cacheResources = Collection("cacheResources", event=stateChangeEvent)
-    restCache = RestProxy("restProxy", cacheResources, watch=restWatch, event=stateChangeEvent)
+    restCache = RestProxy("restProxy", cacheResources, watch=restWatch, multicast=False, event=stateChangeEvent)
     restCache.start()
 
     # Interfaces
