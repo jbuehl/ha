@@ -191,7 +191,7 @@ class Collection(Resource, OrderedDict):
                         except Exception as ex:
                             log(self.name, "pollStates", "Exception", str(ex))
                 if stateChanged:    # at least one resource state changed
-                debug('debugCollection', self.name, "state changed")
+                    debug('debugCollection', self.name, "state changed")
                     self.event.set()
                     stateChanged = False
                 time.sleep(1)
