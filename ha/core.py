@@ -178,7 +178,8 @@ class Collection(Resource, OrderedDict):
                                 if resource.type not in ["schedule", "collection"]:   # skip resources that don't have a state
                                     if resource.name not in list(resourcePollCounts.keys()):
                                         resourcePollCounts[resource.name] = resource.poll
-                                        debug('debugCollection', self.name, resource.name, resource.poll)
+                                        self.states[resource.name] = resource.getState()
+                                        debug('debugCollection', self.name, resource.name, resource.poll, resource.getState())
                                     if resourcePollCounts[resource.name] == 0:          # count has decremented to zero
                                         resourceState = resource.getState()
                                         debug('debugCollection', self.name, resource.name, self.states[resource.name], resourceState)
