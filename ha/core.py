@@ -211,7 +211,7 @@ class Collection(Resource, OrderedDict):
     def delRes(self, name):
         with self.lock:
             del self.states[name]
-            resource.delCollection(self)
+            self.__getitem__(name).delCollection(self)
             self.__delitem__(name)
 
     # Get a resource from the collection
