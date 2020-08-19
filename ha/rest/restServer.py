@@ -51,7 +51,8 @@ class RestServer(object):
                 resources = list(self.resources.keys())
                 states = self.resources.getStates()
                 lastStates = states
-                self.timeStamp = int(time.time())
+                self.stateTimeStamp = int(time.time())
+                self.resourceTimeStamp = int(time.time())
                 while True:
                     self.sendStateMessage(resources, states)
                     resources = None
@@ -62,10 +63,11 @@ class RestServer(object):
                     if diffStates(lastStates, currentStates) != {}:
                         # a state changed
                         states = currentStates
-                        self.timeStamp = int(time.time())
-                        if sorted(list(currentStates.keys())) != sorted(list(lastStates.keys())):
-                            # a resource was either added or removed
-                            resources = list(self.resources.keys())
+                        self.stateTimeStamp = int(time.time())
+                    if sorted(list(currentStates.keys())) != sorted(list(lastStates.keys())):
+                        # a resource was either added or removed
+                        resources = list(self.resources.keys())
+                        self.resourceTimeStamp = int(time.time())
                     lastStates = currentStates
                 debug('debugRestServer', self.name, "REST state ended")
             stateNotifyThread = threading.Thread(target=stateNotify)
@@ -100,7 +102,8 @@ class RestServer(object):
                                "hostname": self.hostname,
                                "port": self.port,
                                "label": self.label,
-                               "timestamp": self.timeStamp,
+                               "statetimestamp": self.stateTimeStamp,
+                               "resourcetimestamp": self.resourceTimeStamp,
                                "seq": self.stateSequence}}
         if resources:
             stateMsg["resources"] = resources

@@ -6,10 +6,11 @@ messageTimeout = beaconTimeout
 
 # proxy for a REST service
 class RestService(Sensor):
-    def __init__(self, name, interface, addr=None, timeStamp=-1, group="", type="service", location=None, label="", event=None):
+    def __init__(self, name, interface, addr=None, stateTimeStamp=-1, resourceTimeStamp=-1, group="", type="service", location=None, label="", event=None):
         Sensor.__init__(self, name, interface, addr=addr, group=group, type=type, location=location, label=label, event=event)
         debug('debugRestService', "RestService", name, "created")
-        self.timeStamp = timeStamp      # the last time this service was updated
+        self.stateTimeStamp = stateTimeStamp      # the last time the states were updated
+        self.resourceTimeStamp = resourceTimeStamp      # the last time the resources were updated
         self.resources = None           # resources on this service
         self.enabled = False
         self.messageTimer = None
@@ -84,13 +85,14 @@ class RestService(Sensor):
             debug('debugMessageTimer', self.name, "timer cancelled", reason)
 
     # load resources from the specified REST paths
-    def load(self, serviceResources, serviceTimeStamp):
+    def load(self, serviceResources, stateTimeStamp, resourceTimeStamp):
         self.delResources()
         self.addResources()
         try:
             for serviceResource in serviceResources:
                 self.loadPath(self.resources, self.interface, "/"+serviceResource)
-            self.timeStamp = serviceTimeStamp
+            self.stateTimeStamp = stateTimeStamp
+            self.resourceTimeStamp = resourceTimeStamp
         except KeyError:
             self.disable()
 

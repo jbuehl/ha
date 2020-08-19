@@ -21,7 +21,7 @@ def setServicePorts(serviceList):
 def parseServiceData(data, addr):
     serviceData = json.loads(data)
     debug('debugRestProxyData', "data", serviceData)
-    (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceSeq) = ("", "", [], 0, "", 0)
+    (serviceName, serviceAddr, stateTimeStamp, resourceTimeStamp, serviceLabel, serviceSeq, serviceStates, serviceResources) = ("", "", 0, 0, "", 0, {}, [])
     try:
         try:
             serviceResources = serviceData["resources"]
@@ -34,12 +34,17 @@ def parseServiceData(data, addr):
         serviceData = serviceData["service"]
         serviceName = "services."+serviceData["name"]
         serviceAddr = addr[0]+":"+str(serviceData["port"])
-        serviceTimeStamp = serviceData["timestamp"]
+        try:
+            stateTimeStamp = serviceData["statetimestamp"]
+            resourceTimeStamp = serviceData["resourcetimestamp"]
+        except KeyError:
+            stateTimeStamp = serviceData["timestamp"]
+            resourceTimeStamp = serviceData["timestamp"]
         serviceLabel = serviceData["label"]
         serviceSeq = serviceData["seq"]
     except Exception as ex:
         log("parseServiceData", str(ex), str(serviceData))
-    return (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceSeq, serviceStates)
+    return (serviceName, serviceAddr, stateTimeStamp, resourceTimeStamp, serviceLabel, serviceSeq, serviceStates, serviceResources)
 
 # Autodiscover services and resources
 # Detect changes in resource configuration on each service
@@ -71,7 +76,7 @@ class RestProxy(threading.Thread):
             (data, addr) = self.socket.recvfrom(32768)   # FIXME - need to handle arbitrarily large data
             debug('debugRestMessage', self.name, "notification data", data)
             # parse the message
-            (serviceName, serviceAddr, serviceResources, serviceTimeStamp, serviceLabel, serviceSeq, serviceStates) = \
+            (serviceName, serviceAddr, stateTimeStamp, resourceTimeStamp, serviceLabel, serviceSeq, serviceStates, serviceResources) = \
                 parseServiceData(data.decode("utf-8"), addr)
             # rename it if there is an alias
             if serviceName in list(self.resources.aliases.keys()):
@@ -82,23 +87,24 @@ class RestProxy(threading.Thread):
                 serviceLabel = newServiceLabel
             # determine if this service should be processed based on watch and ignore lists
             if ((self.watch != []) and (serviceName  in self.watch)) or ((self.watch == []) and (serviceName not in self.ignore)):
-                debug('debugRestProxy', self.name, "processing", serviceName, serviceAddr, serviceTimeStamp)
+                debug('debugRestProxy', self.name, "processing", serviceName, serviceAddr, stateTimeStamp, resourceTimeStamp)
                 if serviceName not in list(self.services.keys()):
                     # this is one not seen before, create a new service proxy
-                    debug('debugRestProxyAdd', self.name, "adding", serviceName, serviceAddr, serviceTimeStamp)
+                    debug('debugRestProxyAdd', self.name, "adding", serviceName, serviceAddr, stateTimeStamp, resourceTimeStamp)
                     self.services[serviceName] = RestService(serviceName,
                                                                 RestInterface(serviceName+"Interface",
                                                                                 serviceAddr=serviceAddr,
                                                                                 event=self.event,
                                                                                 cache=self.cache),
                                                                 addr=0,
-                                                                timeStamp=serviceTimeStamp,
+                                                                stateTimeStamp=stateTimeStamp,
+                                                                resourceTimeStamp=resourceTimeStamp,
                                                                 label=serviceLabel,
                                                                 group="Services")
                     service = self.services[serviceName]
                     service.enable()
                     serviceResources = ["resources?expand=true"]
-                    service.load(serviceResources, serviceTimeStamp)
+                    service.load(serviceResources, stateTimeStamp, resourceTimeStamp)
                     self.addResources(service)
                     if serviceStates == {}:
                         serviceStates = service.interface.getStates()
@@ -109,27 +115,27 @@ class RestProxy(threading.Thread):
                     service.cancelTimer("message received")
                     if not service.enabled:     # the service was previously disabled but it is broadcasting again
                         # re-enable it
-                        debug('debugRestProxyDisable', self.name, "reenabling", serviceName, serviceAddr, serviceTimeStamp)
+                        debug('debugRestProxyDisable', self.name, "reenabling", serviceName, serviceAddr, stateTimeStamp, resourceTimeStamp)
                         # update the resource cache
                         self.addResources(service)
                         service.interface.serviceAddr = serviceAddr # update the ipAddr:port in case it changed
                         service.enable()
-                    if (serviceTimeStamp > service.timeStamp) or (serviceResources != []):  # service resources have changed
-                        debug('debugRestProxyUpdate', self.name, "updating", serviceName, serviceAddr, serviceTimeStamp)
+                    if (resourceTimeStamp > service.resourceTimeStamp) or (serviceResources != []):  # service resources have changed
+                        debug('debugRestProxyUpdate', self.name, "updating", serviceName, serviceAddr, resourceTimeStamp)
                         # delete the resources from the cache and get new resources for the service
                         self.delResources(service)
                         serviceResources = ["resources?expand=true"]
-                        service.load(serviceResources, serviceTimeStamp)
+                        service.load(serviceResources, stateTimeStamp, resourceTimeStamp)
                         self.addResources(service)
-                    if (serviceTimeStamp > service.timeStamp) or (serviceStates != {}): # states have changed
-                        debug('debugRestProxyStates', self.name, "states", serviceName, serviceAddr, serviceTimeStamp)
+                    if (stateTimeStamp > service.stateTimeStamp) or (serviceStates != {}): # states have changed
+                        debug('debugRestProxyStates', self.name, "states", serviceName, serviceAddr, stateTimeStamp)
                         self.resources.setStates(serviceStates)
                         self.resources.notify()
                 # start the message timer
                 service.startTimer()
                 service.logSeq(serviceSeq)
             else:
-                debug('debugRestProxy', self.name, "ignoring", serviceName, serviceAddr, serviceTimeStamp)
+                debug('debugRestProxy', self.name, "ignoring", serviceName, serviceAddr, stateTimeStamp, resourceTimeStamp)
         debug('debugThread', self.name, "terminated")
 
     # add the resource of the service as well as
@@ -141,7 +147,7 @@ class RestProxy(threading.Thread):
         self.resources.addRes(service.missedSeqPctSensor)       # percent of missed messages
         for resource in list(service.resources.values()):       # resources from the service
             self.resources.addRes(resource)
-        self.cacheTime = service.timeStamp
+        self.cacheTime = service.resourceTimeStamp
         self.event.set()
         debug('debugInterrupt', self.name, "event set")
 
