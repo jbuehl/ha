@@ -177,20 +177,21 @@ class Collection(Resource, OrderedDict):
                             if not resource.event:    # don't poll resources with events
                                 if resource.type not in ["schedule", "collection"]:   # skip resources that don't have a state
                                     if resource.name not in list(resourcePollCounts.keys()):
-                                        resourcePollCounts[resource.name] = resource.pollInterval
-                                        debug('debugCollection', self.name, resource.name, resource.pollInterval)
+                                        resourcePollCounts[resource.name] = resource.poll
+                                        debug('debugCollection', self.name, resource.name, resource.poll)
                                     if resourcePollCounts[resource.name] == 0:          # count has decremented to zero
                                         resourceState = resource.getState()
                                         debug('debugCollection', self.name, resource.name, self.states[resource.name], resourceState)
                                         if resourceState != self.states[resource.name]: # save the state if it has changed
                                             self.states[resource.name] = resourceState
                                             stateChanged = True
-                                        resourcePollCounts[resource.name] = resource.pollInterval
+                                        resourcePollCounts[resource.name] = resource.poll
                                     else:   # decrement the count
                                         resourcePollCounts[resource.name] -= 1
                         except Exception as ex:
                             log(self.name, "pollStates", "Exception", str(ex))
                 if stateChanged:    # at least one resource state changed
+                debug('debugCollection', self.name, "state changed")
                     self.event.set()
                     stateChanged = False
                 time.sleep(1)
@@ -284,7 +285,7 @@ class Collection(Resource, OrderedDict):
 # Sensors can also optionally be associated with a group and a physical location.
 class Sensor(Resource):
     def __init__(self, name, interface=None, addr=None, type="sensor",
-                 resolution=0, pollInterval=1, event=None, persistence=None,
+                 resolution=0, poll=10, event=None, persistence=None,
                  location=None, group="", label=None):
         try:
             if self.type:   # init has already been called for this object - FIXME
@@ -296,7 +297,7 @@ class Sensor(Resource):
             if self.interface:
                 self.interface.addSensor(self)
             self.resolution = resolution
-            self.pollInterval = pollInterval
+            self.poll = poll
             if event:
                 self.event = event
             elif self.interface:       # inherit the event from the interface if not specified
@@ -360,7 +361,7 @@ class Sensor(Resource):
                 "addr":self.addr,
                 "type":self.type,
                 "resolution": self.resolution,
-                "pollInterval": self.pollInterval,
+                "poll": self.poll,
                 "persistence": (self.persistence.name if self.persistence else None),
                 "location":self.location,
                 "group":self.group,
@@ -369,10 +370,10 @@ class Sensor(Resource):
 # A Control is a Sensor whose state can be set
 class Control(Sensor):
     def __init__(self, name, interface=None, addr=None, type="control",
-                 resolution=0, pollInterval=1, event=None, persistence=None,
+                 resolution=0, poll=10, event=None, persistence=None,
                  location=None, group="", label=None):
         Sensor.__init__(self, name, interface=interface, addr=addr, type=type,
-                        resolution=resolution, pollInterval=pollInterval, event=event, persistence=persistence,
+                        resolution=resolution, poll=poll, event=event, persistence=persistence,
                         location=location, group=group, label=label)
 
     # Set the state of the control by writing the value to the address on the interface.
