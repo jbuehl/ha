@@ -148,7 +148,7 @@ class Interface(Resource):
 
 # Resource collection
 class Collection(Resource, OrderedDict):
-    def __init__(self, name, resources=[], aliases={}, type="collection", event=None):
+    def __init__(self, name, resources=[], aliases={}, type="collection", event=None, start=False):
         Resource.__init__(self, name, type)
         OrderedDict.__init__(self)
         self.lock = threading.Lock()
@@ -161,12 +161,14 @@ class Collection(Resource, OrderedDict):
         else:
             self.event = threading.Event()
         debug('debugCollection', self.name, "aliases:", self.aliases)
+        if start:
+            self.start()
 
     def start(self):
         # thread to periodically poll the state of the resources in the collection
         def pollStates():
             debug('debugCollection', self.name, "starting resource polling")
-            resourcePollCounts = {resource.name: resource.pollInterval for resource in list(self.values())}
+            resourcePollCounts = {}
             while True:
                 stateChanged = False
                 with self.lock:
@@ -174,6 +176,9 @@ class Collection(Resource, OrderedDict):
                         try:
                             if not resource.event:    # don't poll resources with events
                                 if resource.type not in ["schedule", "collection"]:   # skip resources that don't have a state
+                                    if resource.name not in list(resourcePollCounts.keys()):
+                                        resourcePollCounts[resource.name] = resource.pollInterval
+                                        debug('debugCollection', self.name, resource.name, resource.pollInterval)
                                     if resourcePollCounts[resource.name] == 0:          # count has decremented to zero
                                         resourceState = resource.getState()
                                         debug('debugCollection', self.name, resource.name, self.states[resource.name], resourceState)
@@ -202,6 +207,7 @@ class Collection(Resource, OrderedDict):
 
     # Add a resource to this collection
     def addRes(self, resource):
+        debug('debugCollection', self.name, "adding", resource.name)
         with self.lock:
             self.__setitem__(str(resource), resource)
             resource.addCollection(self)
@@ -209,6 +215,7 @@ class Collection(Resource, OrderedDict):
 
     # Delete a resource from this collection
     def delRes(self, name):
+        debug('debugCollection', self.name, "deleting", name)
         with self.lock:
             del self.states[name]
             self.__getitem__(name).delCollection(self)
