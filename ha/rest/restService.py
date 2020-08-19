@@ -85,13 +85,12 @@ class RestService(Sensor):
             debug('debugMessageTimer', self.name, "timer cancelled", reason)
 
     # load resources from the specified REST paths
-    def load(self, serviceResources, stateTimeStamp, resourceTimeStamp):
+    def load(self, serviceResources, resourceTimeStamp):
         self.delResources()
         self.addResources()
         try:
             for serviceResource in serviceResources:
                 self.loadPath(self.resources, self.interface, "/"+serviceResource)
-            self.stateTimeStamp = stateTimeStamp
             self.resourceTimeStamp = resourceTimeStamp
         except KeyError:
             self.disable()

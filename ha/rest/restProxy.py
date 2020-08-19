@@ -104,10 +104,11 @@ class RestProxy(threading.Thread):
                     service = self.services[serviceName]
                     service.enable()
                     serviceResources = ["resources?expand=true"]
-                    service.load(serviceResources, stateTimeStamp, resourceTimeStamp)
+                    service.load(serviceResources, resourceTimeStamp)
                     self.addResources(service)
                     if serviceStates == {}:
                         serviceStates = service.interface.getStates()
+                    service.stateTimeStamp = stateTimeStamp
                     self.resources.setStates(serviceStates)
                     self.resources.notify()
                 else:   # service is already in the cache
@@ -125,10 +126,11 @@ class RestProxy(threading.Thread):
                         # delete the resources from the cache and get new resources for the service
                         self.delResources(service)
                         serviceResources = ["resources?expand=true"]
-                        service.load(serviceResources, stateTimeStamp, resourceTimeStamp)
+                        service.load(serviceResources, resourceTimeStamp)
                         self.addResources(service)
                     if (stateTimeStamp > service.stateTimeStamp) or (serviceStates != {}): # states have changed
                         debug('debugRestProxyStates', self.name, "states", serviceName, serviceAddr, stateTimeStamp)
+                        service.stateTimeStamp = stateTimeStamp
                         self.resources.setStates(serviceStates)
                         self.resources.notify()
                 # start the message timer
