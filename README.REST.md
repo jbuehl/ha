@@ -17,18 +17,32 @@ HA objects on other servers.
 * hostname - the unique name for a server on the local network
 * HA service - the implementation of the HA REST interface on a server
 * HA resource - a HA object implemented within a HA application
-* REST resource - an identifier in a the HTTP path that corresponds to a HA resource
+* REST resource - an identifier in a the HTTP path that may describe a HA resource
 
 ### Service advertising
-The HA REST server uses Zeroconf to advertise itself on the local network.  The message contains the service type, port,
-and protocol that a client can use to contact it.  The default port is 7378.  If multiple HA services are running on the
-same host they will use different ports.
+The HA REST server uses periodic messages sent to a multicast address to advertise itself on the local network.  
+The message contains the service name, and port that a client can use to contact it.  The default port is 7378.  
+If multiple HA services are running on the same host they must use different ports.
 
-* service type: ha-rest
-* protocol: tcp
-* hostname: <hostname>
-* IP address: <ip address>
-* port: <port>
+The message contains a service REST resource and optionally a resources REST resource and states REST resource.
+If the message only contains a service REST resource, the message serves to notify clients that the server is
+still active and there haven't been any resource or state changes since the last message.  The timestamp will be the
+same as the previous message and the sequence number will be incremented by 1.
+
+A client will create local resources that serve as proxies for the resources on a server.  The states of the resources
+are cached in the client and updated when the states of the server resources change.  When a client receives a message
+for a service that it hasn't previously seen, it creates a set of proxy resources for the service.
+
+If the state of a resource changes on a server, the next message will include a states REST resource that contains
+the current states of all resources on the server and an updated timestamp.  The client should update it's state cache
+for that service with the new values.
+
+If the configuration of the HA resources on a service changes, the next message will include both a resources REST resource,
+a states REST resource, and an updated timestamp.  The client will delete and recreate the proxied HA resources for
+that service, and update their states.
+
+If a client receives a message from an active server that contains a changed timestamp but no resources or states REST resources,
+it will request those resources from the service and update its cache.
 
 ### Verbs
 The HTTP following verbs are implemented by restServer.py:
@@ -59,22 +73,24 @@ REST resource paths are defined as follows:
 ```
 The /service/ resource contains attributes of the HA service.
 ```
-{"name": <service name>,
- "label": <service display name>,
- "timestamp": <last update time of the resource states>,
- "seq": <sequence number of the state update>}
+"service":  {"name": <service name>,
+			 "hostname": <host name>,
+			 "port": <port>,
+			 "label": <service display name>,
+			 "timestamp": <last update time of the resource states>,
+			 "seq": <sequence number of the message>}
 ```
 The /resources/ REST resource contains a JSON representation of the HA resource that
 the service is exposing.  It may be a single HA Resource but typically this is a
 HA Collection resource that contains a list of HA resources.
 ```
-{"class": "Collection",
- "attrs": {"name": <resource collection name>,
-           "type": "collection",
-           "resources": [<resource 0 name>,
-                         <resource 1 name>,
-                         ...,
-                         <resource N name>]}}
+"resources":{"class": "Collection",
+			 "attrs": {"name": <resource collection name>,
+			           "type": "collection",
+			           "resources": [<resource 0 name>,
+			                         <resource 1 name>,
+			                         ...,
+			                         <resource N name>]}}
 ```
 
 The /states/ resource contains a list of all the names and current states of the HA Sensor

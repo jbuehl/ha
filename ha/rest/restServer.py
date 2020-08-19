@@ -10,7 +10,6 @@ import threading
 import socket
 import time
 import struct
-import copy
 
 # RESTful web services server interface
 class RestServer(object):

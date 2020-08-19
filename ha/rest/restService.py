@@ -2,19 +2,19 @@ from ha import *
 from ha.rest.restConfig import *
 import threading
 
+messageTimeout = beaconTimeout
+
 # proxy for a REST service
 class RestService(Sensor):
-    def __init__(self, name, interface, addr, timeStamp=-1, group="", type="service", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+    def __init__(self, name, interface, addr=None, timeStamp=-1, group="", type="service", location=None, label="", event=None):
+        Sensor.__init__(self, name, interface, addr=addr, group=group, type=type, location=location, label=label, event=event)
         debug('debugRestService', "RestService", name, "created")
         self.timeStamp = timeStamp      # the last time this service was updated
-        self.resourceNames = []         # resource names on this service
-#        self.className = "Sensor" # so the web UI doesn't think it's a control
         self.resources = None           # resources on this service
         self.enabled = False
-        self.beaconTimer = None
-        self.lastSeq = 0                # the last beacon message sequence number received
-        self.missedSeq = 0              # count of how many missed beacon messages for this service
+        self.messageTimer = None
+        self.lastSeq = 0                # the last message sequence number received
+        self.missedSeq = 0              # count of how many missed messages for this service
         self.missedSeqPct = 0.0         # percentage of missed messages
         try:
             serviceName = name.split(".")[1]
@@ -41,9 +41,8 @@ class RestService(Sensor):
     def disable(self):
         debug('debugRestService', "RestService", self.name, "disabled")
         self.interface.stop()
-        self.beaconTimer = None
+        self.messageTimer = None
         self.enabled = False
-#        self.timeStamp = -1
 
     def addResources(self):
         self.resources = Collection(self.name+"/Resources")
@@ -64,105 +63,72 @@ class RestService(Sensor):
             self.missedSeqPct = float(self.missedSeq) / float(seq)
         self.lastSeq = seq
 
-    # define a timer to disable the service if the beacon times out
+    # define a timer to disable the service if the message timer times out
     # can't use a socket timeout because multiple threads are using the same port
-    def beaconTimeout(self):
-        debug('debugBeaconTimer', self.name, "timer expired")
-        debug('debugRestProxyDisable', self.name, "read beacon timeout")
+    def messageTimeout(self):
+        debug('debugMessageTimer', self.name, "timer expired")
+        debug('debugRestProxyDisable', self.name, "read message timeout")
         self.disable()
 
-    # start the beacon timer
-    def startBeaconTimer(self):
-        if beaconTimeout:
-            self.beaconTimer = threading.Timer(beaconTimeout, self.beaconTimeout)
-            self.beaconTimer.start()
-            debug('debugBeaconTimer', self.name, "timer started", beaconTimeout, "seconds")
+    # start the message timer
+    def startTimer(self):
+        if messageTimeout:
+            self.messageTimer = threading.Timer(messageTimeout, self.messageTimeout)
+            self.messageTimer.start()
+            debug('debugMessageTimer', self.name, "timer started", messageTimeout, "seconds")
 
-    # cancel the beacon timer
-    def cancelBeaconTimer(self, reason=""):
-        if self.beaconTimer:
-            self.beaconTimer.cancel()
-            debug('debugBeaconTimer', self.name, "timer cancelled", reason)
+    # cancel the message timer
+    def cancelTimer(self, reason=""):
+        if self.messageTimer:
+            self.messageTimer.cancel()
+            debug('debugMessageTimer', self.name, "timer cancelled", reason)
 
-    # load resources from the specified REST paths and add to the resources of the specified restProxy
-    def loadResources(self, restProxy, serviceResources, serviceTimeStamp):
+    # load resources from the specified REST paths
+    def load(self, serviceResources, serviceTimeStamp):
         self.delResources()
         self.addResources()
         try:
             for serviceResource in serviceResources:
                 self.loadPath(self.resources, self.interface, "/"+serviceResource)
-            self.resourceNames = list(self.resources.keys())    # FIXME - need to alias the names
             self.timeStamp = serviceTimeStamp
-            self.interface.readStates()          # fill the cache for these resources
-            restProxy.addResources(self)
         except KeyError:
             self.disable()
 
     # load resources from the path on the specified interface
     # this does not replicate the collection hierarchy being read
     def loadPath(self, resources, interface, path):
-        debug('debugLoadResources', self.name, "loadPath", "path:", path)
-        node = interface.readRest(path)
-        self.loadResource(resources, interface, node, path)
+        debug('debugLoadService', self.name, "loadPath", "path:", path)
+        resourceDict = interface.readRest(path)
+        self.loadResource(resources, interface, path, resourceDict)
         try:
-            if "resources" in list(node["args"].keys()):    # the node is a collection
-                for resource in node["args"]["resources"]:
-                    self.loadPath(resources, interface, path+"/"+resource)
+            if "resources" in list(resourceDict["args"].keys()):    # the resource is a collection
+                for resource in resourceDict["args"]["resources"]:
+                    if isinstance(resource, str):
+                        self.loadPath(resources, interface, path+"/"+resource)
+                    elif isinstance(resource, dict):
+                        self.loadResource(resources, interface, path, resource)
+                    else:
+                        log(self.name, "unknown resource type", str(resource))
         except KeyError:    # old resource dict
-            if "resources" in list(node.keys()):    # the node is a collection
-                for resource in node["resources"]:
+            if "resources" in list(resourceDict.keys()):    # the resource is a collection
+                for resource in resourceDict["resources"]:
                     self.loadPath(resources, interface, path+"/"+resource)
 
-    # instantiate the resource from the specified node
-    def loadResource(self, resources, interface, node, path):
-        debug('debugLoadResources', self.name, "loadResource", "node:", node)
+    # instantiate the resource from the specified dictionary
+    def loadResource(self, resources, interface, path, resourceDict):
+        debug('debugLoadService', self.name, "loadResource", "path:", path, "resourceDict:", resourceDict)
         try:
             # ignore certain resource types
-            if node["class"] not in ["Collection", "Schedule", "ResourceStateSensor", "RestService"]:
-                try:
-                    node["args"]["interface"] = None
-                    resource = loadResource(node, globals())
-                    resource.interface = interface
-                    resource.interface.addSensor(resource)
-                    resource.addr = path+"/state"
-                    resources.addRes(resource)
-                except KeyError:    # old resource dict
-                    # override attributes with alias attributes if specified for the resource
-                    try:
-                        aliasAttrs = resources.aliases[node["name"]]
-                        debug('debugLoadResources', self.name, "loadResource", node["name"], "found alias")
-                        for attr in list(aliasAttrs.keys()):
-                            node[attr] = aliasAttrs[attr]
-                            debug('debugLoadResources', self.name, "loadResource", node["name"], "attr:", attr, "value:", aliasAttrs[attr])
-                    except KeyError:
-                        debug('debugLoadResources', self.name, "loadResource", node["name"], "no alias")
-                        pass
-                    # assemble the argument string
-                    argStr = ""
-                    for arg in list(node.keys()):
-                        if arg == "class":
-                            className = node[arg]
-                        elif arg == "interface":                # use the REST interface
-                            argStr += "interface=interface, "
-                        elif arg == "addr":                     # addr is REST path
-                            argStr += "addr='"+path+"/state', "
-                        elif arg in ["schedTime", "endTime"]:                # FIXME - need to generalize this for any class
-                            argStr += arg+"=SchedTime(**"+str(node[arg])+"), "
-                        elif arg == "cycleList":                # FIXME - need to generalize this for any class
-                            argStr += "cycleList=["
-                            for cycle in node["cycleList"]:
-                                argStr += "Cycle(**"+str(cycle)+"), "
-                            argStr += "], "
-                        elif isinstance(node[arg], str) or isinstance(node[arg], str):  # arg is a string
-                            argStr += arg+"='"+node[arg]+"', "
-                        else:                                   # arg is numeric or other
-                            argStr += arg+"="+str(node[arg])+", "
-                    debug("debugLoadResources", "creating", className+"("+argStr[:-2]+")")
-                    localDict = {"interface": interface}
-                    exec("resource = "+className+"("+argStr[:-2]+")", globals(), localDict)
-                    resources.addRes(localDict["resource"])
+            if resourceDict["class"] not in ["Collection", "Schedule", "RestService"]:
+                resourceDict["args"]["interface"] = None
+                resource = loadResource(resourceDict, globals())
+                # replace the resource interface and addr with the REST interface and addr
+                resource.interface = interface
+                resource.interface.addSensor(resource)
+                resource.addr = path+"/state"
+                resources.addRes(resource)
         except Exception as exception:
-            log(self.name, "loadResource", interface.name, "exception", str(node), path, str(exception))
+            log(self.name, "loadResource", interface.name, "exception", str(resourceDict), str(exception))
             try:
                 if debugExceptions:
                     raise

@@ -34,6 +34,7 @@ from ha.interfaces.fileInterface import *
 from ha.interfaces.osInterface import *
 from ha.rest.restServer import *
 from ha.rest.restProxy import *
+from ha.rest.restProxy1 import *
 from ha.ui.webUI import *
 from ha.ui.dashboardUI import *
 from ha.ui.ipadUI import *
@@ -179,7 +180,7 @@ if __name__ == "__main__":
     restCache.start()
 
     # start the cache to listen for legacy services on ESP devices
-    espRestCache = RestProxy("espRestCache", resources, event=stateChangeEvent, multicast=False)
+    espRestCache = RestProxy1("espRestCache", resources, event=stateChangeEvent, multicast=False)
     espRestCache.start()
 
     # monitor service states
