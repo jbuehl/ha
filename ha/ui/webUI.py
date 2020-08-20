@@ -95,29 +95,30 @@ class WebRoot(object):
             for resourceName in list(resourceStates.keys()):
                 try:
                     state = resourceStates[resourceName]
-                    try:
-                        resType = resourceTypes[resourceName]
-                    except KeyError:
-                        resType = self.resources.getRes(resourceName).type
-                        resourceTypes[resourceName] = resType
-                    resState = views.getViewState(None, resType, state)
-                    jqueryName = resourceName.replace(".", "_") # jquery doesn't like periods in names
-                    debug('debugWebUpdate', "/updateStates", resourceName, resType, resState, state)
-                    # determine the HTML class for the resource
-                    if resType in tempTypes:         # temperature
-                        updates[jqueryName] = ("temp", resState)
-                    elif (resourceName[0:16] == "solar.optimizers") and (resourceName[-5:] == "power"):
-                        updates[jqueryName] = ("panel", resState)
-                    elif resType in staticTypes:
-                        if resType[-1] == "-":      # + or - value
-                            updates[jqueryName] = (resType[:-1]+("_plus" if state >= 0 else "_minus"), resState)
-                        else:                       # class doesn't depend on value
-                            updates[jqueryName] = (resType, resState)
-                    else:                           # class is specific to the type and value
-                        updates[jqueryName] = (resType+"_"+resState, resState)
-                    if (resourceName in blinkers) and state:
-                        debug('debugWebBlink', "/updateStates", resourceName, resType, resState, state)
-                        blinkerList.append(jqueryName)
+                    if state != None:   # ignore null states
+                        try:
+                            resType = resourceTypes[resourceName]
+                        except KeyError:
+                            resType = self.resources.getRes(resourceName).type
+                            resourceTypes[resourceName] = resType
+                        resState = views.getViewState(None, resType, state)
+                        jqueryName = resourceName.replace(".", "_") # jquery doesn't like periods in names
+                        debug('debugWebUpdate', "/updateStates", resourceName, resType, resState, state)
+                        # determine the HTML class for the resource
+                        if resType in tempTypes:         # temperature
+                            updates[jqueryName] = ("temp", resState)
+                        elif (resourceName[0:16] == "solar.optimizers") and (resourceName[-5:] == "power"):
+                            updates[jqueryName] = ("panel", resState)
+                        elif resType in staticTypes:
+                            if resType[-1] == "-":      # + or - value
+                                updates[jqueryName] = (resType[:-1]+("_plus" if state >= 0 else "_minus"), resState)
+                            else:                       # class doesn't depend on value
+                                updates[jqueryName] = (resType, resState)
+                        else:                           # class is specific to the type and value
+                            updates[jqueryName] = (resType+"_"+resState, resState)
+                        if (resourceName in blinkers) and state:
+                            debug('debugWebBlink', "/updateStates", resourceName, resType, resState, state)
+                            blinkerList.append(jqueryName)
                 except:
                     raise
             debug('debugWebBlink', "/updateStates", blinkerList)
