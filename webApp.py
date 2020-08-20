@@ -176,7 +176,7 @@ if __name__ == "__main__":
     startMetrics(resources, sendMetrics, logMetrics, backupMetrics)
 
     # start the cache to listen for services on other servers
-    restCache = RestProxy("restCache", resources, watch=restWatch, ignore=restIgnore+["house"], event=stateChangeEvent)
+    restCache = RestProxy("restCache", resources, watch=["deck", "sprinklers", "weather", "hvac", "backhouse", "pool", "garage", "control"], ignore=restIgnore+["house"], event=stateChangeEvent)
     restCache.start()
 
     # start the cache to listen for legacy services on ESP devices

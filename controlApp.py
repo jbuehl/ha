@@ -10,6 +10,7 @@ from ha.interfaces.tplinkInterface import *
 from ha.interfaces.samsungInterface import *
 from ha.rest.restServer import *
 from ha.rest.restProxy import *
+from ha.rest.restProxy1 import *
 
 stateChangeEvent = threading.Event()
 
@@ -43,7 +44,7 @@ if __name__ == "__main__":
     restCache = RestProxy("restProxy", cacheResources, watch=restWatch, event=stateChangeEvent)
     restCache.start()
     # start the cache to listen for legacy services on ESP devices
-    espRestCache = RestProxy("espRestCache", cacheResources, watch=espRestWatch, event=stateChangeEvent, multicast=False)
+    espRestCache = RestProxy1("espRestCache", cacheResources, watch=espRestWatch, event=stateChangeEvent)
     espRestCache.start()
 
     # add local resources to cache resource list
@@ -161,7 +162,7 @@ if __name__ == "__main__":
     schedule.addTask(resources["fireplaceOffMidnight"])
     #        schedule.addTask(resources["xmasTreeOnXmas"])
 
-    restServer = RestServer("control", resources, port=7379, event=stateChangeEvent, label="Control app", multicast=True)
+    restServer = RestServer("control", resources, port=7379, event=stateChangeEvent, label="Control", multicast=True)
 
     # Start interfaces
     configData.start()

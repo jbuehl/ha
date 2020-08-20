@@ -20,7 +20,7 @@ from ha.interfaces.fileInterface import *
 from ha.interfaces.modbusInterface import *
 from ha.controls.electricalSensors import *
 from ha.rest.restServer import *
-from ha.rest.restProxy import *
+from ha.rest.restProxy1 import *
 from ha.notification.notificationClient import *
 
 doorbellEvent = threading.Event()
@@ -43,9 +43,8 @@ def doorbellInterrupt(sensor, state):
     doorbellState = state
 
 class GarageDoorControl(Control):
-    def __init__(self, name, interface, doorControl, doorClosedSensor, doorOpenSensor=None, addr=None,
-            group="", type="control", location=None, label="", interrupt=None, event=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+    def __init__(self, name, interface, doorControl, doorClosedSensor, doorOpenSensor=None, **kwargs):
+        Control.__init__(self, name, interface, **kwargs)
         self.className = "Control"
         self.doorControl = doorControl
         self.doorClosedSensor = doorClosedSensor
@@ -60,8 +59,8 @@ class GarageDoorControl(Control):
 
 class RenologySensor(Sensor):
     def __init__(self, name, interface, addr, factor=1.0, mask=0xffff, shift=0,
-            group="", type="sensor", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+            **kwargs):
+        Sensor.__init__(self, name, interface, addr, **kwargs)
         self.className = "Sensor"
         self.factor = factor
         self.mask = mask
@@ -100,7 +99,7 @@ if __name__ == "__main__":
 
     # start the cache to listen for services on other servers
     cacheResources = Collection("cacheResources", event=stateChangeEvent)
-    restCache = RestProxy("restProxy", cacheResources, watch=restWatch, multicast=False, event=stateChangeEvent)
+    restCache = RestProxy1("restProxy", cacheResources, watch=restWatch, event=stateChangeEvent)
     restCache.start()
 
     # Interfaces
@@ -128,7 +127,7 @@ if __name__ == "__main__":
     garageBackDoor = Sensor("garageBackDoor", gpio1, 1, type="door", group="Doors", label="Garage back", event=stateChangeEvent)
     garageHouseDoor = Sensor("garageHouseDoor", gpio1, 2, type="door", group="Doors", label="Garage house", event=stateChangeEvent)
     garageDoors = SensorGroup("garageDoors", [garageDoor, garageBackDoor, garageHouseDoor], type="door", group="Doors", label="Garage doors")
-    doorbellButton = Sensor("doorbellButton", gpio1, 3, interrupt=doorbellInterrupt)
+    doorbellButton = Sensor("doorbellButton", gpio1, 3, event=stateChangeEvent)
     doorbell = MomentaryControl("doorbell", None, duration=10, type="sound", group="Doors", label="Doorbell", event=stateChangeEvent)
 
     # backup power system sensors
