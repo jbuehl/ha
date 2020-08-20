@@ -163,8 +163,8 @@ class FadeAnimation(Animation):
 #
 class HolidayLightControl(Control):
     def __init__(self, name, interface, patterns, patternControl,
-                 addr=None, group="", type="control", location=None, label="", event=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, event=event)
+                 **kwargs):
+        Control.__init__(self, name, interface, **kwargs)
         self.className = "Control"
         self.patterns = patterns                # list of patterns
         self.patternControl = patternControl    # a Control whose state specifies which pattern is active

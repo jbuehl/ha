@@ -28,9 +28,9 @@ lxgControlPeriod = .1
 poolValveTravelTime = 34
 
 class SpaControl(Control):
-    def __init__(self, name, interface, valveControl, pumpControl, heaterControl, lightApp, tempSensor, tempTargetControl, addr=None,
-            group="", type="control", location=None, label="", interrupt=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
+    def __init__(self, name, interface, valveControl, pumpControl, heaterControl, lightApp, tempSensor, tempTargetControl,
+            type="control", **kwargs):
+        Control.__init__(self, name, interface, type=type, **kwargs)
         self.className = "Control"
         self.currentState = spaOff
         self.valveControl = valveControl
@@ -187,10 +187,10 @@ lxgColors = {"Peruvian paradise": 1,
 		     }
 
 class LxgControl(MultiControl):
-    def __init__(self, name, interface, lightControl, addr=None, event=None,
-                 group="", type="control", location=None, label="", interrupt=None):
-        MultiControl.__init__(self, name, interface=interface, addr=addr, values=list(lxgColors.keys()),
-                 group=group, type=type, location=location, label=label, interrupt=interrupt)
+    def __init__(self, name, interface, lightControl, **kwargs):
+        MultiControl.__init__(self, name, interface=interface, values=list(lxgColors.keys()),
+                 **kwargs)
+        self.type = "control"
         self.lightControl = lightControl
 
     def getState(self):
@@ -209,10 +209,10 @@ class LxgControl(MultiControl):
                 log(self.name, "unknown command", state)
 
 class ValveControl(Control):
-    def __init__(self, name, interface, valveControl, powerControl=None, addr=None, event=None,
-                    group="", type="control", location=None, label="", interrupt=None):
-        Control.__init__(self, name, interface=interface, addr=addr, event=event,
-                    group=group, type=type, location=location, label=label, interrupt=interrupt)
+    def __init__(self, name, interface, valveControl, powerControl=None,
+                    type="control", **kwargs):
+        Control.__init__(self, name, interface=interface,
+                    type=type, **kwargs)
         self.className = "Control"
         self.valveControl = valveControl
         self.powerControl = powerControl

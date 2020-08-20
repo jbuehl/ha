@@ -14,8 +14,8 @@ from ha import *
 # thermostat control for heating and cooling
 class ThermostatControl(Control):
     def __init__(self, name, heatControl, coolControl, fanControl, inhibitSensor=None, persistenceControl=None,
-                interface=None, addr=None, group="", type="control", location=None, label="", interrupt=None, event=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+                **kwargs):
+        Control.__init__(self, name, **kwargs)
         self.className = "Control"
         self.heatControl = heatControl                  # the heating unit
         self.coolControl = coolControl                  # the A/C unit
@@ -110,8 +110,8 @@ hold = 5
 
 # Sensor that returns the thermostat unit control that is currently running
 class ThermostatUnitSensor(Sensor):
-    def __init__(self, name, thermostatControl, interface=None, addr=None, group="", type="sensor", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+    def __init__(self, name, thermostatControl, **kwargs):
+        Sensor.__init__(self, name, **kwargs)
         self.className = "Sensor"
         self.thermostatControl = thermostatControl
 

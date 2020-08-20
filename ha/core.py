@@ -329,7 +329,6 @@ class Sensor(Resource):
 
     # Trigger the sending of a state change notification
     def notify(self, state=None):
-        log("notify", self.name, self.state)
         if not state:
             state = self.getState()
         for collection in list(self.collections.keys()):

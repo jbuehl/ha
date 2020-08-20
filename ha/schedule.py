@@ -65,8 +65,8 @@ sequenceStopped = 0
 sequenceRunning = 1
 
 class Sequence(Control):
-    def __init__(self, name, cycleList=[], addr=None, interface=None, event=None, group="", type="sequence", label="", location=None):
-        Control.__init__(self, name, addr=addr, interface=interface, event=event, group=group, type=type, label=label, location=location)
+    def __init__(self, name, cycleList=[], **kwargs):
+        Control.__init__(self, name, **kwargs)
         self.cycleList = cycleList
         self.cycleList = self.getCycles()   # convert possible Sequences to Cycles
         self.running = False
@@ -127,7 +127,7 @@ class Sequence(Control):
         debug('debugThread', self.name, "stopped")
 
     # state change notification to all control events since the sequence doesn't have an event
-    def notify(self):
+    def notify(self, state=None):
         time.sleep(2)   # short delay to ensure the state change event for the sequence isn't missed
         for cycle in self.cycleList:
             if isinstance(cycle.control, Sensor):
@@ -296,9 +296,9 @@ class Schedule(Collection):
 # a Task specifies a control to be set to a specified state at a specified time
 class Task(Control):
     def __init__(self, name, schedTime=None, control=None, controlState=1, endTime=None, endState=0,
-                 resources=None, parent=None, enabled=True, interface=None, addr=None,
-                 type="task", group="Tasks", label="", location=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, label=label, location=location)
+                 resources=None, parent=None, enabled=True, **kwargs):
+        Control.__init__(self, name, **kwargs)
+        self.type = "task"
         self.schedTime = schedTime          # when to run the task
         self.control = control              # which control to set, can be a name
         self.controlState = controlState    # the state to set the control to

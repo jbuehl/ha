@@ -4,8 +4,8 @@ from .core import *
 
 # A collection of sensors whose state is on if any one of them is on
 class SensorGroup(Sensor):
-    def __init__(self, name, sensorList, resources=None, interface=None, addr=None, group="", type="sensor", label="", location=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, label=label, location=location)
+    def __init__(self, name, sensorList, resources=None, **kwargs):
+        Sensor.__init__(self, name, **kwargs)
         self.sensorList = sensorList
         self.resources = resources  # if specified, sensorList contains resource names, otherwise references
         # self.className = "Sensor"
@@ -46,10 +46,10 @@ class SensorGroup(Sensor):
 
 # A set of Controls whose state can be changed together
 class ControlGroup(SensorGroup, Control):
-    def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False, interface=None, addr=None, event=None,
-                 group="", type="controlGroup", label="", location=None):
-        SensorGroup.__init__(self, name, controlList, resources, interface, addr, group=group, type=type, label=label, location=location)
-        Control.__init__(self, name, interface, addr, group=group, event=event, type=type, label=label, location=location)
+    def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False,
+                 **kwargs):
+        SensorGroup.__init__(self, name, controlList, resources, **kwargs)
+        Control.__init__(self, name, **kwargs)
         self.stateMode = stateMode  # which state to return: False = SensorGroup, True = groupState
         self.groupState = 0
         if stateList == []:
@@ -105,10 +105,10 @@ class ControlGroup(SensorGroup, Control):
 
 # A Control whose state depends on the states of a group of Sensors
 class SensorGroupControl(SensorGroup, Control):
-    def __init__(self, name, sensorList, control, resources=None, interface=None, addr=None, event=None,
-                 group="", type="sensorGroupControl", label="", location=None):
-        Control.__init__(self, name, interface, addr, event=event, group=group, type=type, label=label, location=location)
-        SensorGroup.__init__(self, name, sensorList, resources, interface, addr, group=group, type=type, label=label, location=location)
+    def __init__(self, name, sensorList, control, resources=None, **kwargs):
+        Control.__init__(self, name, **kwargs)
+        SensorGroup.__init__(self, name, sensorList, resources, **kwargs)
+        self.type = "sensorGroupControl"
         self.control = control
 
     def getState(self):
@@ -140,8 +140,9 @@ class SensorGroupControl(SensorGroup, Control):
 
 # Calculate a function of a list of sensor states
 class CalcSensor(Sensor):
-    def __init__(self, name, sensors=[], function="", factor=1.0, resources=None, interface=None, addr=None, group="", type="sensor", label="", location=None):
-        Sensor.__init__(self, name, interface=interface, addr=addr, group=group, type=type, label=label, location=location)
+    def __init__(self, name, sensors=[], function="", factor=1.0, resources=None, **kwargs):
+        Sensor.__init__(self, name, **kwargs)
+        type = "sensor"
         self.sensors = sensors
         self.function = function.lower()
         self.resources = resources
@@ -178,8 +179,9 @@ class CalcSensor(Sensor):
 
 # Control that can only be turned on if all the specified resources are in the specified states
 class DependentControl(Control):
-    def __init__(self, name, interface, control, conditions, resources=None, addr=None, group="", type="control", location=None, label=""):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label)
+    def __init__(self, name, interface, control, conditions, resources=None, **kwargs):
+        Control.__init__(self, name, **kwargs)
+        type = "control"
         self.className = "Control"
         self.control = control
         self.conditions = conditions
@@ -242,8 +244,9 @@ class MomentaryControl(Control):
 
 # Control that has a specified list of values it can be set to
 class MultiControl(Control):
-    def __init__(self, name, interface, addr=None, values=[], group="", type="control", location=None, label=""):
-        Control.__init__(self, name, interface, addr, group=group, type="select", location=location, label=label)
+    def __init__(self, name, values=[], **kwargs):
+        Control.__init__(self, name, **kwargs)
+        type = "control"
         self.className = "MultiControl"
         self.values = values
 
@@ -262,8 +265,9 @@ class MultiControl(Control):
 
 # Control that has specified numeric limits on the values it can be set to
 class MinMaxControl(Control):
-    def __init__(self, name, interface, addr=None, minValue=0, maxValue=1, group="", type="control", location=None, label=""):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label)
+    def __init__(self, name, interface, addr=None, minValue=0, maxValue=1, **kwargs):
+        Control.__init__(self, name, interface, addr, **kwargs)
+        type = "control"
         self.className = "Control"
         self.setMinMax(minValue, maxValue)
 
@@ -284,8 +288,9 @@ class MinMaxControl(Control):
 
 # Sensor that captures the minimum state value of the specified sensor
 class MinSensor(Sensor):
-    def __init__(self, name, interface, addr, sensor, event=None, group="", type="sensor", location=None, label=""):
-        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label)
+    def __init__(self, name, interface, addr, sensor, **kwargs):
+        Sensor.__init__(self, name, interface, addr, **kwargs)
+        type = "sensor"
         self.className = "Sensor"
         self.sensor = sensor
         try:
@@ -321,8 +326,9 @@ class MinSensor(Sensor):
 
 # Sensor that captures the maximum state value of the specified sensor
 class MaxSensor(Sensor):
-    def __init__(self, name, interface, addr, sensor, event=None, group="", type="sensor", location=None, label=""):
-        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label)
+    def __init__(self, name, interface, addr, sensor, **kwargs):
+        Sensor.__init__(self, name, interface, addr, **kwargs)
+        type = "sensor"
         self.className = "Sensor"
         self.sensor = sensor
         try:
@@ -357,8 +363,9 @@ class MaxSensor(Sensor):
 
 # Sensor that captures the accumulated state values of the specified sensor
 class AccumSensor(Sensor):
-    def __init__(self, name, interface, sensor, multiplier=1, event=None, addr=None, group="", type="sensor", location=None, label=""):
-        Sensor.__init__(self, name, interface, addr, event=event, group=group, type=type, location=location, label=label)
+    def __init__(self, name, interface, sensor, multiplier=1, **kwargs):
+        Sensor.__init__(self, name, interface, addr, **kwargs)
+        type = "sensor"
         self.className = "Sensor"
         self.sensor = sensor
         self.multiplier = multiplier
@@ -381,8 +388,9 @@ class AccumSensor(Sensor):
 
 # sensor that returns the value of an attribute of a specified sensor
 class AttributeSensor(Sensor):
-    def __init__(self, name, interface, addr, sensor, attr, group="", type="sensor", location=None, label="", event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, event=event)
+    def __init__(self, name, interface, addr, sensor, attr, **kwargs):
+        Sensor.__init__(self, name, interface, addr, **kwargs)
+        type = "sensor"
         self.sensor = sensor
         self.attr = attr
 

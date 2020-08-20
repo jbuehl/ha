@@ -13,8 +13,8 @@ from ha import *
 class TempControl(Control):
     def __init__(self, name, interface, unitControl, tempSensor,
                 tempTargetControl=None, unitType=0, hysteresis=[1, 1],
-                addr=None, group="", type="control", location=None, label="", interrupt=None):
-        Control.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt)
+                **kwargs):
+        Control.__init__(self, name, interface, **kwargs)
         self.className = "Control"
         self.unitControl = unitControl              # the control for the heating or cooling unit
         self.tempSensor = tempSensor                # associated temp sensor

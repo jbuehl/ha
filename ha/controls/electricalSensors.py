@@ -6,9 +6,8 @@ from ha import *
 
 # Measure a voltage
 class VoltageSensor(Sensor):
-    def __init__(self, name, interface, addr, voltageFactor=1.0, threshold=0.0,
-            group="", type="sensor", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+    def __init__(self, name, interface, addr, voltageFactor=1.0, threshold=0.0, **kwargs):
+        Sensor.__init__(self, name, interface, addr, **kwargs)
         self.className = "Sensor"
         self.voltageFactor = voltageFactor
         self.threshold = threshold
@@ -26,9 +25,8 @@ class VoltageSensor(Sensor):
 
 # Measure a current
 class CurrentSensor(Sensor):
-    def __init__(self, name, interface, addr, currentFactor=1.0, threshold=0.0,
-            group="", type="sensor", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+    def __init__(self, name, interface, addr, currentFactor=1.0, threshold=0.0, **kwargs):
+        Sensor.__init__(self, name, interface, addr, **kwargs)
         self.className = "Sensor"
         self.currentFactor = currentFactor
         self.threshold = threshold
@@ -51,9 +49,8 @@ class CurrentSensor(Sensor):
 # Compute power using a current measurement and a voltage measurement
 # Voltage can either be from a specified sensor or a constant
 class PowerSensor(Sensor):
-    def __init__(self, name, interface=None, addr=None, currentSensor=None, voltageSensor=None, voltage=0.0, powerFactor=1.0, threshold=0.0,
-            group="", type="sensor", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+    def __init__(self, name, interface=None, addr=None, currentSensor=None, voltageSensor=None, voltage=0.0, powerFactor=1.0, threshold=0.0, **kwargs):
+        Sensor.__init__(self, name, interface, addr, **kwargs)
         self.className = "Sensor"
         self.currentSensor = currentSensor
         self.voltageSensor = voltageSensor
@@ -84,9 +81,8 @@ socLevels = {
             "AGM": [10.50, 11.51, 11.66, 11.81, 11.95, 12.05, 12.15, 12.30, 12.50, 12.75]
 }
 class BatterySensor(Sensor):
-    def __init__(self, name, interface=None, addr=None, voltageSensor=None, batteryType="AGM", threshold=0.0, resources=None,
-            group="", type="sensor", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+    def __init__(self, name, interface=None, addr=None, voltageSensor=None, batteryType="AGM", threshold=0.0, resources=None, **kwargs):
+        Sensor.__init__(self, name, interface, addr, **kwargs)
         self.className = "Sensor"
         self.voltageSensor = voltageSensor
         self.batteryType = batteryType
@@ -135,9 +131,8 @@ class BatterySensor(Sensor):
 
 # Accumulate the energy of a power measurement over time
 class EnergySensor(Sensor):
-    def __init__(self, name, interface=None, addr=None, powerSensor=None, interval=60, resources=None, persistence=None,
-            group="", type="sensor", location=None, label="", interrupt=None, event=None):
-        Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
+    def __init__(self, name, interface=None, addr=None, powerSensor=None, interval=60, resources=None, persistence=None, **kwargs):
+        Sensor.__init__(self, name, interface, addr, **kwargs)
         self.className = "Sensor"
         self.powerSensor = powerSensor
         self.interval = interval
@@ -169,10 +164,13 @@ class EnergySensor(Sensor):
                 if self.resources:
                     try:
                         value = self.resources[self.powerSensor].getLastState()
-                    except KeyError:
+                    except (KeyError, AttributeError):
                         value = 0.0
             else:
-                value = self.powerSensor.getLastState()
+                try:
+                    value = self.powerSensor.getLastState()
+                except (KeyError, AttributeError):
+                    value = 0.0
             self.energy += value * self.interval / 3600
             if self.persistence:
                 self.stateControl.setState(self.energy)
