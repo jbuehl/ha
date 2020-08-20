@@ -30,7 +30,7 @@ if __name__ == "__main__":
     i2c1 = I2CInterface("i2c1", bus=1)
     gpio1 = GPIOInterface("gpio1", input=[windSpeedAddr, windDirAddr, rainGaugeAddr])
     stateInterface = FileInterface("fileInterface", fileName=stateDir+"weather.state", event=stateChangeEvent, initialState=defaultConfig)
-    weatherInterface = BME680Interface("weatherInterface", event=stateChangeEvent)
+    weatherInterface = BME680Interface("weatherInterface")
     # weatherCache = TempInterface("weatherCache", weatherInterface, sample=10)
 
     # Sensors

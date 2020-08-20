@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     # Interfaces
     nullInterface = Interface("nullInterface", event=stateChangeEvent)
-    owfs = OWFSInterface("owfs", event=stateChangeEvent)
+    owfs = OWFSInterface("owfs")
     fileInterface = FileInterface("fileInterface", fileName=stateDir+"backhouse.state", event=stateChangeEvent, initialState=defaultConfig)
     i2c1 = I2CInterface("i2c1", bus=1, event=stateChangeEvent)
     gpio0 = MCP23017Interface("gpio0", i2c1, addr=0x20, bank=0, inOut=0xff, config=[(MCP23017Interface.IPOL, 0x00)])
@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     # Thermostats
     backThermostat = ThermostatControl("backThermostat",backHeatControl, backCoolControl, backFan, backHouseDoor, backThermostatMode,
-                                    group="Hvac", label="Back thermostat", type="thermostat", event=stateChangeEvent)
+                                    group="Hvac", label="Back thermostat", type="thermostat")
     backThermostatUnitSensor = ThermostatUnitSensor("backThermostatUnitSensor", backThermostat,
                                     group="Hvac", label="Back thermostat unit", type="thermostatSensor")
 

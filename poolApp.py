@@ -47,7 +47,7 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
 
     # Interfaces
-    serialInterface = SerialInterface("serialInterface", device=pentairDevice, config=serialConfig, event=stateChangeEvent)
+    serialInterface = SerialInterface("serialInterface", device=pentairDevice, config=serialConfig)
     gpioInterface = GPIOInterface("gpioInterface", output=[4,17,18,22,23,24,25,27])
     w1Interface = W1Interface("w1Interface")
     pentairInterface = PentairInterface("pentairInterface", serialInterface)
@@ -65,11 +65,11 @@ if __name__ == "__main__":
     poolLightRelay = Control("poolLightRelay", gpioInterface, 27, group=["Pool", "Lights"], label="Pool light relay")
     spaLightRelay = Control("spaLightRelay", gpioInterface, 22, group=["Pool", "Lights"], label="Spa light relay")
     spaLightColor = LxgControl("spaLightColor", None, spaLightRelay, group=["Pool", "Lights"], label="Spa light color")
-    lightPower = SensorGroupControl("lightPower", [poolLightRelay, spaLightRelay], lightPowerRelay, event=stateChangeEvent,
+    lightPower = SensorGroupControl("lightPower", [poolLightRelay, spaLightRelay], lightPowerRelay,
                                             group=["Pool", "Lights"], label="Pool light power")
-    poolLight = ControlGroup("poolLight", [poolLightRelay, lightPower], stateMode=True, event=stateChangeEvent,
+    poolLight = ControlGroup("poolLight", [poolLightRelay, lightPower], stateMode=True,
                                             type="light", group=["Pool", "Lights"], label="Pool light")
-    spaLight = ControlGroup("spaLight", [spaLightRelay, lightPower], stateMode=True, event=stateChangeEvent,
+    spaLight = ControlGroup("spaLight", [spaLightRelay, lightPower], stateMode=True,
                                             type="light", group=["Pool", "Lights"], label="Spa light")
     poolLights = ControlGroup("poolLights", [poolLight, spaLight], type="light", group=["Pool", "Lights"], label="Pool and spa")
 

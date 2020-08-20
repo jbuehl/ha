@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     # Interfaces
     nullInterface = Interface("nullInterface", event=stateChangeEvent)
-    owfs = OWFSInterface("owfs", event=stateChangeEvent)
+    owfs = OWFSInterface("owfs")
     configData = FileInterface("configData", fileName=stateDir+"hvac.conf", event=stateChangeEvent, initialState=defaultConfig)
     i2c1 = I2CInterface("i2c1", bus=1, event=stateChangeEvent)
     gpio0 = MCP23017Interface("gpio0", i2c1, addr=0x20, bank=0, inOut=0xff, config=[(MCP23017Interface.IPOL, 0x00)])
@@ -74,11 +74,11 @@ if __name__ == "__main__":
 
     # Thermostats
     northThermostat = ThermostatControl("northThermostat",northHeatControl, northCoolControl, northFan, masterBedroomDoor, northThermostatMode,
-                                    group="Hvac", label="North thermostat", type="thermostat", event=stateChangeEvent)
+                                    group="Hvac", label="North thermostat", type="thermostat")
     northThermostatUnitSensor = ThermostatUnitSensor("northThermostatUnitSensor", northThermostat,
                                     group="Hvac", label="North thermostat unit", type="thermostatSensor")
     southThermostat = ThermostatControl("southThermostat", southHeatControl, southCoolControl, southFan, familyRoomDoor, southThermostatMode,
-                                    group="Hvac", label="South thermostat", type="thermostat", event=stateChangeEvent)
+                                    group="Hvac", label="South thermostat", type="thermostat")
     southThermostatUnitSensor = ThermostatUnitSensor("southThermostatUnitSensor", southThermostat,
                                     group="Hvac", label="South thermostat unit", type="thermostatSensor")
 

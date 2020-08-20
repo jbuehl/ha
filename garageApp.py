@@ -104,15 +104,15 @@ if __name__ == "__main__":
 
     # Interfaces
     i2c1 = I2CInterface("i2c1", bus=1)
-    owfs = OWFSInterface("owfs", event=stateChangeEvent)
+    owfs = OWFSInterface("owfs")
     gpio0 = MCP23017Interface("gpio0", i2c1, addr=0x20, bank=0, inOut=0x00)
     gpio1 = MCP23017Interface("gpio1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(MCP23017Interface.IPOL, 0x08)])
     led = LedInterface("led", gpio0)
     stateInterface = FileInterface("stateInterface", fileName=stateDir+"garage.state", initialState=defaultConfig, event=stateChangeEvent)
-    modbusInterface = ModbusInterface("modbusInterface", device="/dev/ttyUSB0", event=stateChangeEvent)
+    modbusInterface = ModbusInterface("modbusInterface", device="/dev/ttyUSB0")
 
     # Temperature
-    garageTemp = Sensor("garageTemp", owfs, "28.556E5F070000", group="Temperature", label="Garage temp", type="tempF", event=stateChangeEvent)
+    garageTemp = Sensor("garageTemp", owfs, "28.556E5F070000", group="Temperature", label="Garage temp", type="tempF")
 
     # Water
     recircPump = Control("recircPump", gpio0, 0, type="hotwater", group="Water", label="Hot water")
