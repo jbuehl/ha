@@ -2,11 +2,8 @@
 
 from jinja2 import FileSystemLoader
 import time
-import filelock
 from ha import *
 from ha.network.environment import *
-
-stateLock = filelock.FileLock(stateDir+stateFileName)
 
 # set the color for the signal strength
 def signalColor(signal):
@@ -29,11 +26,6 @@ def pingColor(pingTime):
         return "LawnGreen"
 
 def networkUI(order, templates, views):
-    # try:
-    #     with stateLock.acquire(timeout=5):
-    #         (sampleTime, netStats, deviceStats) = json.load(open(stateDir+stateFileName, "r"))
-    # except filelock.Timeout:
-    #     return "state file locked"
     decoded = False
     while not decoded:
         try:
