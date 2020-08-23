@@ -13,7 +13,7 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
 
     # Interfaces
-    fileInterface = FileInterface("fileInterface", fileName=stateDir+"fireplace.state", event=stateChangeEvent, initialState=defaultConfig)
+    fileInterface = FileInterface("fileInterface", fileName=stateDir+"fireplace.state", initialState=defaultConfig)
     fireplaceVideo = MultiControl("fireplaceVideo", fileInterface, "video", values=sorted([video.split(".")[0] for video in os.listdir(videoDir)]),
                                   group="Fireplace", label="Fireplace video")
     fireplaceInterface = VideoInterface("fireplaceInterface", None, videoControl=fireplaceVideo)

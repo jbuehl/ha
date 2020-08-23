@@ -243,8 +243,8 @@ class MomentaryControl(Control):
 
 # Control that has a specified list of values it can be set to
 class MultiControl(Control):
-    def __init__(self, name, values=[], **kwargs):
-        Control.__init__(self, name, **kwargs)
+    def __init__(self, name, interface, addr=None, values=[], **kwargs):
+        Control.__init__(self, name, interface, addr, **kwargs)
         type = "control"
         self.className = "MultiControl"
         self.values = values
