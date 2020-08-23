@@ -29,15 +29,14 @@ if __name__ == "__main__":
     # Interfaces
     i2c1 = I2CInterface("i2c1", bus=1)
     gpio1 = GPIOInterface("gpio1", input=[windSpeedAddr, windDirAddr, rainGaugeAddr])
-    stateInterface = FileInterface("fileInterface", fileName=stateDir+"weather.state", event=stateChangeEvent, initialState=defaultConfig)
+    stateInterface = FileInterface("fileInterface", fileName=stateDir+"weather.state", initialState=defaultConfig)
     weatherInterface = BME680Interface("weatherInterface")
-    # weatherCache = TempInterface("weatherCache", weatherInterface, sample=10)
 
     # Sensors
-    deckTemp = Sensor("deckTemp", weatherInterface, "temp", group=["Temperature", "Weather"], label="Deck temp", type="tempF")
-    barometer = Sensor("barometer", weatherInterface, "barometer", group="Weather", label="Barometer", type="barometer")
-    humidity = Sensor("humidity", weatherInterface, "humidity", group="Weather", label="Humidity", type="humidity")
-    dewpoint = Sensor("dewpoint", weatherInterface, "dewpoint", group="Weather", label="Dewpoint", type="tempF")
+    deckTemp = Sensor("deckTemp", weatherInterface, "temp", resolution=1, group=["Temperature", "Weather"], label="Deck temp", type="tempF")
+    barometer = Sensor("barometer", weatherInterface, "barometer", resolution=2, group="Weather", label="Barometer", type="barometer")
+    humidity = Sensor("humidity", weatherInterface, "humidity", resolution=1, group="Weather", label="Humidity", type="humidity")
+    dewpoint = Sensor("dewpoint", weatherInterface, "dewpoint", resolution=1, group="Weather", label="Dewpoint", type="tempF")
     # voc = Sensor("voc", weatherInterface, "voc", group="Weather", label="VOC")
 
     minTemp = MinSensor("minTemp", stateInterface, "minTemp", deckTemp, group=["Weather", "Sprinklers"], type="tempF", label="Min temp")
@@ -50,7 +49,7 @@ if __name__ == "__main__":
     windDir = Sensor("windDir", windInterface, addr="dir", type="Deg", group="Weather", label="Wind direction")
 
     rainGauge = Sensor("rainGauge", gpio1, addr=rainGaugeAddr)
-    rainInterface = RainInterface("rainInterface", stateInterface, rainGauge=rainGauge, event=stateChangeEvent)
+    rainInterface = RainInterface("rainInterface", stateInterface, rainGauge=rainGauge)
     rainMinute = Sensor("rainMinute", rainInterface, "minute", type="in", group="Weather", label="Rain per minute")
     rainHour = Sensor("rainHour", rainInterface, "hour", type="in", group="Weather", label="Rain last hour")
     rainDay = Sensor("rainDay", rainInterface, "today", type="in", group="Weather", label="Rain today")

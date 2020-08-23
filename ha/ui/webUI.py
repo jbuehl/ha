@@ -196,19 +196,22 @@ class WebRoot(object):
     # Update the states of all resources
     @cherrypy.expose
     def state(self, _=None):
-        debug('debugWebUpdate', "/state", cherrypy.request.method)
+        ts = time.time()
+        debug('debugWeb', "/state", "start", ts)
         debug('debugWebState', "state", "lock")
         with self.updateLock:
             stateJson = self.stateJson
             debug('debugWebState', "state", "unlock")
         cherrypy.response.headers['Content-Type'] = "application/json"
         cherrypy.response.headers['Content-Length'] = len(stateJson)
+        debug('debugWeb', "/state", "end", ts)
         return bytes(stateJson, "utf-8")
 
     # Update the states of resources when there is a change
     @cherrypy.expose
     def stateChange(self, _=None):
-        debug('debugWebUpdate', "/stateChange", cherrypy.request.method)
+        ts = time.time()
+        debug('debugWeb', "/stateChange", "start", ts)
         # wait for the states to update
         debug('debugWebState', "stateChange", "event wait")
         self.updateStateChangeEvent.wait()
@@ -220,6 +223,7 @@ class WebRoot(object):
             debug('debugWebState', "stateChange", "unlock")
         cherrypy.response.headers['Content-Type'] = "application/json"
         cherrypy.response.headers['Content-Length'] = len(stateJson)
+        debug('debugWeb', "/stateChange", "end", ts)
         return bytes(stateJson, "utf-8")
 
     # change the state of a control

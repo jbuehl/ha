@@ -46,10 +46,9 @@ class SensorGroup(Sensor):
 
 # A set of Controls whose state can be changed together
 class ControlGroup(SensorGroup, Control):
-    def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False,
-                 **kwargs):
-        SensorGroup.__init__(self, name, controlList, resources, **kwargs)
-        Control.__init__(self, name, **kwargs)
+    def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False, type="controlGroup", **kwargs):
+        SensorGroup.__init__(self, name, controlList, resources, type=type, **kwargs)
+        Control.__init__(self, name, type=type, **kwargs)
         self.stateMode = stateMode  # which state to return: False = SensorGroup, True = groupState
         self.groupState = 0
         if stateList == []:
@@ -95,6 +94,7 @@ class ControlGroup(SensorGroup, Control):
                 debug('debugThread', self.name, "finished")
             self.sceneThread = threading.Thread(target=setGroup)
             self.sceneThread.start()
+            self.notify(state)
             return True
 
     # dictionary of pertinent attributes
@@ -140,14 +140,13 @@ class SensorGroupControl(SensorGroup, Control):
 
 # Calculate a function of a list of sensor states
 class CalcSensor(Sensor):
-    def __init__(self, name, sensors=[], function="", factor=1.0, resources=None, **kwargs):
+    def __init__(self, name, sensors=[], function="", resources=None, **kwargs):
         Sensor.__init__(self, name, **kwargs)
         type = "sensor"
         self.sensors = sensors
         self.function = function.lower()
         self.resources = resources
         self.className = "Sensor"
-        self.factor = factor
 
     def getState(self):
         value = 0

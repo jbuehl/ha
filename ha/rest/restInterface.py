@@ -29,7 +29,7 @@ class RestInterface(Interface):
     # return the state value for the specified sensor address
     # addr is the REST path to the specified resource
     def read(self, addr):
-        debug('debugRestStates', self.name, "read", addr)
+        debug('debugRestStates', self.name, "read", addr, self.states[addr])
         if not self.enabled:
             return None
         # return the state from the cache if it is there, otherwise read it from the service

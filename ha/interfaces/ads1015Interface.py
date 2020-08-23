@@ -25,7 +25,7 @@ class ADS1015Interface(Interface):
             with self.lock:
                 time.sleep(sampleRate)
                 value = self.adc.readADCSingleEnded(addr, self.gain, self.sps)
-            return value
+            return float(value / 1000)
         except Exception as ex:
             log("ADS1015Interface exception", str(ex))
             return 0

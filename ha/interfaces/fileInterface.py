@@ -50,7 +50,8 @@ class FileInterface(Interface):
                     if self.modified():     # file has changed
                         self.readData()     # read new data
                         for sensor in list(self.sensors.keys()): # notify all sensors
-                            self.sensors[sensor].notify(self.data[sensor])
+                            if sensor in self.data:
+                                self.sensors[sensor].notify(self.data[sensor])
             readStatesThread = threading.Thread(target=readData)
             readStatesThread.start()
 

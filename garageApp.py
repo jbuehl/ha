@@ -108,7 +108,7 @@ if __name__ == "__main__":
     gpio0 = MCP23017Interface("gpio0", i2c1, addr=0x20, bank=0, inOut=0x00)
     gpio1 = MCP23017Interface("gpio1", i2c1, addr=0x20, bank=1, inOut=0xff, config=[(MCP23017Interface.IPOL, 0x08)])
     led = LedInterface("led", gpio0)
-    stateInterface = FileInterface("stateInterface", fileName=stateDir+"garage.state", initialState=defaultConfig, event=stateChangeEvent)
+    stateInterface = FileInterface("stateInterface", fileName=stateDir+"garage.state", initialState=defaultConfig)
     modbusInterface = ModbusInterface("modbusInterface", device="/dev/ttyUSB0")
 
     # Temperature
@@ -154,9 +154,9 @@ if __name__ == "__main__":
                                   group=["Power", "Backup"], label="Backup net power", type="KW-")
     # backup system energy
     backupSolarDailyEnergy = EnergySensor("backup.solar.dailyEnergy", powerSensor=backupSolarPower, persistence=stateInterface,
-                                  group=["Power", "Backup"], label="Backup solar today", type="KWh", event=stateChangeEvent)
+                                  group=["Power", "Backup"], label="Backup solar today", type="KWh")
     backupLoadDailyEnergy = EnergySensor("backup.load.dailyEnergy", powerSensor=backupTotalLoad, persistence=stateInterface,
-                                  group=["Power", "Backup"], label="Backup load today", type="KWh", event=stateChangeEvent)
+                                  group=["Power", "Backup"], label="Backup load today", type="KWh")
     backupNetDailyEnergy = CalcSensor("backup.stats.netDailyEnergy", [backupSolarDailyEnergy, backupLoadDailyEnergy], "diff",
                                   group=["Power", "Backup"], label="Backup net today", type="KWh-")
 

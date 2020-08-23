@@ -175,24 +175,26 @@ class Collection(Resource, OrderedDict):
                     for resource in list(self.values()):
                         try:
                             if not resource.event:    # don't poll resources with events
-                                if resource.type not in ["schedule", "collection"]:   # skip resources that don't have a state
+                                if resource.type not in ["schedule", "collection", "task"]:   # skip resources that don't have a state
                                     if resource.name not in list(resourcePollCounts.keys()):
                                         resourcePollCounts[resource.name] = resource.poll
                                         self.states[resource.name] = resource.getState()
-                                        debug('debugCollection', self.name, resource.name, resource.poll, resource.getState())
+                                        debug('debugCollectionState', self.name, resource.name, resource.poll, resource.getState())
                                     if resourcePollCounts[resource.name] == 0:          # count has decremented to zero
                                         resourceState = resource.getState()
-                                        debug('debugCollection', self.name, resource.name, self.states[resource.name], resourceState)
+                                        debug('debugCollectionState', self.name, resource.name, self.states[resource.name], resourceState)
                                         if resourceState != self.states[resource.name]: # save the state if it has changed
                                             self.states[resource.name] = resourceState
                                             stateChanged = True
                                         resourcePollCounts[resource.name] = resource.poll
                                     else:   # decrement the count
                                         resourcePollCounts[resource.name] -= 1
+                            else:
+                                debug('debugCollectionState', self.name, "skipping", resource.name)
                         except Exception as ex:
-                            log(self.name, "pollStates", "Exception", str(ex))
+                            log(self.name, "pollStates", type(ex).__name__, ex.message)
                 if stateChanged:    # at least one resource state changed
-                    debug('debugCollection', self.name, "state changed")
+                    debug('debugCollectionState', self.name, "state changed")
                     self.event.set()
                     stateChanged = False
                 time.sleep(1)
@@ -203,7 +205,7 @@ class Collection(Resource, OrderedDict):
                 try:
                     self.states[resource.name] = resource.getState()    # load the initial state
                 except Exception as ex:
-                    log(self.name, "start", "Exception", str(ex))
+                    log(self.name, "start", type(ex).__name__, ex.message)
         pollStatesThread = threading.Thread(target=pollStates)
         pollStatesThread.start()
 
@@ -211,17 +213,23 @@ class Collection(Resource, OrderedDict):
     def addRes(self, resource):
         debug('debugCollection', self.name, "adding", resource.name)
         with self.lock:
-            self.__setitem__(str(resource), resource)
-            resource.addCollection(self)
-            self.states[resource.name] = None
+            try:
+                self.__setitem__(str(resource), resource)
+                resource.addCollection(self)
+                self.states[resource.name] = None
+            except Exception as ex:
+                log(self.name, "addRes", type(ex).__name__, ex.message)
 
     # Delete a resource from this collection
     def delRes(self, name):
         debug('debugCollection', self.name, "deleting", name)
         with self.lock:
-            del self.states[name]
-            self.__getitem__(name).delCollection(self)
-            self.__delitem__(name)
+            try:
+                del self.states[name]
+                self.__getitem__(name).delCollection(self)
+                self.__delitem__(name)
+            except Exception as ex:
+                log(self.name, "delRes", type(ex).__name__, ex.message)
 
     # Get a resource from the collection
     # Return dummy sensor if not found
@@ -247,6 +255,7 @@ class Collection(Resource, OrderedDict):
     # Return a list of resource references that are members of the specified group
     # in order of addition to the table
     def getGroup(self, group):
+        debug('debugCollection', self.name, "getGroup", group)
         resourceList = []
         for resourceName in list(self.keys()):
             resource = self.__getitem__(resourceName)
@@ -256,6 +265,7 @@ class Collection(Resource, OrderedDict):
 
     # get the current state of all sensors in the resource collection
     def getStates(self, wait=False):
+        debug('debugCollection', self.name, "getStates", wait)
         if self.event and wait:
             self.event.clear()
             self.event.wait()
@@ -267,6 +277,7 @@ class Collection(Resource, OrderedDict):
 
     # set state values of all sensors into the cache
     def setStates(self, states):
+        debug('debugCollection', self.name, "setStates", states)
         for sensor in list(states.keys()):
             self.states[sensor] = states[sensor]
 
@@ -286,7 +297,7 @@ class Collection(Resource, OrderedDict):
 # Sensors can also optionally be associated with a group and a physical location.
 class Sensor(Resource):
     def __init__(self, name, interface=None, addr=None, type="sensor",
-                 resolution=0, poll=10, event=None, persistence=None,
+                 factor=1, resolution=0, poll=10, event=None, persistence=None,
                  location=None, group="", label=None):
         try:
             if self.type:   # init has already been called for this object - FIXME
@@ -298,6 +309,7 @@ class Sensor(Resource):
             if self.interface:
                 self.interface.addSensor(self)
             self.resolution = resolution
+            self.factor = factor
             self.poll = poll
             if event:
                 self.event = event
@@ -317,15 +329,12 @@ class Sensor(Resource):
 
     # Return the state of the sensor by reading the value from the address on the interface.
     def getState(self):
+        debug('debugSensor', self.name, "getState")
         state = (normalState(self.interface.read(self.addr)) if self.interface else None)
         try:
-            return round(state, self.resolution)
+            return round(state * self.factor, self.resolution)
         except TypeError:
             return state
-
-    # Return the last state of the sensor that was read from the address on the interface.
-    # def getLastState(self):
-    #     return self.getState()
 
     # Trigger the sending of a state change notification
     def notify(self, state=None):
@@ -362,19 +371,15 @@ class Sensor(Resource):
                 "type":self.type,
                 "resolution": self.resolution,
                 "poll": self.poll,
-                "persistence": (self.persistence.name if self.persistence else None),
+                "persistence": str(self.persistence),
                 "location":self.location,
                 "group":self.group,
                 "label":self.label}
 
 # A Control is a Sensor whose state can be set
 class Control(Sensor):
-    def __init__(self, name, interface=None, addr=None, type="control",
-                 resolution=0, poll=10, event=None, persistence=None,
-                 location=None, group="", label=None):
-        Sensor.__init__(self, name, interface=interface, addr=addr, type=type,
-                        resolution=resolution, poll=poll, event=event, persistence=persistence,
-                        location=location, group=group, label=label)
+    def __init__(self, name, interface=None, addr=None, type="control", **kwargs):
+        Sensor.__init__(self, name, interface=interface, addr=addr, type=type, **kwargs)
 
     # Set the state of the control by writing the value to the address on the interface.
     def setState(self, state, wait=False):

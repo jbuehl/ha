@@ -106,51 +106,51 @@ if __name__ == "__main__":
     restCache.start()
 
     # Interfaces
-    i2cInterface = I2CInterface("i2cInterface", bus=1, event=stateChangeEvent)
+    i2cInterface = I2CInterface("i2cInterface", bus=1)
     ads1015Interface0 = ADS1015Interface("ads1015Interface0", addr=0x48, gain=adcGain, sps=adcSps, ic=adcType)
     ads1015Interface1 = ADS1015Interface("ads1015Interface1", addr=0x49, gain=adcGain, sps=adcSps, ic=adcType)
     stateInterface = FileInterface("stateInterface", fileName=stateDir+"power.state", initialState=defaultConfig)
-    solarInterface = FileInterface("solarInterface", fileName=solarFileName, readOnly=True, shared=True, event=stateChangeEvent)
+    solarInterface = FileInterface("solarInterface", fileName=solarFileName, readOnly=True, shared=True)
 
     # system resources
     osInterface = OSInterface("osInterface")
     diskUsage = Sensor("system.power.usage", osInterface, "diskUse /", type="pct", group="System", label="Power disk usage")
 
     # Current sensors
-    lightsCurrent = CurrentSensor("loads.lights.current", ads1015Interface0, 0, VC25, threshold=.01,
-                                  group=["Power", "Loads"], label="Lights current", type="A", event=stateChangeEvent)
-    plugsCurrent = CurrentSensor("loads.plugs.current", ads1015Interface0, 1, VC25, threshold=.01,
-                                  group=["Power", "Loads"], label="Plugs current", type="A", event=stateChangeEvent)
-    appl1Current = CurrentSensor("loads.appliance1.current", ads1015Interface0, 2, VC25, threshold=.01,
-                                  group=["Power", "Loads"], label="Appliances 1 current", type="A", event=stateChangeEvent)
-    cookingCurrent = CurrentSensor("loads.cooking.current", ads1015Interface0, 3, VC100, threshold=1,
-                                  group=["Power", "Loads"], label="Cooking current", type="A", event=stateChangeEvent)
-    appl2Current = CurrentSensor("loads.appliance2.current", ads1015Interface1, 0, VC25, threshold=.01,
-                                  group=["Power", "Loads"], label="Appliances 2 current", type="A", event=stateChangeEvent)
-    acCurrent = CurrentSensor("loads.ac.current", ads1015Interface1, 1, VC50, threshold=1,
-                                  group=["Power", "Loads"], label="Air conditioners current", type="A", event=stateChangeEvent)
-    backhouseCurrent = CurrentSensor("loads.backhouse.current", ads1015Interface1, 2, VC25, threshold=.01,
-                                  group=["Power", "Loads"], label="Back house current", type="A", event=stateChangeEvent)
-    poolCurrent = CurrentSensor("loads.pool.current", ads1015Interface1, 3, VC50, threshold=.1,
-                                  group=["Power", "Loads"], label="Pool equipment current", type="A", event=stateChangeEvent)
+    lightsCurrent = Sensor("loads.lights.current", ads1015Interface0, 0, factor=VC25, resolution=2,
+                                  group=["Power", "Loads"], label="Lights current", type="A")
+    plugsCurrent = Sensor("loads.plugs.current", ads1015Interface0, 1, factor=VC25, resolution=2,
+                                  group=["Power", "Loads"], label="Plugs current", type="A")
+    appl1Current = Sensor("loads.appliance1.current", ads1015Interface0, 2, factor=VC25, resolution=2,
+                                  group=["Power", "Loads"], label="Appliances 1 current", type="A")
+    cookingCurrent = Sensor("loads.cooking.current", ads1015Interface0, 3, factor=VC100, resolution=0,
+                                  group=["Power", "Loads"], label="Cooking current", type="A")
+    appl2Current = Sensor("loads.appliance2.current", ads1015Interface1, 0, factor=VC25, resolution=2,
+                                  group=["Power", "Loads"], label="Appliances 2 current", type="A")
+    acCurrent = Sensor("loads.ac.current", ads1015Interface1, 1, factor=VC50, resolution=0,
+                                  group=["Power", "Loads"], label="Air conditioners current", type="A")
+    backhouseCurrent = Sensor("loads.backhouse.current", ads1015Interface1, 2, factor=VC25, resolution=2,
+                                  group=["Power", "Loads"], label="Back house current", type="A")
+    poolCurrent = Sensor("loads.pool.current", ads1015Interface1, 3, factor=VC50, resolution=1,
+                                  group=["Power", "Loads"], label="Pool equipment current", type="A")
 
     # Power sensors
-    lightsPower = PowerSensor("loads.lights.power", currentSensor=lightsCurrent, voltage=120, threshold=1,
-                                  group=["Power", "Loads"], label="Lights", type="KVA", event=stateChangeEvent)
-    plugsPower = PowerSensor("loads.plugs.power", currentSensor=plugsCurrent, voltage=120, threshold=1,
-                                  group=["Power", "Loads"], label="Plugs", type="KVA", event=stateChangeEvent)
-    appl1Power = PowerSensor("loads.appliance1.power", currentSensor=appl1Current, voltage=120, threshold=1,
-                                  group=["Power", "Loads"], label="Appliances 1", type="KVA", event=stateChangeEvent)
-    cookingPower = PowerSensor("loads.cooking.power", currentSensor=cookingCurrent, voltage=240, threshold=100,
-                                  group=["Power", "Loads"], label="Cooking", type="KVA", event=stateChangeEvent)
-    appl2Power = PowerSensor("loads.appliance2.power", currentSensor=appl2Current, voltage=120, threshold=1,
-                                  group=["Power", "Loads"], label="Appliances 2", type="KVA", event=stateChangeEvent)
-    acPower = PowerSensor("loads.ac.power", currentSensor=acCurrent, voltage=240, threshold=100,
-                                  group=["Power", "Loads"], label="Air conditioners", type="KVA", event=stateChangeEvent)
-    backhousePower = PowerSensor("loads.backhouse.power", currentSensor=backhouseCurrent, voltage=240, threshold=10,
-                                  group=["Power", "Loads"], label="Back house", type="KVA", event=stateChangeEvent)
-    poolPower = PowerSensor("loads.pool.power", currentSensor=poolCurrent, voltage=240, threshold=10,
-                                  group=["Power", "Loads"], label="Pool equipment", type="KVA", event=stateChangeEvent)
+    lightsPower = PowerSensor("loads.lights.power", currentSensor=lightsCurrent, voltage=120, resolution=0,
+                                  group=["Power", "Loads"], label="Lights", type="KVA")
+    plugsPower = PowerSensor("loads.plugs.power", currentSensor=plugsCurrent, voltage=120, resolution=0,
+                                  group=["Power", "Loads"], label="Plugs", type="KVA")
+    appl1Power = PowerSensor("loads.appliance1.power", currentSensor=appl1Current, voltage=120, resolution=0,
+                                  group=["Power", "Loads"], label="Appliances 1", type="KVA")
+    cookingPower = PowerSensor("loads.cooking.power", currentSensor=cookingCurrent, voltage=240, resolution=-2,
+                                  group=["Power", "Loads"], label="Cooking", type="KVA")
+    appl2Power = PowerSensor("loads.appliance2.power", currentSensor=appl2Current, voltage=120, resolution=0,
+                                  group=["Power", "Loads"], label="Appliances 2", type="KVA")
+    acPower = PowerSensor("loads.ac.power", currentSensor=acCurrent, voltage=240, resolution=-2,
+                                  group=["Power", "Loads"], label="Air conditioners", type="KVA")
+    backhousePower = PowerSensor("loads.backhouse.power", currentSensor=backhouseCurrent, voltage=240, resolution=-1,
+                                  group=["Power", "Loads"], label="Back house", type="KVA")
+    poolPower = PowerSensor("loads.pool.power", currentSensor=poolCurrent, voltage=240, resolution=-1,
+                                  group=["Power", "Loads"], label="Pool equipment", type="KVA")
 
     load = CalcSensor("loads.stats.power", [lightsPower, plugsPower, appl1Power, cookingPower,
                                                   appl2Power, acPower, backhousePower, poolPower,
@@ -160,23 +160,23 @@ if __name__ == "__main__":
     # Daily energy sensors
     stateInterface.start()
     lightsEnergy = EnergySensor("loads.lights.dailyEnergy", powerSensor=lightsPower, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Lights daily energy", type="KVAh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Lights daily energy", type="KVAh")
     plugsEnergy = EnergySensor("loads.plugs.dailyEnergy", powerSensor=plugsPower, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Plugs daily energy", type="KVAh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Plugs daily energy", type="KVAh")
     appl1Energy = EnergySensor("loads.appliance1.dailyEnergy", powerSensor=appl1Power, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Appliances 1 daily energy", type="KVAh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Appliances 1 daily energy", type="KVAh")
     cookingEnergy = EnergySensor("loads.cooking.dailyEnergy", powerSensor=cookingPower, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Cooking daily energy", type="KVAh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Cooking daily energy", type="KVAh")
     appl2Energy = EnergySensor("loads.appliance2.dailyEnergy", powerSensor=appl2Power, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Appliances 2 daily energy", type="KVAh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Appliances 2 daily energy", type="KVAh")
     acEnergy = EnergySensor("loads.ac.dailyEnergy", powerSensor=acPower, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Air conditioners daily energy", type="KVAh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Air conditioners daily energy", type="KVAh")
     backhouseEnergy = EnergySensor("loads.backhouse.dailyEnergy", powerSensor=backhousePower, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Back house daily energy", type="KVAh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Back house daily energy", type="KVAh")
     poolEnergy = EnergySensor("loads.pool.dailyEnergy", powerSensor=poolPower, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Pool equipment daily energy", type="KVAh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Pool equipment daily energy", type="KVAh")
     carchargerEnergy = EnergySensor("loads.carcharger.dailyEnergy", powerSensor="loads.carcharger.power", resources=cacheResources, persistence=stateInterface,
-                                  group=["Power", "Loads"], label="Car charger daily energy", type="KVAh", event=stateChangeEvent)
+                                  group=["Power", "Loads"], label="Car charger daily energy", type="KVAh")
 
     dailyEnergy = CalcSensor("loads.stats.dailyEnergy", [lightsEnergy, plugsEnergy, appl1Energy, cookingEnergy,
                                                   appl2Energy,acEnergy, backhouseEnergy, poolEnergy,

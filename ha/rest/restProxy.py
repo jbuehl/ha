@@ -43,7 +43,7 @@ def parseServiceData(data, addr):
         serviceLabel = serviceData["label"]
         serviceSeq = serviceData["seq"]
     except Exception as ex:
-        log("parseServiceData", str(ex), str(serviceData))
+        log("parseServiceData", type(ex).__name__, ex.args[0])
     return (serviceName, serviceAddr, stateTimeStamp, resourceTimeStamp, serviceLabel, serviceSeq, serviceStates, serviceResources)
 
 # Autodiscover services and resources
@@ -131,7 +131,8 @@ class RestProxy(threading.Thread):
                     if (stateTimeStamp > service.stateTimeStamp) or (serviceStates != {}): # states have changed
                         debug('debugRestProxyStates', self.name, "states", serviceName, serviceAddr, stateTimeStamp)
                         service.stateTimeStamp = stateTimeStamp
-                        self.resources.setStates(serviceStates)
+                        service.interface.setStates(serviceStates)     # load the interface cache
+                        self.resources.setStates(serviceStates)             # update the resource collection cache
                         self.resources.notify()
                 # start the message timer
                 service.startTimer()
@@ -149,7 +150,7 @@ class RestProxy(threading.Thread):
         self.resources.addRes(service.missedSeqPctSensor)       # percent of missed messages
         for resource in list(service.resources.values()):       # resources from the service
             self.resources.addRes(resource)
-        self.cacheTime = service.resourceTimeStamp
+        self.cacheTime = service.resourceTimeStamp # FIXME
         self.event.set()
         debug('debugInterrupt', self.name, "event set")
 

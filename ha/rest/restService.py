@@ -126,7 +126,7 @@ class RestService(Sensor):
                 # replace the resource interface and addr with the REST interface and addr
                 resource.interface = interface
                 resource.interface.addSensor(resource)
-                resource.addr = path+"/state"
+                resource.addr = "/resources/"+resource.name+"/state"
                 resources.addRes(resource)
         except Exception as exception:
             log(self.name, "loadResource", interface.name, "exception", str(resourceDict), str(exception))

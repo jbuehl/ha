@@ -5,78 +5,64 @@ import threading
 from ha import *
 
 # Measure a voltage
-class VoltageSensor(Sensor):
-    def __init__(self, name, interface, addr, voltageFactor=1.0, threshold=0.0, **kwargs):
-        Sensor.__init__(self, name, interface, addr, **kwargs)
-        self.className = "Sensor"
-        self.voltageFactor = voltageFactor
-        self.threshold = threshold
-        self.lastVoltage = 0.0
-
-    def getState(self):
-        voltage = self.interface.read(self.addr) * self.voltageFactor / 1000
-        if abs(voltage - self.lastVoltage) > self.threshold:
-            self.notify()
-        self.lastVoltage = voltage
-        return voltage
-
-    def getLastState(self):
-        return self.lastVoltage
+# class VoltageSensor(Sensor):
+#     def __init__(self, name, interface, addr, voltageFactor=1.0, threshold=0.0, **kwargs):
+#         Sensor.__init__(self, name, interface, addr, **kwargs)
+#         self.className = "Sensor"
+#         self.voltageFactor = voltageFactor
+#         self.threshold = threshold
+#         self.lastVoltage = 0.0
+#
+#     def getState(self):
+#         voltage = self.interface.read(self.addr) * self.voltageFactor / 1000
+#         if abs(voltage - self.lastVoltage) > self.threshold:
+#             self.notify()
+#         self.lastVoltage = voltage
+#         return voltage
+#
+#     def getLastState(self):
+#         return self.lastVoltage
 
 # Measure a current
-class CurrentSensor(Sensor):
-    def __init__(self, name, interface, addr, currentFactor=1.0, threshold=0.0, **kwargs):
-        Sensor.__init__(self, name, interface, addr, **kwargs)
-        self.className = "Sensor"
-        self.currentFactor = currentFactor
-        self.threshold = threshold
-        self.lastCurrent = 0.0
-
-    def getState(self):
-        current = self.interface.read(self.addr) * self.currentFactor / 1000
-        if current > self.threshold:
-            if abs(current - self.lastCurrent) > self.threshold:
-                self.notify()
-            self.lastCurrent = current
-            return current
-        else:
-            self.lastCurrent = current
-            return 0.0
-
-    def getLastState(self):
-        return self.lastCurrent
+# class CurrentSensor(Sensor):
+#     def __init__(self, name, interface, addr, currentFactor=1.0, threshold=0.0, **kwargs):
+#         Sensor.__init__(self, name, interface, addr, **kwargs)
+#         self.className = "Sensor"
+#         self.currentFactor = currentFactor
+#         self.threshold = threshold
+#         self.lastCurrent = 0.0
+#
+#     def getState(self):
+#         current = self.interface.read(self.addr) * self.currentFactor / 1000
+#         if current > self.threshold:
+#             if abs(current - self.lastCurrent) > self.threshold:
+#                 self.notify()
+#             self.lastCurrent = current
+#             return current
+#         else:
+#             self.lastCurrent = current
+#             return 0.0
+#
+#     def getLastState(self):
+#         return self.lastCurrent
 
 # Compute power using a current measurement and a voltage measurement
 # Voltage can either be from a specified sensor or a constant
 class PowerSensor(Sensor):
-    def __init__(self, name, interface=None, addr=None, currentSensor=None, voltageSensor=None, voltage=0.0, powerFactor=1.0, threshold=0.0, **kwargs):
+    def __init__(self, name, interface=None, addr=None, currentSensor=None, voltageSensor=None, voltage=0.0, **kwargs):
         Sensor.__init__(self, name, interface, addr, **kwargs)
         self.className = "Sensor"
         self.currentSensor = currentSensor
         self.voltageSensor = voltageSensor
         self.voltage = voltage
-        self.powerFactor = powerFactor
-        self.threshold = threshold
-        self.lastPower = 0.0
 
     def getState(self):
         if self.voltageSensor:
-            self.voltage = self.voltageSensor.getLastState()
-        power = self.currentSensor.getLastState() * self.voltage * self.powerFactor
-        if power > self.threshold:
-            if abs(power - self.lastPower) > self.threshold:
-                self.notify()
-            self.lastPower = power
-            return power
-        else:
-            self.lastPower = power
-            return 0.0
-
-    def getLastState(self):
-        return self.lastPower
+            self.voltage = self.voltageSensor.getState()
+        power = self.currentSensor.getState() * self.voltage
+        return power
 
 # Compute battery percentage using a voltage measurement
-
 socLevels = {
             "AGM": [10.50, 11.51, 11.66, 11.81, 11.95, 12.05, 12.15, 12.30, 12.50, 12.75]
 }
@@ -126,8 +112,8 @@ class BatterySensor(Sensor):
             self.lastLevel = level
             return 0.0
 
-    def getLastState(self):
-        return self.lastLevel
+    # def getLastState(self):
+    #     return self.lastLevel
 
 # Accumulate the energy of a power measurement over time
 class EnergySensor(Sensor):
@@ -163,12 +149,12 @@ class EnergySensor(Sensor):
             if isinstance(self.powerSensor, str):
                 if self.resources:
                     try:
-                        value = self.resources[self.powerSensor].getLastState()
+                        value = self.resources[self.powerSensor].getState()
                     except (KeyError, AttributeError):
                         value = 0.0
             else:
                 try:
-                    value = self.powerSensor.getLastState()
+                    value = self.powerSensor.getState()
                 except (KeyError, AttributeError):
                     value = 0.0
             self.energy += value * self.interval / 3600

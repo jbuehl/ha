@@ -5,6 +5,8 @@ webUpdateInterval = 1
 webPageTitle = "Home Automation"
 runRestServer = True
 runCameras = True
+runMetrics = True
+runEvents = True
 restWatch = []
 restIgnore = []
 serviceMonitorNotifyNumbers = []
@@ -53,32 +55,38 @@ stateChangeEvent = threading.Event()
 
 # default - dashboard
 def index():
-    debug('debugWeb', "/")
-    return dashboardUI(resources, templates, views)
+    ts = time.time()
+    debug('debugWeb', "/", "start", ts)
+    result = dashboardUI(resources, templates, views)
+    debug('debugWeb', "/", "end", ts)
+    return result
 
 # show all resource details or specified group
 def details(group=None):
-    debug('debugWeb', "/detail", group)
+    debug('debugWeb', "/details", group)
     try:
         groups = [[group.capitalize(), resources.getGroup(group)]]
         details = True
     except:
-        groups = [[group, resources.getGroup(group)] for group in ["Alerts", "Services", "Time", "Weather", "Temperature",
-                    "Hvac", "Pool", "Lights", "Shades", "Doors", "Car",
-                    "Sprinklers", "Water", "Loads", "Solar",
-                    "Tasks"]]
+        groups = [[group, resources.getGroup(group)] for group in ["Alerts", "Services", "System",
+                                                                    "Time", "Weather", "Temperature",
+                                                                    "Hvac", "Pool", "Lights", "Shades", "Doors", "Car",
+                                                                    "Sprinklers", "Water", "Loads", "Solar",
+                                                                    "Tasks"]]
         details = True
     with resources.lock:
         screenWidth = 1280
         labelWidth = 220
         widths = [screenWidth, [labelWidth, 160, 260, 120, 100, 120, 240, 60]]
-        return templates.get_template("details.html").render(title=webPageTitle, script="",
+        result = templates.get_template("details.html").render(title=webPageTitle, script="",
                             templates=templates,
                             widths=widths,
                             groups=groups,
                             views=views,
                             details=details,
                             link=False)
+        # print("detail", len(result))
+        return result
 
 # iPad - 1024x768
 def ipad(location=""):
@@ -173,18 +181,20 @@ if __name__ == "__main__":
     resources.addRes(alertMotion)
 
     # start the task to transmit resource metrics
-    startMetrics(resources, sendMetrics, logMetrics, backupMetrics)
+    if runMetrics:
+        startMetrics(resources, sendMetrics, logMetrics, backupMetrics)
 
     # start the cache to listen for services on other servers
-    restCache = RestProxy("restCache", resources, watch=["deck", "sprinklers", "weather", "hvac", "backhouse", "pool", "garage", "control"], ignore=restIgnore+["house"], event=stateChangeEvent)
+    restCache = RestProxy("restCache", resources, watch=restWatch, ignore=restIgnore+["house"], event=stateChangeEvent)
     restCache.start()
 
     # start the cache to listen for legacy services on ESP devices
-    espRestCache = RestProxy1("espRestCache", resources, event=stateChangeEvent, multicast=False)
+    espRestCache = RestProxy1("espRestCache", resources, event=stateChangeEvent)
     espRestCache.start()
 
     # monitor service states
-    watchEvents(resources)
+    if runEvents:
+        watchEvents(resources)
 
     # get the camera attributes
     if runCameras:
