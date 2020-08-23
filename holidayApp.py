@@ -97,8 +97,8 @@ if __name__ == "__main__":
     stateChangeEvent = threading.Event()
 
     # Interfaces
-    neopixelInterface = NeopixelInterface("neopixelInterface", None, length=stringLength, event=stateChangeEvent)
-    configData = FileInterface("configData", fileName=stateDir+"lights.conf", event=stateChangeEvent, initialState=defaultConfig)
+    neopixelInterface = NeopixelInterface("neopixelInterface", None, length=stringLength)
+    configData = FileInterface("configData", fileName=stateDir+"lights.conf", initialState=defaultConfig)
 
     # Persistent config data
     holiday = MultiControl("holiday", configData, "holiday", values=sorted(list(patterns.keys())),
