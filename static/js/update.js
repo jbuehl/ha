@@ -90,6 +90,7 @@ $(document).ready(function() {
     var updateAll = function(data) {
         blinkers = data["blinkers"];
         if (data["cacheTime"] > cacheTime) {        // has the resource cache been updated ?
+            cacheTime = data["cacheTime"];
             location.reload(true);                  // reload the page
             }
         else {
