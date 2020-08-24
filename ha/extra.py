@@ -90,7 +90,7 @@ class ControlGroup(SensorGroup, Control):
 class SensorGroupControl(SensorGroup, Control):
     def __init__(self, name, sensorList, control, **kwargs):
         Control.__init__(self, name, **kwargs)
-        SensorGroup.__init__(self, name, sensorList, resources, **kwargs)
+        SensorGroup.__init__(self, name, sensorList, **kwargs)
         self.type = "sensorGroupControl"
         self.control = control
 
