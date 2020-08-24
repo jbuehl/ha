@@ -132,7 +132,7 @@ class RestProxy(threading.Thread):
                         debug('debugRestProxyStates', self.name, "states", serviceName, serviceAddr, stateTimeStamp)
                         service.stateTimeStamp = stateTimeStamp
                         service.interface.setStates(serviceStates)     # load the interface cache
-                        self.resources.setStates(serviceStates)             # update the resource collection cache
+                        self.resources.setStates(serviceStates)        # update the resource collection cache
                         self.resources.notify()
                 # start the message timer
                 service.startTimer()
@@ -145,7 +145,7 @@ class RestProxy(threading.Thread):
     # all the resources from the specified service to the cache
     def addResources(self, service):
         debug('debugRestProxy', self.name, "adding resources for service", service.name)
-        self.resources.addRes(service)                          # the resource of the service
+        self.resources.addRes(service, 1)                       # the resource of the service
         self.resources.addRes(service.missedSeqSensor)          # missed messages
         self.resources.addRes(service.missedSeqPctSensor)       # percent of missed messages
         for resource in list(service.resources.values()):       # resources from the service

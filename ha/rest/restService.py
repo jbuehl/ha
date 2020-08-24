@@ -6,8 +6,8 @@ messageTimeout = beaconTimeout
 
 # proxy for a REST service
 class RestService(Sensor):
-    def __init__(self, name, interface, addr=None, stateTimeStamp=-1, resourceTimeStamp=-1, group="", type="service", location=None, label="", event=None):
-        Sensor.__init__(self, name, interface, addr=addr, group=group, type=type, location=location, label=label, event=event)
+    def __init__(self, name, interface, addr=None, stateTimeStamp=-1, resourceTimeStamp=-1, type="service", **kwargs):
+        Sensor.__init__(self, name, interface, addr=addr, type=type, **kwargs)
         debug('debugRestService', "RestService", name, "created")
         self.stateTimeStamp = stateTimeStamp      # the last time the states were updated
         self.resourceTimeStamp = resourceTimeStamp      # the last time the resources were updated
@@ -38,12 +38,14 @@ class RestService(Sensor):
         debug('debugRestService', "RestService", self.name, "enabled")
         self.interface.start()
         self.enabled = True
+        self.notify(True)
 
     def disable(self):
         debug('debugRestService', "RestService", self.name, "disabled")
         self.interface.stop()
         self.messageTimer = None
         self.enabled = False
+        self.notify(False)
 
     def addResources(self):
         self.resources = Collection(self.name+"/Resources")
@@ -63,6 +65,8 @@ class RestService(Sensor):
         if seq > 0:
             self.missedSeqPct = float(self.missedSeq) / float(seq)
         self.lastSeq = seq
+        self.missedSeqSensor.notify()
+        self.missedSeqPctSensor.notify()
 
     # define a timer to disable the service if the message timer times out
     # can't use a socket timeout because multiple threads are using the same port

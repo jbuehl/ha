@@ -210,13 +210,13 @@ class Collection(Resource, OrderedDict):
         pollStatesThread.start()
 
     # Add a resource to this collection
-    def addRes(self, resource):
+    def addRes(self, resource, state=None):
         debug('debugCollection', self.name, "adding", resource.name)
         with self.lock:
             try:
                 self.__setitem__(str(resource), resource)
                 resource.addCollection(self)
-                self.states[resource.name] = None
+                self.states[resource.name] = state
             except Exception as ex:
                 log(self.name, "addRes", type(ex).__name__, str(ex))
 
