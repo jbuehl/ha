@@ -64,10 +64,14 @@ def index():
 # show all resource details or specified group
 def details(group=None):
     debug('debugWeb', "/details", group)
-    try:
-        groups = [[group.capitalize(), resources.getGroup(group)]]
-        details = True
-    except:
+    if group:
+        if group.lower() == "all":
+            groups = [["All resources", [resources[resource] for resource in sorted(list(resources.keys()))]]]
+            details = True
+        else:
+            groups = [[group.capitalize(), resources.getGroup(group)]]
+            details = True
+    else:
         groups = [[group, resources.getGroup(group)] for group in ["Alerts", "Services", "System",
                                                                     "Time", "Weather", "Temperature",
                                                                     "Hvac", "Pool", "Lights", "Shades", "Doors", "Car",
