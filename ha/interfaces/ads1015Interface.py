@@ -27,7 +27,7 @@ class ADS1015Interface(Interface):
                 value = self.adc.readADCSingleEnded(addr, self.gain, self.sps)
             return float(value / 1000)
         except Exception as ex:
-            log("ADS1015Interface exception", str(ex))
+            log("ADS1015Interface exception", type(ex).__name__, str(ex))
             return 0
 
 # ===========================================================================

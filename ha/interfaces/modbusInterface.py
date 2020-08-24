@@ -22,7 +22,7 @@ class ModbusInterface(Interface):
                     try:
                         self.states[sensor.addr] = self.instrument.read_register(sensor.addr)
                     except Exception as ex:
-                        log(self.name, "read exception", sensor.name, sensor.addr, str(ex))
+                        log(self.name, "read exception", sensor.name, sensor.addr, type(ex).__name__, str(ex))
                     time.sleep(1)
                 debug("debugModbus", "readStates sleeping")
                 time.sleep(60 - len(self.sensors))
@@ -36,4 +36,4 @@ class ModbusInterface(Interface):
         try:
             self.instrument.write_register(sensor.addr, value)
         except Exception as ex:
-            log(self.name, "write exception", sensor.name, sensor.addr, str(ex))
+            log(self.name, "write exception", sensor.name, sensor.addr, type(ex).__name__, str(ex))

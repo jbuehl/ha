@@ -70,8 +70,8 @@ class RestInterface(Interface):
         except requests.exceptions.Timeout:
             log(self.name, "read state timeout", path)
             return {}
-        except Exception as exception:
-            log(self.name, "read state exception", str(exception))
+        except Exception as ex:
+            log(self.name, "read state exception", type(ex).__name__, str(ex))
             return {}
 
     # write the control state to the specified address
@@ -105,6 +105,6 @@ class RestInterface(Interface):
             else:
                 log(self.name, "write state status", response.status_code)
                 return False
-        except Exception as exception:
-            log(self.name, "write state exception", str(exception))
+        except Exception as ex:
+            log(self.name, "write state exception", type(ex).__name__, str(ex))
             return False

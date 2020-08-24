@@ -36,7 +36,7 @@ class FileInterface(Interface):
             self.data = self.initialState
             self.writeData()
         except Exception as ex:
-            log(self.name, "start exception opening", self.fileName, str(ex))
+            log(self.name, "start exception opening", self.fileName, type(ex).__name__, str(ex))
             self.data = self.initialState
             self.writeData()
         self.mtime = os.stat(self.fileName).st_mtime
@@ -103,7 +103,7 @@ class FileInterface(Interface):
             with self.lock:
                 self.data = json.loads(jsonData)
         except Exception as ex:
-            log(self.name, self.fileName, "readData file read error", str(ex), "jsonData", str(jsonData))
+            log(self.name, self.fileName, "readData file read error", type(ex).__name__, str(ex), "jsonData", str(jsonData))
         debug('debugFileData', self.name, "readData", self.data)
 
     def writeData(self):

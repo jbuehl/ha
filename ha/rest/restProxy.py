@@ -43,7 +43,7 @@ def parseServiceData(data, addr):
         serviceLabel = serviceData["label"]
         serviceSeq = serviceData["seq"]
     except Exception as ex:
-        log("parseServiceData", type(ex).__name__, ex.args[0])
+        log("parseServiceData", type(ex).__name__, str(ex))
     return (serviceName, serviceAddr, stateTimeStamp, resourceTimeStamp, serviceLabel, serviceSeq, serviceStates, serviceResources)
 
 # Autodiscover services and resources

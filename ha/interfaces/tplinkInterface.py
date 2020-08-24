@@ -54,7 +54,7 @@ class TplinkInterface(Interface):
                             self.states[ipAddr] = state
                             sensor.notify()
                     except Exception as ex:
-                        log("tplink state exception", self.sensorAddrs[ipAddr].name, ipAddr, str(ex))
+                        log("tplink state exception", self.sensorAddrs[ipAddr].name, ipAddr, type(ex).__name__, str(ex))
                 time.sleep(stateInterval)
             debug("debugTplink", "tplink", "getStates terminated")
         stateThread = threading.Thread(target=getStates)
@@ -71,7 +71,7 @@ class TplinkInterface(Interface):
             tcpSocket.close()
             return state
         except Exception as ex:
-            log("tplink read exception", self.sensorAddrs[ipAddr].name, ipAddr, str(ex))
+            log("tplink read exception", self.sensorAddrs[ipAddr].name, ipAddr, type(ex).__name__, str(ex))
             return None
 
     def read(self, addr):
@@ -103,5 +103,5 @@ class TplinkInterface(Interface):
             else:
                 return None
         except Exception as ex:
-            log("tplink write exception", self.sensorAddrs[ipAddr].name, ipAddr, str(ex))
+            log("tplink write exception", self.sensorAddrs[ipAddr].name, ipAddr, type(ex).__name__, str(ex))
             return None

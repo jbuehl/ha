@@ -160,8 +160,8 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                             if (query[0][0].lower() == "expand") and (query[0][1].lower() == "true"):
                                 expand = True
                         data = json.dumps(resource.dump(expand))
-                    except Exception as exception:
-                        debug('debugRestException', "restServer", self.path, str(exception))
+                    except Exception as ex:
+                        debug('debugRestException', "restServer", self.path, type(ex).__name__, str(ex))
                         data = "{}"
                         self.send_error(500)
                 self.send_header("Content-type", contentType)
@@ -186,8 +186,8 @@ class RestRequestHandler(BaseHTTPRequestHandler):
                 resource.__setattr__(attr, data[attr])
                 self.send_response(200) # success
                 self.end_headers()
-            except Exception as exception:
-                debug('debugRestException', "restServer", self.path, str(exception))
+            except Exception as ex:
+                debug('debugRestException', "restServer", self.path, type(ex).__name__, str(ex))
                 self.send_error(500) # error
         else:
             self.send_error(404)     # resource not found

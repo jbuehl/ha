@@ -11,5 +11,5 @@ class DS18B20Interface(Interface):
         try:
             return float(W1ThermSensor(W1ThermSensor.THERM_SENSOR_DS18B20, addr).get_temperature())
         except Exception as ex:
-            log("ds18b20", str(ex))
+            log("ds18b20", type(ex).__name__, str(ex))
             return 0

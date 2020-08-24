@@ -128,8 +128,8 @@ class RestService(Sensor):
                 resource.interface.addSensor(resource)
                 resource.addr = "/resources/"+resource.name+"/state"
                 resources.addRes(resource)
-        except Exception as exception:
-            log(self.name, "loadResource", interface.name, "exception", str(resourceDict), str(exception))
+        except Exception as ex:
+            log(self.name, "loadResource", interface.name, "exception", str(resourceDict), type(ex).__name__, str(ex))
             try:
                 if debugExceptions:
                     raise
