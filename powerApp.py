@@ -154,7 +154,7 @@ if __name__ == "__main__":
 
     load = CalcSensor("loads.stats.power", [lightsPower, plugsPower, appl1Power, cookingPower,
                                                   appl2Power, acPower, backhousePower, poolPower,
-                                                  "loads.carcharger.power"], "sum", resources=cacheResources,
+                                                  ProxySensor("loads.carcharger.power", cacheResources)], "sum",
                                   group=["Power", "Loads"], label="Load", type="KVA")
 
     # Daily energy sensors
@@ -175,12 +175,12 @@ if __name__ == "__main__":
                                   group=["Power", "Loads"], label="Back house daily energy", type="KVAh")
     poolEnergy = EnergySensor("loads.pool.dailyEnergy", powerSensor=poolPower, persistence=stateInterface,
                                   group=["Power", "Loads"], label="Pool equipment daily energy", type="KVAh")
-    carchargerEnergy = EnergySensor("loads.carcharger.dailyEnergy", powerSensor="loads.carcharger.power", resources=cacheResources, persistence=stateInterface,
+    carchargerEnergy = EnergySensor("loads.carcharger.dailyEnergy", powerSensor=ProxySensor("loads.carcharger.power", cacheResources), persistence=stateInterface,
                                   group=["Power", "Loads"], label="Car charger daily energy", type="KVAh")
 
     dailyEnergy = CalcSensor("loads.stats.dailyEnergy", [lightsEnergy, plugsEnergy, appl1Energy, cookingEnergy,
                                                   appl2Energy,acEnergy, backhouseEnergy, poolEnergy,
-                                                  carchargerEnergy], "sum", resources=cacheResources,
+                                                  carchargerEnergy], "sum",
                                   group=["Power", "Loads"], label="Load today", type="KVAh")
 
     # Resources

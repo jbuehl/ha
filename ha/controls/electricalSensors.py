@@ -13,14 +13,14 @@ from ha import *
 #         self.threshold = threshold
 #         self.lastVoltage = 0.0
 #
-#     def getState(self):
+#     def getState(self, missing=None):
 #         voltage = self.interface.read(self.addr) * self.voltageFactor / 1000
 #         if abs(voltage - self.lastVoltage) > self.threshold:
 #             self.notify()
 #         self.lastVoltage = voltage
 #         return voltage
 #
-#     def getLastState(self):
+#     def getLastState(self, missing=0):
 #         return self.lastVoltage
 
 # Measure a current
@@ -32,7 +32,7 @@ from ha import *
 #         self.threshold = threshold
 #         self.lastCurrent = 0.0
 #
-#     def getState(self):
+#     def getState(self, missing=0):
 #         current = self.interface.read(self.addr) * self.currentFactor / 1000
 #         if current > self.threshold:
 #             if abs(current - self.lastCurrent) > self.threshold:
@@ -56,10 +56,10 @@ class PowerSensor(Sensor):
         self.voltageSensor = voltageSensor
         self.voltage = voltage
 
-    def getState(self):
+    def getState(self, missing=0.0):
         if self.voltageSensor:
-            self.voltage = self.voltageSensor.getState()
-        power = self.currentSensor.getState() * self.voltage
+            self.voltage = self.voltageSensor.getState(missing=0.0)
+        power = self.currentSensor.getState(missing=0.0) * self.voltage
         return power
 
 # Compute battery percentage using a voltage measurement
@@ -67,28 +67,20 @@ socLevels = {
             "AGM": [10.50, 11.51, 11.66, 11.81, 11.95, 12.05, 12.15, 12.30, 12.50, 12.75]
 }
 class BatterySensor(Sensor):
-    def __init__(self, name, interface=None, addr=None, voltageSensor=None, batteryType="AGM", threshold=0.0, resources=None, **kwargs):
+    def __init__(self, name, interface=None, addr=None, voltageSensor=None, batteryType="AGM", threshold=0.0, **kwargs):
         Sensor.__init__(self, name, interface, addr, **kwargs)
         self.className = "Sensor"
         self.voltageSensor = voltageSensor
         self.batteryType = batteryType
         self.threshold = threshold
-        self.resources = resources
         self.lastLevel = 0.0
         try:
             self.chargeLevels = socLevels[self.batteryType]
         except KeyError:
             self.chargeLevels = [0.0]*10
 
-    def getState(self):
-        if isinstance(self.voltageSensor, str):
-            if self.resources:
-                try:
-                    voltage = self.resources[self.voltageSensor].getState()
-                except KeyError:
-                    voltage = 0.0
-        else:
-            voltage = self.voltageSensor.getState()
+    def getState(self, missing=0.0):
+        voltage = self.voltageSensor.getState(missing=0.0)
 
         # Use table lookup
         # level = 100
@@ -117,24 +109,21 @@ class BatterySensor(Sensor):
 
 # Accumulate the energy of a power measurement over time
 class EnergySensor(Sensor):
-    def __init__(self, name, interface=None, addr=None, powerSensor=None, interval=60, resources=None, persistence=None, **kwargs):
+    def __init__(self, name, interface=None, addr=None, powerSensor=None, interval=10, persistence=None, **kwargs):
         Sensor.__init__(self, name, interface, addr, **kwargs)
         self.className = "Sensor"
         self.powerSensor = powerSensor
         self.interval = interval
-        self.resources = resources
         self.persistence = persistence  # FileInterface for state persistence
         if self.persistence:
             self.stateControl = Control(self.name+"State", self.persistence, self.name)
-            self.energy = self.stateControl.getState()
-            if self.energy == None:
-                self.energy = 0.0
+            self.energy = self.stateControl.getState(missing=0.0)
         else:
             self.energy = 0.0
         monitorEnergy = threading.Thread(target=self.monitorEnergy)
         monitorEnergy.start()
 
-    def getState(self):
+    def getState(self, missing=0.0):
         return self.energy
 
     def setState(self, value):
@@ -146,18 +135,9 @@ class EnergySensor(Sensor):
     def monitorEnergy(self):
         value = 0.0
         while True:
-            if isinstance(self.powerSensor, str):
-                if self.resources:
-                    try:
-                        value = self.resources[self.powerSensor].getState()
-                    except (KeyError, AttributeError):
-                        value = 0.0
-            else:
-                try:
-                    value = self.powerSensor.getState()
-                except (KeyError, AttributeError):
-                    value = 0.0
+            value = self.powerSensor.getState(missing=0.0)
             self.energy += value * self.interval / 3600
+            debug("debugEnergy", self.name, value, self.energy)
             if self.persistence:
                 self.stateControl.setState(self.energy)
             time.sleep(self.interval)

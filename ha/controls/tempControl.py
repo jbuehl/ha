@@ -25,7 +25,7 @@ class TempControl(Control):
         self.controlState = off                     # state of this control
         self.inhibited = False                      # this control is inhibited
 
-    def getState(self, wait=False):
+    def getState(self, wait=False, missing=None):
         debug('debugState', self.name, "getState ", self.controlState)
         return self.controlState
 

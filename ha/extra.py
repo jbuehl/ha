@@ -4,32 +4,23 @@ from .core import *
 
 # A collection of sensors whose state is on if any one of them is on
 class SensorGroup(Sensor):
-    def __init__(self, name, sensorList, resources=None, **kwargs):
+    def __init__(self, name, sensorList, **kwargs):
         Sensor.__init__(self, name, **kwargs)
         self.sensorList = sensorList
-        self.resources = resources  # if specified, sensorList contains resource names, otherwise references
-        # self.className = "Sensor"
 
-    def getState(self):
+    def getState(self, missing=None):
         if self.interface:
             # This is a cached resource
             return Sensor.getState(self)
         else:
             groupState = 0
             for sensorIdx in range(len(self.sensorList)):
-                if self.resources:      # sensors are resource names - FIXME - test list element type
-                    sensorName = self.sensorList[sensorIdx]
-                    try:
-                        sensorState = self.resources.getRes(self.sensorList[sensorIdx]).getState()
-                    except KeyError:    # can't resolve so ignore it
-                        sensorState = 0
-                else:                   # sensors are resource references
-                    try:
-                        sensorName = self.sensorList[sensorIdx].name
-                        sensorState = self.sensorList[sensorIdx].getState()
-                    except AttributeError:
-                        sensorName = ""
-                        sensorState = 0
+                try:
+                    sensorName = self.sensorList[sensorIdx].name
+                    sensorState = self.sensorList[sensorIdx].getState()
+                except AttributeError:
+                    sensorName = ""
+                    sensorState = 0
                 debug("debugSensorGroup", self.name, "sensor:", sensorName, "state:", sensorState)
                 if sensorState:
                     groupState = groupState or sensorState    # group is on if any one sensor is on
@@ -47,7 +38,7 @@ class SensorGroup(Sensor):
 # A set of Controls whose state can be changed together
 class ControlGroup(SensorGroup, Control):
     def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False, type="controlGroup", **kwargs):
-        SensorGroup.__init__(self, name, controlList, resources, type=type, **kwargs)
+        SensorGroup.__init__(self, name, controlList, type=type, **kwargs)
         Control.__init__(self, name, type=type, **kwargs)
         self.stateMode = stateMode  # which state to return: False = SensorGroup, True = groupState
         self.groupState = 0
@@ -56,7 +47,7 @@ class ControlGroup(SensorGroup, Control):
         else:
             self.stateList = stateList
 
-    def getState(self):
+    def getState(self, missing=None):
         if self.interface:
             # This is a cached resource
             return Sensor.getState(self)
@@ -78,22 +69,14 @@ class ControlGroup(SensorGroup, Control):
                 debug('debugThread', self.name, "started")
                 self.running = True
                 for controlIdx in range(len(self.sensorList)):
-                    if self.resources:      # controls are resource names - FIXME - test list element type
-                        try:
-                            debug("debugControlGroup", self.name, "looking up:", self.sensorList[controlIdx])
-                            control = self.resources[self.sensorList[controlIdx]]
-                        except KeyError:    # can't resolve so ignore it
-                            debug("debugControlGroup", self.name, "can't find:", self.sensorList[controlIdx])
-                            control = None
-                    else:                   # controls are resource references
-                        control = self.sensorList[controlIdx]
+                    control = self.sensorList[controlIdx]
                     if control:
                         debug("debugControlGroup", self.name, "control:", control.name, "state:", self.groupState)
                         control.setState(self.stateList[controlIdx][self.groupState])
                 self.running = False
                 debug('debugThread', self.name, "finished")
-            self.sceneThread = threading.Thread(target=setGroup)
-            self.sceneThread.start()
+            self.setGroupThread = threading.Thread(target=setGroup)
+            self.setGroupThread.start()
             self.notify(state)
             return True
 
@@ -105,13 +88,13 @@ class ControlGroup(SensorGroup, Control):
 
 # A Control whose state depends on the states of a group of Sensors
 class SensorGroupControl(SensorGroup, Control):
-    def __init__(self, name, sensorList, control, resources=None, **kwargs):
+    def __init__(self, name, sensorList, control, **kwargs):
         Control.__init__(self, name, **kwargs)
         SensorGroup.__init__(self, name, sensorList, resources, **kwargs)
         self.type = "sensorGroupControl"
         self.control = control
 
-    def getState(self):
+    def getState(self, missing=None):
         if self.interface:
             # This is a cached resource
             return Sensor.getState(self)
@@ -140,68 +123,44 @@ class SensorGroupControl(SensorGroup, Control):
 
 # Calculate a function of a list of sensor states
 class CalcSensor(Sensor):
-    def __init__(self, name, sensors=[], function="", resources=None, **kwargs):
+    def __init__(self, name, sensors=[], function="", **kwargs):
         Sensor.__init__(self, name, **kwargs)
         type = "sensor"
         self.sensors = sensors
         self.function = function.lower()
-        self.resources = resources
         self.className = "Sensor"
 
-    def getState(self):
+    def getState(self, missing=0):
         value = 0
         if self.function in ["sum", "avg", "+"]:
             for sensor in self.sensors:
-                if isinstance(sensor, str):
-                    if self.resources:
-                        try:
-                            value += self.resources[sensor].getState()
-                        except KeyError:
-                            pass
-                else:
-                    value += sensor.getState()
+                value += sensor.getState(missing=0)
             if self.function == "avg":
                 value /+ len(self.sensors)
         elif self.function in ["*"]:
             for sensor in self.sensors:
-                if isinstance(sensor, str):
-                    if self.resources:
-                        try:
-                            value *= self.resources[sensor].getState()
-                        except KeyError:
-                            pass
-                else:
-                    value *= sensor.getState()
+                value *= sensor.getState(missing=0)
         elif self.function in ["diff", "-"]:
-            value = self.sensors[0].getState() - self.sensors[1].getState()
-        return value * self.factor
+            value = self.sensors[0].getState(missing=0) - self.sensors[1].getState(missing=0)
+        return value
 
 # Control that can only be turned on if all the specified resources are in the specified states
 class DependentControl(Control):
-    def __init__(self, name, interface, control, conditions, resources=None, **kwargs):
+    def __init__(self, name, interface, control, conditions, **kwargs):
         Control.__init__(self, name, **kwargs)
         type = "control"
         self.className = "Control"
         self.control = control
         self.conditions = conditions
-        self.resources = resources
 
-    def getState(self):
+    def getState(self, missing=None):
         return self.control.getState()
 
     def setState(self, state, wait=False):
         debug('debugState', self.name, "setState ", state)
         for (sensor, condition, value) in self.conditions:
-            if isinstance(sensor, str):
-                sensorName = sensor
-                if self.resources:
-                    try:
-                        sensorState = self.resources[sensor].getState()
-                    except KeyError:
-                        sensorState = None
-            else:
-                sensorState = sensor.getState()
-                sensorName = sensor.name
+            sensorState = sensor.getState()
+            sensorName = sensor.name
             if isinstance(value, Sensor):
                 value = value.getState()
             debug('debugDependentControl', self.name, sensorName, sensorState, condition, value)
@@ -238,7 +197,7 @@ class MomentaryControl(Control):
         self.interface.write(self.addr, self.timedState)
         self.notify()
 
-    def getState(self):
+    def getState(self, missing=None):
         return self.timedState
 
 # Control that has a specified list of values it can be set to
@@ -297,7 +256,7 @@ class MinSensor(Sensor):
         except:
             self.minState = 999
 
-    def getState(self):
+    def getState(self, missing=None):
         if self.interface:
             if self.interface.__class__.__name__ == "RestInterface":
                 return self.interface.read(self.addr)
@@ -335,7 +294,7 @@ class MaxSensor(Sensor):
         except:
             self.maxState = 0
 
-    def getState(self):
+    def getState(self, missing=0):
         if self.interface:
             if self.interface.__class__.__name__ == "RestInterface":
                 return self.interface.read(self.addr)
@@ -373,7 +332,7 @@ class AccumSensor(Sensor):
         except:
             self.accumValue = 0
 
-    def getState(self):
+    def getState(selfmissing=0):
         self.accumValue = self.sensor.getState() * self.multiplier
         if self.interface:
             self.interface.write(self.name, self.accumValue)
@@ -393,7 +352,7 @@ class AttributeSensor(Sensor):
         self.sensor = sensor
         self.attr = attr
 
-    def getState(self):
+    def getState(self, missing=None):
         return getattr(self.sensor, self.attr)
 
     # dictionary of pertinent attributes
@@ -402,3 +361,21 @@ class AttributeSensor(Sensor):
         attrs.update({"sensor": str(self.sensor),
                       "attr": self.attr})
         return attrs
+
+# a sensor that is proxied from another server
+class ProxySensor(Sensor):
+    def __init__(self, name, resources, **kwargs):
+        Sensor.__init__(self, name, **kwargs)
+        self.resources = resources
+
+    def getState(self, missing=None):
+        try:
+            return self.resources[self.name].getState()
+        except KeyError:
+            return missing
+
+    def setState(self, value, **kwargs):
+        try:
+            return self.resources[self.name].setState(value, **kwargs)
+        except KeyError:
+            return False

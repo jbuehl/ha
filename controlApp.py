@@ -1,5 +1,5 @@
 
-restWatch = ["garage", "holiday", "hvac", "backhouse", "pool"]
+restWatch = ["garage", "holiday", "hvac", "house", "backhouse", "pool"]
 espRestWatch = ["frontLights", "backLights", "garageBackDoorLight", "familyRoomLamp", "bedroomLight", "bathroomLight"]
 defaultConfig = {
 }
@@ -47,80 +47,111 @@ if __name__ == "__main__":
     espRestCache = RestProxy1("espRestCache", cacheResources, watch=espRestWatch, event=stateChangeEvent)
     espRestCache.start()
 
-    # add local resources to cache resource list
-    cacheResources.addRes(garageLights)
-    cacheResources.addRes(deckLights)
-    cacheResources.addRes(trashLights)
-    cacheResources.addRes(backLights)
-    cacheResources.addRes(backHouseMusic)
-    cacheResources.addRes(xmasBeamLights)
+    # proxied light controls
+    frontLights = ProxySensor("frontLights", cacheResources)
+    sculptureLights = ProxySensor("sculptureLights", cacheResources)
+    holidayLights = ProxySensor("holidayLights", cacheResources)
+    garageBackDoorLight = ProxySensor("garageBackDoorLight", cacheResources)
+    familyRoomLamp = ProxySensor("familyRoomLamp", cacheResources)
+    bedroomLight = ProxySensor("bedroomLight", cacheResources)
+    bathroomLight = ProxySensor("bathroomLight", cacheResources)
+    poolLights = ProxySensor("poolLights", cacheResources)
+
+    # proxied xmas light controls
+    xmasTree = ProxySensor("xmasTree", cacheResources)
+    xmasWindowLights = ProxySensor("xmasWindowLights", cacheResources)
+    xmasFireplaceLights = ProxySensor("xmasFireplaceLights", cacheResources)
+    xmasBackLights = ProxySensor("xmasBackLights", cacheResources)
+
+    # proxied garage controls
+    recircPump = ProxySensor("recircPump", cacheResources)
+    hotWaterRecirc = ProxySensor("hotWaterRecirc", cacheResources)
+
+    # proxied hvac controls
+    backHeatTempTarget = ProxySensor("backHeatTempTarget", cacheResources)
+    backCoolTempTarget = ProxySensor("backCoolTempTarget", cacheResources)
+    backHeatTempUpMorning = ProxySensor("backHeatTempUpMorning", cacheResources)
+    backHeatTempDownMorning = ProxySensor("backHeatTempDownMorning", cacheResources)
+    backHeatTempDownEvening = ProxySensor("backHeatTempDownEvening", cacheResources)
+    northHeatTempTarget = ProxySensor("northHeatTempTarget", cacheResources)
+    northCoolTempTarget = ProxySensor("northCoolTempTarget", cacheResources)
+    northHeatTempUpMorning = ProxySensor("northHeatTempUpMorning", cacheResources)
+    northHeatTempDownMorning = ProxySensor("northHeatTempDownMorning", cacheResources)
+    northHeatTempDownEvening = ProxySensor("northHeatTempDownEvening", cacheResources)
+    southHeatTempTarget = ProxySensor("southHeatTempTarget", cacheResources)
+    southCoolTempTarget = ProxySensor("southCoolTempTarget", cacheResources)
+    southHeatTempUpMorning = ProxySensor("southHeatTempUpMorning", cacheResources)
+    southHeatTempDownMorning = ProxySensor("southHeatTempDownMorning", cacheResources)
+    southHeatTempDownEvening = ProxySensor("southHeatTempDownEvening", cacheResources)
+
+    # proxied alert controls
+    alertDoors = ProxySensor("alertDoors", cacheResources)
+    alertMotion = ProxySensor("alertMotion", cacheResources)
 
     # light groups
-    porchLights = ControlGroup("porchLights", ["frontLights",
-                                               "sculptureLights",
-                                               "holidayLights",
-                                               "backLights",
-                                               "garageBackDoorLight",
-                                               "familyRoomLamp"],
-                                           resources=cacheResources,
+    porchLights = ControlGroup("porchLights", [frontLights,
+                                               sculptureLights,
+                                               holidayLights,
+                                               backLights,
+                                               garageBackDoorLight,
+                                               familyRoomLamp],
                                            type="light", group="Lights", label="Porch lights")
-    xmasLights = ControlGroup("xmasLights", ["xmasTree",
-                                             "xmasWindowLights",
-                                             "xmasTree",
-                                             "xmasFireplaceLights",
-                                             "xmasBeamLights",
-                                             "xmasBackLights"],
-                                           resources=cacheResources,
+    xmasLights = ControlGroup("xmasLights", [xmasTree,
+                                             xmasWindowLights,
+                                             xmasFireplaceLights,
+                                             xmasBeamLights,
+                                             xmasBackLights],
                                            type="light", group=["Lights", "Xmas"], label="Xmas lights")
-    nightLights = ControlGroup("nightLights", ["bedroomLight",
-                                               "bathroomLight"],
-                                               resources=cacheResources,
+    nightLights = ControlGroup("nightLights", [bedroomLight,
+                                               bathroomLight],
                                                stateList=[[0, 30, 0], [0, 100, 10]],
                                                type="nightLight", group="Lights", label="Night lights")
-    outsideLights = ControlGroup("outsideLights", ["frontLights",
-                                                   "sculptureLights",
-                                                   "backLights",
-                                                   "garageBackDoorLight",
-                                                   "bbqLights",
-                                                   "backYardLights",
-                                                   "deckLights",
-                                                   "trashLights",
-                                                   "garageLight",
-                                                   "poolLights",
-                                                   "familyRoomLamp",
-                                                   "holidayLights",
-                                                   "xmasTree",
-                                                   "xmasWindowLights",
-                                                   "xmasTree",
-                                                   "xmasFireplaceLights",
-                                                   "xmasBeamLights",
-                                                   "xmasBackLights"],
-                                               resources=cacheResources,
+    outsideLights = ControlGroup("outsideLights", [frontLights,
+                                                   sculptureLights,
+                                                   backLights,
+                                                   garageBackDoorLight,
+                                                   # bbqLights,
+                                                   # backYardLights,
+                                                   deckLights,
+                                                   trashLights,
+                                                   garageLights,
+                                                   poolLights,
+                                                   familyRoomLamp,
+                                                   holidayLights,
+                                                   xmasTree,
+                                                   xmasWindowLights,
+                                                   xmasTree,
+                                                   xmasFireplaceLights,
+                                                   xmasBeamLights,
+                                                   xmasBackLights],
                                                type="light", group="Lights", label="Outside lights")
-    guestMode = ControlGroup("guestMode", ["backHouseMusic",
-                                           "backHeatTempTarget",
-                                           "backCoolTempTarget",
-                                           "backHeatTempUpMorning",
-                                           "backHeatTempDownMorning",
-                                           "backHeatTempDownEvening"],
+
+    # mode groups
+    guestMode = ControlGroup("guestMode", [backHouseMusic,
+                                           backHeatTempTarget,
+                                           backCoolTempTarget,
+                                           backHeatTempUpMorning,
+                                           backHeatTempDownMorning,
+                                           backHeatTempDownEvening],
                                        resources=cacheResources, stateMode=True,
                                        stateList=[[0, 1],
                                                  [60, 66], [80, 75],
                                                  [0, 1], [0, 1], [0, 1]],
                                        group=["Modes", "BackHouse"], label="Guest")
-    vacationMode = ControlGroup("vacationMode", ["alertDoors",
-                                                 "recircPump",
-                                                 "hotWaterRecirc",
-                                                 "northHeatTempTarget",
-                                                 "northCoolTempTarget",
-                                                 "northHeatTempUpMorning",
-                                                 "northHeatTempDownMorning",
-                                                 "northHeatTempDownEvening",
-                                                 "southHeatTempTarget",
-                                                 "southCoolTempTarget",
-                                                 "southHeatTempUpMorning",
-                                                 "southHeatTempDownMorning",
-                                                 "southHeatTempDownEvening"],
+    vacationMode = ControlGroup("vacationMode", [alertDoors,
+                                                 alertMotion,
+                                                 recircPump,
+                                                 hotWaterRecirc,
+                                                 northHeatTempTarget,
+                                                 northCoolTempTarget,
+                                                 northHeatTempUpMorning,
+                                                 northHeatTempDownMorning,
+                                                 northHeatTempDownEvening,
+                                                 southHeatTempTarget,
+                                                 southCoolTempTarget,
+                                                 southHeatTempUpMorning,
+                                                 southHeatTempDownMorning,
+                                                 southHeatTempDownEvening],
                                                resources=cacheResources, stateMode=True,
                                                stateList=[[0, 1],
                                                           [1, 0], [1, 0],

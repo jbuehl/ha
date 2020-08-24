@@ -6,7 +6,6 @@ restWatch = ["backupPowerMonitor"]
 defaultConfig = {
                 "backup.solar.dailyEnergy": 0.0,
                 "backup.load.dailyEnergy": 0.0,
-                "backup.inverter.dailyEnergy": 0.0,
                 }
 
 import time
@@ -50,7 +49,7 @@ class GarageDoorControl(Control):
         self.doorClosedSensor = doorClosedSensor
         self.doorOpenSensor = doorOpenSensor
 
-    def getState(self):
+    def getState(self, missing=None):
         return self.doorClosedSensor.getState()
 
     def setState(self, value):
@@ -66,7 +65,7 @@ class RenologySensor(Sensor):
         self.mask = mask
         self.shift = shift
 
-    def getState(self):
+    def getState(self, missing=0.0):
         state = self.interface.read(self.addr)
         if state:
             if self.addr == 0x0120:  # charge mode
@@ -148,7 +147,7 @@ if __name__ == "__main__":
     backupLoadVoltage = RenologySensor("backup.load.voltage", modbusInterface, 0x0104, 0.1, type="V", group=["Power", "Backup"], label="Backup load voltage")
     backupLoadCurrent = RenologySensor("backup.load.current", modbusInterface, 0x0105, .01, type="A", group=["Power", "Backup"], label="Backup load current")
     backupLoadPower = RenologySensor("backup.load.power", modbusInterface, 0x0106, 1.0, type="W", group=["Power", "Backup"], label="Backup load power")
-    backupTotalLoad = CalcSensor("backup.stats.totalLoad", [backupLoadPower, "backupPowerMonitor.power"], "sum", resources=cacheResources,
+    backupTotalLoad = CalcSensor("backup.stats.totalLoad", [backupLoadPower, ProxySensor("backupPowerMonitor.power", cacheResources)], "sum",
                                   group=["Power", "Backup"], label="Backup total load", type="KW")
     backupNetPower = CalcSensor("backup.stats.netPower", [backupSolarPower, backupTotalLoad], "diff",
                                   group=["Power", "Backup"], label="Backup net power", type="KW-")

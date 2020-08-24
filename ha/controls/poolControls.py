@@ -63,7 +63,7 @@ class SpaControl(Control):
                               Cycle(self.lightApp, duration=0, startState=off, delay=30)
                               ])
 
-    def getState(self):
+    def getState(self, missing=None):
         debug('debugState', self.name, "getState ", self.currentState)
         return self.currentState
 
@@ -193,7 +193,7 @@ class LxgControl(MultiControl):
         self.type = "control"
         self.lightControl = lightControl
 
-    def getState(self):
+    def getState(self, missing=None):
         return ""
 
     def setState(self, state):
@@ -220,7 +220,7 @@ class ValveControl(Control):
         self.timer = None
         self.lock = threading.Lock()
 
-    def getState(self):
+    def getState(self, missing=None):
         return self.currentState
 
     def setState(self, value):

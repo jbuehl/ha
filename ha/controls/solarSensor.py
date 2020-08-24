@@ -13,7 +13,7 @@ class SolarSensor(Sensor):
         debug("debugSolar", "creating", name)
         self.className = "Sensor"
 
-    def getState(self):
+    def getState(self, missing=0.0):
         try:
             (deviceType, deviceName, deviceAttr) = self.addr.split(".")
             deviceValues = self.interface.read(deviceType)

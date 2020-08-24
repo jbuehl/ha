@@ -81,7 +81,7 @@ class Sequence(Control):
                 cycleList += obj.getCycles()
         return cycleList
 
-    def getState(self):
+    def getState(self, missing=None):
         if not self.interface:
             return normalState(self.running)
         else:
@@ -184,7 +184,7 @@ class Schedule(Collection):
         self.initControls()
         self.schedThread.start()
 
-    def getState(self):
+    def getState(self, missing=None):
         return 1
 
     def addRes(self, resource):
@@ -308,7 +308,7 @@ class Task(Control):
         self.parent = parent
         self.enabled = normalState(enabled)
 
-    def getState(self):
+    def getState(self, missing=None):
         if not self.interface:
             return self.enabled
         else:

@@ -69,7 +69,7 @@ class ThermostatControl(Control):
         self.heatControl.setInhibit(value)
         self.coolControl.setInhibit(value)
 
-    def getState(self, wait=False):
+    def getState(self, wait=False, missing=None):
         debug('debugState', self.name, "getState ", self.currentState)
         return self.currentState
 
@@ -115,7 +115,7 @@ class ThermostatUnitSensor(Sensor):
         self.className = "Sensor"
         self.thermostatControl = thermostatControl
 
-    def getState(self):
+    def getState(self, missing=None):
         # assume only one of them is on
         if self.thermostatControl.getState() == Off:
             return Off

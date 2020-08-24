@@ -220,7 +220,7 @@ class LinkSensor(Sensor):
         Sensor.__init__(self, name, interface, addr, group=group, type=type, location=location, label=label, interrupt=interrupt, event=event)
         self.sensor = sensor
 
-    def getState(self):
+    def getState(self, missing=None):
         return self.sensor.getState()
 
 if __name__ == "__main__":

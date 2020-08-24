@@ -192,7 +192,7 @@ class Collection(Resource, OrderedDict):
                             else:
                                 debug('debugCollectionState', self.name, "skipping", resource.name)
                         except Exception as ex:
-                            log(self.name, "pollStates", type(ex).__name__, ex.message)
+                            log(self.name, "pollStates", type(ex).__name__, str(ex))
                 if stateChanged:    # at least one resource state changed
                     debug('debugCollectionState', self.name, "state changed")
                     self.event.set()
@@ -205,7 +205,7 @@ class Collection(Resource, OrderedDict):
                 try:
                     self.states[resource.name] = resource.getState()    # load the initial state
                 except Exception as ex:
-                    log(self.name, "start", type(ex).__name__, ex.message)
+                    log(self.name, "start", type(ex).__name__, str(ex))
         pollStatesThread = threading.Thread(target=pollStates)
         pollStatesThread.start()
 
@@ -218,7 +218,7 @@ class Collection(Resource, OrderedDict):
                 resource.addCollection(self)
                 self.states[resource.name] = None
             except Exception as ex:
-                log(self.name, "addRes", type(ex).__name__, ex.message)
+                log(self.name, "addRes", type(ex).__name__, str(ex))
 
     # Delete a resource from this collection
     def delRes(self, name):
@@ -229,7 +229,7 @@ class Collection(Resource, OrderedDict):
                 self.__getitem__(name).delCollection(self)
                 self.__delitem__(name)
             except Exception as ex:
-                log(self.name, "delRes", type(ex).__name__, ex.message)
+                log(self.name, "delRes", type(ex).__name__, str(ex))
 
     # Get a resource from the collection
     # Return dummy sensor if not found
@@ -328,7 +328,7 @@ class Sensor(Resource):
             # FIXME - use @property
 
     # Return the state of the sensor by reading the value from the address on the interface.
-    def getState(self):
+    def getState(self, missing=None):
         debug('debugSensor', self.name, "getState")
         state = (normalState(self.interface.read(self.addr)) if self.interface else None)
         try:

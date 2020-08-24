@@ -155,7 +155,7 @@ class FadeAnimation(Animation):
 #         self.resources = resources
 #         self.control = control
 #
-#     def getState(self):
+#     def getState(self, missing=None):
 #         return self.resources.getRes(self.control.getState()).getState()
 #
 #     def setState(self, value):
@@ -193,7 +193,7 @@ class HolidayLightControl(Control):
                     segment.display(self.interface)
                 self.interface.show()
 
-    def getState(self):
+    def getState(self, missing=None):
         return self.running
 
     def setState(self, value):

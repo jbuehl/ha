@@ -24,7 +24,7 @@ class RestService(Sensor):
         self.missedSeqSensor = AttributeSensor(serviceName+"-missedSeq", None, None, self, "missedSeq")
         self.missedSeqPctSensor = AttributeSensor(serviceName+"-missedSeqPct", None, None, self, "missedSeqPct")
 
-    def getState(self):
+    def getState(self, missing=None):
         return normalState(self.enabled)
 
     def setState(self, state, wait=False):

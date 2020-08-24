@@ -113,7 +113,7 @@ class CarChargerControl(Control):
         self.gpioWrite(readyLed, off)
         self.gpioWrite(faultLed, off)
 
-    def getState(self):
+    def getState(self, missing=None):
         return self.pilotState
 
     def setState(self, value):
