@@ -169,16 +169,16 @@ if __name__ == "__main__":
                                                    backHouseMusic, backHouseMusicRssi], event=stateChangeEvent)
 
     # Light tasks
-    resources.addRes(Task("nightLightsOnSunset", SchedTime(event="sunset"), "nightLights", 1, resources=resources, group="Lights"))
-    resources.addRes(Task("nightLightsOffSunrise", SchedTime(event="sunrise"), "nightLights", 0, resources=resources, group="Lights"))
-    resources.addRes(Task("lightsOnSunset", SchedTime(event="sunset"), "porchLights", 1, resources=resources, group="Lights"))
-    resources.addRes(Task("lightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "outsideLights", 0, resources=resources, group="Lights"))
-    resources.addRes(Task("lightsOffSunrise", SchedTime(event="sunrise"), "outsideLights", 0, resources=resources, group="Lights"))
-    resources.addRes(Task("xmasLightsOnSunset", SchedTime(event="sunset"), "xmasLights", 1, resources=resources, group="Lights"))
-    resources.addRes(Task("xmasLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, resources=resources, group="Lights"))
-    resources.addRes(Task("xmasLightsOffSunrise", SchedTime(event="sunrise"), "xmasLights", 0, resources=resources, group="Lights"))
-    resources.addRes(Task("fireplaceOffMidnight", SchedTime(hour=[23,0], minute=[00]), "fireplace", 0, resources=resources, group="Lights"))
-    #        resources.addRes(Task("xmasTreeOnXmas", SchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1, resources=resources))
+    resources.addRes(Task("nightLightsOnSunset", SchedTime(event="sunset"), "nightLights", 1, group="Lights"))
+    resources.addRes(Task("nightLightsOffSunrise", SchedTime(event="sunrise"), "nightLights", 0, group="Lights"))
+    resources.addRes(Task("lightsOnSunset", SchedTime(event="sunset"), "porchLights", 1, group="Lights"))
+    resources.addRes(Task("lightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "outsideLights", 0, group="Lights"))
+    resources.addRes(Task("lightsOffSunrise", SchedTime(event="sunrise"), "outsideLights", 0, group="Lights"))
+    resources.addRes(Task("xmasLightsOnSunset", SchedTime(event="sunset"), "xmasLights", 1, group="Lights"))
+    resources.addRes(Task("xmasLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, group="Lights"))
+    resources.addRes(Task("xmasLightsOffSunrise", SchedTime(event="sunrise"), "xmasLights", 0, group="Lights"))
+    resources.addRes(Task("fireplaceOffMidnight", SchedTime(hour=[23,0], minute=[00]), "fireplace", 0, group="Lights"))
+    #        resources.addRes(Task("xmasTreeOnXmas", SchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1))
 
     # Schedule
     schedule = Schedule("schedule")

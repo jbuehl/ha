@@ -278,14 +278,7 @@ class Schedule(Collection):
     def setControlState(self, task, state):
         # run the task
         debug('debugEvent', self.name, "task", task.name)
-        if task.resources:      # control is resource name
-            try:
-                debug('debugEvent', self.name, "resolving", task.control)
-                control = task.resources[task.control]
-            except KeyError:    # can't resolve so ignore it
-                control = None
-        else:                   # control is resource reference
-            control = task.control
+        control = task.control
         if control:
             debug('debugEvent', self.name, "setting", control.name, "state", state)
             try:
@@ -296,7 +289,7 @@ class Schedule(Collection):
 # a Task specifies a control to be set to a specified state at a specified time
 class Task(Control):
     def __init__(self, name, schedTime=None, control=None, controlState=1, endTime=None, endState=0,
-                 resources=None, parent=None, enabled=True, **kwargs):
+                 parent=None, enabled=True, **kwargs):
         Control.__init__(self, name, **kwargs)
         self.type = "task"
         self.schedTime = schedTime          # when to run the task
@@ -304,7 +297,6 @@ class Task(Control):
         self.controlState = controlState    # the state to set the control to
         self.endTime = endTime              # optional end time
         self.endState = endState            # optional state to set the control to at the end time
-        self.resources = resources          # optional list of resources to look up control name in
         self.parent = parent
         self.enabled = normalState(enabled)
 
@@ -327,23 +319,12 @@ class Task(Control):
         schedTime.eventTime(latLong)
         schedTime.event = ""
         schedTime.lastTime()
-        return Task(self.name+"Event", schedTime, self.control, self.controlState, resources=self.resources, parent=self)
+        return Task(self.name+"Event", schedTime, self.control, self.controlState, parent=self)
 
     # dictionary of pertinent attributes
     def dict(self, expand=False):
-        if self.resources:      # control is resource name - FIXME - test list element type
-            try:
-                control = self.resources[self.control]
-            except KeyError:    # can't resolve so ignore it
-                control = "None"
-        else:                   # control is resource reference
-            control = self.control
-        try:
-            controlName = control.name
-        except AttributeError:
-            controlName = control
         attrs = Control.dict(self)
-        attrs.update({"control": controlName,
+        attrs.update({"control": str(self.control),
                       "controlState": self.controlState,
                       "schedTime": self.schedTime.dump()})
         if self.endTime:
@@ -352,17 +333,7 @@ class Task(Control):
         return attrs
 
     def __repr__(self, views=None):
-        try:
-            if self.resources:      # control is resource name - FIXME - test list element type
-                control = self.resources[self.control]
-                controlName = control.name
-            else:                   # control is resource reference
-                control = self.control
-                controlName = control.name
-        except (AttributeError, KeyError):    # can't resolve so use the name
-            control = None
-            controlName = self.control
-        msg = controlName+": "+str(self.controlState)+","+self.schedTime.__str__()
+        msg = str(self.control)+": "+str(self.controlState)+","+self.schedTime.__str__()
         if self.endTime:
             msg += ","+controlName+": "+str(self.endState)+","+self.endTime.__str__()
         return msg
