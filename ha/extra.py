@@ -374,6 +374,12 @@ class ProxySensor(Sensor):
         except KeyError:
             return missing
 
+# a control that is proxied from another server
+class ProxyControl(Control):
+    def __init__(self, name, resources, **kwargs):
+        Control.__init__(self, name, **kwargs)
+        self.resources = resources
+
     def setState(self, value, **kwargs):
         try:
             return self.resources[self.name].setState(value, **kwargs)
