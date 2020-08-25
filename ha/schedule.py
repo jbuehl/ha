@@ -235,8 +235,6 @@ class Schedule(Collection):
             sleepTime = 60 - now.second
             debug('debugSched', self.name, "sleeping ", sleepTime)
             time.sleep(sleepTime)
-#            if not running:
-#                break
             (now, tomorrow) = todaysDate()
             debug('debugSched', self.name, "waking up",
                     now.year, now.month, now.day, now.hour, now.minute, now.weekday())
