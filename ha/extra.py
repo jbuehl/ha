@@ -14,16 +14,11 @@ class SensorGroup(Sensor):
             return Sensor.getState(self)
         else:
             groupState = 0
-            for sensorIdx in range(len(self.sensorList)):
-                try:
-                    sensorName = self.sensorList[sensorIdx].name
-                    sensorState = self.sensorList[sensorIdx].getState()
-                except AttributeError:
-                    sensorName = ""
-                    sensorState = 0
-                debug("debugSensorGroup", self.name, "sensor:", sensorName, "state:", sensorState)
-                if sensorState:
-                    groupState = groupState or sensorState    # group is on if any one sensor is on
+            for sensor in self.sensorList:
+                sensorState = sensor.getState(missing=0)
+                debug("debugSensorGroup", self.name, "sensor:", sensor.name, "state:", sensorState)
+                groupState = groupState or sensorState    # group is on if any one sensor is on
+            debug("debugSensorGroup", self.name, "groupState:", groupState)
             return groupState
 
     # dictionary of pertinent attributes
@@ -37,7 +32,7 @@ class SensorGroup(Sensor):
 
 # A set of Controls whose state can be changed together
 class ControlGroup(SensorGroup, Control):
-    def __init__(self, name, controlList, stateList=[], resources=None, stateMode=False, type="controlGroup", **kwargs):
+    def __init__(self, name, controlList, stateList=[], stateMode=False, type="controlGroup", **kwargs):
         SensorGroup.__init__(self, name, controlList, type=type, **kwargs)
         Control.__init__(self, name, type=type, **kwargs)
         self.stateMode = stateMode  # which state to return: False = SensorGroup, True = groupState
@@ -67,13 +62,10 @@ class ControlGroup(SensorGroup, Control):
             # Run it asynchronously in a separate thread.
             def setGroup():
                 debug('debugThread', self.name, "started")
-                self.running = True
                 for controlIdx in range(len(self.sensorList)):
                     control = self.sensorList[controlIdx]
-                    if control:
-                        debug("debugControlGroup", self.name, "control:", control.name, "state:", self.groupState)
-                        control.setState(self.stateList[controlIdx][self.groupState])
-                self.running = False
+                    debug("debugControlGroup", self.name, "control:", control.name, "state:", self.groupState)
+                    control.setState(self.stateList[controlIdx][self.groupState])
                 debug('debugThread', self.name, "finished")
             self.setGroupThread = threading.Thread(target=setGroup)
             self.setGroupThread.start()
@@ -375,9 +367,9 @@ class ProxySensor(Sensor):
             return missing
 
 # a control that is proxied from another server
-class ProxyControl(Control):
+class ProxyControl(ProxySensor):
     def __init__(self, name, resources, **kwargs):
-        Control.__init__(self, name, **kwargs)
+        ProxySensor.__init__(self, name, resources, **kwargs)
         self.resources = resources
 
     def setState(self, value, **kwargs):

@@ -66,6 +66,7 @@ if __name__ == "__main__":
     # proxied garage controls
     recircPump = ProxyControl("recircPump", cacheResources)
     hotWaterRecirc = ProxyControl("hotWaterRecirc", cacheResources)
+    fireplace = ProxyControl("fireplace", cacheResources)
 
     # proxied hvac controls
     backHeatTempTarget = ProxyControl("backHeatTempTarget", cacheResources)
@@ -133,7 +134,7 @@ if __name__ == "__main__":
                                            backHeatTempUpMorning,
                                            backHeatTempDownMorning,
                                            backHeatTempDownEvening],
-                                       resources=cacheResources, stateMode=True,
+                                       stateMode=True,
                                        stateList=[[0, 1],
                                                  [60, 66], [80, 75],
                                                  [0, 1], [0, 1], [0, 1]],
@@ -152,7 +153,7 @@ if __name__ == "__main__":
                                                  southHeatTempUpMorning,
                                                  southHeatTempDownMorning,
                                                  southHeatTempDownEvening],
-                                               resources=cacheResources, stateMode=True,
+                                               stateMode=True,
                                                stateList=[[0, 1],
                                                           [1, 0], [1, 0],
                                                           [66, 60], [75, 80],
@@ -169,15 +170,15 @@ if __name__ == "__main__":
                                                    backHouseMusic, backHouseMusicRssi], event=stateChangeEvent)
 
     # Light tasks
-    resources.addRes(Task("nightLightsOnSunset", SchedTime(event="sunset"), "nightLights", 1, group="Lights"))
-    resources.addRes(Task("nightLightsOffSunrise", SchedTime(event="sunrise"), "nightLights", 0, group="Lights"))
-    resources.addRes(Task("lightsOnSunset", SchedTime(event="sunset"), "porchLights", 1, group="Lights"))
-    resources.addRes(Task("lightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "outsideLights", 0, group="Lights"))
-    resources.addRes(Task("lightsOffSunrise", SchedTime(event="sunrise"), "outsideLights", 0, group="Lights"))
-    resources.addRes(Task("xmasLightsOnSunset", SchedTime(event="sunset"), "xmasLights", 1, group="Lights"))
-    resources.addRes(Task("xmasLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), "xmasLights", 0, group="Lights"))
-    resources.addRes(Task("xmasLightsOffSunrise", SchedTime(event="sunrise"), "xmasLights", 0, group="Lights"))
-    resources.addRes(Task("fireplaceOffMidnight", SchedTime(hour=[23,0], minute=[00]), "fireplace", 0, group="Lights"))
+    resources.addRes(Task("nightLightsOnSunset", SchedTime(event="sunset"), nightLights, 1, group="Lights"))
+    resources.addRes(Task("nightLightsOffSunrise", SchedTime(event="sunrise"), nightLights, 0, group="Lights"))
+    resources.addRes(Task("lightsOnSunset", SchedTime(event="sunset"), porchLights, 1, group="Lights"))
+    resources.addRes(Task("lightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), outsideLights, 0, group="Lights"))
+    resources.addRes(Task("lightsOffSunrise", SchedTime(event="sunrise"), outsideLights, 0, group="Lights"))
+    resources.addRes(Task("xmasLightsOnSunset", SchedTime(event="sunset"), xmasLights, 1, group="Lights"))
+    resources.addRes(Task("xmasLightsOffMidnight", SchedTime(hour=[23,0], minute=[00]), xmasLights, 0, group="Lights"))
+    resources.addRes(Task("xmasLightsOffSunrise", SchedTime(event="sunrise"), xmasLights, 0, group="Lights"))
+    resources.addRes(Task("fireplaceOffMidnight", SchedTime(hour=[23,0], minute=[00]), fireplace, 0, group="Lights"))
     #        resources.addRes(Task("xmasTreeOnXmas", SchedTime(month=[12], day=[25], hour=[7], minute=[00]), "xmasTree", 1))
 
     # Schedule
