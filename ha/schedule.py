@@ -282,7 +282,7 @@ class Schedule(Collection):
             try:
                 control.setState(state)
             except Exception as ex:
-                log(self.name, "exception running task", task.name, str(ex))
+                log(self.name, "exception running task", task.name, type(ex).__name__, str(ex))
 
 # a Task specifies a control to be set to a specified state at a specified time
 class Task(Control):
