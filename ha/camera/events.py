@@ -43,7 +43,7 @@ def createAnImage(cameraName, targetDir, imageType, eventTime, params, wait):
 # create a still image from a video frame at a specified time
 def createImage(cameraName, targetDir, imageType, eventTime, params="", wait=True):
     debug("debugImage", "createImage", "imageType:", imageType, "camera:", cameraName, "eventTime:", eventTime)
-    imageCreateThread = threading.Thread(target=createAnImage, args=(cameraName, targetDir, imageType, eventTime, params, wait, ))
+    imageCreateThread = LogThread(target=createAnImage, args=(cameraName, targetDir, imageType, eventTime, params, wait, ))
     imageCreateThread.start()
 
 # create an image at the time of an event

@@ -29,7 +29,7 @@ class BME680Interface(Interface):
                     while not self.sensor.get_sensor_data():
                         time.sleep(.1)
                 time.sleep(weatherSampleRate)
-        sampleThread = threading.Thread(target=sample)
+        sampleThread = LogThread(target=sample)
         sampleThread.start()
 
     def read(self, addr):

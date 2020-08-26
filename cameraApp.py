@@ -39,14 +39,14 @@ if __name__ == "__main__":
     if cameraPurge:
         purgeThreads = []
         for cameraName in list(cameras.keys()):
-            purgeThreads.append(threading.Thread(target=purgeStorage, args=(cameraName, repeat,)))
+            purgeThreads.append(LogThread(target=purgeStorage, args=(cameraName, repeat,)))
             purgeThreads[-1].start()
 
     # start the video threads
     if cameraVideo:
         videoThreads = []
         for camera in cameras:
-            videoThreads.append(threading.Thread(target=recordVideo, args=(cameraDir, cameras[camera], today,)))
+            videoThreads.append(LogThread(target=recordVideo, args=(cameraDir, cameras[camera], today,)))
             videoThreads[-1].start()
 
     # start the snapshot threads
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         snapThreads = []
         delay = 0
         for camera in cameras:
-            snapThreads.append(threading.Thread(target=snapshots, args=(cameraDir, cameras[camera], today, force, repeat, delay,)))
+            snapThreads.append(LogThread(target=snapshots, args=(cameraDir, cameras[camera], today, force, repeat, delay,)))
             snapThreads[-1].start()
             delay += 1
 
@@ -62,12 +62,12 @@ if __name__ == "__main__":
     if cameraMotion:
         motionEventThreads = []
         for camera in cameras:
-            motionEventThreads.append(threading.Thread(target=motionEvents, args=(cameraDir, cameras[camera], today, force, repeat,)))
+            motionEventThreads.append(LogThread(target=motionEvents, args=(cameraDir, cameras[camera], today, force, repeat,)))
             motionEventThreads[-1].start()
 
     # start the event storage thread
     if cameraStorage:
-        storageThread = threading.Thread(target=getStorageStats, args=(cameraDir, cameras, repeat,))
+        storageThread = LogThread(target=getStorageStats, args=(cameraDir, cameras, repeat,))
         storageThread.start()
 
     # block

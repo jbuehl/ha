@@ -144,17 +144,17 @@ class Display(object):
                         element = self.findButton(self.curXpos, self.curYpos)
                         if element:
                             if event.value == 0:    # up
-                                element.releaseThread = threading.Thread(target=element.release)
+                                element.releaseThread = LogThread(target=element.release)
                                 element.releaseThread.start()
                             elif event.value == 1:   # down
-                                element.pressThread = threading.Thread(target=element.press)
+                                element.pressThread = LogThread(target=element.press)
                                 element.pressThread.start()
                 elif event.type == 3:
                     if (event.code == 0) or (event.code == 53):     # ABS_X or ABS_MT_POSITION_X
                         self.curXpos = event.value
                     elif (event.code == 1) or (event.code == 54):   # ABS_Y or ABS_MT_POSITION_Y
                         self.curYpos = event.value
-        inputThread = threading.Thread(target=InputThread)
+        inputThread = LogThread(target=InputThread)
         inputThread.start()
 
         # thread to periodically update Element values
@@ -165,7 +165,7 @@ class Display(object):
                     if (element.resource) and (element.visible):
                         element.render()
                 time.sleep(updateInterval)
-        updateThread = threading.Thread(target=UpdateThread)
+        updateThread = LogThread(target=UpdateThread)
         updateThread.start()
 
         if block:

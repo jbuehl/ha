@@ -68,7 +68,7 @@ def startMetrics(resources, sendMetrics=False, logMetrics=True, backupMetrics=Tr
                         except Exception as ex:
                             log("metrics", "exception backing up metrics", str(ex))
                         debug("debugMetrics", "sendMetrics", "metrics thread ended")
-                    backupThread = threading.Thread(target=backupMetricsThread)
+                    backupThread = LogThread(target=backupMetricsThread)
                     backupThread.start()
 
             # purge metrics that have been backed up
@@ -95,5 +95,5 @@ def startMetrics(resources, sendMetrics=False, logMetrics=True, backupMetrics=Tr
                 lastDay = today
         debug("debugMetrics", "sendMetrics", "metrics thread ended")
 
-    metricsThread = threading.Thread(target=sendMetricsThread)
+    metricsThread = LogThread(target=sendMetricsThread)
     metricsThread.start()

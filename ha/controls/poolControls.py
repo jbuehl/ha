@@ -136,9 +136,9 @@ class SpaControl(Control):
 # A thread to wait for the state of the specified sensor to reach the specified value
 # then call the specified action function with the specified action value.
 # Optionally, first wait for the state of a third function to reach a specified value.
-class SpaEventThread(threading.Thread):
+class SpaEventThread(LogThread):
     def __init__(self, name, checkFunction, checkValue, actionFunction, actionValue, waitFunction=None, waitValue=0):
-        threading.Thread.__init__(self, target=self.asyncEvent)
+        LogThread.__init__(self, target=self.asyncEvent)
         self.name = name
         self.checkFunction = checkFunction
         self.checkValue = checkValue

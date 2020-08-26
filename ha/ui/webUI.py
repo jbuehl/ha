@@ -74,7 +74,7 @@ class WebRoot(object):
         self.updateStateChangeEvent = threading.Event()
         self.updateLock = threading.Lock()
         self.stateJson = ""     # current state and type of all sensors in json format
-        updateStatesThread = threading.Thread(target=self.updateStates)
+        updateStatesThread = LogThread(target=self.updateStates)
         updateStatesThread.start()
         self.pathDict = pathDict
 

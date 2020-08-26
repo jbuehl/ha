@@ -50,10 +50,10 @@ def parseServiceData(data, addr):
 # Detect changes in resource configuration on each service
 # Remove resources on services that don't respond
 
-class RestProxy(threading.Thread):
+class RestProxy(LogThread):
     def __init__(self, name, resources, watch=[], ignore=[], event=None, cache=True):
         debug('debugRestProxy', name, "starting", name)
-        threading.Thread.__init__(self, target=self.restProxyThread)
+        LogThread.__init__(self, target=self.restProxyThread)
         self.name = name
         self.services = {}                      # cached services
         self.resources = resources              # resource cache

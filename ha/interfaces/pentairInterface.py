@@ -153,13 +153,13 @@ class PentairMsg(object):
                              self.dat.hex()+" "+\
                              self.sum.hex()
 
-class PentairMsgThread(threading.Thread):
+class PentairMsgThread(LogThread):
     """ Message handling thread.
 
     """
     def __init__(self, name, interface=None):
         """ Initialize the thread."""
-        threading.Thread.__init__(self, target=self.doMsg)
+        LogThread.__init__(self, target=self.doMsg)
         self.name = name
         self.interface = interface
 

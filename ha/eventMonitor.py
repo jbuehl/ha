@@ -83,5 +83,5 @@ def watchEvents(resources, timeout=60):
                         except KeyError:    # service is down at the start
                             serviceUpTimes[resource.name] = float("inf")
 
-    serviceWatchThread = threading.Thread(target=serviceWatch)
+    serviceWatchThread = LogThread(target=serviceWatch)
     serviceWatchThread.start()

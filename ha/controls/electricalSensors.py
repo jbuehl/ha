@@ -120,7 +120,7 @@ class EnergySensor(Sensor):
             self.energy = self.stateControl.getState(missing=0.0)
         else:
             self.energy = 0.0
-        monitorEnergy = threading.Thread(target=self.monitorEnergy)
+        monitorEnergy = LogThread(target=self.monitorEnergy)
         monitorEnergy.start()
 
     def getState(self, missing=0.0):

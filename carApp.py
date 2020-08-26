@@ -204,7 +204,7 @@ def watchWifi(button):
                 button.setFront(0)
             button.elementList[button.frontElement].render()
             time.sleep(1)
-    wifiThread = threading.Thread(target=checkWifi)
+    wifiThread = LogThread(target=checkWifi)
     wifiThread.start()
 
 # turn wifi on and off

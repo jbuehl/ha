@@ -57,7 +57,7 @@ class TplinkInterface(Interface):
                         log("tplink state exception", self.sensorAddrs[ipAddr].name, ipAddr, type(ex).__name__, str(ex))
                 time.sleep(stateInterval)
             debug("debugTplink", "tplink", "getStates terminated")
-        stateThread = threading.Thread(target=getStates)
+        stateThread = LogThread(target=getStates)
         stateThread.start()
 
     def readState(self, ipAddr):

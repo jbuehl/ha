@@ -115,7 +115,7 @@ class Sequence(Control):
         if wait:    # Run it synchronously
             runCycles()
         else:       # Run it asynchronously in a separate thread
-            self.cycleThread = threading.Thread(target=runCycles)
+            self.cycleThread = LogThread(target=runCycles)
             self.cycleThread.start()
 
     # Stop all Cycles in the list
@@ -178,7 +178,7 @@ class Schedule(Collection):
     def __init__(self, name, tasks=[]):
         Collection.__init__(self, name, resources=tasks)
         self.type = "schedule"
-        self.schedThread = threading.Thread(target=self.doSchedule)
+        self.schedThread = LogThread(target=self.doSchedule)
 
     def start(self):
         self.initControls()
