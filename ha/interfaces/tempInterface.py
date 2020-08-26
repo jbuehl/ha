@@ -36,7 +36,7 @@ class TempInterface(Interface):
                 samples += 1
                 time.sleep(self.sample)
 
-        readStatesThread = LogThread(target=readData)
+        readStatesThread = LogThread(name="readStatesThread", target=readData)
         readStatesThread.start()
 
     def read(self, addr):

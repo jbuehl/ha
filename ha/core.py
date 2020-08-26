@@ -206,7 +206,7 @@ class Collection(Resource, OrderedDict):
                     self.states[resource.name] = resource.getState()    # load the initial state
                 except Exception as ex:
                     log(self.name, "start", type(ex).__name__, str(ex))
-        pollStatesThread = LogThread(target=pollStates)
+        pollStatesThread = LogThread(name="pollStatesThread", target=pollStates)
         pollStatesThread.start()
 
     # Add a resource to this collection

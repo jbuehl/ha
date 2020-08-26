@@ -32,7 +32,7 @@ class LedInterface(Interface):
                 time.sleep(2./flickerFreq)  # wait for thread to finish
             self.interface.write(addr, value)
         elif value == 2:
-            self.thread = LogThread(target=flickerThread)
+            self.thread = LogThread(name="self.thread", target=flickerThread)
             self.running = True
             self.thread.start()    
 

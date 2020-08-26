@@ -60,7 +60,7 @@ class CarChargerControl(Control):
         self.gpioWrite(relayPin, off)
         self.gpioWrite(readyLed, on)
         self.gpioWrite(faultLed, off)
-        chargerThread = LogThread(target=self.charger)
+        chargerThread = LogThread(name="chargerThread", target=self.charger)
         chargerThread.start()
 
     def charger(self):

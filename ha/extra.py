@@ -67,7 +67,7 @@ class ControlGroup(SensorGroup, Control):
                     debug("debugControlGroup", self.name, "control:", control.name, "state:", self.groupState)
                     control.setState(self.stateList[controlIdx][self.groupState])
                 debug('debugThread', self.name, "finished")
-            self.setGroupThread = LogThread(target=setGroup)
+            self.setGroupThread = LogThread(name="setGroupThread", target=setGroup)
             self.setGroupThread.start()
             self.notify(state)
             return True

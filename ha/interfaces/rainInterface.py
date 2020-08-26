@@ -49,7 +49,7 @@ class RainInterface(Interface):
                 debug("debugRain", self.name, "samples", str(samples))
                 self.interface.write("rainSamples", samples)
                 sampleEvent.clear()
-        saveSamplesThread = LogThread(target=saveSamples)
+        saveSamplesThread = LogThread(name="saveSamplesThread", target=saveSamples)
         saveSamplesThread.start()
 
     def read(self, addr):

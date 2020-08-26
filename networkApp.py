@@ -226,11 +226,11 @@ if __name__ == "__main__":
 
     waitForDns()
     # start the thread to get vendor names
-    getVendorThread = LogThread(target=getVendors)
+    getVendorThread = LogThread(name="getVendorThread", target=getVendors)
     getVendorThread.start()
 
     # start the network data thread
-    dataThread = LogThread(target=getNetwork)
+    dataThread = LogThread(name="dataThread", target=getNetwork)
     dataThread.start()
 
     # block

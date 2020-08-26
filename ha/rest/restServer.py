@@ -70,7 +70,7 @@ class RestServer(object):
                         self.resourceTimeStamp = int(time.time())
                     lastStates = currentStates
                 debug('debugRestServer', self.name, "REST state ended")
-            stateNotifyThread = LogThread(target=stateNotify)
+            stateNotifyThread = LogThread(name="stateNotifyThread", target=stateNotify)
             stateNotifyThread.start()
 
             # start the thread to trigger the keepalive message periodically
@@ -81,7 +81,7 @@ class RestServer(object):
                     self.event.set()
                     time.sleep(restBeaconInterval)
                 debug('debugRestServer', self.name, "REST state trigger ended")
-            stateTriggerThread = LogThread(target=stateTrigger)
+            stateTriggerThread = LogThread(name="stateTriggerThread", target=stateTrigger)
             stateTriggerThread.start()
 
         # start the HTTP server

@@ -192,7 +192,7 @@ if __name__ == "__main__":
     restServer = RestServer("garage", resources, event=stateChangeEvent, label="Garage")
 
     # Start interfaces
-    doorbellThread = LogThread(target=doorbellHandler, args=(doorbell,))
+    doorbellThread = LogThread(name="doorbellThread", target=doorbellHandler, args=(doorbell,))
     doorbellThread.start()
     gpio0.start()
     gpio1.start()

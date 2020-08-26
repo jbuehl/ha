@@ -219,7 +219,7 @@ class HolidayLightControl(Control):
             self.interface.show()
             debug("debugHolidayLights", self.name, "runDisplay terminated")
         if value:
-            displayThread = LogThread(target=runDisplay)
+            displayThread = LogThread(name="displayThread", target=runDisplay)
             self.running = True
             displayThread.start()
         else:

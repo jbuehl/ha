@@ -26,7 +26,7 @@ class ModbusInterface(Interface):
                     time.sleep(1)
                 debug("debugModbus", "readStates sleeping")
                 time.sleep(60 - len(self.sensors))
-        readStateThread = LogThread(target=readStates)
+        readStateThread = LogThread(name="readStateThread", target=readStates)
         readStateThread.start()
 
     def read(self, addr):
