@@ -46,7 +46,7 @@ if __name__ == "__main__":
     if cameraVideo:
         videoThreads = []
         for camera in cameras:
-            videoThreads.append(LogThread(name=camera.name+"RecordVideoThread", target=recordVideo, args=(cameraDir, cameras[camera], today,)))
+            videoThreads.append(LogThread(name=camera+"RecordVideoThread", target=recordVideo, args=(cameraDir, cameras[camera], today,)))
             videoThreads[-1].start()
 
     # start the snapshot threads
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         snapThreads = []
         delay = 0
         for camera in cameras:
-            snapThreads.append(LogThread(name=camera.name+"SnapThread", target=snapshots, args=(cameraDir, cameras[camera], today, force, repeat, delay,)))
+            snapThreads.append(LogThread(name=camera+"SnapThread", target=snapshots, args=(cameraDir, cameras[camera], today, force, repeat, delay,)))
             snapThreads[-1].start()
             delay += 1
 
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     if cameraMotion:
         motionEventThreads = []
         for camera in cameras:
-            motionEventThreads.append(LogThread(name=camera.name+"MotionEventThread", target=motionEvents, args=(cameraDir, cameras[camera], today, force, repeat,)))
+            motionEventThreads.append(LogThread(name=camera+"MotionEventThread", target=motionEvents, args=(cameraDir, cameras[camera], today, force, repeat,)))
             motionEventThreads[-1].start()
 
     # start the event storage thread
