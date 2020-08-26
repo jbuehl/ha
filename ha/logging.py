@@ -22,15 +22,6 @@ def log(*args):
     else:
         print(timeStamp("%b %d %H:%M:%S")+" "+message)
 
-# log a data point
-def logData(name, value):
-    try:
-        if debugFileName != "":
-            with open(dataLogDir+timestamp("%Y%m%d-")+dataLogFileName+".csv", "a") as dataLogFile:
-                dataLogFile.write(timestamp("%Y %m %d %H:%M:%S")+","+name+","+value)
-    except:
-        pass
-
 # thread object that logs a stack trace if there is an uncaught exception
 class LogThread(threading.Thread):
     def __init__(self, **kwargs):
