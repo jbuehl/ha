@@ -333,7 +333,7 @@ class Task(Control):
     def __repr__(self, views=None):
         msg = str(self.control)+": "+str(self.controlState)+","+self.schedTime.__str__()
         if self.endTime:
-            msg += ","+controlName+": "+str(self.endState)+","+self.endTime.__str__()
+            msg += ","+str(self.control)+": "+str(self.endState)+","+self.endTime.__str__()
         return msg
 
     def __del__(self):
