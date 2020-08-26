@@ -89,8 +89,7 @@ def details(group=None):
                             views=views,
                             details=details,
                             link=False)
-        # print("detail", len(result))
-        return result
+    return result
 
 # iPad - 1024x768
 def ipad(location=""):

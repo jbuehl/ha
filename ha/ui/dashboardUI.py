@@ -116,7 +116,7 @@ def dashboardUI(resources, templates, views):
                             dailyNet=resources.getRes("solar.stats.netDailyEnergy"),
                             lifetimeSolar=resources.getRes("solar.inverters.stats.lifetimeEnergy"),
                             views=views)
-        return templates.get_template("dashboard.html").render(title=webPageTitle, script="",
+        result = templates.get_template("dashboard.html").render(title=webPageTitle, script="",
                             templates=templates,
                             widths=widths,
                             timeGroup=timeGroup,
@@ -128,3 +128,4 @@ def dashboardUI(resources, templates, views):
                             sprinklersGroup=sprinklersGroup,
                             powerGroup=powerGroup,
                             views=views)
+    return result

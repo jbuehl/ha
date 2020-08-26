@@ -5,7 +5,7 @@ from ha import *
 def iphoneUI(resources, templates, views):
     with resources.lock:
         widths = [[320, [60, 100, 60]], [320, [120, 72, 128]]]
-        reply = templates.get_template("iphone.html").render(script="",
+        result = templates.get_template("iphone.html").render(script="",
                             templates=templates,
                             widths=widths,
                             time=resources.getRes("theTime"),
@@ -81,4 +81,4 @@ def iphoneUI(resources, templates, views):
                                                                    "xmasTree", "xmasTreePattern", "xmasWindowLights",
                                                                    "xmasFireplaceLights", "xmasBeamLights", "xmasBackLights"]),
                             views=views)
-    return reply
+    return result

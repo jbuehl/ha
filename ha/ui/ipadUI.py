@@ -48,7 +48,7 @@ def ipadUI(location, resources, templates, views):
                     thermostatUnitSensor=resources.getRes("southThermostatUnitSensor"),
                     views=views)
             shadesGroup=["Shades", resources.getResList(["allShades", "shade1", "shade2", "shade3", "shade4"])]
-        reply = templates.get_template("ipad.html").render(script="",
+        result = templates.get_template("ipad.html").render(script="",
                             templates=templates,
                             widths=widths,
                             location=location,
@@ -72,4 +72,4 @@ def ipadUI(location, resources, templates, views):
                             sprinklersGroup=["Sprinklers", resources.getResList(["backLawnSequence", "gardenSequence", "backBedSequence",
                                                                                  "sideBedSequence", "frontLawnSequence", "frontBedSequence"])],
                             views=views)
-    return reply
+    return result

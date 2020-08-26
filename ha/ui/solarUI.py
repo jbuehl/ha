@@ -13,7 +13,7 @@ def solarUI(resources, templates, views):
                 else:
                     panel = ["lpanel", opt.location[0]+1, opt.location[1]+1]
                 optimizers.append([opt, resources.getRes(opt.name[0:-5]+"temp"), panel])
-        return templates.get_template("solar.html").render(script="",
+        result = templates.get_template("solar.html").render(script="",
                             dayOfWeek=resources.getRes("theDayOfWeek"),
                             date=resources.getRes("theDate"),
                             time=resources.getRes("theTime"),
@@ -37,3 +37,4 @@ def solarUI(resources, templates, views):
                             inverters=resources.getGroup("Inverters"),
                             optimizers=optimizers,
                             views=views)
+    return result
