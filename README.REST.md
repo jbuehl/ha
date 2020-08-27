@@ -155,21 +155,10 @@ shows the notification of state changes of resources.
 
 	   Request:     GET sprinklers.local:7378
 
-	   Response:    ["service",
-                     "resources",
+	   Response:    ["resources",
                      "states"]
 
-2. Return the attributes of the HA service on the host sprinklers.local.
-
-	   Request:     GET sprinklers.local:7378/service
-
-	   Response:    {"name": "sprinklerService",
-                     "label": "Sprinklers",
-					 "stateTimestamp": 1595529166,
-					 "resourceTimestamp": 1595529166,
-                     "seq": 666}
-
- 3. Return the list of HA resources on the host sprinklers.local.
+ 2. Return the list of HA resources on the host sprinklers.local.
 
         Request:     GET sprinklers.local:7378/resources
 
@@ -179,7 +168,7 @@ shows the notification of state changes of resources.
                                 "resources": ["gardenTemp",
                                               "gardenSprinkler"]}}
 
-4. Return the list of HA resources on the host sprinklers.local containing the expanded
+3. Return the list of HA resources on the host sprinklers.local containing the expanded
 	resource representations.
 
      Request:     GET sprinklers.local:7378/resources?expand=true
@@ -204,7 +193,7 @@ shows the notification of state changes of resources.
 						                               "group": "Sprinklers",
 						                               "label": "Garden sprinkler"}}]}}
 
-5. Return the attributes for the resource "gardenSprinkler".  Note that the attribute
+4. Return the attributes for the resource "gardenSprinkler".  Note that the attribute
        "state" is not included.
 
        Request:     GET sprinklers.local:7378/resources/gardenSprinkler
@@ -218,26 +207,26 @@ shows the notification of state changes of resources.
                                "group": "Sprinklers",
                                "label": "Garden sprinkler"}}
 
-6. Return the value of the attribute "addr" of the resource "gardenSprinkler".
+5. Return the value of the attribute "addr" of the resource "gardenSprinkler".
 
 	   Request:     GET sprinklers.local:7378/resources/gardenSprinkler/addr
 
 	   Response:    {"addr": 17}
 
-7. Return the current state of the resource "gardenSprinkler".
+6. Return the current state of the resource "gardenSprinkler".
 
        Request:     GET sprinklers.local:7378/resources/gardenSprinkler/state
 
        Response:    {"state": 0}
 
-8. Return the current states of all resources on the host sprinklers.local.
+7. Return the current states of all resources on the host sprinklers.local.
 
        Request:     GET sprinklers.local:7378/states
 
        Response:    {"states": {"gardenTemp": 28.0,
                                 "gardenSprinkler": 0}}
 
-9. Set the state of the resource "gardenSprinkler" to 1.  The request body contains
+8. Set the state of the resource "gardenSprinkler" to 1.  The request body contains
 	   the requested state.  The response body returns the resulting state.
 
        Request:     PUT sprinklers.local:7378/resources/gardenSprinkler/state
@@ -245,7 +234,7 @@ shows the notification of state changes of resources.
 
        Response:    {"state": 1}
 
-10. Unsolicited message that is broadcast periodically and whenever one of the states changes
+9. Unsolicited message that is broadcast periodically and whenever one of the states changes
 	   that shows the current states of all resources in the service sprinklerService.
 
        Message:     {"service": {"name": "sprinklerService",

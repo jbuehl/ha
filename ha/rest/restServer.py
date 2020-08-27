@@ -138,7 +138,7 @@ class RestRequestHandler(BaseHTTPRequestHandler):
             self.send_header("Content-type", "application/json")
             self.end_headers()
 #            self.wfile.write(json.dumps({"resources": self.server.resources.name}))
-            self.wfile.write(bytes(json.dumps([self.server.resources.name]), "utf-8"))
+            self.wfile.write(bytes(json.dumps(["resources", "states"]), "utf-8"))
         else:                   # find the specified resource or attribute
             (resource, attr, query) = self.getResFromPath(self.server.resources, urllib.parse.unquote(self.path).lstrip("/").rstrip("/"))
             debug('debugRestGet', "resource:", resource, "attr:", attr, "query:", query)
