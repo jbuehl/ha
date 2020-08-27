@@ -26,7 +26,7 @@ If multiple HA services are running on the same host they must use different por
 
 The message contains a service REST resource and optionally a resources REST resource and states REST resource.
 If the message only contains a service REST resource, the message serves to notify clients that the server is
-still active and there haven't been any resource or state changes since the last message.  The timestamp will be the
+still active and there haven't been any resource or state changes since the last message.  The timestamps will be the
 same as the previous message and the sequence number will be incremented by 1.
 
 A client will create local resources that serve as proxies for the resources on a server.  The states of the resources
@@ -34,15 +34,15 @@ are cached in the client and updated when the states of the server resources cha
 for a service that it hasn't previously seen, it creates a set of proxy resources for the service.
 
 If the state of a resource changes on a server, the next message will include a states REST resource that contains
-the current states of all resources on the server and an updated timestamp.  The client should update it's state cache
+the current states of all resources on the server and an updated resource timestamp.  The client should update it's state cache
 for that service with the new values.
 
 If the configuration of the HA resources on a service changes, the next message will include both a resources REST resource,
-a states REST resource, and an updated timestamp.  The client will delete and recreate the proxied HA resources for
+a states REST resource, and an updated state timestamp.  The client will delete and recreate the proxied HA resources for
 that service, and update their states.
 
 If a client receives a message from an active server that contains a changed timestamp but no resources or states REST resources,
-it will request those resources from the service and update its cache.
+it will request either the resources or the states from the service and update its cache.
 
 ### Verbs
 The HTTP following verbs are implemented by restServer.py:
@@ -77,12 +77,13 @@ The /service/ resource contains attributes of the HA service.
 			 "hostname": <host name>,
 			 "port": <port>,
 			 "label": <service display name>,
-			 "timestamp": <last update time of the resource states>,
+			 "stateTimestamp": <last update time of the resource states>,
+			 "resourceTimestamp": <last update time of the resources and attributes>,
 			 "seq": <sequence number of the message>}
 ```
 The /resources/ REST resource contains a JSON representation of the HA resource that
 the service is exposing.  It may be a single HA Resource but typically this is a
-HA Collection resource that contains a list of HA resources.
+HA Collection resource that contains a list of HA resource names.
 ```
 "resources":{"class": "Collection",
 			 "attrs": {"name": <resource collection name>,
@@ -91,6 +92,17 @@ HA Collection resource that contains a list of HA resources.
 			                         <resource 1 name>,
 			                         ...,
 			                         <resource N name>]}}
+```
+The /resources/ REST resource may optionally contain the expanded JSON representations of all the
+resources rather than just a list of HA resource names.
+```
+"resources":{"class": "Collection",
+			 "attrs": {"name": <resource collection name>,
+			           "type": "collection",
+			           "resources": [<resource 0>,
+			                         <resource 1>,
+			                         ...,
+			                         <resource N>]}}
 ```
 
 The /states/ resource contains a list of all the names and current states of the HA Sensor
@@ -153,20 +165,46 @@ shows the notification of state changes of resources.
 
 	   Response:    {"name": "sprinklerService",
                      "label": "Sprinklers",
-                     "timestamp": 1595529166,
+					 "stateTimestamp": 1595529166,
+					 "resourceTimestamp": 1595529166,
                      "seq": 666}
 
-3. Return the list of HA resources on the host sprinklers.local.
+ 3. Return the list of HA resources on the host sprinklers.local.
 
-       Request:     GET sprinklers.local:7378/resources
+        Request:     GET sprinklers.local:7378/resources
 
-       Response:    {"class": "Collection",
-                     "attrs": {"name": "resources",
-                               "type": "collection",
-                               "resources": ["gardenTemp",
-                                             "gardenSprinkler"]}}
+        Response:    {"class": "Collection",
+                      "attrs": {"name": "resources",
+                                "type": "collection",
+                                "resources": ["gardenTemp",
+                                              "gardenSprinkler"]}}
 
-4. Return the attributes for the resource "gardenSprinkler".  Note that the attribute
+4. Return the list of HA resources on the host sprinklers.local containing the expanded
+	resource representations.
+
+     Request:     GET sprinklers.local:7378/resources?expand=true
+
+     Response:    {"class": "Collection",
+                   "attrs": {"name": "resources",
+                             "type": "collection",
+                             "resources": [{"class": "Sensor",
+					                       "attrs": {"name": "gardenTemp",
+					                                 "interface": "tempInterface"
+					                                 "addr": 1,
+					                                 "location": null,
+					                                 "type": "tempC",
+					                                 "group": "Sprinklers",
+					                                 "label": "Garden temperature"}},
+											 {"class": "Control",
+						                     "attrs": {"name": "gardenSprinkler",
+						                               "interface": "sprinklerInterface"
+						                               "addr": 17,
+						                               "location": null,
+						                               "type": "sprinkler",
+						                               "group": "Sprinklers",
+						                               "label": "Garden sprinkler"}}]}}
+
+5. Return the attributes for the resource "gardenSprinkler".  Note that the attribute
        "state" is not included.
 
        Request:     GET sprinklers.local:7378/resources/gardenSprinkler
@@ -180,26 +218,26 @@ shows the notification of state changes of resources.
                                "group": "Sprinklers",
                                "label": "Garden sprinkler"}}
 
-5. Return the value of the attribute "addr" of the resource "gardenSprinkler".
+6. Return the value of the attribute "addr" of the resource "gardenSprinkler".
 
 	   Request:     GET sprinklers.local:7378/resources/gardenSprinkler/addr
 
 	   Response:    {"addr": 17}
 
-6. Return the current state of the resource "gardenSprinkler".
+7. Return the current state of the resource "gardenSprinkler".
 
        Request:     GET sprinklers.local:7378/resources/gardenSprinkler/state
 
        Response:    {"state": 0}
 
-7. Return the current states of all resources on the host sprinklers.local.
+8. Return the current states of all resources on the host sprinklers.local.
 
        Request:     GET sprinklers.local:7378/states
 
        Response:    {"states": {"gardenTemp": 28.0,
                                 "gardenSprinkler": 0}}
 
-8. Set the state of the resource "gardenSprinkler" to 1.  The request body contains
+9. Set the state of the resource "gardenSprinkler" to 1.  The request body contains
 	   the requested state.  The response body returns the resulting state.
 
        Request:     PUT sprinklers.local:7378/resources/gardenSprinkler/state
@@ -207,12 +245,13 @@ shows the notification of state changes of resources.
 
        Response:    {"state": 1}
 
-9. Unsolicited message that is broadcast periodically and whenever one of the states changes
+10. Unsolicited message that is broadcast periodically and whenever one of the states changes
 	   that shows the current states of all resources in the service sprinklerService.
 
        Message:     {"service": {"name": "sprinklerService",
                                  "label": "Sprinklers",
-                                 "timestamp": 1595529456,
+								 "stateTimestamp": 1595529456,
+								 "resourceTimestamp": 1595529456,
                                  "seq": 667},
                      "states": {"gardenTemp": 28.0,
                                 "gardenSprinkler": 0}}
